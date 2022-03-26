@@ -1,20 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public static class uiHelper
 {
     public static Canvas canvas = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<Canvas>();
-    public static void drawTextOverObject(GameObject text, Vector3 dest)
+    public static void drawTextOverObject(TextMeshProUGUI text, Vector3 dest)
     {
         Vector3 screenSize = new Vector3(Screen.width, Screen.height, 0);
         Vector3 screenPos = Camera.main.WorldToScreenPoint(dest) - (screenSize / 2f);
         
         screenPos /= canvas.scaleFactor;
-        text.GetComponent<RectTransform>().anchoredPosition = screenPos;
+        text.rectTransform.anchoredPosition = screenPos;
 
-        if (screenPos.z < 0) text.SetActive(false);
-        else if (!text.activeSelf) text.SetActive(true);
+        if (screenPos.z < 0) text.enableAutoSizing = false;
+        else if (!text.enabled) text.enabled = true;
     }
 
     public static Vector3 vRotate(float pitch, float roll, float yaw, Vector3 pos)

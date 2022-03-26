@@ -16,7 +16,7 @@ public class planetRepresentation : MonoBehaviour
     private planetType pType;
     private GameObject canvas;
     private GameObject planetParent;
-    private MeshRenderer mr;
+    private MeshRenderer mrSelf;
     public Collider hitbox;
 
     private representationData data;
@@ -30,7 +30,7 @@ public class planetRepresentation : MonoBehaviour
         this.data = data;
         this.pType = pType;
         this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
-        this.mr = this.GetComponent<MeshRenderer>();
+        this.mrSelf = this.GetComponent<MeshRenderer>();
         this.hitbox = this.GetComponent<Collider>();
         
         this.shownName = Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
@@ -66,7 +66,7 @@ public class planetRepresentation : MonoBehaviour
         if (planetOverview.usePlanetOverview && pType == planetType.moon)
         {
             endDisable = false;
-            shownName.gameObject.SetActive(false);
+            shownName.enabled = false;
             return;
         }
 
@@ -94,12 +94,12 @@ public class planetRepresentation : MonoBehaviour
         // rotations of its parent
         Vector3 rot = planetParent.transform.rotation.eulerAngles * Mathf.Deg2Rad;
         Vector3 rotatedPoint = uiHelper.vRotate(rot.y, rot.x, rot.z, p);
-        uiHelper.drawTextOverObject(shownName.gameObject, rotatedPoint);
+        uiHelper.drawTextOverObject(shownName, rotatedPoint);
 
         if (forceDisable && gameObject.activeSelf) gameObject.SetActive(false);
         else if (!forceDisable && gameObject.activeSelf != endDisable) gameObject.SetActive(endDisable);
-        if (forceHide && mr.enabled) mr.enabled = false;
-        else if (!forceHide && !mr.enabled) mr.enabled = true;
+        if (forceHide && mrSelf.enabled) mrSelf.enabled = false;
+        else if (!forceHide && !mrSelf.enabled) mrSelf.enabled = true;
     }
     public Vector3 rotate(position p)
     {

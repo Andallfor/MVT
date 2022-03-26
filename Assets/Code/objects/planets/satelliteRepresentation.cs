@@ -11,8 +11,7 @@ public class satelliteRepresentation : MonoBehaviour
     private TextMeshProUGUI shownName;
     private representationData data;
     public static readonly float minScale = 0.05f;
-
-    public bool setRefFrame = false;
+    private MeshRenderer mrSelf;
 
     public void init(string name, representationData data)
     {
@@ -24,6 +23,8 @@ public class satelliteRepresentation : MonoBehaviour
         shownName.gameObject.transform.SetParent(this.canvas.transform, false);
         shownName.fontSize = 20;
         shownName.text = name;
+
+        mrSelf = this.GetComponent<MeshRenderer>();
     }
 
     public static satelliteRepresentation createSatellite(string name, representationData data)
@@ -40,8 +41,8 @@ public class satelliteRepresentation : MonoBehaviour
     {
         if (planetOverview.usePlanetOverview)
         {
-            gameObject.SetActive(false);
-            shownName.gameObject.SetActive(false);
+            mrSelf.enabled = false;
+            shownName.enabled = false;
             return;
         }
 
@@ -50,7 +51,7 @@ public class satelliteRepresentation : MonoBehaviour
             (float) (pos.y / master.scale),
             (float) (pos.z / master.scale));
 
-        if (Vector3.Distance(p, Vector3.zero) > 1000f) gameObject.SetActive(false);
+        if (Vector3.Distance(p, Vector3.zero) > 1000f) mrSelf.enabled = false;
         else
         {
             if (!gameObject.activeSelf) gameObject.SetActive(true);
@@ -65,12 +66,12 @@ public class satelliteRepresentation : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(Camera.main.transform.position, p - Camera.main.transform.position, out hit, Vector3.Distance(p, Camera.main.transform.position), 1 << 6))
         {
-            shownName.gameObject.SetActive(false);
+            shownName.enabled = false;
         }
         else
         {
-            shownName.gameObject.SetActive(true);
-            uiHelper.drawTextOverObject(shownName.gameObject, p);
+            shownName.enabled = true;
+            uiHelper.drawTextOverObject(shownName, p);
         }
     }
 
@@ -79,13 +80,5 @@ public class satelliteRepresentation : MonoBehaviour
         return new jsonSatelliteRepresentationStruct() {
             modelPath = data.modelPath,
             materialPath = data.materialPath};
-    }
-
-    public void OnValidate()
-    {
-        setRefFrame = false;
-        // TEMP REMOVE/REWRITE
-        if (master.allSatellites.Count == 0) return;
-        master.setReferenceFrame(master.allSatellites.First(x => x.name == gameObject.name));
     }
 }

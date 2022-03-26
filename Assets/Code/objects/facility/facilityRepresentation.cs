@@ -56,14 +56,14 @@ public class facilityRepresentation : MonoBehaviour
         this.gameObject.transform.localPosition = (Vector3) (p.swapAxis());
 
         RaycastHit hit;
-        if (Physics.Raycast(Camera.main.transform.position, this.gameObject.transform.position - Camera.main.transform.position, out hit, Vector3.Distance(this.gameObject.transform.position, Camera.main.transform.position), 1 << 6))
+        if (Physics.Raycast(general.camera.transform.position, this.gameObject.transform.position - general.camera.transform.position, out hit, Vector3.Distance(this.gameObject.transform.position, general.camera.transform.position), 1 << 6))
         {
             shownName.gameObject.SetActive(false);
         }
         else
         {
             shownName.gameObject.SetActive(true);
-            uiHelper.drawTextOverObject(shownName.gameObject, this.gameObject.transform.position);
+            uiHelper.drawTextOverObject(shownName, this.gameObject.transform.position);
         }
     }
 
