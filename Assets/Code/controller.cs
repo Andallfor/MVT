@@ -84,7 +84,7 @@ public class controller : MonoBehaviour
                 master.time.addJulianTime(speed);
             }
 
-            pt.updateTerrain();
+            //pt.updateTerrain();
 
             if (!planetOverview.usePlanetOverview) master.requestSchedulingUpdate();
             master.currentTick = tick;
