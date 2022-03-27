@@ -12,10 +12,12 @@ public class satelliteRepresentation : MonoBehaviour
     private representationData data;
     public static readonly float minScale = 0.05f;
     private MeshRenderer mrSelf;
+    private string shownNameText;
 
     public void init(string name, representationData data)
     {
         this.gameObject.name = name;
+        this.shownNameText = name;
         this.data = data;
         this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
 
@@ -42,7 +44,7 @@ public class satelliteRepresentation : MonoBehaviour
         if (planetOverview.usePlanetOverview)
         {
             mrSelf.enabled = false;
-            shownName.enabled = false;
+            shownName.text = "";
             return;
         }
 
@@ -66,11 +68,11 @@ public class satelliteRepresentation : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(Camera.main.transform.position, p - Camera.main.transform.position, out hit, Vector3.Distance(p, Camera.main.transform.position), 1 << 6))
         {
-            shownName.enabled = false;
+            shownName.text = "";
         }
         else
         {
-            shownName.enabled = true;
+            shownName.text = shownNameText;
             uiHelper.drawTextOverObject(shownName, p);
         }
     }

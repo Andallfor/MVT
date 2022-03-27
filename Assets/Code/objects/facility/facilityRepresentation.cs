@@ -10,12 +10,14 @@ public class facilityRepresentation : MonoBehaviour
     private geographic geo;
     private TextMeshProUGUI shownName;
     private LineRenderer lr;
+    private string shownNameText;
 
     public double lat, lon;
 
     public void init(string name, geographic geo, GameObject parent, representationData data)
     {
         this.gameObject.name = name;
+        this.shownNameText = name;
         this.parent = parent;
         this.geo = geo;
         this.data = data;
@@ -49,7 +51,7 @@ public class facilityRepresentation : MonoBehaviour
         if (planetOverview.usePlanetOverview)
         {
             gameObject.SetActive(false);
-            shownName.gameObject.SetActive(false);
+            shownName.text = "";
             return;
         }
 
@@ -61,11 +63,11 @@ public class facilityRepresentation : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(general.camera.transform.position, this.gameObject.transform.position - general.camera.transform.position, out hit, Vector3.Distance(this.gameObject.transform.position, general.camera.transform.position), 1 << 6))
         {
-            shownName.gameObject.SetActive(false);
+            shownName.text = "";
         }
         else
         {
-            shownName.gameObject.SetActive(true);
+            shownName.text = shownNameText;
             uiHelper.drawTextOverObject(shownName, this.gameObject.transform.position);
         }
     }

@@ -18,6 +18,7 @@ public class planetRepresentation : MonoBehaviour
     private GameObject planetParent;
     private MeshRenderer mrSelf;
     public Collider hitbox;
+    private string shownNameText;
 
     private representationData data;
     public bool forceHide = false, forceDisable = false;
@@ -26,6 +27,7 @@ public class planetRepresentation : MonoBehaviour
     public void init(string name, double radius, planetType pType, representationData data)
     {
         this.gameObject.name = name;
+        this.shownNameText = name;
         this.setRadius(radius);
         this.data = data;
         this.pType = pType;
@@ -66,7 +68,7 @@ public class planetRepresentation : MonoBehaviour
         if (planetOverview.usePlanetOverview && pType == planetType.moon)
         {
             endDisable = false;
-            shownName.enabled = false;
+            shownName.text = "";
             return;
         }
 

@@ -23,6 +23,8 @@ public class uiTimeController : MonoBehaviour
 
     void Update()
     {
+        float totalTimeChange = 0;
+
         gregorian.text = master.time.date.ToString("M/d/yy HH':'mm 'UTC'");
         julian.text = Math.Round(master.time.julian, 3).ToString();
 
@@ -37,8 +39,7 @@ public class uiTimeController : MonoBehaviour
                 float xDiff = lastMousePosition.x - Input.mousePosition.x;
                 if (xDiff != 0)
                 {
-                    master.time.addJulianTime(2f * xDiff / Screen.width);
-
+                    totalTimeChange += 2f * xDiff / Screen.width;
                     acceleration += 2f * xDiff / Screen.width;
                 } else acceleration = 0;
             }
@@ -47,9 +48,12 @@ public class uiTimeController : MonoBehaviour
         float loss = acceleration - (acceleration * 0.1f);
         acceleration -= loss * UnityEngine.Time.deltaTime;
         if (Mathf.Abs(acceleration) < (0.5f / Screen.width)) acceleration = 0;
-        if (acceleration != 0) master.time.addJulianTime(acceleration / 100f);
+        if (acceleration != 0) totalTimeChange += acceleration / 100f;
 
         lastMousePosition = Input.mousePosition;
+
+        master.tickStart(new Time(master.time.julian + totalTimeChange));
+        master.time.addJulianTime(totalTimeChange);
     }
 
     private void onPauseChange(object sender, EventArgs args)
