@@ -14,7 +14,7 @@ public static class uiHelper
         screenPos /= canvas.scaleFactor;
         text.rectTransform.anchoredPosition = screenPos;
 
-        if (screenPos.z < 0) text.enableAutoSizing = false;
+        if (screenPos.z < 0) text.enabled = false;
         else if (!text.enabled) text.enabled = true;
     }
 

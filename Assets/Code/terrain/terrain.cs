@@ -186,7 +186,7 @@ public class planetTerrain
     public void unloadTerrain()
     {
         parent.representation.forceHide = false;
-        master.requestPositionUpdate();
+        parent.representation.setPosition(parent.pos - master.currentPosition - master.referenceFrame);
         foreach (planetTerrainMesh ptm in existingMeshes.Values) ptm.clearMesh();
 
         existingMeshes = new Dictionary<planetTerrainFile, planetTerrainMesh>();

@@ -9,6 +9,7 @@ public class facilityRepresentation : MonoBehaviour
     private representationData data;
     private geographic geo;
     private TextMeshProUGUI shownName;
+    private LineRenderer lr;
 
     public double lat, lon;
 
@@ -23,6 +24,8 @@ public class facilityRepresentation : MonoBehaviour
         this.gameObject.transform.localScale = new Vector3(r, r, r);
 
         GameObject canvas = GameObject.FindGameObjectWithTag("ui/canvas");
+        lr = this.GetComponent<LineRenderer>();
+        lr.positionCount = 2;
 
         this.shownName = Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(canvas.transform, false);
@@ -70,7 +73,7 @@ public class facilityRepresentation : MonoBehaviour
     public void drawSchedulingConnections(List<scheduling> ss)
     {
         // can optimize this, instead of looping through maybe use events
-        List<Vector3> linePositions = new List<Vector3>();
+        Vector3[] linePositions = new Vector3[2];
         foreach (scheduling s in ss)
         {
             // check each satellite this station will connect to
@@ -79,17 +82,14 @@ public class facilityRepresentation : MonoBehaviour
                 // check if that satellite should be currently connected
                 if (st.between(master.time.julian))
                 {
-                    linePositions.Add(this.gameObject.transform.position);
-                    linePositions.Add(s.connectingTo.representation.gameObject.transform.position);
+                    linePositions[0] = (this.gameObject.transform.position);
+                    linePositions[1] = (s.connectingTo.representation.gameObject.transform.position);
                     break;
                 }
             }
         }
 
-        LineRenderer lr = this.GetComponent<LineRenderer>();
-        lr.positionCount = 0;
-        lr.positionCount = linePositions.Count;
-        lr.SetPositions(linePositions.ToArray());
+        lr.SetPositions(linePositions);
     }
 
     public jsonFacilityRepresentationStruct requestJsonFile()
