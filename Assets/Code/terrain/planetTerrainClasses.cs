@@ -51,7 +51,8 @@ public class planetTerrainMesh
 
     public void drawMesh()
     {
-        if (verts.All(v => v != NODATA_vector))
+        // disabling all bc this takes a *very* long time compared to everything else- ~90% of this functions total cost
+        //if (verts.All(v => v != NODATA_vector))
         {
             mesh = new Mesh();
             //mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;

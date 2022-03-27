@@ -4,6 +4,7 @@ using UnityEngine;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 // theres a lot of variation between for and foreach loops in this code, its bc im still wavering on which one i want to use
 
@@ -150,8 +151,8 @@ public class planetTerrain
             }
 
             // generate meshes
+            ConcurrentDictionary<planetTerrainFile, planetTerrainMesh> emCopy = new ConcurrentDictionary<planetTerrainFile, planetTerrainMesh>();
             List<Task> toDraw = new List<Task>();
-            List<planetTerrainMesh> ptms = new List<planetTerrainMesh>();
             int desiredCount = desiredMeshes.Count;
             for (int i = 0; i < desiredCount; i++)
             {
@@ -160,23 +161,29 @@ public class planetTerrain
                 planetTerrainFile ptf = new planetTerrainFile(Path.Combine(
                     p.folderPath,
                     terrainProcessor.fileName(desiredMeshes[i], p.increment)), p);
-                
-                existingMeshes[ptf] = new planetTerrainMesh(ptf, p, this);
-                Task t = new Task(() => {ptf.generate(existingMeshes[ptf]);});
+
+                // thread the generation of ptm because it requires a large amount of mem allocation, assign it afterwards
+                Task t = new Task(() => {
+                    planetTerrainMesh ptm = new planetTerrainMesh(ptf, p, this);
+                    ptf.generate(ptm);
+
+                    emCopy.TryAdd(ptf, ptm);
+                });
                 toDraw.Add(t);
-                ptms.Add(existingMeshes[ptf]);
                 t.Start();
             }
-            //System.Diagnostics.Stopwatch st = new System.Diagnostics.Stopwatch();
-            //st.Start();
             await Task.WhenAll(toDraw);
-            //Debug.Log(st.ElapsedMilliseconds);
-            foreach (planetTerrainMesh ptm in ptms)
+
+            // dont generate all meshes at once, generate them one a time (to prevent freezing)
+            // cannot thread mesh generation so this seems to be the best option
+            foreach (planetTerrainMesh ptm in emCopy.Values)
             {
                 ptm.drawMesh();
+                await Task.Delay(10);
             }
-            //Debug.Log(st.ElapsedMilliseconds);
-            //st.Stop();
+
+            // copy emCopy over to existingMeshes
+            foreach (KeyValuePair<planetTerrainFile, planetTerrainMesh> kvp in emCopy) existingMeshes[kvp.Key] = kvp.Value;
 
             if (existingMeshes.Count > 0) parent.representation.forceHide = true;
             else parent.representation.forceHide = false;

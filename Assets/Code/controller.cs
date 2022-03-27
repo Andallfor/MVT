@@ -14,6 +14,11 @@ public class controller : MonoBehaviour
     public static planet earth;
     private double speed = 0.00005;
 
+    void Awake() {
+        // eventually i want to be able to enable this- the only thing currently preventing this is Physics.raycast
+        //Physics.autoSimulation = false;
+    }
+
     void Start()
     {
         master.sun = new planet("Sun", new planetData(695700, false, "CSVS/NEW/PLANETS/Sol", 0.0416666665, planetType.planet), 
@@ -79,7 +84,7 @@ public class controller : MonoBehaviour
                 master.time.addJulianTime(speed);
             }
 
-            //pt.updateTerrain();
+            pt.updateTerrain();
 
             if (!planetOverview.usePlanetOverview) master.requestSchedulingUpdate();
             master.currentTick = tick;
