@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using System;
 
 // theres a lot of variation between for and foreach loops in this code, its bc im still wavering on which one i want to use
 
@@ -76,10 +77,9 @@ public class planetTerrain
         finishedRunning = true;
     }
 
-    readonly float moveThreshold = 1f, rotateThreshold = 5;
+    readonly float moveThreshold = 1f, rotateThreshold = 3000;
     readonly int tickThreshold = 60; // terrain can only update every x ticks
-    position lastPlayerPos;
-    double lastRotation;
+    position lastPlayerPos, lastRotation;
     int lastTick = -1000;
     bool finishedRunning = true;
     // TODO: if the time step is too great, unload terrain and use sphere instead- we dont want to be constantly loading and unloading terrain
@@ -87,22 +87,20 @@ public class planetTerrain
     {
         double distToPlanet = Vector3.Distance(general.camera.transform.position, this.parent.representation.transform.position);
         float planetZ = general.camera.WorldToScreenPoint(this.parent.representation.transform.position).z;
-        //Debug.Log(Physics.Linecast(general.camera.transform.position, this.parent.representation.transform.position));
 
         if (distToPlanet > 35) {unloadTerrain(); return;}
         if (planetOverview.usePlanetOverview) {unloadTerrain(); return;}
-        //if (general.camera.WorldToScreenPoint(parent.representation.transform.position).z < 0) {unloadTerrain(); return;}
-        // bug with terrain generating in wrong places is because we dont account for the earth changing position when we parent the mesh to earth
+        
+        bool move = position.distance(master.currentPosition, lastPlayerPos) > moveThreshold;
+        bool tick = master.currentTick - lastTick > tickThreshold;
+        position g = parent.geoOnPlanet(geographic.toGeographic(master.currentPosition - parent.pos, parent.radius), 0);
+        bool rot = position.distance(g, lastRotation) > rotateThreshold;
 
-        if (((position.distance(master.currentPosition, lastPlayerPos) > moveThreshold ||
-            parent.representation.gameObject.transform.eulerAngles.y - lastRotation > rotateThreshold) &&
-            master.currentTick - lastTick > tickThreshold) || 
-            force)
+        // force bypasses all conditions
+        // tick is necessary for basic conditions
+        // move and rot are basic conditions
+        if (((move || rot) && tick) || force)
         {
-            lastPlayerPos = master.currentPosition;
-            lastRotation = parent.representation.gameObject.transform.eulerAngles.y;
-            lastTick = master.currentTick;
-
             planetTerrainFolderInfo p = sortedResolutions[0];
 
             List<geographic> desiredMeshes = new List<geographic>();
@@ -136,6 +134,9 @@ public class planetTerrain
                 }
             }
 
+            // if we dont want to generate anything, quit
+            if (desiredMeshes.Count == 0) return;
+
             // get rid of all ptfs that are no longer seen
             int existingMeshesCount = existingMeshes.Count;
             List<planetTerrainFile> existingCopy = existingMeshes.Keys.ToList();
@@ -149,6 +150,9 @@ public class planetTerrain
                 }
                 else toIgnore.Add(existingCopy[i].geoPosition); // these meshes have already been generated so dont regen them
             }
+
+            // if we arent going to make any changes, return
+            if (toIgnore.Count == desiredMeshes.Count) return;
 
             // generate meshes
             ConcurrentDictionary<planetTerrainFile, planetTerrainMesh> emCopy = new ConcurrentDictionary<planetTerrainFile, planetTerrainMesh>();
@@ -179,11 +183,15 @@ public class planetTerrain
             foreach (planetTerrainMesh ptm in emCopy.Values)
             {
                 ptm.drawMesh();
-                await Task.Delay(10);
+                await Task.Delay(5); // TODO: maybe replace with value that is determined by how fast the terrain gens?
             }
 
             // copy emCopy over to existingMeshes
             foreach (KeyValuePair<planetTerrainFile, planetTerrainMesh> kvp in emCopy) existingMeshes[kvp.Key] = kvp.Value;
+
+            lastPlayerPos = master.currentPosition;
+            lastRotation = g;
+            lastTick = master.currentTick;
 
             if (existingMeshes.Count > 0) parent.representation.forceHide = true;
             else parent.representation.forceHide = false;
