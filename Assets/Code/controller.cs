@@ -13,6 +13,7 @@ public class controller : MonoBehaviour
     public float playerSpeed = 100f * (float) master.scale;
     public static planet earth;
     private double speed = 0.00005;
+    private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
 
     void Awake() {
         // eventually i want to be able to enable this- the only thing currently preventing this is Physics.raycast
@@ -119,8 +120,43 @@ public class controller : MonoBehaviour
 
     public void Update()
     {
-        if (!planetOverview.usePlanetOverview)
+        if (planetOverview.usePlanetOverview)
         {
+            if (Input.GetKey("d")) planetOverview.rotationalOffset -= 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
+            if (Input.GetKey("a")) planetOverview.rotationalOffset += 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
+
+            planetOverview.updateAxes();
+        } else if (planetFocus.usePlanetFocus) {
+            if (Input.GetMouseButtonDown(0)) planetFocusMousePosition = Input.mousePosition;
+            else if (Input.GetMouseButton(0)) {
+                Vector3 difference = Input.mousePosition - planetFocusMousePosition;
+                planetFocusMousePosition = Input.mousePosition;
+
+                Vector2 adjustedDifference = new Vector2(-difference.y / Screen.height, difference.x / Screen.width);
+                adjustedDifference *= 100f;
+                
+                planetFocus.rotation.x = adjustedDifference.x;
+                planetFocus.rotation.y = adjustedDifference.y;
+                planetFocus.rotation.z = 0;
+            }
+
+            if (Input.GetMouseButtonDown(1)) planetFocusMousePosition1 = Input.mousePosition;
+            if (Input.GetMouseButton(1)) {
+                Vector3 difference = Input.mousePosition - planetFocusMousePosition1;
+                planetFocusMousePosition1 = Input.mousePosition;
+
+                float adjustedDifference = (difference.x / Screen.width) * 100;
+                planetFocus.rotation.x = 0;
+                planetFocus.rotation.y = 0;
+                planetFocus.rotation.z = adjustedDifference;
+            }
+
+            if (Input.mouseScrollDelta.y != 0) {
+                general.camera.fieldOfView -= Input.mouseScrollDelta.y * UnityEngine.Time.deltaTime * 500f;
+            }
+
+            planetFocus.update();
+        } else {
             if (Input.GetMouseButton(1) && !EventSystem.current.IsPointerOverGameObject())
             {
                 Transform c = Camera.main.transform;
@@ -137,18 +173,17 @@ public class controller : MonoBehaviour
             if (Input.GetKey("d")) master.currentPosition += right * playerSpeed * t;
             if (Input.GetKey("a")) master.currentPosition -= right * playerSpeed * t;
         }
-        else // planet overview controls
-        {
-            if (Input.GetKey("d")) planetOverview.rotationalOffset -= 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
-            if (Input.GetKey("a")) planetOverview.rotationalOffset += 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
-
-            planetOverview.updateAxes();
-        }
 
         if (Input.GetKeyDown("q"))
         {
             master.requestScaleUpdate();
             planetOverview.enable(!planetOverview.usePlanetOverview);
+            master.clearAllLines();
+        }
+
+        if (Input.GetKeyDown("e")) {
+            master.requestScaleUpdate();
+            planetFocus.enable(!planetFocus.usePlanetFocus);
             master.clearAllLines();
         }
 

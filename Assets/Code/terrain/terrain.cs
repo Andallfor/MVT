@@ -77,9 +77,10 @@ public class planetTerrain
         finishedRunning = true;
     }
 
-    readonly float moveThreshold = 1f, rotateThreshold = 3000;
+    readonly float moveThreshold = 1f, rotateThreshold = 3000, fRotateThreshold = 0.01f;
     readonly int tickThreshold = 60; // terrain can only update every x ticks
     position lastPlayerPos, lastRotation;
+    Vector2 lastFRot;
     int lastTick = -1000;
     bool finishedRunning = true;
     // TODO: if the time step is too great, unload terrain and use sphere instead- we dont want to be constantly loading and unloading terrain
@@ -95,11 +96,12 @@ public class planetTerrain
         bool tick = master.currentTick - lastTick > tickThreshold;
         position g = parent.geoOnPlanet(geographic.toGeographic(master.currentPosition - parent.pos, parent.radius), 0);
         bool rot = position.distance(g, lastRotation) > rotateThreshold;
+        bool fRot = Vector2.Distance(lastFRot, planetFocus.rotation) > fRotateThreshold;
 
         // force bypasses all conditions
         // tick is necessary for basic conditions
         // move and rot are basic conditions
-        if (((move || rot) && tick) || force)
+        if (((move || rot || fRot) && tick) || force)
         {
             planetTerrainFolderInfo p = sortedResolutions[0];
 

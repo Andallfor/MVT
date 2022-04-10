@@ -304,3 +304,31 @@ public enum cardinalDirections
 {
     north, east, south, west
 }
+
+public class highPrecisionTerrain
+{
+    public double size = 5; // can have only one decimal place at most
+    public const double cellsize = 0.004166666667;
+    public geographic center;
+
+    public double width;
+    public highPrecisionTerrain(double size)
+    {
+        this.size = size;
+        width = Math.Round(size / cellsize);       
+    }
+
+    public void addPoint(geographic g, double h)
+    {
+        // not using dist form here since we want a square and not a circle -> easier to display
+        if (Math.Abs(g.lon - center.lon) <= size && Math.Abs(g.lat - center.lat) <= size)
+        {
+
+        }
+    }
+}
+
+public class highPrecisionTerrainMesh
+{
+    
+}

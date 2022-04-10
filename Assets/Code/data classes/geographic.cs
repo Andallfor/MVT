@@ -44,6 +44,19 @@ public struct geographic
             Math.Atan2(p.z, p.x) * (180.0 / Math.PI));
     }
 
+    public double distanceKm(geographic g, double radius) {
+        double lt1 = this.lat * (Math.PI / 180.0);
+        double ln1 = this.lon * (Math.PI / 180.0);
+        double lt2 = g.lat * (Math.PI / 180.0);
+        double ln2 = g.lon * (Math.PI / 180.0);
+
+        // haversine formula
+        return 2.0 * radius * Math.Asin(Math.Sqrt(
+            (Math.Sin((lt2 - lt1) / 2.0) * Math.Sin((lt2 - lt1) / 2.0)) +
+            Math.Cos(lt1) * Math.Cos(lt2) * 
+            (Math.Sin((ln2 - ln1) / 2.0) * Math.Sin((ln2 - ln1) / 2.0))));
+    }
+
     public jsonGeographicStruct requestJsonFile()
     {
         return new jsonGeographicStruct() {
