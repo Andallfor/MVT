@@ -68,6 +68,8 @@ public class controller : MonoBehaviour
 
         //GameObject gg = Instantiate(Resources.Load("Prefabs/Default") as GameObject);
 
+        //dtedReader.read("C:/Users/leozw/Desktop/n35_w117_1arc_v3.dt2");
+
         master.pause = true;
         general.camera = Camera.main;
 
