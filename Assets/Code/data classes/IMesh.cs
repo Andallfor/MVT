@@ -1,0 +1,68 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class IMesh
+{
+    protected List<int> triangles = new List<int>();
+    protected List<Vector2> uvs = new List<Vector2>();
+    protected Vector3[] verts;
+    protected Mesh mesh;
+    protected Vector2Int shape;
+    protected GameObject go;
+
+    public void init(int cols, int rows, position initalPosition, position mapSize) {
+        shape = new Vector2Int(cols, rows);
+        this.verts = new Vector3[cols * rows];
+
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < cols; x++) {
+                if (x != cols - 1 && y != rows - 1) {
+                    triangles.Add(toIndex(x, y));
+                    triangles.Add(toIndex(x, y + 1));
+                    triangles.Add(toIndex(x + 1, y + 1));
+                    
+                    triangles.Add(toIndex(x, y));
+                    triangles.Add(toIndex(x + 1, y + 1));
+                    triangles.Add(toIndex(x + 1, y));
+                }
+
+                uvs.Add(new Vector2(
+                    (float) ((initalPosition.x + x) / mapSize.x),
+                    (float) ((initalPosition.y + y) / mapSize.y)));
+
+                this.verts[toIndex(x, y)] = planetTerrainMesh.NODATA_vector;
+            }
+        }
+    }
+
+    protected GameObject drawMesh(Material mat, GameObject model, string name, Transform parent) {
+        mesh = new Mesh();
+        mesh.vertices = verts;
+        mesh.triangles = triangles.ToArray();
+        mesh.uv = uvs.ToArray();
+
+        go = GameObject.Instantiate(model);
+        go.name = name;
+        go.transform.parent = parent;
+        go.transform.localPosition = Vector3.zero;
+        go.transform.localEulerAngles = Vector3.zero;
+        
+        go.GetComponent<MeshRenderer>().material = mat;
+        go.GetComponent<MeshFilter>().mesh = mesh;
+
+        this.triangles.Clear();
+        this.uvs.Clear();
+        this.verts = new Vector3[0];
+
+        return go;
+    }
+
+    public void clearMesh() {
+        this.mesh.Clear();
+        this.mesh = new Mesh();
+        GameObject.Destroy(go);
+    }
+
+    public int toIndex(int x, int y) => y * shape.x + x;
+}
