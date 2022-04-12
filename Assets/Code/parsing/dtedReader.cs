@@ -49,6 +49,34 @@ public static class dtedReader {
         Debug.Log(dd.reference);
         Debug.Log(dd.dataEdition);
         Debug.Log(dd.matchMergeVersion);
+
+        Debug.Log("========");
+
+        dtedAcc da = new dtedAcc(acc);
+        Debug.Log(da.sentinel);
+        Debug.Log(da.acc);
+        Debug.Log(da.relAcc);
+    }
+}
+
+public struct dtedAcc {
+    public string sentinel;
+    public position acc, relAcc;
+
+    public dtedAcc(byte[] data) {
+        dtedArrayWrapper<byte> reader = new dtedArrayWrapper<byte>(data);
+        sentinel = general.parseByteArray(reader.read(3));
+        string _ah = general.parseByteArray(reader.read(4));
+        string _av = general.parseByteArray(reader.read(4));
+        string _rah = general.parseByteArray(reader.read(4));
+        string _rav = general.parseByteArray(reader.read(4));
+        double ah = _ah.Contains("NA") ? 0 : double.Parse(_ah);
+        double av = _av.Contains("NA") ? 0 : double.Parse(_av);
+        double rah = _rah.Contains("NA") ? 0 : double.Parse(_rah);
+        double rav = _rav.Contains("NA") ? 0 : double.Parse(_rav);
+
+        acc = new position(ah, av, 0);
+        relAcc = new position(rah, rav, 0);
     }
 }
 
