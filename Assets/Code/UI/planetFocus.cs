@@ -11,6 +11,7 @@ public static class planetFocus
     public static float zoom = general.defaultCameraFOV;
 
     private static planet focus;
+    public static facility hoveringOver = null;
 
 
     public static void enable(bool use) {
@@ -38,5 +39,49 @@ public static class planetFocus
         general.camera.transform.rotation *= Quaternion.AngleAxis(rotation.z, Vector3.forward);
 
         general.camera.fieldOfView = zoom;
+
+        // can this be optimized? yes
+        // will i do it? not now at least
+        List<facility> validTargets = new List<facility>();
+        float minDist = 1000000;
+        facility target = null;
+        foreach (facility f in master.allFacilites) {
+            if (f.representation.enabled) {
+                Vector3 screenPosition = general.camera.WorldToScreenPoint(f.representation.transform.position);
+                float d = Vector3.Distance(screenPosition, Input.mousePosition);
+                // dont scale with screen size since we assume its constant (1280x720 or smth)
+                // im like 99% sure this is going to be an issue later on but it doesnt affect me rn sooooooooo
+                float size = uiHelper.screenSize(f.representation.mr, f.representation.transform.position) / 2.5f;
+                if (d < size) {
+                    if (d < minDist) {
+                        minDist = d;
+                        target = f;
+                    }
+                }
+
+                validTargets.Add(f);
+            }
+        }
+
+        // sue me
+        // look im just assume the user isnt going to give us ks of facilites ok
+        if (target is facility) {
+            foreach (facility f in validTargets) {
+                f.representation.select(false, true);
+            }
+
+            target.representation.select(true);
+            hoveringOver = target;
+        } else if (hoveringOver is facility) {
+            foreach (facility f in validTargets) {
+                f.representation.select(false, false);
+            }
+
+            hoveringOver = null;
+        }
+
+        if (Input.GetMouseButtonDown(0) && target is facility) {
+            Debug.Log($"selected {target.name}");
+        }
     }
 }

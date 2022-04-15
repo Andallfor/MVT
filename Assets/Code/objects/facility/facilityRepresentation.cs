@@ -10,9 +10,15 @@ public class facilityRepresentation : MonoBehaviour
     private geographic geo;
     private TextMeshProUGUI shownName;
     private LineRenderer lr;
+    public MeshRenderer mr {get; private set;}
     private string shownNameText;
+    private float r;
+    public bool selected {get; private set;}
+    public geographic offset {get; private set;} // because we will at times get facilites with the same/very similar positions,
+                                                 // it makes it hard for the ux to be able to tell which one the user wants to point to
+                                                 // in planetFocus. so add a slight offset to each representation to alievate this issue
 
-    public double lat, lon;
+    private bool planetFocusHidden;
 
     public void init(string name, geographic geo, GameObject parent, representationData data)
     {
@@ -22,12 +28,20 @@ public class facilityRepresentation : MonoBehaviour
         this.geo = geo;
         this.data = data;
 
-        float r = 25f / (float) master.scale;
+        r = 25f / (float) master.scale;
         this.gameObject.transform.localScale = new Vector3(r, r, r);
 
         GameObject canvas = GameObject.FindGameObjectWithTag("ui/canvas");
         lr = this.GetComponent<LineRenderer>();
         lr.positionCount = 2;
+        mr = this.GetComponent<MeshRenderer>();
+
+        System.Random ran = new System.Random(UnityEngine.Random.Range(0, 100000));
+        offset = new geographic(
+            (ran.NextDouble() - 0.5) / 10.0,
+            (ran.NextDouble() - 0.5) / 10.0);
+        
+        this.geo += offset;
 
         this.shownName = Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(canvas.transform, false);
@@ -55,21 +69,20 @@ public class facilityRepresentation : MonoBehaviour
             return;
         }
 
-        lat = this.geo.lat;
-        lon = this.geo.lon;
         position p = geo.toCartesian(radius) / (2 * radius);
         this.gameObject.transform.localPosition = (Vector3) (p.swapAxis());
 
-        RaycastHit hit;
-        if (Physics.Raycast(general.camera.transform.position, this.gameObject.transform.position - general.camera.transform.position, out hit, Vector3.Distance(this.gameObject.transform.position, general.camera.transform.position), 1 << 6))
-        {
-            shownName.text = "";
-        }
-        else
-        {
-            shownName.text = shownNameText;
-            uiHelper.drawTextOverObject(shownName, this.gameObject.transform.position);
-        }
+        if (!planetFocusHidden) {
+            RaycastHit hit;
+            if (Physics.Raycast(general.camera.transform.position,
+                this.gameObject.transform.position - general.camera.transform.position, out hit, 
+                Vector3.Distance(this.gameObject.transform.position, general.camera.transform.position), 1 << 6)) {
+                shownName.text = "";
+            } else {
+                shownName.text = shownNameText;
+                uiHelper.drawTextOverObject(shownName, this.gameObject.transform.position);
+            }
+        } else shownName.text = "";
     }
 
     public void drawSchedulingConnections(List<scheduling> ss)
@@ -105,5 +118,22 @@ public class facilityRepresentation : MonoBehaviour
     {
         this.gameObject.SetActive(b);
         this.shownName.gameObject.SetActive(b);
+    }
+
+    public void select(bool s, bool hide = false) {
+        selected = s;
+        if (s) {
+            this.gameObject.transform.localScale = new Vector3(r * 1.25f, r * 1.25f, r * 1.25f);
+            planetFocusHidden = false;
+        } else {
+            if (hide) {
+                this.gameObject.transform.localScale = new Vector3(r * 0.75f, r * 0.75f, r * 0.75f);
+                planetFocusHidden = true;
+            }
+            else {
+                this.gameObject.transform.localScale = new Vector3(r, r, r);
+                planetFocusHidden = false;
+            }
+        }
     }
 }

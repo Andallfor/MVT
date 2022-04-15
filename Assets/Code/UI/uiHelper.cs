@@ -39,4 +39,11 @@ public static class uiHelper
         
         return p;
     }
+
+    public static float screenSize(MeshRenderer mr, Vector3 pos) {
+        float diameter = mr.bounds.extents.magnitude;
+        float distance = Vector3.Distance(pos, general.camera.transform.position);
+        float angularSize = (diameter / distance) * Mathf.Rad2Deg;
+        return ((angularSize * Screen.height) / general.camera.fieldOfView);
+    }
 }
