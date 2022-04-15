@@ -37,38 +37,6 @@ public class planetTerrain
         sortedResolutions.Sort((x, y) => x.pointsPerCoord.CompareTo(y.pointsPerCoord));
     }
 
-    public void generateArea(Bounds area, string name, bool forceHideBody = false)
-    {
-        planetTerrainFolderInfo ptfi = folderInfos[name];
-
-        // get all files that intersect the desired area
-        List<geographic> intersections = new List<geographic>();
-        for (double lat = -90; lat < 90; lat += ptfi.increment.lat)
-        {
-            for (double lon = -180; lon < 180; lon += ptfi.increment.lon)
-            {
-                Bounds b = new Bounds(new Vector3((float) lon, (float) lat, 0), new Vector3((float) ptfi.increment.lon, (float) ptfi.increment.lat, 1));
-
-                if (area.Intersects(b)) intersections.Add(new geographic(lat, lon));
-            }
-        }
-
-        // generate each file
-        foreach (geographic intersection in intersections)
-        {
-            planetTerrainFile ptf = new planetTerrainFile(Path.Combine(
-                ptfi.folderPath,
-                terrainProcessor.fileName(intersection, ptfi.increment)), ptfi);
-            existingMeshes[ptf] = new planetTerrainMesh(ptf, ptfi, this);
-
-            ptf.generate(existingMeshes[ptf]);
-            existingMeshes[ptf].drawMesh();
-        }
-
-        if (forceHideBody || intersections.Count > 0) parent.representation.forceHide = true;
-        else parent.representation.forceHide = false;
-    }
-
     public async void updateTerrain(bool force = false)
     {
         if (finishedRunning == false) return;

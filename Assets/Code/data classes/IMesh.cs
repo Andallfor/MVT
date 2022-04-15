@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class IMesh
+public abstract class IMesh
 {
     protected List<int> triangles = new List<int>();
     protected List<Vector2> uvs = new List<Vector2>();
@@ -36,7 +36,7 @@ public class IMesh
         }
     }
 
-    protected GameObject drawMesh(Material mat, GameObject model, string name, Transform parent) {
+    public GameObject drawMesh(Material mat, GameObject model, string name, Transform parent) {
         mesh = new Mesh();
         mesh.vertices = verts;
         mesh.triangles = triangles.ToArray();
@@ -63,6 +63,8 @@ public class IMesh
         this.mesh = new Mesh();
         GameObject.Destroy(go);
     }
+
+    public abstract void addPoint(int x, int y, geographic g, double h);
 
     public int toIndex(int x, int y) => y * shape.x + x;
 }

@@ -55,7 +55,7 @@ public class planetTerrainMesh : IMesh
         }
     }
 
-    public void addPoint(int x, int y, geographic g, double h)
+    public override void addPoint(int x, int y, geographic g, double h)
     {
         this.verts[toIndex(x, y)] = (Vector3) (g.toCartesian(pt.radius + (h * pt.heightMulti) / 1000.0).swapAxis() / master.scale);
     }

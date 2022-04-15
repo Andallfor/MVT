@@ -58,8 +58,8 @@ public class controller : MonoBehaviour
             //"C:/Users/leozw/Desktop/divided/ultra",
             //"C:/Users/leozw/Desktop/divided/extreme", 
             //"C:/Users/leozw/Desktop/divided/high", 
-            //"C:/Users/leozw/Desktop/divided/medium", 
-            //"C:/Users/leozw/Desktop/divided/low",
+            //"C:/Users/leozw/Desktop/divided/medium"});
+            //"C:/Users/leozw/Desktop/divided/low"});
             "C:/Users/leozw/Desktop/divided/tiny"});
         
         //pt.generateArea(new Bounds(new Vector3(0, 0, 0), new Vector3(360, 180, 1)), "tiny");
@@ -68,7 +68,14 @@ public class controller : MonoBehaviour
 
         //GameObject gg = Instantiate(Resources.Load("Prefabs/Default") as GameObject);
 
-        dtedReader.read("C:/Users/leozw/Desktop/n35_w117_1arc_v3.dt2");
+        /*dtedInfo di = dtedReader.read("C:/Users/leozw/Desktop/n35_w117_1arc_v3.dt2");
+        di.distributor.drawAll(Resources.Load("Materials/planets/earth/earth") as Material,
+                               Resources.Load("Prefabs/PlanetMesh") as GameObject,
+                               new string[0], null);
+        di = dtedReader.read("C:/Users/leozw/Desktop/n35_w118_1arc_v3.dt2");
+        di.distributor.drawAll(Resources.Load("Materials/planets/earth/earth") as Material,
+                               Resources.Load("Prefabs/PlanetMesh") as GameObject,
+                               new string[0], earth.representation.transform);*/
 
         master.pause = true;
         general.camera = Camera.main;
@@ -137,8 +144,8 @@ public class controller : MonoBehaviour
                 Vector2 adjustedDifference = new Vector2(-difference.y / Screen.height, difference.x / Screen.width);
                 adjustedDifference *= 100f;
                 
-                planetFocus.rotation.x = adjustedDifference.x;
-                planetFocus.rotation.y = adjustedDifference.y;
+                planetFocus.rotation.x = adjustedDifference.x * (planetFocus.zoom / (general.defaultCameraFOV * 1.5f));
+                planetFocus.rotation.y = adjustedDifference.y * (planetFocus.zoom / (general.defaultCameraFOV * 1.5f));
                 planetFocus.rotation.z = 0;
             }
 
@@ -154,7 +161,7 @@ public class controller : MonoBehaviour
             }
 
             if (Input.mouseScrollDelta.y != 0) {
-                general.camera.fieldOfView -= Input.mouseScrollDelta.y * UnityEngine.Time.deltaTime * 500f;
+                planetFocus.zoom -= Input.mouseScrollDelta.y * UnityEngine.Time.deltaTime * 500f;
             }
 
             planetFocus.update();
