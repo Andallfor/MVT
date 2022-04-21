@@ -41,6 +41,8 @@ public static class dtedReader {
         checksum
         */
 
+        position offset = calcPoint(dd.sw - new geographic(0.5, 0.5), dd.sw, new position(0, 0, 0), 0).swapAxis();
+
         for (int i = 0; i < data.Length / dd.dataBlockLength; i++) {
             // throw everything into an array
             byte[] block = data.Skip(i * dd.dataBlockLength).Take(dd.dataBlockLength).ToArray();
@@ -56,19 +58,24 @@ public static class dtedReader {
                 byte[] _b = reader.read(2).Reverse().ToArray();
                 double h = BitConverter.ToInt16(_b, 0);
                 geographic g = new geographic(index * dh.interval.y, 0) + origin;
-                distributor.addPoint(index, i, g, h);
+                distributor.addPoint(index, i, calcPoint(dd.sw, g, offset, h));
             }
             reader.read(4);
         }
 
         return new dtedInfo(dh, dd, da, distributor);
     }
+
+    private static position calcPoint(geographic sw, geographic g, position p, double h) => (g.toCartesian(6371.0 + h / 1000.0)
+        .rotate(0, 0, (-sw.lon - 0.5) * (Mathf.PI / 180.0))
+        .rotate((270.0 + sw.lat) * (Math.PI / 180.0), 0, 0)
+        - p)
+        .swapAxis();
 }
 
+// TODO: we dont actually use this class -> remove
 public class dtedBasedMesh : IMesh {
-    public override void addPoint(int x, int y, geographic g, double h) {
-        this.verts[toIndex(x, y)] = (Vector3) (g.toCartesian(6371.0 + (h * 10) / 1000.0).swapAxis());
-    }
+    public override Vector3 addPoint(int x, int y, geographic g, double h) => Vector3.zero;
 }
 
 public struct dtedInfo {

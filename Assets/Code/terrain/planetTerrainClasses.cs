@@ -55,9 +55,11 @@ public class planetTerrainMesh : IMesh
         }
     }
 
-    public override void addPoint(int x, int y, geographic g, double h)
+    public override Vector3 addPoint(int x, int y, geographic g, double h)
     {
-        this.verts[toIndex(x, y)] = (Vector3) (g.toCartesian(pt.radius + (h * pt.heightMulti) / 1000.0).swapAxis() / master.scale);
+        Vector3 v = (Vector3) (g.toCartesian(pt.radius + (h * pt.heightMulti) / 1000.0).swapAxis() / master.scale);
+        this.verts[toIndex(x, y)] = v;
+        return v;
     }
 
     public override int GetHashCode() => ptf.GetHashCode();

@@ -8,23 +8,33 @@ public abstract class IMesh
     protected List<Vector2> uvs = new List<Vector2>();
     protected Vector3[] verts;
     protected Mesh mesh;
-    protected Vector2Int shape;
+    public Vector2Int shape {get; protected set;}
     protected GameObject go;
 
-    public void init(int cols, int rows, position initalPosition, position mapSize) {
+    public void init(int cols, int rows, position initalPosition, position mapSize, bool reverse = false) {
         shape = new Vector2Int(cols, rows);
         this.verts = new Vector3[cols * rows];
 
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
                 if (x != cols - 1 && y != rows - 1) {
-                    triangles.Add(toIndex(x, y));
-                    triangles.Add(toIndex(x, y + 1));
-                    triangles.Add(toIndex(x + 1, y + 1));
-                    
-                    triangles.Add(toIndex(x, y));
-                    triangles.Add(toIndex(x + 1, y + 1));
-                    triangles.Add(toIndex(x + 1, y));
+                    if (reverse) {
+                        triangles.Add(toIndex(x + 1, y + 1));
+                        triangles.Add(toIndex(x, y + 1));
+                        triangles.Add(toIndex(x, y));
+                        
+                        triangles.Add(toIndex(x + 1, y));
+                        triangles.Add(toIndex(x + 1, y + 1));
+                        triangles.Add(toIndex(x, y));
+                    } else {
+                        triangles.Add(toIndex(x, y));
+                        triangles.Add(toIndex(x, y + 1));
+                        triangles.Add(toIndex(x + 1, y + 1));
+                        
+                        triangles.Add(toIndex(x, y));
+                        triangles.Add(toIndex(x + 1, y + 1));
+                        triangles.Add(toIndex(x + 1, y));
+                    }
                 }
 
                 uvs.Add(new Vector2(
@@ -64,7 +74,9 @@ public abstract class IMesh
         GameObject.Destroy(go);
     }
 
-    public abstract void addPoint(int x, int y, geographic g, double h);
+    public void forceSetPoint(int x, int y, Vector3 v) => this.verts[toIndex(x, y)] = v;
+
+    public abstract Vector3 addPoint(int x, int y, geographic g, double h);
 
     public int toIndex(int x, int y) => y * shape.x + x;
 }

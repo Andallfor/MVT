@@ -6,7 +6,7 @@ using System.Linq;
 public class meshDistributor<T> where T : IMesh, new()
 {
     public static int maxVerts = 65535;
-    private static int maxVertSize = 255;
+    private static int maxVertSize = 250;
 
     private Dictionary<Vector2Int, T> map = new Dictionary<Vector2Int, T>();
 
@@ -22,18 +22,42 @@ public class meshDistributor<T> where T : IMesh, new()
                 // dont create a mesh if it has 0 area
                 if (xLeft != 0 && yLeft != 0) {
                     T t = new T();
-                    t.init(xLeft, yLeft, new position(x + offset.x, y + offset.y, 0), new position(maxSize.x, maxSize.y, 0));
+                    Vector2Int _o = new Vector2Int(
+                        x + maxVertSize > size.x ? 0 : 1,
+                        y + maxVertSize > size.y ? 0 : 1);
+                    t.init(xLeft + _o.x, yLeft + _o.y, new position(x + offset.x, y + offset.y, 0), new position(maxSize.x, maxSize.y, 0), true);
                     map.Add(new Vector2Int(x, y), t);
                 }
             }   
         }
     }
 
-    public void addPoint(int x, int y, geographic g, double h) {
-        map[new Vector2Int(
-            x - (x % maxVertSize),
-            y - (y % maxVertSize))]
-            .addPoint(x % maxVertSize, y % maxVertSize, g, h);
+    public void addPoint(int x, int y, position p) {
+        int _x = x % maxVertSize;
+        int _y = y % maxVertSize;
+
+        Vector2Int key = new Vector2Int(x - _x, y - _y);
+
+        T m = map[key];
+        m.forceSetPoint(_x, _y, (Vector3) p);
+
+        bool isX = _x == 0;
+        bool isY = _y == 0;
+
+        if (isX || isY) {
+            if (key.x != 0 && key.y != 0 && isX && isY) {
+                T _m = map[key - new Vector2Int(maxVertSize, maxVertSize)];
+                _m.forceSetPoint(_m.shape.x - 1, _m.shape.y - 1, (Vector3) p);
+            }
+            if (key.x != 0 && isX) {
+                T _m = map[key - new Vector2Int(maxVertSize, 0)];
+                _m.forceSetPoint(_m.shape.x - 1, _y, (Vector3) p);
+            }
+            if (key.y != 0 && isY) {
+                T _m = map[key - new Vector2Int(0, maxVertSize)];
+                _m.forceSetPoint(_x, _m.shape.y - 1, (Vector3) p);
+            }
+        }
     }
 
     public void drawAll(Material mat, GameObject model, string[] name, Transform parent) {
