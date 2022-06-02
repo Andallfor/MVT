@@ -53,20 +53,33 @@ public class controller : MonoBehaviour
             },
             100, "C:/Users/leozw/Desktop/divided/earthNormal.jpg");*/
 
-        planetTerrain pt = new planetTerrain(6371, 35, earth);
-        pt.generateFolderInfos(new string[1] {
+        //planetTerrain pt = new planetTerrain(6371, 35, earth);
+        //pt.generateFolderInfos(new string[1] {
             //"C:/Users/leozw/Desktop/divided/ultra",
             //"C:/Users/leozw/Desktop/divided/extreme", 
             //"C:/Users/leozw/Desktop/divided/high", 
             //"C:/Users/leozw/Desktop/divided/medium"});
             //"C:/Users/leozw/Desktop/divided/low"});
-            "C:/Users/leozw/Desktop/divided/tiny"});
+            //"C:/Users/leozw/Desktop/divided/tiny"});
         
         //pt.generateArea(new Bounds(new Vector3(0, 0, 0), new Vector3(360, 180, 1)), "tiny");
 
         csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
         //GameObject gg = Instantiate(Resources.Load("Prefabs/Default") as GameObject);
+
+        //dtedImageCombiner.generateImage(new geographic(35, -117), new geographic(36, -116), "C:/Users/leozw/Desktop/dteds/toProcess");
+
+        /*
+        dtedInfo di = dtedReader.read("C:/Users/leozw/Desktop/dteds/WS1");
+        Texture2D tex = new Texture2D(10980, 10980);
+        tex.LoadImage(File.ReadAllBytes(new DirectoryInfo("C:/Users/leozw/Desktop/dteds/WS1").GetFiles().First(x => x.Name.Contains(".png")).FullName));
+        Material m = new Material(Resources.Load("Materials/planets/earth/earth") as Material);
+        m.mainTexture = tex;
+        di.distributor.drawAll(m,
+            Resources.Load("Prefabs/PlanetMesh") as GameObject,
+            new string[0], null);
+        */
 
         /*dtedInfo di = dtedReader.read("C:/Users/leozw/Desktop/n35_w117_1arc_v3.dt2");
         di.distributor.drawAll(Resources.Load("Materials/planets/earth/earth") as Material,
@@ -94,7 +107,7 @@ public class controller : MonoBehaviour
                 master.time.addJulianTime(speed);
             }
 
-            pt.updateTerrain();
+            //pt.updateTerrain();
 
             if (!planetOverview.usePlanetOverview) master.requestSchedulingUpdate();
             master.currentTick = tick;
@@ -203,111 +216,6 @@ public class controller : MonoBehaviour
         if (Input.GetKeyDown("4")) master.time.addJulianTime(2459396.5 - master.time.julian);
     }
 
-    // below two functions are used to create the scenarios
-    void allPlanets()
-    {
-        List<string> sats = new List<string>()
-        {
-            "AIM",
-            "AQUA",
-            "AURA",
-            "FGST",
-            "Geotail",
-            "GOES 1",
-            "GOES 2",
-            "GOES 3",
-            "GOES 4",
-            "GOES 5",
-            "GOES 6",
-            "GOES 7",
-            "GOES 8",
-            "GOES 9",
-            "GOES 10",
-            "GOES 11",
-            "GOES 12",
-            "GOES 13",
-            "GOES 14",
-            "GPM_CORE",
-            "GRACE FO1",
-            "GRACE FO2",
-            "HST",
-            "ICESAT 2",
-            "ICON",
-            "IRIS",
-            "ISS",
-            "LANDSAT 7",
-            "LANDSAT 8",
-            "METOP B",
-            "METOP C",
-            "MMS 1",
-            "MMS 2",
-            "MMS 3",
-            "MMS 4",
-            "NUSTAR",
-            "OCO-2",
-            "SCISAT 1",
-            "SDO",
-            "SEAHAWK 1",
-            "SMAP",
-            "SOLAR B",
-            "STPSat 3",
-            "STPSat 4",
-            "STPSat 5",
-            "SWIFT",
-            "TDRS 3",
-            "TDRS 5",
-            "TDRS 6",
-            "TDRS 7",
-            "TDRS 8",
-            "TDRS 9",
-            "TDRS 10",
-            "TDRS 11",
-            "TDRS 12",
-            "TDRS 13",
-            "TERRA",
-            "THEMIS_A",
-            "THEMIS_D",
-            "THEMIS_E"
-        };
-    
-        representationData rd = new representationData(
-            "Prefabs/Planet",
-            "Materials/default");
-        
-        representationData srd = new representationData(
-            "Prefabs/Satellite",
-            "Materials/default");
-        
-        representationData frd = new representationData(
-            "Prefabs/Facility",
-            "Materials/default");
-        
-        double oneMin = 0.0006944444;
-        double oneHour = 0.0416666665;
-
-                       new planet("Mercury", new planetData(2439.7, false, "CSVS/NEW/PLANETS/Mercury", oneHour, planetType.planet), rd);
-                       new planet(  "Venus", new planetData(6051.8, false,   "CSVS/NEW/PLANETS/Venus", oneHour, planetType.planet), rd);
-        planet earth = new planet(  "Earth", new planetData(  6371,  true,   "CSVS/NEW/PLANETS/Earth", oneHour, planetType.planet), rd);
-                       new planet(   "Mars", new planetData(3396.2, false,    "CSVS/NEW/PLANETS/Mars", oneHour, planetType.planet), rd);
-                       new planet("Jupiter", new planetData( 71492, false, "CSVS/NEW/PLANETS/Jupiter", oneHour, planetType.planet), rd);
-                       new planet( "Saturn", new planetData( 60268, false,  "CSVS/NEW/PLANETS/Saturn", oneHour, planetType.planet), rd);
-                       new planet( "Uranus", new planetData( 25559, false,  "CSVS/NEW/PLANETS/Uranus", oneHour, planetType.planet), rd);
-                       new planet("Neptune", new planetData( 24764, false, "CSVS/NEW/PLANETS/Neptune", oneHour, planetType.planet), rd);
-        planet moon =  new planet(   "Luna", new planetData(1738.1, false,    "CSVS/NEW/PLANETS/Luna", oneHour,   planetType.moon), rd);
-
-        foreach (string sat in sats)
-        {
-            try {satellite s = new satellite(sat, new satelliteData($"CSVS/NEW/SATS/{sat}", oneMin), srd);}
-            catch {UnityEngine.Debug.Log($"Unable to load {sat}");}
-        }
-
-        foreach (facilityListStruct fls in csvParser.loadFacilites("CSVS/FACILITIES/stationList"))
-        {
-            new facility(fls.name, earth, new facilityData(fls.geo), frd);
-        }
-
-        master.setReferenceFrame(master.sun);
-    }
     void onlyEarth()
     {
         List<string> sats = new List<string>()
@@ -405,34 +313,6 @@ public class controller : MonoBehaviour
                       new planet( "Saturn", new planetData( 60268, false,  "CSVS/PLANETS/Saturn", oneHour, planetType.planet), rd);
                       new planet( "Uranus", new planetData( 25559, false,  "CSVS/PLANETS/Uranus", oneHour, planetType.planet), rd);
                       new planet("Neptune", new planetData( 24764, false, "CSVS/PLANETS/Neptune", oneHour, planetType.planet), rd);
-        
-        /*
-        earth.representation.initTerrain(new planetTerrain(earth.radius, new List<string>() {
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n-45.0_s-90.0_w-60.0_e0.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n-45.0_s-90.0_w-180.0_e-120.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n-45.0_s-90.0_w-120.0_e-60.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n-45.0_s-90.0_w0.0_e60.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n-45.0_s-90.0_w60.0_e120.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n-45.0_s-90.0_w120.0_e180.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n0.0_s-45.0_w-60.0_e0.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n0.0_s-45.0_w-120.0_e-60.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n0.0_s-45.0_w-180.0_e-120.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n0.0_s-45.0_w0.0_e60.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n0.0_s-45.0_w60.0_e120.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n0.0_s-45.0_w120.0_e180.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n45.0_s0.0_w-60.0_e0.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n45.0_s0.0_w-120.0_e-60.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n45.0_s0.0_w-180.0_e-120.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n45.0_s0.0_w0.0_e60.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n45.0_s0.0_w60.0_e120.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n45.0_s0.0_w120.0_e180.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n90.0_s45.0_w-60.0_e0.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n90.0_s45.0_w-120.0_e-60.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n90.0_s45.0_w-180.0_e-120.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n90.0_s45.0_w0.0_e60.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n90.0_s45.0_w60.0_e120.0.txt",
-            "C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/gebco_2021_n90.0_s45.0_w120.0_e180.0.txt"
-        }));*/
 
         foreach (string sat in sats)
         {

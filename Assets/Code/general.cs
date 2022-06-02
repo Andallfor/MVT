@@ -1,13 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
+/// <summary> Static class that holds most common information regarding frontend stuff. </summary>
+/// <remarks>See <see cref="master"/> for the backend version of <see cref="general"/>. </remarks>
 public static class general
 {
+    /// <summary> Reference to the player's camera in the scene. </summary>
+    /// <remarks> Use this instead of <see cref="Camera.main"/> as this is much more efficient. </remarks>
     public static Camera camera;
+
+    /// <summary> Default position of the camera. </summary>
     public static Vector3 defaultCameraPosition = new Vector3(0, 0, -10);
+
+    /// <summary> Default FOV of camera. </summary>
     public static float defaultCameraFOV = 60;
 
+    /// <summary> Parse an array of bytes into a string. </summary>
     public static string parseByteArray(byte[] data) {
         string output = "";
         foreach (byte b in data) {
@@ -16,6 +26,7 @@ public static class general
         return output;
     }
 
+    /// <summary> Combine an array of chars into a string. </summary>
     public static string combineCharArray(char[] data) {
         string output = "";
         foreach (char b in data) {
