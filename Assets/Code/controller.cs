@@ -22,7 +22,7 @@ public class controller : MonoBehaviour
 
     void Start()
     {
-        master.sun = new planet("Sun", new planetData(695700, false, "CSVS/NEW/PLANETS/Sol", 0.0416666665, planetType.planet), 
+        master.sun = new planet("Sun", new planetData(695700, false, "CSVS/NEW/PLANETS/Sol", 0.0416666665, planetType.planet),
             new representationData(
                 "Prefabs/Planet",
                 "Materials/default"));
@@ -42,7 +42,7 @@ public class controller : MonoBehaviour
         // low -> 1, 60 (~80 mib total)
         // tiny -> 1, 100 (~ 36 mib total)
 
-        
+
         /*terrainProcessor.divideAll("C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/", new List<terrainResolution>() {
             //new terrainResolution("C:/Users/leozw/Desktop/divided/ultra", 100, 6),
             //new terrainResolution("C:/Users/leozw/Desktop/divided/extreme", 64, 9),
@@ -56,12 +56,12 @@ public class controller : MonoBehaviour
         //planetTerrain pt = new planetTerrain(6371, 35, earth);
         //pt.generateFolderInfos(new string[1] {
             //"C:/Users/leozw/Desktop/divided/ultra",
-            //"C:/Users/leozw/Desktop/divided/extreme", 
-            //"C:/Users/leozw/Desktop/divided/high", 
+            //"C:/Users/leozw/Desktop/divided/extreme",
+            //"C:/Users/leozw/Desktop/divided/high",
             //"C:/Users/leozw/Desktop/divided/medium"});
             //"C:/Users/leozw/Desktop/divided/low"});
             //"C:/Users/leozw/Desktop/divided/tiny"});
-        
+
         //pt.generateArea(new Bounds(new Vector3(0, 0, 0), new Vector3(360, 180, 1)), "tiny");
 
         csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
@@ -94,7 +94,7 @@ public class controller : MonoBehaviour
         general.camera = Camera.main;
 
         StartCoroutine(internalClock(7200, int.MaxValue, (tick) => {
-            if (master.pause) 
+            if (master.pause)
             {
                 master.tickStart(master.time);
                 master.time.addJulianTime(0);
@@ -156,7 +156,7 @@ public class controller : MonoBehaviour
 
                 Vector2 adjustedDifference = new Vector2(-difference.y / Screen.height, difference.x / Screen.width);
                 adjustedDifference *= 100f;
-                
+
                 planetFocus.rotation.x = adjustedDifference.x * (planetFocus.zoom / (general.defaultCameraFOV * 1.5f));
                 planetFocus.rotation.y = adjustedDifference.y * (planetFocus.zoom / (general.defaultCameraFOV * 1.5f));
                 planetFocus.rotation.z = 0;
@@ -194,6 +194,7 @@ public class controller : MonoBehaviour
             if (Input.GetKey("s")) master.currentPosition -= forward * playerSpeed * t;
             if (Input.GetKey("d")) master.currentPosition += right * playerSpeed * t;
             if (Input.GetKey("a")) master.currentPosition -= right * playerSpeed * t;
+
         }
 
         if (Input.GetKeyDown("q"))
@@ -284,26 +285,26 @@ public class controller : MonoBehaviour
             "THEMIS_D",
             "THEMIS_E"
         };
-    
+
         representationData rd = new representationData(
             "Prefabs/Planet",
             "Materials/default");
-        
+
         representationData srd = new representationData(
             "Prefabs/Satellite",
             "Materials/default");
-        
+
         representationData frd = new representationData(
             "Prefabs/Facility",
             "Materials/default");
-        
+
         representationData erd = new representationData(
             "Prefabs/Planet",
             "Materials/planets/earth/earthEquirectangular");
 
         double oneMin = 0.0006944444;
         double oneHour = 0.0416666665;
-        
+
         earth =       new planet(  "Earth", new planetData(  6371, true, "CSVS/PLANETS/Earth", oneHour, planetType.planet), erd);
         planet moon = new planet(   "Luna", new planetData(1738.1, false,    "CSVS/PLANETS/Luna", oneHour, planetType.moon),   rd);
                       new planet("Mercury", new planetData(2439.7, false, "CSVS/PLANETS/Mercury", oneHour, planetType.planet), rd);
@@ -316,7 +317,7 @@ public class controller : MonoBehaviour
 
         foreach (string sat in sats)
         {
-            try 
+            try
             {
                 // desync between planet and satellites
                 satellite s = new satellite(sat, new satelliteData($"CSVS/SATS/{sat}", oneMin), srd);
@@ -337,24 +338,24 @@ public class controller : MonoBehaviour
         representationData rd = new representationData(
             "Prefabs/Planet",
             "Materials/default");
-        
+
         representationData srd = new representationData(
             "Prefabs/Satellite",
             "Materials/default");
-        
+
         representationData frd = new representationData(
             "Prefabs/Facility",
             "Materials/default");
-        
+
         representationData erd = new representationData(
             "Prefabs/Planet",
             "Materials/earthLatLonTest");
 
         double oneHour = 0.0416666665;
-        
+
         earth = new planet("Earth", new planetData(  6371,  true, "CSVS/PLANETS/Earth", oneHour, planetType.planet), erd);
         planet moon =        new planet( "Luna", new planetData(1738.1, false,  "CSVS/PLANETS/Luna", oneHour,   planetType.moon),  rd);
-        
+
         foreach (facilityListStruct fls in csvParser.loadFacilites("CSVS/FACILITIES/stationList"))
         {
             new facility(fls.name, earth, new facilityData(fls.geo), frd);
@@ -367,7 +368,7 @@ public class controller : MonoBehaviour
             satellite s = new satellite(kvp.Key, new satelliteData(kvp.Value), srd);
             if (kvp.Key == "LRO") satellite.addFamilyNode(moon, s);
             else satellite.addFamilyNode(earth, s);
-            
+
         }
 
         satellite s1 = new satellite("Aura 2", new satelliteData("CSVS/EARTHBASED/AURA", 0.0006944444), srd);

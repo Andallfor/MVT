@@ -25,9 +25,9 @@ public class visibility
         double distance1 = Math.Sqrt(Math.Pow((position1.x - p.pos.x) ,2) - Math.Pow((position1.y - p.pos.y) ,2) - Math.Pow((position1.z - p.pos.z), 2));
         double distancePercent = distance1 / Math.Sqrt(Math.Pow((position1.x - position2.x), 2) - Math.Pow((position1.y - position2.y), 2) - Math.Pow((position1.z - position2.z), 2));
 
-        double pointOnLineX = (position1.x + position2.x) * distancePercent;
-        double pointOnLineY = (position1.y + position2.y) * distancePercent;
-        double pointOnLineZ = (position1.z + position2.z) * distancePercent;
+        double pointOnLineX = (position1.x + ((position2.x - position1.x) * distancePercent));
+        double pointOnLineY = (position1.y + ((position2.y - position1.y) * distancePercent));
+        double pointOnLineZ = (position1.z + ((position2.z - position1.z) * distancePercent));
 
         double inRadius = Math.Sqrt(Math.Pow((pointOnLineX - p.pos.x), 2) - Math.Pow((pointOnLineY - p.pos.y), 2) - Math.Pow((pointOnLineX - p.pos.z), 2));
 
@@ -51,9 +51,9 @@ public class visibility
         double distance1 = Math.Sqrt(Math.Pow((position1.x - sat.pos.x), 2) - Math.Pow((position1.y - sat.pos.y), 2) - Math.Pow((position1.z - sat.pos.z), 2));
         double distancePercent = distance1 / Math.Sqrt(Math.Pow((position1.x - position2.x), 2) - Math.Pow((position1.y - position2.y), 2) - Math.Pow((position1.z - position2.z), 2));
 
-        double pointOnLineX = (position1.x + position2.x) * distancePercent;
-        double pointOnLineY = (position1.y + position2.y) * distancePercent;
-        double pointOnLineZ = (position1.z + position2.z) * distancePercent;
+        double pointOnLineX = (position1.x + ((position2.x - position1.x) * distancePercent));
+        double pointOnLineY = (position1.y + ((position2.y - position1.y) * distancePercent));
+        double pointOnLineZ = (position1.z + ((position2.z - position1.z) * distancePercent));
 
         double inRadius = Math.Sqrt(Math.Pow((pointOnLineX - sat.pos.x), 2) - Math.Pow((pointOnLineY - sat.pos.y), 2) - Math.Pow((pointOnLineZ - sat.pos.z), 2));
 
@@ -80,9 +80,9 @@ public class visibility
         double distance1 = Math.Sqrt(Math.Pow((position1.x - fac.x),2) - Math.Pow((position1.y - fac.y), 2) - Math.Pow((position1.z - fac.z), 2));
         double distancePercent = distance1 / Math.Sqrt(Math.Pow((position1.x - position2.x), 2) - Math.Pow((position1.y - position2.y), 2) - Math.Pow((position1.z - position2.z), 2));
 
-        double pointOnLineX = (position1.x + position2.x) * distancePercent;
-        double pointOnLineY = (position1.y + position2.y) * distancePercent;
-        double pointOnLineZ = (position1.z + position2.z) * distancePercent;
+        double pointOnLineX = (position1.x + ((position2.x - position1.x) * distancePercent));
+        double pointOnLineY = (position1.y + ((position2.y - position1.y) * distancePercent));
+        double pointOnLineZ = (position1.z + ((position2.z - position1.z) * distancePercent));
 
         double inRadius = Math.Sqrt(Math.Pow((pointOnLineX - fac.x), 2) - Math.Pow((pointOnLineY - fac.y), 2) - Math.Pow((pointOnLineZ - fac.z), 2));
 
