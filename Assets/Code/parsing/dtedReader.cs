@@ -6,12 +6,19 @@ using System.Linq;
 using System;
 
 public static class dtedReader {
-    public static int VOID_VALUE = -32767;
-    public static int uhlLength = 80;
-    public static int dsiLength = 648;
-    public static int accLength = 2700;
-    public static dtedInfo read(string filePath) {
-        FileStream fs = new FileStream(filePath, FileMode.Open);
+    public const int VOID_VALUE = -32767;
+    public const int uhlLength = 80;
+    public const int dsiLength = 648;
+    public const int accLength = 2700;
+    public const int textureSize = 10980;
+
+    public static dtedInfo read(string folder) {
+        DirectoryInfo dir = new DirectoryInfo(folder);
+
+        string sbounds = File.ReadAllText(dir.GetFiles().First(x => x.Name.Contains(".txt")).FullName);
+        List<geographic> bounds = parseBounds(sbounds); // br, tr, tl, bl
+
+        FileStream fs = new FileStream(dir.GetFiles().First(x => x.Name.Contains(".dt2")).FullName, FileMode.Open);
 
         byte[] uhl = new byte[uhlLength];
         byte[] dsi = new byte[dsiLength];
@@ -24,14 +31,32 @@ public static class dtedReader {
             r.Read(data, 0, data.Length);
         }
 
+        fs.Close();
+
         dtedUhl dh = new dtedUhl(uhl);
         dtedDsi dd = new dtedDsi(dsi);
         dtedAcc da = new dtedAcc(acc);
 
+        Debug.Log(dd.sw);
+        Debug.Log(dd.ne);
+
+        geographic idealMin = new geographic(bounds.Min(x => x.lat), bounds.Min(x => x.lon));
+        geographic idealMax = new geographic(bounds.Max(x => x.lat), bounds.Max(x => x.lon));
+
         meshDistributor<dtedBasedMesh> distributor = new meshDistributor<dtedBasedMesh>(
             new Vector2Int((int) dh.shape.x, (int) dh.shape.y),
-            new Vector2Int((int) ((dd.shape.x - 1) * 360.0), (int) ((dd.shape.y - 1) * 180.0)),
-            new Vector2Int((int) ((dh.origin.lon + 180) * (dd.shape.x - 1)), (int) ((dh.origin.lat + 90) * (dd.shape.y - 1))));
+            Vector2Int.zero, Vector2Int.zero,
+            true,
+            (Vector2Int v) => {
+                geographic currentGeo = dd.sw + new geographic((double) v.y / dh.shape.y, (double) v.x / dh.shape.x);
+
+                Vector2 idealCoord = new Vector2(
+                    (float) ((currentGeo.lon - idealMin.lon) / (idealMax.lon - idealMin.lon)),
+                    (float) ((currentGeo.lat - idealMin.lat) / (idealMax.lat - idealMin.lat)));
+                
+                return idealCoord;
+            }
+        );
 
         /*
         format of data blocks:
@@ -64,6 +89,21 @@ public static class dtedReader {
         }
 
         return new dtedInfo(dh, dd, da, distributor);
+    }
+
+    private static List<geographic> parseBounds(string d) {
+        string[] _d = d.Split(new char[1] {' '}, StringSplitOptions.RemoveEmptyEntries);
+        List<geographic> output = new List<geographic>();
+        for (int i = 0; i < 8; i += 2) {
+            double[] db = new double[2];
+            for (int j = 0; j < 2; j++) {
+                db[j] = double.Parse(_d[i + j]);
+            }
+
+            output.Add(new geographic(db[0], db[1]));
+        }
+
+        return output;
     }
 
     private static position calcPoint(geographic sw, geographic g, position p, double h) => (g.toCartesian(6371.0 + h / 1000.0)

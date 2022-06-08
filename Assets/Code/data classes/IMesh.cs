@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public abstract class IMesh
 {
@@ -11,7 +12,7 @@ public abstract class IMesh
     public Vector2Int shape {get; protected set;}
     protected GameObject go;
 
-    public void init(int cols, int rows, position initalPosition, position mapSize, bool reverse = false) {
+    public void init(int cols, int rows, position initalPosition, position mapSize, bool reverse = false, Func<Vector2Int, Vector2> customUV = null) {
         shape = new Vector2Int(cols, rows);
         this.verts = new Vector3[cols * rows];
 
@@ -37,9 +38,13 @@ public abstract class IMesh
                     }
                 }
 
-                uvs.Add(new Vector2(
-                    (float) ((initalPosition.x + x) / mapSize.x),
-                    (float) ((initalPosition.y + y) / mapSize.y)));
+                if (customUV is null) {
+                    uvs.Add(new Vector2(
+                        (float) ((initalPosition.x + x) / mapSize.x),
+                        (float) ((initalPosition.y + y) / mapSize.y)));
+                } else {
+                    uvs.Add(customUV(new Vector2Int(x + (int) initalPosition.x, y + (int) initalPosition.y)));
+                }
 
                 this.verts[toIndex(x, y)] = planetTerrainMesh.NODATA_vector;
             }

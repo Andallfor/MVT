@@ -75,6 +75,11 @@ public struct geographic
             (Math.Sin((ln2 - ln1) / 2.0) * Math.Sin((ln2 - ln1) / 2.0))));
     }
 
+    public double distAs2DVector(geographic g) => Math.Sqrt(
+        (g.lat - this.lat) * (g.lat - this.lat) + (g.lon - this.lon) * (g.lon - this.lon));
+    
+    public double magnitude() => Math.Sqrt(lat * lat + lon * lon);
+
     public jsonGeographicStruct requestJsonFile()
     {
         return new jsonGeographicStruct() {

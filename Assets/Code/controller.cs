@@ -35,62 +35,11 @@ public class controller : MonoBehaviour
         onlyEarth();
         //kepler();
 
-        // ultra -> 100, 6 (~8 gib mesh total)
-        // extreme -> 64, 9 (~4 gib total)
-        // high -> 9, 20 (~1 gib total)
-        // med -> 4, 30 (~300 mib total)
-        // low -> 1, 60 (~80 mib total)
-        // tiny -> 1, 100 (~ 36 mib total)
-
-        
-        /*terrainProcessor.divideAll("C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/", new List<terrainResolution>() {
-            //new terrainResolution("C:/Users/leozw/Desktop/divided/ultra", 100, 6),
-            //new terrainResolution("C:/Users/leozw/Desktop/divided/extreme", 64, 9),
-            //new terrainResolution("C:/Users/leozw/Desktop/divided/high", 9, 20), // if this doesnt work, regen it
-            //new terrainResolution("C:/Users/leozw/Desktop/divided/medium", 4, 30),
-            //new terrainResolution("C:/Users/leozw/Desktop/divided/low", 1, 60),
-            //new terrainResolution("C:/Users/leozw/Desktop/divided/tiny", 4, 100),
-            },
-            100, "C:/Users/leozw/Desktop/divided/earthNormal.jpg");*/
-
-        //planetTerrain pt = new planetTerrain(6371, 35, earth);
-        //pt.generateFolderInfos(new string[1] {
-            //"C:/Users/leozw/Desktop/divided/ultra",
-            //"C:/Users/leozw/Desktop/divided/extreme", 
-            //"C:/Users/leozw/Desktop/divided/high", 
-            //"C:/Users/leozw/Desktop/divided/medium"});
-            //"C:/Users/leozw/Desktop/divided/low"});
-            //"C:/Users/leozw/Desktop/divided/tiny"});
-        
-        //pt.generateArea(new Bounds(new Vector3(0, 0, 0), new Vector3(360, 180, 1)), "tiny");
-
         csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
-        //GameObject gg = Instantiate(Resources.Load("Prefabs/Default") as GameObject);
+        //planetTerrain pt = loadTerrain();
 
-        //dtedImageCombiner.generateImage(new geographic(35, -117), new geographic(36, -116), "C:/Users/leozw/Desktop/dteds/toProcess");
-
-        /*
-        dtedInfo di = dtedReader.read("C:/Users/leozw/Desktop/dteds/WS1");
-        Texture2D tex = new Texture2D(10980, 10980);
-        tex.LoadImage(File.ReadAllBytes(new DirectoryInfo("C:/Users/leozw/Desktop/dteds/WS1").GetFiles().First(x => x.Name.Contains(".png")).FullName));
-        Material m = new Material(Resources.Load("Materials/planets/earth/earth") as Material);
-        m.mainTexture = tex;
-        di.distributor.drawAll(m,
-            Resources.Load("Prefabs/PlanetMesh") as GameObject,
-            new string[0], null);
-        */
-
-        /*dtedInfo di = dtedReader.read("C:/Users/leozw/Desktop/n35_w117_1arc_v3.dt2");
-        di.distributor.drawAll(Resources.Load("Materials/planets/earth/earth") as Material,
-                               Resources.Load("Prefabs/PlanetMesh") as GameObject,
-                               new string[0], null);
-        di = dtedReader.read("C:/Users/leozw/Desktop/n35_w118_1arc_v3.dt2");
-        di.distributor.drawAll(Resources.Load("Materials/planets/earth/earth") as Material,
-                               Resources.Load("Prefabs/PlanetMesh") as GameObject,
-                               new string[0], earth.representation.transform);*/
-
-        master.pause = true;
+        master.pause = false;
         general.camera = Camera.main;
 
         StartCoroutine(internalClock(7200, int.MaxValue, (tick) => {
@@ -215,8 +164,51 @@ public class controller : MonoBehaviour
 
         if (Input.GetKeyDown("4")) master.time.addJulianTime(2459396.5 - master.time.julian);
     }
+    private planetTerrain loadTerrain() {
+        /*terrainProcessor.divideAll("C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/", new List<terrainResolution>() {
+            //new terrainResolution("C:/Users/leozw/Desktop/divided/ultra", 100, 6),
+            //new terrainResolution("C:/Users/leozw/Desktop/divided/extreme", 64, 9),
+            //new terrainResolution("C:/Users/leozw/Desktop/divided/high", 9, 20), // if this doesnt work, regen it
+            //new terrainResolution("C:/Users/leozw/Desktop/divided/medium", 4, 30),
+            //new terrainResolution("C:/Users/leozw/Desktop/divided/low", 1, 60),
+            //new terrainResolution("C:/Users/leozw/Desktop/divided/tiny", 4, 100),
+            },
+            100, "C:/Users/leozw/Desktop/divided/earthNormal.jpg");*/
+        
+        planetTerrain pt = new planetTerrain(6371, 35, earth);
+        pt.generateFolderInfos(new string[6] {
+            "C:/Users/leozw/Desktop/divided/ultra",
+            "C:/Users/leozw/Desktop/divided/extreme", 
+            "C:/Users/leozw/Desktop/divided/high", 
+            "C:/Users/leozw/Desktop/divided/medium",
+            "C:/Users/leozw/Desktop/divided/low",
+            "C:/Users/leozw/Desktop/divided/tiny"});
 
-    void onlyEarth()
+        dtedImageCombiner.generateImage(new geographic(35, -117), new geographic(36, -116), "C:/Users/leozw/Desktop/dteds/toProcess");
+        
+        dtedInfo di = dtedReader.read("C:/Users/leozw/Desktop/dteds/WS1");
+        Texture2D tex = new Texture2D(10980, 10980);
+        tex.LoadImage(File.ReadAllBytes(new DirectoryInfo("C:/Users/leozw/Desktop/dteds/WS1").GetFiles().First(x => x.Name.Contains(".png")).FullName));
+        Material m = new Material(Resources.Load("Materials/planets/earth/earth") as Material);
+        m.mainTexture = tex;
+        di.distributor.drawAll(m,
+            Resources.Load("Prefabs/PlanetMesh") as GameObject,
+            new string[0], null);
+
+        //
+
+        /*dtedInfo di = dtedReader.read("C:/Users/leozw/Desktop/n35_w117_1arc_v3.dt2");
+        di.distributor.drawAll(Resources.Load("Materials/planets/earth/earth") as Material,
+                               Resources.Load("Prefabs/PlanetMesh") as GameObject,
+                               new string[0], null);
+        di = dtedReader.read("C:/Users/leozw/Desktop/n35_w118_1arc_v3.dt2");
+        di.distributor.drawAll(Resources.Load("Materials/planets/earth/earth") as Material,
+                               Resources.Load("Prefabs/PlanetMesh") as GameObject,
+                               new string[0], earth.representation.transform);*/
+        
+        return pt;
+    }
+    private void onlyEarth()
     {
         List<string> sats = new List<string>()
         {
@@ -332,7 +324,7 @@ public class controller : MonoBehaviour
 
         master.setReferenceFrame(earth);
     }
-    void kepler()
+    private void kepler()
     {
         representationData rd = new representationData(
             "Prefabs/Planet",
