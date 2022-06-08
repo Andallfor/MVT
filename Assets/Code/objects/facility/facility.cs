@@ -11,6 +11,9 @@ public class facility : IJsonFile<jsonFacilityStruct>
 
     private planet parent;
 
+    public geographic geo {get {return data.geo;}}
+    public planet facParent {get {return parent;}}
+    
     public facility(string name, planet parent, facilityData data, representationData rData)
     {
         this.name = name;
