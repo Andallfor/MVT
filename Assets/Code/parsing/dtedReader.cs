@@ -37,9 +37,6 @@ public static class dtedReader {
         dtedDsi dd = new dtedDsi(dsi);
         dtedAcc da = new dtedAcc(acc);
 
-        Debug.Log(dd.sw);
-        Debug.Log(dd.ne);
-
         geographic idealMin = new geographic(bounds.Min(x => x.lat), bounds.Min(x => x.lon));
         geographic idealMax = new geographic(bounds.Max(x => x.lat), bounds.Max(x => x.lon));
 

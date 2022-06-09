@@ -7,6 +7,7 @@ using System.Linq;
 using System;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Text;
 
 /*
 To generate a texture for each dted file, we are using sentinel images. However, these images do not provide a perfect texture, as many areas are blacked out.
@@ -109,17 +110,90 @@ public static class dtedImageCombiner
 
         return texture;
     }
+
+    public static void parseSentinelKML(string path, string outputPath) {
+        HtmlDocument doc = new HtmlDocument();
+        doc.Load(path);
+
+        List<HtmlNode> placemarks = doc.DocumentNode.SelectNodes("//placemark").ToList();
+
+        StringBuilder csv = new StringBuilder();
+
+        char[] seperator = new char[1] {' '};
+
+        foreach (HtmlNode placemark in placemarks) {
+            string tile = placemark.SelectSingleNode("name").InnerText;
+
+            // points are in the form lon, lat, alt
+            string[] centerArray = new string[2];
+            placemark.SelectSingleNode("multigeometry/point/coordinates").InnerText.Trim().Replace('\n', ' ').Split(',').ToList().CopyTo(0, centerArray, 0, 2);
+            string center = centerArray[1] + ", " + centerArray[0];
+
+            csv.Append($"{tile}, {center}");
+
+            // get boundary
+            // some tiles have multiple boundaries (im not sure why), but we only care about the first one
+            List<string> bounds = placemark.SelectSingleNode("multigeometry/polygon/outerboundaryis/linearring/coordinates").InnerText.Split(seperator, StringSplitOptions.RemoveEmptyEntries).ToList();
+            foreach (string b in bounds) {
+                List<string> split = b.Trim().Split(',').ToList();
+                if (split.Count == 1) continue;
+
+                string[] pointArray = new string[2];
+                split.CopyTo(0, pointArray, 0, 2);
+                string point = pointArray[1] + ", " + pointArray[0];
+                point = point.Replace('\n', ' ');
+
+                csv.Append($", {point}");
+            }
+
+            csv.Append('\n');
+        }
+
+        File.WriteAllText(outputPath, csv.ToString());
+    }
 }
+
+public class sentinelArea {
+    public string tile;
+    public List<geographic> corners = new List<geographic>();
+    public List<sentinelFile> files;
+
+    public sentinelArea(string tile, List<sentinelFile> files) {
+        this.files = files;
+    }
+
+    public static List<sentinelArea> sortFiles(List<sentinelFile> files) {
+        Dictionary<string, List<sentinelFile>> tiles = new Dictionary<string, List<sentinelFile>>();
+
+        // sort the files in respect to their tile
+        foreach (sentinelFile sf in files) {
+            if (tiles.ContainsKey(sf.tile)) tiles[sf.tile].Add(sf);
+            else tiles[sf.tile] = new List<sentinelFile>() {sf};
+        }
+
+        // create the sentinelArea
+        List<sentinelArea> output = new List<sentinelArea>();
+        foreach (List<sentinelFile> sfs in tiles.Values) output.Add(new sentinelArea(sfs[0].tile, sfs));
+
+        return output;
+    }
+}
+
 
 /// <summary> Represents a singular sentinel file (folder?). </summary>
 public class sentinelFile {
     public List<geographic> bounds = new List<geographic>();
     public Image<Rgb24> texture;
+    public string tile;
     public const int imageSize = 10980;
     public sentinelFile(string folder) {
         string pathToHtml = Path.Combine(folder, "HTML", "UserProduct_index.html");
         HtmlDocument doc = new HtmlDocument();
         doc.Load(pathToHtml);
+
+        // parse the product uri
+        HtmlNode uri = doc.DocumentNode.SelectSingleNode("//body").Elements("td").ToList()[0];
+        Debug.Log(uri.InnerText);
 
         // parse every value inside the Global Footprint header in the sentinel html file
         HtmlNode node = doc.DocumentNode.SelectSingleNode("//body").Elements("h1").ToList()[1];
