@@ -11,6 +11,7 @@ public struct geographic
         this.lon = Math.Min(Math.Max(-180, lon), 180);
     }
 
+    /// <summary> Parse DMS format. DO NOT USE WITH DECIMAL FORMAT </summary>
     public geographic(string lat, string lon) {
         double latSign = lat.Last() == 'S' ? -1 : 1;
         double lonSign = lon.Last() == 'W' ? -1 : 1;

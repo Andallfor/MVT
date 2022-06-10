@@ -9,6 +9,18 @@ using System;
 
 public static class csvParser
 {
+    /// <summary> Returns a dictionary (tilename, all data in line). Note that the tilename will be repeated in the value. </summary>
+    public static Dictionary<string, string> loadSentinelTiles(string path) {
+        // does not parse the value as it would unnecssary. we only use a few tiles so parsing all 57k would be wasteful
+        string[] data = File.ReadAllText(path).Split('\n');
+
+        Dictionary<string, string> output = new Dictionary<string, string>();
+        // the first 5 chars is always the tile name
+        foreach (string line in data) output[general.combineCharArray(line.Take(5).ToArray())] = line;
+
+        return output;
+    }
+
     public static Timeline loadPlanetCsv(string path, double timestep)
     {
         StringBuilder formatted = new StringBuilder();

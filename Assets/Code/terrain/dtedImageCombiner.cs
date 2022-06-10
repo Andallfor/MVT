@@ -16,6 +16,7 @@ Due to the way the sentinel textures are formatted, one area can have multiple t
 However, the sentinel files are not perfectly accurate. The texture provided is a square, implying that either sides should be parallel to each other. But the area covered by the texture (including the blank areas) is not a square. There is a few percent difference between opposite sides, so there will be minor distortation in the resultant texture.
 However, because each texture covers the exact same area, there should not be any noticable image splicing- its just that when overlayed on the dted mesh, the texture will be every so slightly off.
 TODO: This may be something we want to account for later, but for the moment the percent diff is small enough that it should be fine to ignore.
+TODO: Actually check if this is still true. We switched from manually calculating bounds to pulling it from offical sources, so the inaccuracies may not longer be true.
 */
 
 
@@ -29,51 +30,7 @@ public static class dtedImageCombiner
             sentFiles.Add(new sentinelFile(tile.FullName));
         }
 
-        // generate bounds for the files, assuming they all cover the same region
-        List<geographic> allBounds = new List<geographic>();
-        foreach (sentinelFile sf in sentFiles) allBounds.AddRange(sf.bounds);
-        // because the shape may be slightly irregular, we cant just get the bottom/right/etc most point
-        // as they may not actually be a corner
-        double maxN = -1000, maxS = 1000, maxE = -1000, maxW = 1000;
-        foreach (geographic point in allBounds) {
-            if (point.lat > maxN) maxN = point.lat;
-            if (point.lat < maxS) maxS = point.lat;
-            if (point.lon > maxE) maxE = point.lon;
-            if (point.lon < maxW) maxW = point.lon;
-        }
-
-        // predict the center of each corner
-        double cornerRadius = boundMax.distAs2DVector(boundMin) * 0.1;
-        List<geographic> predictedBounds = new List<geographic>() {
-            new geographic(maxN, maxE), // NE
-            new geographic(maxN, maxW), // NW
-            new geographic(maxS, maxE), // SE
-            new geographic(maxS, maxW)  // SW
-        };
-
-        geographic boundCenter = boundMin + (boundMax - boundMin) / 2.0;
-        List<geographic> corners = new List<geographic>();
-        foreach (geographic p in predictedBounds) {
-            double best = 0;
-            geographic corner = new geographic(0, 0);
-            foreach (geographic g in allBounds) {
-                // within the predicted area of each corner, cycle throw all the points in that area
-                if (p.distAs2DVector(g) < cornerRadius) {
-                    // the corner of a square/rect will have the greatest magntitude compared to the points near it, so the point
-                    // that we find that has the greatest magntitude to the center of the bounds is considered the corner
-                    double newMag = (p - boundCenter).magnitude();
-                    if (newMag > best) {
-                        best = newMag;
-                        corner = p;
-                    }
-                }
-            }
-
-            if (corner == new geographic(0, 0)) throw new Exception("Unable to find valid corner");
-
-            // because the order of foreach loops is not random, the resultant corners list will also be in the form NE, NW, SE, SW
-            corners.Add(corner);
-        }
+        List<sentinelArea> areas = sentinelArea.sortFiles(sentFiles);
 
         Texture2D texture = new Texture2D((int) resolution, (int) resolution);
 
@@ -82,26 +39,38 @@ public static class dtedImageCombiner
 
         for (double x = 0; x < resolution; x++) {
             for (double y = 0; y < resolution; y++) {
-                geographic point = boundMin + new geographic(yIncrement * y, xIncrement * x);
-                double xIndex = sentinelFile.imageSize * ((point.lon - corners[3].lon) / (corners[2].lon - corners[3].lon));
-                double yIndex = sentinelFile.imageSize * ((point.lat - corners[3].lat) / (corners[1].lat - corners[3].lat));
-
+                // the color that will be drawn onto the picture
                 Color32 c = new Color32(0, 0, 0, 0);
-                // point requested is in the bounds of the sentinel file
-                if (yIndex >= 0 && xIndex >= 0 && yIndex < sentinelFile.imageSize && xIndex < sentinelFile.imageSize) {
-                    foreach (sentinelFile sf in sentFiles) {
-                        // idk why its max - yIndex, it just works
-                        Rgb24 pixel = sf.texture[(int) xIndex, sentinelFile.imageSize - 1 - (int) yIndex];
-                        // if the pixel is black
+                geographic point = boundMin + new geographic(yIncrement * y, xIncrement * x);
+
+                foreach (sentinelArea sa in areas) {
+                    // check if the point were requesting is out of bounds for the current area
+                    // if so, continue and see if the next area contains said point
+                    if (point.lon > sa.corners[1].lon || point.lat > sa.corners[1].lat || point.lon < sa.corners[3].lon || point.lat < sa.corners[3].lat) continue;
+
+                    double xIndex = sentinelFile.imageSize * ((point.lon - sa.corners[3].lon) / (sa.corners[2].lon - sa.corners[3].lon));
+                    double yIndex = sentinelFile.imageSize * ((point.lat - sa.corners[3].lat) / (sa.corners[0].lat - sa.corners[3].lat));
+
+                    int xi = (int) Math.Min(sentinelFile.imageSize - 1, Math.Max(0, xIndex));
+                    int yi = (int) Math.Min(sentinelFile.imageSize - 1, Math.Max(0, sentinelFile.imageSize - yIndex)); // idk why its max - yIndex, it just works
+
+                    foreach (sentinelFile sf in sa.files) {
+                        // check to see if the image has the desired point
+                        Rgb24 pixel = sf.texture[xi, yi];
+
+                        // if the pixel is black (0, 0, 0) that means that the file does not have the desired pixel
                         if (pixel.R == 0 && pixel.G == 0 && pixel.B == 0) continue;
                         else {
                             c = new Color32(pixel.R, pixel.G, pixel.B, 255);
                             break;
                         }
+                        
                     }
+
+                    // if the alpha changes that means weve found a valid pixel, so no need to process more
+                    if (c.a != 0) break;
                 }
 
-                if (c.a == 0) c = new Color32(255, 255, 255, 255);
                 texture.SetPixel((int) x, (int) y, c);
             }    
         }
@@ -111,6 +80,7 @@ public static class dtedImageCombiner
         return texture;
     }
 
+    /// <summary> Returns a csv in the format tile, centerlat, centerlon, NWlat, NWlon, NElat, NElon, SElat, SElon, SWlat, SWlon, NWlat, NWlon </summary>
     public static void parseSentinelKML(string path, string outputPath) {
         HtmlDocument doc = new HtmlDocument();
         doc.Load(path);
@@ -154,12 +124,31 @@ public static class dtedImageCombiner
 }
 
 public class sentinelArea {
+    public static Dictionary<string, string> tileKey;
     public string tile;
+    /// <summary> NW, NE, SE, SW </summary>
     public List<geographic> corners = new List<geographic>();
+    public geographic center;
     public List<sentinelFile> files;
 
     public sentinelArea(string tile, List<sentinelFile> files) {
+        this.tile = tile;
         this.files = files;
+
+        // get the bounds and center data
+        List<string> data = tileKey[tile].Split(new string[1] {", "}, StringSplitOptions.RemoveEmptyEntries).Skip(1).ToList();
+
+        string[] center = data.Take(2).ToArray();
+        this.center = new geographic(double.Parse(center[0]), double.Parse(center[1]));
+
+        List<string[]> bounds = new List<string[]>() {
+            data.Skip(2).Take(2).ToArray(), // nw
+            data.Skip(4).Take(2).ToArray(), // ne
+            data.Skip(6).Take(2).ToArray(), // se
+            data.Skip(8).Take(2).ToArray()  // sw
+        };
+
+        foreach (string[] corner in bounds) corners.Add(new geographic(double.Parse(corner[0]), double.Parse(corner[1])));
     }
 
     public static List<sentinelArea> sortFiles(List<sentinelFile> files) {
@@ -192,8 +181,8 @@ public class sentinelFile {
         doc.Load(pathToHtml);
 
         // parse the product uri
-        HtmlNode uri = doc.DocumentNode.SelectSingleNode("//body").Elements("td").ToList()[0];
-        Debug.Log(uri.InnerText);
+        HtmlNode uri = doc.DocumentNode.SelectSingleNode("//body/table/tr[last()]/td");
+        tile = uri.InnerText.Split('_')[5].Remove(0, 1); // T at the start only indicates that it is a tile, which we dont care about
 
         // parse every value inside the Global Footprint header in the sentinel html file
         HtmlNode node = doc.DocumentNode.SelectSingleNode("//body").Elements("h1").ToList()[1];

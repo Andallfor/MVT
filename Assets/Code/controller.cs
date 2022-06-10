@@ -184,9 +184,10 @@ public class controller : MonoBehaviour
             "C:/Users/leozw/Desktop/divided/low",
             "C:/Users/leozw/Desktop/divided/tiny"});
         
+        sentinelArea.tileKey = csvParser.loadSentinelTiles("C:/Users/leozw/Desktop/dteds/Sentinel2Tiles.csv");
+        
         //dtedImageCombiner.parseSentinelKML("C:/Users/leozw/Desktop/S2A_OPER_GIP_TILPAR_MPC__20151209T095117_V20150622T000000_21000101T000000_B00.kml", "C:/Users/leozw/Desktop/Sentinel2Tiles.csv");
 
-        /*
         dtedImageCombiner.generateImage(new geographic(35, -117), new geographic(36, -116), "C:/Users/leozw/Desktop/dteds/toProcess");
         
         dtedInfo di = dtedReader.read("C:/Users/leozw/Desktop/dteds/WS1");
@@ -197,7 +198,6 @@ public class controller : MonoBehaviour
         di.distributor.drawAll(m,
             Resources.Load("Prefabs/PlanetMesh") as GameObject,
             new string[0], null);
-        */
 
         /*dtedInfo di = dtedReader.read("C:/Users/leozw/Desktop/n35_w117_1arc_v3.dt2");
         di.distributor.drawAll(Resources.Load("Materials/planets/earth/earth") as Material,
