@@ -15,9 +15,6 @@ public static class dtedReader {
     public static dtedInfo read(string folder) {
         DirectoryInfo dir = new DirectoryInfo(folder);
 
-        string sbounds = File.ReadAllText(dir.GetFiles().First(x => x.Name.Contains(".txt")).FullName);
-        List<geographic> bounds = parseBounds(sbounds); // br, tr, tl, bl
-
         FileStream fs = new FileStream(dir.GetFiles().First(x => x.Name.Contains(".dt2")).FullName, FileMode.Open);
 
         byte[] uhl = new byte[uhlLength];
@@ -37,21 +34,22 @@ public static class dtedReader {
         dtedDsi dd = new dtedDsi(dsi);
         dtedAcc da = new dtedAcc(acc);
 
-        geographic idealMin = new geographic(bounds.Min(x => x.lat), bounds.Min(x => x.lon));
-        geographic idealMax = new geographic(bounds.Max(x => x.lat), bounds.Max(x => x.lon));
+
+        string[] bounds = File.ReadAllText(dir.GetFiles().First(x => x.Name.Contains(".txt")).FullName).Split(',');
+        geographic sw = new geographic(double.Parse(bounds[0].Trim()), double.Parse(bounds[1].Trim()));
+        geographic ne = new geographic(double.Parse(bounds[2].Trim()), double.Parse(bounds[3].Trim()));
+
 
         meshDistributor<dtedBasedMesh> distributor = new meshDistributor<dtedBasedMesh>(
             new Vector2Int((int) dh.shape.x, (int) dh.shape.y),
             Vector2Int.zero, Vector2Int.zero,
             true,
             (Vector2Int v) => {
-                geographic currentGeo = dd.sw + new geographic((double) v.y / dh.shape.y, (double) v.x / dh.shape.x);
+                geographic p = dd.sw + new geographic((double) v.x / dh.shape.y, (double) v.y / dh.shape.x);
 
-                Vector2 idealCoord = new Vector2(
-                    (float) ((currentGeo.lon - idealMin.lon) / (idealMax.lon - idealMin.lon)),
-                    (float) ((currentGeo.lat - idealMin.lat) / (idealMax.lat - idealMin.lat)));
-                
-                return idealCoord;
+                return new Vector2(
+                    (float) ((p.lon - sw.lon) / (ne.lon - sw.lon)),
+                    (float) ((p.lat - sw.lat) / (ne.lat - sw.lat)));
             }
         );
 

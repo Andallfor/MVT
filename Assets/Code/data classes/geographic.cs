@@ -65,6 +65,7 @@ public struct geographic
             Math.Atan2(p.z, p.x) * (180.0 / Math.PI));
     }
 
+    /// <summary> Gets the distance between two geographic points, assuming the shortest path is on the sphere with radius </summary>
     public double distanceKm(geographic g, double radius) {
         double lt1 = this.lat * (Math.PI / 180.0);
         double ln1 = this.lon * (Math.PI / 180.0);

@@ -21,7 +21,7 @@ public static class dtedImageCombiner
 {
     private static List<sentinelFile> sentFiles = new List<sentinelFile>();
     private const double resolution = 10980; // This value must be <= then sentinelFile.imageSize
-    public static Texture2D generateImage(geographic boundMin, geographic boundMax, string imageFolder) {
+    public static Texture2D generateImage(geographic boundMin, geographic boundMax, string imageFolder, string outputFolder, string facilityName) {
         DirectoryInfo folder = new DirectoryInfo(imageFolder);
         foreach (DirectoryInfo tile in folder.EnumerateDirectories()) {
             sentFiles.Add(new sentinelFile(tile.FullName));
@@ -69,7 +69,8 @@ public static class dtedImageCombiner
             }    
         }
 
-        File.WriteAllBytes("C:/Users/leozw/Desktop/dteds/newTexture.png", texture.EncodeToJPG());
+        File.WriteAllBytes(Path.Combine(outputFolder, $"{facilityName}.png"), texture.EncodeToJPG());
+        File.WriteAllText(Path.Combine(outputFolder, $"{facilityName}.txt"), $"{boundMin.lat}, {boundMin.lon}, {boundMax.lat}, {boundMax.lon}");
 
         return texture;
     }
