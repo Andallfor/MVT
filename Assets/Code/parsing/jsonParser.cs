@@ -106,7 +106,10 @@ public static class jsonParser
 
         new facility(
             jfs.name, (parentExists) ? master.allPlanets.First(x => x.name == jfs.parentName) : master.sun,
-            new facilityData(new geographic(jfs.geo.lat, jfs.geo.lon)), 
+            new facilityData(
+                jfs.payload, jfs.groundStation, jfs.name, jfs.diameter, jfs.freqBand,
+                jfs.centerFreq, _dsGeographic(jfs.geo), jfs.alt, jfs.gPerT, jfs.maxRate, jfs.network, jfs.priority
+            ), 
             new representationData(jfs.representation.modelPath, jfs.representation.materialPath));
         
         if (!parentExists) addToQueue(new jsonQueueStruct(jfs.parentName, jfs.name));
@@ -127,14 +130,13 @@ public static class jsonParser
         return p;
     }
 
+    private static geographic _dsGeographic(jsonGeographicStruct jgs) => new geographic(jgs.lat, jgs.lon);
+
     private static Timeline _dsTimeline(jsonTimelineStruct jts)
     {
         Dictionary<double, position> d = new Dictionary<double, position>();
 
-        foreach (KeyValuePair<double, jsonPositionStruct> kvp in jts.positions)
-        {
-            d.Add(kvp.Key, _dsPosition(kvp.Value));
-        }
+        foreach (KeyValuePair<double, jsonPositionStruct> kvp in jts.positions) d.Add(kvp.Key, _dsPosition(kvp.Value));
 
         return new Timeline(d, jts.timestep);
     }

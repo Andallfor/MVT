@@ -74,7 +74,7 @@ public static class csvParser
         return new Timeline(processed, timestep);
     }
 
-    public static IEnumerable<facilityListStruct> loadFacilites(string path)
+    public static IEnumerable<facilityData> loadFacilites(string path)
     {
         Regex splitter = new Regex("," + "(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
         TextAsset data = Resources.Load(path) as TextAsset;
@@ -90,11 +90,24 @@ public static class csvParser
             }
             List<string> s = splitter.Split(line).ToList();
 
+            // TODO: add ability to read this
             if (master.allFacilites.Exists(x => x.name == s[2])) continue;
 
-            yield return new facilityListStruct(s[2], new geographic(
-                double.Parse(s[6], System.Globalization.NumberStyles.Any),
-                double.Parse(s[7], System.Globalization.NumberStyles.Any)));
+            yield return new facilityData(
+                payload: int.Parse(s[0], System.Globalization.NumberStyles.Any),
+                groundStation: s[1],
+                antenna: s[2],
+                diameter: double.Parse(s[3], System.Globalization.NumberStyles.Any),
+                freqBand: s[4],
+                centerFreq: double.Parse(s[5], System.Globalization.NumberStyles.Any),
+                geo: new geographic(
+                    double.Parse(s[6], System.Globalization.NumberStyles.Any),
+                    double.Parse(s[7], System.Globalization.NumberStyles.Any)),
+                alt: double.Parse(s[8], System.Globalization.NumberStyles.Any),
+                gPerT: double.Parse(s[9], System.Globalization.NumberStyles.Any),
+                maxRate: int.Parse(s[10], System.Globalization.NumberStyles.Any),
+                network: s[11],
+                priority: double.Parse(s[12], System.Globalization.NumberStyles.Any));
         }
     }
 
@@ -228,17 +241,4 @@ public static class csvParser
         {"THD", "THEMIS D"},
         {"THE", "THEMIS E"},
         {"AM1", "TERRA"}};
-}
-
-
-public struct facilityListStruct
-{
-    public geographic geo;
-    public string name;
-
-    public facilityListStruct(string name, geographic geo)
-    {
-        this.geo = geo;
-        this.name = name;
-    }
 }

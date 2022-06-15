@@ -308,10 +308,7 @@ public class controller : MonoBehaviour
             catch {UnityEngine.Debug.Log($"Unable to load {sat}");}
         }
 
-        foreach (facilityListStruct fls in csvParser.loadFacilites("CSVS/FACILITIES/stationList"))
-        {
-            new facility(fls.name, earth, new facilityData(fls.geo), frd);
-        }
+        foreach (facilityData fd in csvParser.loadFacilites("CSVS/FACILITIES/stationList")) new facility(fd.name, earth, fd, frd);
 
         master.setReferenceFrame(earth);
     }
@@ -338,10 +335,7 @@ public class controller : MonoBehaviour
         earth = new planet("Earth", new planetData(  6371,  true, "CSVS/PLANETS/Earth", oneHour, planetType.planet), erd);
         planet moon =        new planet( "Luna", new planetData(1738.1, false,  "CSVS/PLANETS/Luna", oneHour,   planetType.moon),  rd);
         
-        foreach (facilityListStruct fls in csvParser.loadFacilites("CSVS/FACILITIES/stationList"))
-        {
-            new facility(fls.name, earth, new facilityData(fls.geo), frd);
-        }
+        foreach (facilityData fd in csvParser.loadFacilites("CSVS/FACILITIES/stationList")) new facility(fd.name, earth, fd, frd);
 
         master.setReferenceFrame(earth);
 
