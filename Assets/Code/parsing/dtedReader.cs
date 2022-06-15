@@ -12,10 +12,8 @@ public static class dtedReader {
     public const int accLength = 2700;
     public const int textureSize = 10980;
 
-    public static dtedInfo read(string folder) {
-        DirectoryInfo dir = new DirectoryInfo(folder);
-
-        FileStream fs = new FileStream(dir.GetFiles().First(x => x.Name.Contains(".dt2")).FullName, FileMode.Open);
+    public static dtedInfo read(string dtedPath, string imageBoundsPath) {
+        FileStream fs = new FileStream(dtedPath, FileMode.Open);
 
         byte[] uhl = new byte[uhlLength];
         byte[] dsi = new byte[dsiLength];
@@ -35,7 +33,7 @@ public static class dtedReader {
         dtedAcc da = new dtedAcc(acc);
 
 
-        string[] bounds = File.ReadAllText(dir.GetFiles().First(x => x.Name.Contains(".txt")).FullName).Split(',');
+        string[] bounds = File.ReadAllText(imageBoundsPath).Split(',');
         geographic sw = new geographic(double.Parse(bounds[0].Trim()), double.Parse(bounds[1].Trim()));
         geographic ne = new geographic(double.Parse(bounds[2].Trim()), double.Parse(bounds[3].Trim()));
 

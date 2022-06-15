@@ -23,19 +23,20 @@ public static class dtedImageCombiner
     private const double resolution = 10980; // This value must be <= then sentinelFile.imageSize
     public static Texture2D generateImage(geographic boundMin, geographic boundMax, string imageFolder, string outputFolder, string facilityName) {
         DirectoryInfo folder = new DirectoryInfo(imageFolder);
-        foreach (DirectoryInfo tile in folder.EnumerateDirectories()) {
-            sentFiles.Add(new sentinelFile(tile.FullName));
-        }
-
+        foreach (DirectoryInfo tile in folder.EnumerateDirectories()) sentFiles.Add(new sentinelFile(tile.FullName));
         List<sentinelArea> areas = sentinelArea.sortFiles(sentFiles);
 
-        Texture2D texture = new Texture2D((int) resolution, (int) resolution);
+        double maxDist = Math.Max(boundMax.lon - boundMin.lon, boundMax.lat - boundMin.lat);
+        double resX = resolution * (boundMax.lon - boundMin.lon) / maxDist;
+        double resY = resolution * (boundMax.lat - boundMin.lat) / maxDist;
 
-        double xIncrement = (boundMax.lon - boundMin.lon) / resolution;
-        double yIncrement = (boundMax.lat - boundMin.lat) / resolution;
+        Texture2D texture = new Texture2D((int) resX, (int) resY);
 
-        for (double x = 0; x < resolution; x++) {
-            for (double y = 0; y < resolution; y++) {
+        double xIncrement = (boundMax.lon - boundMin.lon) / resX;
+        double yIncrement = (boundMax.lat - boundMin.lat) / resY;
+
+        for (double x = 0; x < resX; x++) {
+            for (double y = 0; y < resY; y++) {
                 // the color that will be drawn onto the picture
                 Color32 c = new Color32(0, 0, 0, 0);
                 geographic point = boundMin + new geographic(yIncrement * y, xIncrement * x);

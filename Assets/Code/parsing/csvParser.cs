@@ -74,11 +74,14 @@ public static class csvParser
         return new Timeline(processed, timestep);
     }
 
-    public static IEnumerable<facilityData> loadFacilites(string path)
+    /// <summary> Ignores antenna that has the same name </summary>
+    public static List<facilityData> loadFacilites(string path)
     {
         Regex splitter = new Regex("," + "(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
         TextAsset data = Resources.Load(path) as TextAsset;
         List<string> formatted = data.ToString().Split('\n').ToList();
+
+        List<facilityData> output = new List<facilityData>();
 
         int index = 0;
         foreach (string line in formatted)
@@ -91,9 +94,9 @@ public static class csvParser
             List<string> s = splitter.Split(line).ToList();
 
             // TODO: add ability to read this
-            if (master.allFacilites.Exists(x => x.name == s[2])) continue;
+            if (output.Exists(x => x.name == s[2])) continue;
 
-            yield return new facilityData(
+            output.Add(new facilityData(
                 payload: int.Parse(s[0], System.Globalization.NumberStyles.Any),
                 groundStation: s[1],
                 antenna: s[2],
@@ -107,8 +110,10 @@ public static class csvParser
                 gPerT: double.Parse(s[9], System.Globalization.NumberStyles.Any),
                 maxRate: int.Parse(s[10], System.Globalization.NumberStyles.Any),
                 network: s[11],
-                priority: double.Parse(s[12], System.Globalization.NumberStyles.Any));
+                priority: double.Parse(s[12], System.Globalization.NumberStyles.Any)));
         }
+
+        return output;
     }
 
     public static void loadScheduling(string path)
