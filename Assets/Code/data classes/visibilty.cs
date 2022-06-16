@@ -3,112 +3,189 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class visibility
+public static class visibility
 {
+  [Flags]
+  public enum raycastParameters
+  {
+      planet = 1,
+      satellite = 2,
+      facility = 4,
+      all = 8
+  }
 
-  public bool raycast(position position1, position position2, int flags, int defaultRadius = 1)
+  public struct raycastInfo
+  {
+
+    public bool hit;
+    public List<planet> hitPlanets;
+    public List<facility> hitFacs;
+    public List<satellite> hitSats;
+
+    public raycastInfo(bool hit, List<planet> HitPlanets, List<satellite> HitSats, List<facility> HitFacs)
+    {
+      this.hit = hit;
+      this.hitPlanets = HitPlanets;
+      this.hitSats = HitSats;
+      this.hitFacs = HitFacs;
+    }
+  }
+
+  public static double distance(position p1, position p2)
+  {
+     double distance = Math.Sqrt(Math.Pow((p1.x - p2.x) ,2) + Math.Pow((p1.y - p2.y) ,2) + Math.Pow((p1.z - p2.z), 2));
+     return distance;
+  }
+
+  public static double raycastMath(position position1, position position2, position obj)
+  {
+    double distance1 = distance(position1, obj);
+    double distancePercent = distance1 / distance(position1, position2);
+
+    position pointOnLine = new position((position1.x + position2.x) * distancePercent,
+    (position1.y + position2.y) * distancePercent,
+    (position1.z + position2.z) * distancePercent);
+
+    double distanceFromObj = distance(pointOnLine, obj);
+
+    return distanceFromObj;
+
+  }
+
+  //double.max
+
+  public static raycastInfo raycastHit(position p1, position p2, raycastParameters flags, int defaultRadius)
   {
     // 100 indicates planet search
     // 10 indicates a satellite search
     // 1 indicates a facility search
 
-    int c = 0;
-    int x = flags;
-    bool check = false;
+    List<planet> hitPlanets = new List<planet>();
+    List<facility> hitFacs = new List<facility>();
+    List<satellite> hitSats = new List<satellite>();
+    bool hit = false;
 
-
-    if (x - 100 >= 0)
+    if ((flags & raycastParameters.planet) == raycastParameters.planet)
     {
-      x = x - 100;
-      foreach (planet p in master.allPlanets)
+      foreach(planet p in master.allPlanets)
       {
-        double distance1 = Math.Sqrt(Math.Pow((position1.x - p.pos.x) ,2) + Math.Pow((position1.y - p.pos.y) ,2) + Math.Pow((position1.z - p.pos.z), 2));
-        double distancePercent = distance1 / Math.Sqrt(Math.Pow((position1.x - position2.x), 2) + Math.Pow((position1.y - position2.y), 2) + Math.Pow((position1.z - position2.z), 2));
-
-        double pointOnLineX = (position1.x + ((position2.x - position1.x) * distancePercent));
-        double pointOnLineY = (position1.y + ((position2.y - position1.y) * distancePercent));
-        double pointOnLineZ = (position1.z + ((position2.z - position1.z) * distancePercent));
-
-        double inRadius = Math.Sqrt(Math.Pow((pointOnLineX - p.pos.x), 2) + Math.Pow((pointOnLineY - p.pos.y), 2) + Math.Pow((pointOnLineX - p.pos.z), 2));
-
-        if (inRadius < p.radius)
+        if (distance(p1, p.pos) > distance(p1,p2))
         {
-          c = c + 1;
-        }
-        else
-        {
-          c = c + 0;
+          double distanceFromObj = raycastMath(p1, p2, p.pos);
+          if (distanceFromObj <= p.radius)
+          {
+            hit = true;
+            hitPlanets.Add(p);
+          }
         }
       }
     }
 
-    if (x - 10 >= 0)
+    if ((flags & raycastParameters.satellite) == raycastParameters.satellite)
     {
-      x = x - 10;
-
-      foreach (satellite sat in master.allSatellites)
+      foreach(satellite sat in master.allSatellites)
       {
-        double distance1 = Math.Sqrt(Math.Pow((position1.x - sat.pos.x), 2) + Math.Pow((position1.y - sat.pos.y), 2) + Math.Pow((position1.z - sat.pos.z), 2));
-        double distancePercent = distance1 / Math.Sqrt(Math.Pow((position1.x - position2.x), 2) + Math.Pow((position1.y - position2.y), 2) + Math.Pow((position1.z - position2.z), 2));
-
-        double pointOnLineX = (position1.x + ((position2.x - position1.x) * distancePercent));
-        double pointOnLineY = (position1.y + ((position2.y - position1.y) * distancePercent));
-        double pointOnLineZ = (position1.z + ((position2.z - position1.z) * distancePercent));
-
-        double inRadius = Math.Sqrt(Math.Pow((pointOnLineX - sat.pos.x), 2) + Math.Pow((pointOnLineY - sat.pos.y), 2) + Math.Pow((pointOnLineZ - sat.pos.z), 2));
-
-        if (inRadius < 1)
+        if (distance(p1, sat.pos) > distance(p1,p2))
         {
-          c = c + 1;
-        }
-        else
-        {
-          c = c + 0;
+          double distanceFromObj = raycastMath(p1, p2, sat.pos);
+          if (distanceFromObj <= defaultRadius)
+          {
+            hit = true;
+            hitSats.Add(sat);
+          }
         }
       }
     }
 
-    if (x - 1 >= 0)
+    if ((flags & raycastParameters.facility) == raycastParameters.facility)
     {
-      x = x - 1;
-
-      foreach (facility f in master.allFacilites)
+      foreach(facility f in master.allFacilites)
       {
-
-        //for now ill leave this as zero but when alt is added into geographic or the system in general ill put it in.
-        position fac = f.facParent.geoOnPlanet(f.geo, 0);
-        double distance1 = Math.Sqrt(Math.Pow((position1.x - fac.x),2) + Math.Pow((position1.y - fac.y), 2) + Math.Pow((position1.z - fac.z), 2));
-        double distancePercent = distance1 / Math.Sqrt(Math.Pow((position1.x - position2.x), 2) + Math.Pow((position1.y - position2.y), 2) + Math.Pow((position1.z - position2.z), 2));
-
-        double pointOnLineX = (position1.x + ((position2.x - position1.x) * distancePercent));
-        double pointOnLineY = (position1.y + ((position2.y - position1.y) * distancePercent));
-        double pointOnLineZ = (position1.z + ((position2.z - position1.z) * distancePercent));
-
-        double inRadius = Math.Sqrt(Math.Pow((pointOnLineX - fac.x), 2) + Math.Pow((pointOnLineY - fac.y), 2) + Math.Pow((pointOnLineZ - fac.z), 2));
-
-        if (inRadius < 1)
+        //alt is set to 0 now but eventually when altitudes are implemented in geographic positions they will be added here too
+        double alt = 0;
+        position fac = f.facParent.geoOnPlanet(f.geo, alt);
+        if (distance(p1, fac) > distance(p1,p2))
         {
-          c = c + 1;
-        }
-        else
-        {
-          c = c + 0;
+          double distanceFromObj = raycastMath(p1, p2, fac);
+          if (distanceFromObj <= defaultRadius)
+          {
+            hit = true;
+            hitFacs.Add(f);
+          }
         }
       }
     }
 
+    raycastInfo raycastInfo = new raycastInfo(hit, hitPlanets, hitSats, hitFacs);
+    return raycastInfo;
+  }
 
-    if (c == 0)
+  public static raycastInfo raycast(position p1, position p2, raycastParameters flags, int defaultRadius)
+  {
+    // 100 indicates planet search
+    // 10 indicates a satellite search
+    // 1 indicates a facility search
+
+    List<planet> hitPlanets = new List<planet>();
+    List<facility> hitFacs = new List<facility>();
+    List<satellite> hitSats = new List<satellite>();
+    bool hit = false;
+
+    if ((flags & raycastParameters.planet) == raycastParameters.planet)
     {
-      check = false;
+      foreach(planet p in master.allPlanets)
+      {
+        if (distance(p1, p.pos) > distance(p1,p2))
+        {
+          double distanceFromObj = raycastMath(p1, p2, p.pos);
+          if (distanceFromObj <= p.radius)
+          {
+            hitPlanets.Add(p);
+            hit = true;
+            break;
+          }
+        }
+      }
     }
-    else
+
+    if ((flags & raycastParameters.satellite) == raycastParameters.satellite)
     {
-      check = true;
+      foreach(satellite sat in master.allSatellites)
+      {
+        if (distance(p1, sat.pos) > distance(p1,p2))
+        {
+          double distanceFromObj = raycastMath(p1, p2, sat.pos);
+          if (distanceFromObj <= defaultRadius)
+          {
+            hitSats.Add(sat);
+            hit = true;
+            break;
+          }
+        }
+      }
     }
 
-    //u
-    return check;
+    if ((flags & raycastParameters.facility) == raycastParameters.facility)
+    {
+      foreach(facility f in master.allFacilites)
+      {
+        //alt is set to 0 now but eventually when altitudes are implemented in geographic positions they will be added here too
+        double alt = 0;
+        position fac = f.facParent.geoOnPlanet(f.geo, alt);
+        if (distance(p1, fac) > distance(p1,p2))
+        {
+          double distanceFromObj = raycastMath(p1, p2, fac);
+          if (distanceFromObj <= defaultRadius)
+          {
+            hitFacs.Add(f);
+            hit = true;
+            break;
+          }
+        }
+      }
+    }
 
+    raycastInfo raycastInfo = new raycastInfo(hit, hitPlanets, hitSats, hitFacs);
+    return raycastInfo;
   }
 }
