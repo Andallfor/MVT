@@ -175,6 +175,9 @@ public class controller : MonoBehaviour
             },
             100, "C:/Users/leozw/Desktop/divided/earthNormal.jpg");*/
         
+        //List<nearbyFacilites> nfs = highResTerrain.neededAreas();
+        //foreach (nearbyFacilites nf in nfs) Debug.Log(nf);
+        
         planetTerrain pt = new planetTerrain(6371, 35, earth);
         pt.generateFolderInfos(new string[6] {
             "C:/Users/leozw/Desktop/divided/ultra",
@@ -184,18 +187,23 @@ public class controller : MonoBehaviour
             "C:/Users/leozw/Desktop/divided/low",
             "C:/Users/leozw/Desktop/divided/tiny"});
         
-        //sentinelArea.tileKey = csvParser.loadSentinelTiles("C:/Users/leozw/Desktop/dteds/Sentinel2Tiles.csv");
         //dtedImageCombiner.parseSentinelKML("C:/Users/leozw/Desktop/S2A_OPER_GIP_TILPAR_MPC__20151209T095117_V20150622T000000_21000101T000000_B00.kml", "C:/Users/leozw/Desktop/Sentinel2Tiles.csv");
-        //dtedImageCombiner.generateImage(new geographic(35, -117), new geographic(36, -116), "C:/Users/leozw/Desktop/dteds/toProcess", "C:/Users/leozw/Desktop/dteds/DSS 24", "DSS 24");
+        //sentinelArea.tileKey = csvParser.loadSentinelTiles("C:/Users/leozw/Desktop/dteds/Sentinel2Tiles.csv");
+        //dtedImageCombiner.generateImage(new geographic(34.8376, -117.3898), new geographic(35.9259, -116.3749), "C:/Users/leozw/Desktop/dteds/toProcess", "C:/Users/leozw/Desktop/dteds/Goldstone", "Goldstone");
         
-        dtedInfo di = dtedReader.read("C:/Users/leozw/Desktop/dteds/DSS 24");
+        //dtedInfo di1 = dtedReader.readDted("C:/Users/leozw/Desktop/dteds/Goldstone/a.dt2", "C:/Users/leozw/Desktop/dteds/Goldstone/Goldstone.txt", true);
+        //dtedInfo di2 = dtedReader.readDted("C:/Users/leozw/Desktop/dteds/Goldstone/b.dt2", "C:/Users/leozw/Desktop/dteds/Goldstone/Goldstone.txt", true);
+        //dtedInfo di3 = dtedReader.readDted("C:/Users/leozw/Desktop/dteds/Goldstone/c.dt2", "C:/Users/leozw/Desktop/dteds/Goldstone/Goldstone.txt", true);
+        //dtedInfo di4 = dtedReader.readDted("C:/Users/leozw/Desktop/dteds/Goldstone/d.dt2", "C:/Users/leozw/Desktop/dteds/Goldstone/Goldstone.txt", true);
+
+        //dtedReader.toFile(new List<dtedInfo>() {di1, di2, di3, di4}, new geographic(34.8376, -117.3898), new geographic(35.9259, -116.3749), "C:/Users/leozw/Desktop/dteds/goldstone/goldstone.hrt");
 
         Texture2D tex = new Texture2D(10980, 10980);
-        tex.LoadImage(File.ReadAllBytes(new DirectoryInfo("C:/Users/leozw/Desktop/dteds/DSS 24").GetFiles().First(x => x.Name.Contains(".png")).FullName));
+        tex.LoadImage(File.ReadAllBytes("C:/Users/leozw/Desktop/dteds/goldstone/goldstone.png"));
         Material m = new Material(Resources.Load("Materials/planets/earth/earth") as Material);
         m.mainTexture = tex;
 
-        di.distributor.drawAll(m, Resources.Load("Prefabs/PlanetMesh") as GameObject, new string[0], null);
+        highResTerrain.readHRT("C:/Users/leozw/Desktop/dteds/goldstone/goldstone.hrt").drawAll(m, Resources.Load("Prefabs/PlanetMesh") as GameObject, new string[0], null);
         
         return pt;
     }

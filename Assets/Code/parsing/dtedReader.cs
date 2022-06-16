@@ -4,6 +4,7 @@ using UnityEngine;
 using System.IO;
 using System.Linq;
 using System;
+using System.Text;
 
 public static class dtedReader {
     public const int VOID_VALUE = -32767;
@@ -12,7 +13,7 @@ public static class dtedReader {
     public const int accLength = 2700;
     public const int textureSize = 10980;
 
-    public static dtedInfo read(string dtedPath, string imageBoundsPath) {
+    public static dtedInfo readDted(string dtedPath, string imageBoundsPath, bool saveData = false) {
         FileStream fs = new FileStream(dtedPath, FileMode.Open);
 
         byte[] uhl = new byte[uhlLength];
@@ -59,7 +60,9 @@ public static class dtedReader {
         checksum
         */
 
-        position offset = calcPoint(dd.sw - new geographic(0.5, 0.5), dd.sw, new position(0, 0, 0), 0).swapAxis();
+        position offset = centerDtedPoint(dd.sw - new geographic(0.5, 0.5), dd.sw, new position(0, 0, 0), 0).swapAxis();
+        double[] points = new double[0];
+        if (saveData) points = new double[(int) (dh.shape.x * dh.shape.y)];
 
         for (int i = 0; i < data.Length / dd.dataBlockLength; i++) {
             // throw everything into an array
@@ -76,34 +79,62 @@ public static class dtedReader {
                 byte[] _b = reader.read(2).Reverse().ToArray();
                 double h = BitConverter.ToInt16(_b, 0);
                 geographic g = new geographic(index * dh.interval.y, 0) + origin;
-                distributor.addPoint(index, i, calcPoint(dd.sw, g, offset, h));
+                distributor.addPoint(index, i, centerDtedPoint(dd.sw, g, offset, h));
+
+                // points are given in lat... lon order but we want it to be the other way around 
+                // (x corresponds with lon, y with lat) so invert
+                if (saveData) points[i + index * ((dd.dataBlockLength - 12) / 2)] = h;
             }
             reader.read(4);
         }
 
-        return new dtedInfo(dh, dd, da, distributor);
+        return new dtedInfo(dh, dd, da, distributor, points);
     }
 
-    private static List<geographic> parseBounds(string d) {
-        string[] _d = d.Split(new char[1] {' '}, StringSplitOptions.RemoveEmptyEntries);
-        List<geographic> output = new List<geographic>();
-        for (int i = 0; i < 8; i += 2) {
-            double[] db = new double[2];
-            for (int j = 0; j < 2; j++) {
-                db[j] = double.Parse(_d[i + j]);
-            }
-
-            output.Add(new geographic(db[0], db[1]));
-        }
-
-        return output;
-    }
-
-    private static position calcPoint(geographic sw, geographic g, position p, double h) => (g.toCartesian(6371.0 + h / 1000.0)
+    public static position centerDtedPoint(geographic sw, geographic g, position p, double h) => (g.toCartesian(6371.0 + h / 1000.0)
         .rotate(0, 0, (-sw.lon - 0.5) * (Mathf.PI / 180.0))
         .rotate((270.0 + sw.lat) * (Math.PI / 180.0), 0, 0)
         - p)
         .swapAxis();
+
+    public static void toFile(List<dtedInfo> data, geographic min, geographic max, string outputPath) {
+        // assumes all dteds have the same info
+        double interval = 1.0 / 3600.0;
+
+        double resX = Math.Floor((max.lon - min.lon) / interval);
+        double resY = Math.Floor((max.lat - min.lat) / interval);
+
+        StringBuilder sb = new StringBuilder();
+        sb.Append($"Interval:{interval}\nMin:{min.lat},{min.lon}\nMax:{max.lat},{max.lon}\nShape:{resX},{resY}\n");
+
+        // start from top left corner (NW) because that is how the info will be pasted into the file
+        for (double y = resY; y > 0; y--) {
+            for (double x = 0; x < resX; x++) {
+                geographic desiredPoint = min + new geographic(y * interval, x * interval);
+                bool foundPoint = false;
+
+                foreach (dtedInfo di in data) {
+                    // check if the dted contains desiredPoint
+                    if (desiredPoint.lat > di.dd.ne.lat || desiredPoint.lat < di.dd.sw.lat ||
+                        desiredPoint.lon > di.dd.ne.lon || desiredPoint.lon < di.dd.sw.lon) continue;
+                    
+                    foundPoint = true;
+                       
+                    int indexX = (int) Math.Round((desiredPoint.lon - di.dd.sw.lon) / interval);
+                    int indexY = (int) Math.Round((desiredPoint.lat - di.dd.sw.lat) / interval);
+
+                    sb.Append($" {di.points[indexY * 3601 + indexX]}");
+                    
+                    break;
+                }
+
+                if (!foundPoint) sb.Append(" 0");
+            }
+            sb.Append('\n');
+        }
+
+        File.WriteAllText(Path.Combine(outputPath), sb.ToString());
+    }
 }
 
 // TODO: we dont actually use this class -> remove
@@ -116,12 +147,14 @@ public struct dtedInfo {
     public dtedDsi dd;
     public dtedAcc da;
     public meshDistributor<dtedBasedMesh> distributor;
+    public double[] points;
 
-    public dtedInfo(dtedUhl du, dtedDsi dd, dtedAcc da, meshDistributor<dtedBasedMesh> m) {
+    public dtedInfo(dtedUhl du, dtedDsi dd, dtedAcc da, meshDistributor<dtedBasedMesh> m, double[] points) {
         this.du = du;
         this.dd = dd;
         this.da = da;
         this.distributor = m;
+        this.points = points;
     }
 }
 

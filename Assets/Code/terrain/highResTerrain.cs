@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.IO;
+using System;
 
 public static class highResTerrain {
     public static List<nearbyFacilites> neededAreas() {
@@ -19,6 +21,46 @@ public static class highResTerrain {
         }
 
         return nfs;
+    }
+
+    public static meshDistributor<dtedBasedMesh> readHRT(string path) {
+        string[] data = File.ReadAllLines(path);
+
+        double interval = double.Parse(data[0].Split(':')[1]);
+        geographic min = new geographic( // this is fine i promise
+            double.Parse(data[1].Split(':')[1].Split(',')[0]),
+            double.Parse(data[1].Split(':')[1].Split(',')[1]));
+        geographic max = new geographic(
+            double.Parse(data[2].Split(':')[1].Split(',')[0]),
+            double.Parse(data[2].Split(':')[1].Split(',')[1]));
+        
+        double resX = double.Parse(data[3].Split(':')[1].Split(',')[0]);
+        double resY = double.Parse(data[3].Split(':')[1].Split(',')[1]);
+
+        char[] splitter = new char[1] {' '};
+
+        meshDistributor<dtedBasedMesh> distributor = new meshDistributor<dtedBasedMesh>(
+            new Vector2Int((int) resX, (int) resY),
+            Vector2Int.zero, Vector2Int.zero,
+            true,
+            customUV: (Vector2Int v) => new Vector2((float) v.x / (float) resX, (float) (resY - v.y) / (float) resY)
+        );
+
+        geographic nw = new geographic(max.lat, min.lon);
+        position offset = dtedReader.centerDtedPoint(min - new geographic(0.5, 0.5), min, new position(0, 0, 0), 0).swapAxis();
+
+        for (int y = 0; y < resY; y++) {
+            string[] line = data[y + 4].Split(splitter, StringSplitOptions.RemoveEmptyEntries);
+            for (int x = 0; x < resX; x++) {
+                double h = double.Parse(line[x]);
+
+                geographic g = nw + new geographic(-(y / resY) * (max.lat - min.lat), (x / resX) * (max.lon - min.lon));
+
+                distributor.addPoint(x, y, dtedReader.centerDtedPoint(min, g, offset, h));
+            }
+        }
+
+        return distributor;
     }
 }
 
