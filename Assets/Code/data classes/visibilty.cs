@@ -31,51 +31,51 @@ public static class visibility
     }
   }
 
-  public static double distance(position p1, position p2)
+  private static double raycastMath(position position1, position position2, position obj)
   {
-     double distance = Math.Sqrt(Math.Pow((p1.x - p2.x) ,2) + Math.Pow((p1.y - p2.y) ,2) + Math.Pow((p1.z - p2.z), 2));
-     return distance;
-  }
-
-  public static double raycastMath(position position1, position position2, position obj)
-  {
-    double distance1 = distance(position1, obj);
-    double distancePercent = distance1 / distance(position1, position2);
+    double distance1 = position.distance(position1, obj);
+    double distancePercent = distance1 / position.distance(position1, position2);
 
     position pointOnLine = new position((position1.x + position2.x) * distancePercent,
     (position1.y + position2.y) * distancePercent,
     (position1.z + position2.z) * distancePercent);
 
-    double distanceFromObj = distance(pointOnLine, obj);
+    double distanceFromObj = position.distance(pointOnLine, obj);
 
     return distanceFromObj;
 
   }
-
-  //double.max
-
-  public static raycastInfo raycastHit(position p1, position p2, raycastParameters flags, int defaultRadius)
+  /// <summary> This is the main raycast function for our program and it takes in 5 arguments. The final argument if set true will return a list of all the hit objects, but if it is set to false the program will break after the first object is hit <summary> ///
+  public static raycastInfo raycast(position p1, position p2, raycastParameters flags, int defaultRadius, bool returnAllHit)
   {
-    // 100 indicates planet search
-    // 10 indicates a satellite search
-    // 1 indicates a facility search
 
     List<planet> hitPlanets = new List<planet>();
     List<facility> hitFacs = new List<facility>();
     List<satellite> hitSats = new List<satellite>();
     bool hit = false;
 
+    double p1p2Distance = position.distance(p1,p2);
+
     if ((flags & raycastParameters.planet) == raycastParameters.planet)
     {
       foreach(planet p in master.allPlanets)
       {
-        if (distance(p1, p.pos) > distance(p1,p2))
+        if (position.distance(p1, p.pos) > p1p2Distance)
         {
           double distanceFromObj = raycastMath(p1, p2, p.pos);
           if (distanceFromObj <= p.radius)
           {
-            hit = true;
-            hitPlanets.Add(p);
+            if (returnAllHit == true)
+            {
+              hit = true;
+              hitPlanets.Add(p);
+            }
+            else
+            {
+              hitPlanets.Add(p);
+              hit = true;
+              break;
+            }
           }
         }
       }
@@ -85,64 +85,94 @@ public static class visibility
     {
       foreach(satellite sat in master.allSatellites)
       {
-        if (distance(p1, sat.pos) > distance(p1,p2))
+        if (position.distance(p1, sat.pos) > p1p2Distance)
         {
           double distanceFromObj = raycastMath(p1, p2, sat.pos);
           if (distanceFromObj <= defaultRadius)
           {
-            hit = true;
-            hitSats.Add(sat);
+            if (returnAllHit == true)
+            {
+              hit = true;
+              hitSats.Add(sat);
+            }
+            else
+            {
+              hitSats.Add(sat);
+              hit = true;
+              break;
+            }
           }
         }
       }
     }
+
 
     if ((flags & raycastParameters.facility) == raycastParameters.facility)
     {
       foreach(facility f in master.allFacilites)
       {
-        //alt is set to 0 now but eventually when altitudes are implemented in geographic positions they will be added here too
         double alt = 0;
         position fac = f.facParent.geoOnPlanet(f.geo, alt);
-        if (distance(p1, fac) > distance(p1,p2))
+        if (position.distance(p1, fac) > p1p2Distance)
         {
           double distanceFromObj = raycastMath(p1, p2, fac);
           if (distanceFromObj <= defaultRadius)
           {
-            hit = true;
-            hitFacs.Add(f);
+            if (returnAllHit == true)
+            {
+              hit = true;
+              hitFacs.Add(f);
+            }
+            else
+            {
+              hitFacs.Add(f);
+              hit = true;
+              break;
+            }
           }
         }
       }
     }
-
     raycastInfo raycastInfo = new raycastInfo(hit, hitPlanets, hitSats, hitFacs);
     return raycastInfo;
   }
 
-  public static raycastInfo raycast(position p1, position p2, raycastParameters flags, int defaultRadius)
+/// <summary> This is the like the above raycast function but the second argument is the direction of the desired vector <summary> ///
+  public static raycastInfo raycastVector(position p1, position vector, raycastParameters flags, int defaultRadius, bool returnAllHit)
   {
-    // 100 indicates planet search
-    // 10 indicates a satellite search
-    // 1 indicates a facility search
 
     List<planet> hitPlanets = new List<planet>();
     List<facility> hitFacs = new List<facility>();
     List<satellite> hitSats = new List<satellite>();
     bool hit = false;
 
+    position p2 = new position(
+    double.MaxValue/4.0 + vector.x,
+     double.MaxValue/4.0 + vector.y,
+      double.MaxValue/4.0 + vector.z);
+
+    double p1p2Distance = position.distance(p1,p2);
+
     if ((flags & raycastParameters.planet) == raycastParameters.planet)
     {
       foreach(planet p in master.allPlanets)
       {
-        if (distance(p1, p.pos) > distance(p1,p2))
+        if (position.distance(p1, p.pos) > p1p2Distance)
         {
           double distanceFromObj = raycastMath(p1, p2, p.pos);
           if (distanceFromObj <= p.radius)
           {
-            hitPlanets.Add(p);
-            hit = true;
-            break;
+            if (returnAllHit == true)
+            {
+              hit = true;
+              hitPlanets.Add(p);
+            }
+            else
+            {
+              hitPlanets.Add(p);
+              hit = true;
+              break;
+            }
           }
         }
       }
@@ -152,14 +182,22 @@ public static class visibility
     {
       foreach(satellite sat in master.allSatellites)
       {
-        if (distance(p1, sat.pos) > distance(p1,p2))
+        if (position.distance(p1, sat.pos) > p1p2Distance)
         {
           double distanceFromObj = raycastMath(p1, p2, sat.pos);
           if (distanceFromObj <= defaultRadius)
           {
-            hitSats.Add(sat);
-            hit = true;
-            break;
+            if (returnAllHit == true)
+            {
+              hit = true;
+              hitSats.Add(sat);
+            }
+            else
+            {
+              hitSats.Add(sat);
+              hit = true;
+              break;
+            }
           }
         }
       }
@@ -169,169 +207,29 @@ public static class visibility
     {
       foreach(facility f in master.allFacilites)
       {
-        //alt is set to 0 now but eventually when altitudes are implemented in geographic positions they will be added here too
         double alt = 0;
         position fac = f.facParent.geoOnPlanet(f.geo, alt);
-        if (distance(p1, fac) > distance(p1,p2))
+        if (position.distance(p1, fac) > p1p2Distance)
         {
           double distanceFromObj = raycastMath(p1, p2, fac);
           if (distanceFromObj <= defaultRadius)
           {
-            hitFacs.Add(f);
-            hit = true;
-            break;
+            if (returnAllHit == true)
+            {
+              hit = true;
+              hitFacs.Add(f);
+            }
+            else
+            {
+              hitFacs.Add(f);
+              hit = true;
+              break;
+            }
           }
         }
       }
     }
-
     raycastInfo raycastInfo = new raycastInfo(hit, hitPlanets, hitSats, hitFacs);
     return raycastInfo;
-  }
-
-//vector functions, the second number is the vector
-public static raycastInfo raycastvector(position p1, position vector, raycastParameters flags, int defaultRadius)
-{
-  // 100 indicates planet search
-  // 10 indicates a satellite search
-  // 1 indicates a facility search
-
-  List<planet> hitPlanets = new List<planet>();
-  List<facility> hitFacs = new List<facility>();
-  List<satellite> hitSats = new List<satellite>();
-  bool hit = false;
-
-  position p2 = new position(
-  double.MaxValue/4 + vector.x,
-   double.MaxValue/4 + vector.y,
-    double.MaxValue/4 + vector.z);
-
-  if ((flags & raycastParameters.planet) == raycastParameters.planet)
-  {
-    foreach(planet p in master.allPlanets)
-    {
-      if (distance(p1, p.pos) > distance(p1,p2))
-      {
-        double distanceFromObj = raycastMath(p1, p2, p.pos);
-        if (distanceFromObj <= p.radius)
-        {
-          hitPlanets.Add(p);
-          hit = true;
-          break;
-        }
-      }
-    }
-  }
-
-  if ((flags & raycastParameters.satellite) == raycastParameters.satellite)
-  {
-    foreach(satellite sat in master.allSatellites)
-    {
-      if (distance(p1, sat.pos) > distance(p1,p2))
-      {
-        double distanceFromObj = raycastMath(p1, p2, sat.pos);
-        if (distanceFromObj <= defaultRadius)
-        {
-          hitSats.Add(sat);
-          hit = true;
-          break;
-        }
-      }
-    }
-  }
-
-  if ((flags & raycastParameters.facility) == raycastParameters.facility)
-  {
-    foreach(facility f in master.allFacilites)
-    {
-      //alt is set to 0 now but eventually when altitudes are implemented in geographic positions they will be added here too
-      double alt = 0;
-      position fac = f.facParent.geoOnPlanet(f.geo, alt);
-      if (distance(p1, fac) > distance(p1,p2))
-      {
-        double distanceFromObj = raycastMath(p1, p2, fac);
-        if (distanceFromObj <= defaultRadius)
-        {
-          hitFacs.Add(f);
-          hit = true;
-          break;
-        }
-      }
-    }
-  }
-
-  raycastInfo raycastInfo = new raycastInfo(hit, hitPlanets, hitSats, hitFacs);
-  return raycastInfo;
-}
-
-public static raycastInfo raycastvectorHit(position p1, position vector, raycastParameters flags, int defaultRadius)
-{
-  // 100 indicates planet search
-  // 10 indicates a satellite search
-  // 1 indicates a facility search
-
-  List<planet> hitPlanets = new List<planet>();
-  List<facility> hitFacs = new List<facility>();
-  List<satellite> hitSats = new List<satellite>();
-  bool hit = false;
-
-  position p2 = new position(
-  double.MaxValue/4 + vector.x,
-   double.MaxValue/4 + vector.y,
-    double.MaxValue/4 + vector.z);
-
-  if ((flags & raycastParameters.planet) == raycastParameters.planet)
-  {
-    foreach(planet p in master.allPlanets)
-    {
-      if (distance(p1, p.pos) > distance(p1,p2))
-      {
-        double distanceFromObj = raycastMath(p1, p2, p.pos);
-        if (distanceFromObj <= p.radius)
-        {
-          hit = true;
-          hitPlanets.Add(p);
-        }
-      }
-    }
-  }
-
-  if ((flags & raycastParameters.satellite) == raycastParameters.satellite)
-  {
-    foreach(satellite sat in master.allSatellites)
-    {
-      if (distance(p1, sat.pos) > distance(p1,p2))
-      {
-        double distanceFromObj = raycastMath(p1, p2, sat.pos);
-        if (distanceFromObj <= defaultRadius)
-        {
-          hit = true;
-          hitSats.Add(sat);
-        }
-      }
-    }
-  }
-
-  if ((flags & raycastParameters.facility) == raycastParameters.facility)
-  {
-    foreach(facility f in master.allFacilites)
-    {
-      //alt is set to 0 now but eventually when altitudes are implemented in geographic positions they will be added here too
-      double alt = 0;
-      position fac = f.facParent.geoOnPlanet(f.geo, alt);
-      if (distance(p1, fac) > distance(p1,p2))
-      {
-        double distanceFromObj = raycastMath(p1, p2, fac);
-        if (distanceFromObj <= defaultRadius)
-        {
-          hit = true;
-          hitFacs.Add(f);
-        }
-      }
-    }
-  }
-
-  raycastInfo raycastInfo = new raycastInfo(hit, hitPlanets, hitSats, hitFacs);
-  return raycastInfo;
   }
 }
