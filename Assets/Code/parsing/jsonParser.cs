@@ -102,17 +102,21 @@ public static class jsonParser
     private static void _dsFacility(jsonFacilityStruct jfs)
     {
         bool parentExists = false;
-        if (master.allPlanets.Exists(x => x.name == jfs.name)) parentExists = true;
+        if (master.allPlanets.Exists(x => x.name == jfs.parent)) parentExists = true;
+
+        List<antennaData> antennas = new List<antennaData>();
+        foreach (jsonAntennaStruct jas in jfs.antennas) antennas.Add(_dsAntenna(jas));
 
         new facility(
-            jfs.name, (parentExists) ? master.allPlanets.First(x => x.name == jfs.parentName) : master.sun,
+            jfs.name, (parentExists) ? master.allPlanets.First(x => x.name == jfs.parent) : master.sun,
             new facilityData(
-                jfs.payload, jfs.groundStation, jfs.name, jfs.diameter, jfs.freqBand,
-                jfs.centerFreq, _dsGeographic(jfs.geo), jfs.alt, jfs.gPerT, jfs.maxRate, jfs.network, jfs.priority
+                jfs.name,
+                _dsGeographic(jfs.geo),
+                antennas
             ), 
             new representationData(jfs.representation.modelPath, jfs.representation.materialPath));
         
-        if (!parentExists) addToQueue(new jsonQueueStruct(jfs.parentName, jfs.name));
+        if (!parentExists) addToQueue(new jsonQueueStruct(jfs.parent, jfs.name));
     }
 
     private static void _dsSystem(jsonSystemStruct jss)
@@ -129,6 +133,21 @@ public static class jsonParser
 
         return p;
     }
+
+    private static antennaData _dsAntenna(jsonAntennaStruct jas) => new antennaData(
+        jas.payload,
+        jas.groundStation,
+        jas.name,
+        jas.diameter,
+        jas.freqBand,
+        jas.centerFreq,
+        _dsGeographic(jas.geo),
+        jas.alt,
+        jas.gPerT,
+        jas.maxRate,
+        jas.network,
+        jas.priority
+    );
 
     private static geographic _dsGeographic(jsonGeographicStruct jgs) => new geographic(jgs.lat, jgs.lon);
 
