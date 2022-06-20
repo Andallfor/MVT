@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 using TMPro;
 
-public class facilityRepresentation
+public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct>
 {
     private planet parent;
     private representationData data;
@@ -14,7 +14,7 @@ public class facilityRepresentation
     private List<antennaRepresentation> antennas;
     public MeshRenderer mr {get; private set;}
     public GameObject gameObject;
-    private string shownNameText;
+    private string shownNameText, name;
     private float r;
     public bool selected {get; private set;}
 
@@ -29,6 +29,7 @@ public class facilityRepresentation
         this.shownNameText = name;
         this.parent = parent;
         this.geo = geo;
+        this.name = name;
         this.data = data;
         this.antennas = new List<antennaRepresentation>();
 
@@ -39,6 +40,32 @@ public class facilityRepresentation
 
         r = 25f / (float) master.scale;
         this.gameObject.transform.localScale = new Vector3(r, r, r);
+
+        GameObject canvas = GameObject.FindGameObjectWithTag("ui/canvas");
+        lr = gameObject.GetComponent<LineRenderer>();
+        lr.positionCount = 2;
+        mr = gameObject.GetComponent<MeshRenderer>();
+
+        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
+        shownName.gameObject.transform.SetParent(canvas.transform, false);
+        shownName.fontSize = 25;
+        shownName.text = name;
+        shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
+    }
+
+    public void regenerate() {
+        if (gameObject != null) GameObject.Destroy(gameObject);
+        if (shownName != null) GameObject.Destroy(shownName.gameObject);
+
+        gameObject = GameObject.Instantiate(data.model);
+        gameObject.GetComponent<MeshRenderer>().material = data.material;
+        gameObject.transform.parent = parent.representation.gameObject.transform;
+        gameObject.transform.localScale = new Vector3(r, r, r);
+
+        this.gameObject.name = name;
+        this.shownNameText = name;
+
+        foreach (antennaRepresentation ad in antennas) ad.regenerate(this.gameObject);
 
         GameObject canvas = GameObject.FindGameObjectWithTag("ui/canvas");
         lr = gameObject.GetComponent<LineRenderer>();

@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
-using TMPro;
 using UnityEngine.EventSystems;
-using System.Threading.Tasks;
 using System.IO;
+using UnityEngine.SceneManagement;
 
 public class controller : MonoBehaviour
 {
@@ -14,6 +13,7 @@ public class controller : MonoBehaviour
     public static planet earth;
     private double speed = 0.00005;
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
+    private Coroutine loop;
 
     void Awake() {
         // eventually i want to be able to enable this- the only thing currently preventing this is Physics.raycast
@@ -22,6 +22,11 @@ public class controller : MonoBehaviour
 
     void Start()
     {
+        if (sceneController.alreadyStarted) return;
+        sceneController.alreadyStarted = true;
+
+        SceneManager.sceneLoaded += sceneController.prepareScene;
+
         master.sun = new planet("Sun", new planetData(695700, false, "CSVS/NEW/PLANETS/Sol", 0.0416666665, planetType.planet), 
             new representationData(
                 "Prefabs/Planet",
@@ -42,7 +47,13 @@ public class controller : MonoBehaviour
         master.pause = false;
         general.camera = Camera.main;
 
-        StartCoroutine(internalClock(7200, int.MaxValue, (tick) => {
+        startMainLoop();
+    }
+
+    public void startMainLoop(bool force = false) {
+        if (loop != null && force == false) return;
+
+        loop = StartCoroutine(internalClock(7200, int.MaxValue, (tick) => {
             if (master.pause) 
             {
                 master.tickStart(master.time);

@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using TMPro;
 
-public class planetRepresentation
+public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
 {
     private float _r;
     private TextMeshProUGUI shownName;
@@ -13,7 +13,8 @@ public class planetRepresentation
     public GameObject gameObject;
     private MeshRenderer mrSelf;
     public Collider hitbox;
-    private string shownNameText;
+    private string shownNameText, name;
+    private double radius;
 
     private representationData data;
     public bool forceHide = false, forceDisable = false;
@@ -25,15 +26,39 @@ public class planetRepresentation
         gameObject.name = name;
 
         this.shownNameText = name;
+        this.radius = radius;
         this.setRadius(radius);
         this.data = data;
         this.pType = pType;
         this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
         this.mrSelf = gameObject.GetComponent<MeshRenderer>();
         this.hitbox = gameObject.GetComponent<Collider>();
+        this.name = name;
 
-        
-        
+        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
+        shownName.gameObject.transform.SetParent(this.canvas.transform, false);
+        shownName.fontSize = 25;
+        shownName.text = name;
+        shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold | FontStyles.Italic;
+
+        planetParent = GameObject.FindGameObjectWithTag("planet/parent");
+    }
+
+    public void regenerate() {
+        if (gameObject != null) GameObject.Destroy(gameObject);
+        if (shownName != null) GameObject.Destroy(shownName.gameObject);
+
+        gameObject = GameObject.Instantiate(data.model);
+        gameObject.GetComponent<MeshRenderer>().material = data.material;
+        gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
+        gameObject.name = name;
+
+        this.shownNameText = name;
+        this.setRadius(radius);
+        this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
+        this.mrSelf = gameObject.GetComponent<MeshRenderer>();
+        this.hitbox = gameObject.GetComponent<Collider>();
+
         this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(this.canvas.transform, false);
         shownName.fontSize = 25;

@@ -11,7 +11,6 @@ public static class planetOverview
     public static double maxDist = 0;
     public static float rotationalOffset = 0;
     private static float lastRotationalOffset = 0;
-    private static GameObject planetParent = GameObject.FindGameObjectWithTag("planet/parent");
 
     private static Dictionary<string, lineController> axes = new Dictionary<string, lineController>() {
         {"+x", null},
@@ -139,7 +138,7 @@ public static class planetOverview
             Vector3 end = new Vector3(start.x, 0, start.z);
 
             kvp.Value.drawLine(new List<Vector3>() {start, end}, kvp.Value.color);
-            kvp.Value.rotateAround(planetParent.transform.rotation.eulerAngles.y * Mathf.Deg2Rad, 0, 0, Vector3.zero);
+            kvp.Value.rotateAround(general.planetParent.transform.rotation.eulerAngles.y * Mathf.Deg2Rad, 0, 0, Vector3.zero);
 
             kvp.Value.gameObject.transform.position = kvp.Value.requestPosition(1);
         }
@@ -154,7 +153,7 @@ public static class planetOverview
             foreach (lineController lc in axes.Values) lc.rotateAround(rotationalDifference, 0, 0, Vector3.zero);
 
             // rotate planets
-            planetParent.transform.rotation = Quaternion.Euler(0, rotationalOffset * Mathf.Rad2Deg, 0);
+            general.planetParent.transform.rotation = Quaternion.Euler(0, rotationalOffset * Mathf.Rad2Deg, 0);
         }
     }
 

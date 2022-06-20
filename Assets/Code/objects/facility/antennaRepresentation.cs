@@ -6,19 +6,33 @@ public class antennaRepresentation
 {
     public antennaData data;
     public string name;
-    private GameObject representation;
+    private GameObject gameObject, parent;
     private LineRenderer lr;
     private MeshRenderer mr;
 
     public antennaRepresentation(antennaData ad, GameObject parent) {
-        representation = GameObject.Instantiate(Resources.Load("Prefabs/antenna") as GameObject);
+        gameObject = GameObject.Instantiate(Resources.Load("Prefabs/antenna") as GameObject);
+        this.parent = parent;
         name = ad.name;
         data = ad;
-        lr = representation.GetComponent<LineRenderer>();
-        mr = representation.GetComponent<MeshRenderer>();
+        lr = gameObject.GetComponent<LineRenderer>();
+        mr = gameObject.GetComponent<MeshRenderer>();
         mr.enabled = false;
-        representation.transform.parent = parent.transform;
-        representation.name = ad.name;
+        gameObject.transform.parent = parent.transform;
+        gameObject.name = ad.name;
+    }
+
+    public void regenerate(GameObject parent) {
+        if (gameObject != null) GameObject.Destroy(gameObject);
+
+        this.parent = parent;
+
+        gameObject = GameObject.Instantiate(Resources.Load("Prefabs/antenna") as GameObject);
+        gameObject.name = name;
+        gameObject.transform.parent = parent.transform;
+        lr = gameObject.GetComponent<LineRenderer>();
+        mr = gameObject.GetComponent<MeshRenderer>();
+        mr.enabled = false;
     }
 
     public void drawSchedulingConnections(List<scheduling> ss) {
@@ -31,7 +45,7 @@ public class antennaRepresentation
                 // check if that satellite should be currently connected
                 if (st.between(master.time.julian)) {
                     lr.positionCount = 2;
-                    linePositions[0] = (representation.transform.position);
+                    linePositions[0] = (gameObject.transform.position);
                     linePositions[1] = (s.connectingTo.representation.gameObject.transform.position);
                     break;
                 }
@@ -47,7 +61,7 @@ public class antennaRepresentation
         } else {
             if (mr.enabled) mr.enabled = false;
             position p = data.geo.toCartesian(parent.radius) / (2 * parent.radius);
-            representation.transform.localPosition = (Vector3) (p.swapAxis());
+            gameObject.transform.localPosition = (Vector3) (p.swapAxis());
         }
     }
 }

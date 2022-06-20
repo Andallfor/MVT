@@ -20,10 +20,6 @@ public static class facilityFocus
             // unload facility parent planet
             parent = master.allFacilites.First(x => x.name == facilityName).facParent;
             // offset player
-            geographic g = csvParser.facilityLocations.First(x => x.Value == facilityName).Key;
-            position offset = dtedReader.centerDtedPoint(g - new geographic(0.5, 0.5), g, new position(0, 0, 0), 0).swapAxis();
-
-            master.currentPosition = offset;
 
             // look for applicable hrt and load it
             string path = $"C:/Users/leozw/Desktop/dteds/{facilityName}";

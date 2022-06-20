@@ -10,6 +10,8 @@ public static class general
     /// <summary> Reference to the player's camera in the scene. </summary>
     /// <remarks> Use this instead of <see cref="Camera.main"/> as this is much more efficient. </remarks>
     public static Camera camera;
+    /// <summary> Reference to the gameObject that holds all the planets. </summary>
+    public static GameObject planetParent = GameObject.FindGameObjectWithTag("planet/parent");
 
     /// <summary> Default position of the camera. </summary>
     public static Vector3 defaultCameraPosition = new Vector3(0, 0, -10);
