@@ -23,10 +23,7 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
     }
 
     // INITALIZATION
-    private protected override void loadPhysicalData(representationData rData)
-    {
-        representation = planetRepresentation.createPlanet(name, data.radius, data.pType, rData);
-    }
+    private protected override void loadPhysicalData(representationData rData) {representation = new planetRepresentation(name, radius, pType, rData);}
 
     // EVENTS
     public override void updatePosition(object sender, EventArgs args)

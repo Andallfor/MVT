@@ -22,7 +22,7 @@ public static class planetFocus
                 focus = (planet) master.requestReferenceFrame();
                 master.currentPosition = new position(0, 0, 0);
                 master.requestPositionUpdate();
-                general.camera.transform.LookAt(focus.representation.transform.position);
+                general.camera.transform.LookAt(focus.representation.gameObject.transform.position);
 
             } else _upf = false;
         } else {
@@ -34,8 +34,8 @@ public static class planetFocus
     }
 
     public static void update() {
-        general.camera.transform.RotateAround(focus.representation.transform.position, general.camera.transform.right, rotation.x);
-        general.camera.transform.RotateAround(focus.representation.transform.position, general.camera.transform.up, rotation.y);
+        general.camera.transform.RotateAround(focus.representation.gameObject.transform.position, general.camera.transform.right, rotation.x);
+        general.camera.transform.RotateAround(focus.representation.gameObject.transform.position, general.camera.transform.up, rotation.y);
         general.camera.transform.rotation *= Quaternion.AngleAxis(rotation.z, Vector3.forward);
 
         general.camera.fieldOfView = zoom;
@@ -46,12 +46,12 @@ public static class planetFocus
         float minDist = 1000000;
         facility target = null;
         foreach (facility f in master.allFacilites) {
-            if (f.representation.enabled) {
-                Vector3 screenPosition = general.camera.WorldToScreenPoint(f.representation.transform.position);
+            if (f.representation.mr.enabled) {
+                Vector3 screenPosition = general.camera.WorldToScreenPoint(f.representation.gameObject.transform.position);
                 float d = Vector3.Distance(screenPosition, Input.mousePosition);
                 // dont scale with screen size since we assume its constant (1280x720 or smth)
                 // im like 99% sure this is going to be an issue later on but it doesnt affect me rn sooooooooo
-                float size = uiHelper.screenSize(f.representation.mr, f.representation.transform.position) / 2.5f;
+                float size = uiHelper.screenSize(f.representation.mr, f.representation.gameObject.transform.position) / 2.5f;
                 if (d < size) {
                     if (d < minDist) {
                         minDist = d;
@@ -81,7 +81,8 @@ public static class planetFocus
         }
 
         if (Input.GetMouseButtonDown(0) && target is facility) {
-            Debug.Log($"selected {target.name}");
+            planetFocus.enable(false);
+            facilityFocus.enable(true, target.name);
         }
     }
 }

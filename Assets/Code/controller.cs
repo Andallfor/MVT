@@ -199,11 +199,11 @@ public class controller : MonoBehaviour
         //dtedReader.toFile(new List<dtedInfo>() {di1, di2, di3, di4}, new geographic(34.8376, -117.3898), new geographic(35.9259, -116.3749), "C:/Users/leozw/Desktop/dteds/goldstone/goldstone.hrt");
 
         Texture2D tex = new Texture2D(10980, 10980);
-        tex.LoadImage(File.ReadAllBytes("C:/Users/leozw/Desktop/dteds/goldstone/goldstone.png"));
+        tex.LoadImage(File.ReadAllBytes("C:/Users/leozw/Desktop/dteds/Goldstone Deep Space Communications Complex/Goldstone Deep Space Communications Complex.png"));
         Material m = new Material(Resources.Load("Materials/planets/earth/earth") as Material);
         m.mainTexture = tex;
 
-        highResTerrain.readHRT("C:/Users/leozw/Desktop/dteds/goldstone/goldstone.hrt").drawAll(m, Resources.Load("Prefabs/PlanetMesh") as GameObject, new string[0], null);
+        highResTerrain.readHRT("C:/Users/leozw/Desktop/dteds/Goldstone Deep Space Communications Complex/Goldstone Deep Space Communications Complex.hrt").drawAll(m, Resources.Load("Prefabs/PlanetMesh") as GameObject, new string[0], null);
         
         return pt;
     }
@@ -307,10 +307,11 @@ public class controller : MonoBehaviour
 
         foreach (string sat in sats)
         {
+            satellite s = new satellite(sat, new satelliteData($"CSVS/SATS/{sat}", oneMin), srd);
             try 
             {
                 // desync between planet and satellites
-                satellite s = new satellite(sat, new satelliteData($"CSVS/SATS/{sat}", oneMin), srd);
+                
                 //satellite.addFamilyNode(earth, s);
             }
             catch {UnityEngine.Debug.Log($"Unable to load {sat}");}

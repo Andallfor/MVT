@@ -4,23 +4,27 @@ using UnityEngine;
 using System.Linq;
 using TMPro;
 
-public class facilityRepresentation : MonoBehaviour
+public class facilityRepresentation
 {
-    private GameObject parent;
+    private planet parent;
     private representationData data;
     private geographic geo;
     private TextMeshProUGUI shownName;
     private LineRenderer lr;
     private List<antennaRepresentation> antennas;
     public MeshRenderer mr {get; private set;}
+    public GameObject gameObject;
     private string shownNameText;
     private float r;
     public bool selected {get; private set;}
 
     private bool planetFocusHidden;
 
-    public void init(string name, List<antennaData> antennas, geographic geo, GameObject parent, representationData data)
-    {
+    public facilityRepresentation(string name, List<antennaData> antennas, geographic geo, planet parent, representationData data) {
+        gameObject = GameObject.Instantiate(data.model);
+        gameObject.GetComponent<MeshRenderer>().material = data.material;
+        gameObject.transform.parent = parent.representation.gameObject.transform;
+
         this.gameObject.name = name;
         this.shownNameText = name;
         this.parent = parent;
@@ -37,31 +41,20 @@ public class facilityRepresentation : MonoBehaviour
         this.gameObject.transform.localScale = new Vector3(r, r, r);
 
         GameObject canvas = GameObject.FindGameObjectWithTag("ui/canvas");
-        lr = this.GetComponent<LineRenderer>();
+        lr = gameObject.GetComponent<LineRenderer>();
         lr.positionCount = 2;
-        mr = this.GetComponent<MeshRenderer>();
+        mr = gameObject.GetComponent<MeshRenderer>();
 
-        this.shownName = Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
+        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(canvas.transform, false);
         shownName.fontSize = 25;
         shownName.text = name;
         shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
     }
 
-    // TODO: dont do this. just create the script, then have the script create a go (see antennaRepresentation)
-    public static facilityRepresentation createFacility(string name, List<antennaData> antennas, geographic geo, GameObject parent, representationData data)
-    {
-        GameObject go = Instantiate(data.model);
-        go.GetComponent<MeshRenderer>().material = data.material;
-        go.transform.parent = parent.transform;
-        facilityRepresentation fr = go.GetComponent<facilityRepresentation>();
-        fr.init(name, antennas, geo, parent, data);
-        return fr;
-    }
-
     public void updatePos(planet parent)
     {
-        if (planetOverview.usePlanetOverview) {
+        if (planetOverview.usePlanetOverview || facilityFocus.useFacilityFocus) {
             gameObject.SetActive(false);
             shownName.text = "";
             return;

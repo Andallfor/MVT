@@ -25,7 +25,7 @@ public class planetTerrainMesh : IMesh
     {
         return base.drawMesh(Resources.Load("Materials/planets/earth/earth") as Material,
                              Resources.Load("Prefabs/PlanetMesh") as GameObject,
-                             ptf.name, pt.parent.representation.transform);
+                             ptf.name, pt.parent.representation.gameObject.transform);
     }
 
     public void drawBoundaries(string path)

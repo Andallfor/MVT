@@ -54,11 +54,11 @@ public class planetTerrain
     // TODO: if the time step is too great, unload terrain and use sphere instead- we dont want to be constantly loading and unloading terrain
     private async Task _updateTerrain(bool force = false)
     {
-        double distToPlanet = Vector3.Distance(general.camera.transform.position, this.parent.representation.transform.position);
-        float planetZ = general.camera.WorldToScreenPoint(this.parent.representation.transform.position).z;
+        double distToPlanet = Vector3.Distance(general.camera.transform.position, this.parent.representation.gameObject.transform.position);
+        float planetZ = general.camera.WorldToScreenPoint(this.parent.representation.gameObject.transform.position).z;
 
         if (distToPlanet > 35) {unloadTerrain(); return;}
-        if (planetOverview.usePlanetOverview) {unloadTerrain(); return;}
+        if (planetOverview.usePlanetOverview || facilityFocus.useFacilityFocus) {unloadTerrain(); return;}
         
         bool move = position.distance(master.currentPosition, lastPlayerPos) > moveThreshold;
         bool tick = master.currentTick - lastTick > tickThreshold;

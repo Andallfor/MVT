@@ -38,9 +38,7 @@ public class facility : IJsonFile<jsonFacilityStruct>
         } else representation.drawSchedulingConnections(data.antennas);
     }
 
-    private void loadPhysicalData(representationData rData) {
-        representation = facilityRepresentation.createFacility(name, data.antennas, data.geo, parent.representation.gameObject, rData);
-    }
+    private void loadPhysicalData(representationData rData) {representation = new facilityRepresentation(name, data.antennas, data.geo, parent, rData);}
     private void registerForEvents()
     {
         parent.onPositionUpdate += updatePosition;
@@ -64,7 +62,7 @@ public class facility : IJsonFile<jsonFacilityStruct>
     public void setParent(planet p)
     {
         this.parent = p;
-        this.representation.transform.SetParent(p.representation.transform);
+        this.representation.gameObject.transform.SetParent(p.representation.gameObject.transform);
 
         // move into representation?
         float r = 100f / (float) master.scale;
