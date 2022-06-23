@@ -10,11 +10,14 @@ public class meshDistributor<T> where T : IMesh, new()
     private static int maxVertSize = 250;
 
     private Dictionary<Vector2Int, T> map = new Dictionary<Vector2Int, T>();
+    public T baseType;
 
     public List<T> allMeshes {get => map.Values.ToList();}
     
     // try to create as many 255x255 meshes as possible
     public meshDistributor(Vector2Int size, Vector2Int maxSize, Vector2Int offset, bool reverse = false, Func<Vector2Int, Vector2> customUV = null) {
+        baseType = new T();
+
         for (int x = 0; x < size.x; x += maxVertSize) {
             for (int y = 0; y < size.y; y += maxVertSize) {
                 int xLeft = (x + maxVertSize >= size.x) ? maxVertSize - ((x + maxVertSize) % size.x) : maxVertSize;

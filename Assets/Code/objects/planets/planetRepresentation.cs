@@ -79,9 +79,7 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
     public void setPosition(position pos)
     {
         bool endDisable = false;
-        if ((planetOverview.usePlanetOverview && pType == planetType.moon) ||
-            (facilityFocus.useFacilityFocus && facilityFocus.parent.name == gameObject.name))
-        {
+        if ((planetOverview.usePlanetOverview && pType == planetType.moon)) {
             endDisable = false;
             shownName.text = "";
             return;

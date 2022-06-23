@@ -137,8 +137,9 @@ public static class dtedReader {
     }
 }
 
-// TODO: we dont actually use this class -> remove
 public class dtedBasedMesh : IMesh {
+    public geographic sw;
+    public position offset;
     public override Vector3 addPoint(int x, int y, geographic g, double h) => Vector3.zero;
 }
 

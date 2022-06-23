@@ -8,7 +8,7 @@ public class facility : IJsonFile<jsonFacilityStruct>
 {
     public readonly string name;
     public facilityRepresentation representation {get; private set;}
-    private facilityData data;
+    public facilityData data;
 
     private planet parent;
 
@@ -30,13 +30,7 @@ public class facility : IJsonFile<jsonFacilityStruct>
 
     public void updatePosition(object sender, EventArgs args) {representation.updatePos(parent);}
 
-    public void updateScheduling(object sender, EventArgs args) {
-        // if were in facility focus we draw connections for each antenna
-        // otherwise we only draw it for the facility
-        if (facilityFocus.useFacilityFocus) {
-            // TODO: THIS
-        } else representation.drawSchedulingConnections(data.antennas);
-    }
+    public void updateScheduling(object sender, EventArgs args) {representation.drawSchedulingConnections(data.antennas);}
 
     private void loadPhysicalData(representationData rData) {representation = new facilityRepresentation(name, data.antennas, data.geo, parent, rData);}
     private void registerForEvents()
@@ -88,7 +82,7 @@ public class antennaData : IJsonFile<jsonAntennaStruct> {
         this.freqBand = freqBand;
         this.centerFreq = centerFreq;
         this.geo = geo;
-        this.alt = alt;
+        this.alt = alt * 1000.0; // current file we are given has them in meters
         this.gPerT = gPerT;
         this.maxRate = maxRate;
         this.network = network;

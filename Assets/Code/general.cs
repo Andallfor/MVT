@@ -36,4 +36,30 @@ public static class general
         }
         return output;
     }
+
+    public static IEnumerator internalClock(float tickRate, int requestedTicks, Action<int> callback, Action termination)
+    {
+        float timePerTick = 1000f * (60f / tickRate);
+        float tickBucket = 0;
+        int tickCount = 0;
+
+        while (tickCount < requestedTicks)
+        {
+            tickBucket += UnityEngine.Time.deltaTime * 1000f;
+            int ticks = (int) Math.Round((tickBucket - (tickBucket % timePerTick)) / timePerTick);
+            tickBucket -= ticks *  timePerTick;
+
+            for (int i = 0; i < ticks; i++)
+            {
+                callback(tickCount);
+                tickCount++;
+                if (tickCount < requestedTicks) break;
+            }
+
+            // using this timer method instead of WaitForSeconds as it is inaccurate for small numbers
+            yield return new WaitForEndOfFrame();
+        }
+
+        termination();
+    }
 }

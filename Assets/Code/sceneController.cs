@@ -9,6 +9,7 @@ public static class sceneController
 
     public static void prepareScene(Scene scene, LoadSceneMode mode) {
         if (scene.name == "main") prepareMain();
+        else if (scene.name == "facilityFocus") prepareFacilityFocus();
     }
 
     public static IEnumerator mainLoop;
@@ -24,5 +25,16 @@ public static class sceneController
         foreach (facility f in master.allFacilites) f.representation.regenerate();
 
         general.camera.gameObject.GetComponent<controller>().startMainLoop();
+
+        planetFocus.enable(false);
+    }
+
+    private static void prepareFacilityFocus() {
+        facilityFocus.loadTerrain();
+
+        uiHelper.canvas = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<Canvas>();
+        general.camera = Camera.main;
+
+        general.camera.gameObject.GetComponent<facilityFocusController>().init();
     }
 }

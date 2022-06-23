@@ -60,6 +60,9 @@ public static class highResTerrain {
             }
         }
 
+        distributor.baseType.sw = min;
+        distributor.baseType.offset = offset;
+
         return distributor;
     }
 }

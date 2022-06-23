@@ -56,12 +56,8 @@ public class antennaRepresentation
     }
 
     public void updatePos(planet parent) {
-        if (facilityFocus.useFacilityFocus) {
-            // TODO: THIS
-        } else {
-            if (mr.enabled) mr.enabled = false;
-            position p = data.geo.toCartesian(parent.radius) / (2 * parent.radius);
-            gameObject.transform.localPosition = (Vector3) (p.swapAxis());
-        }
+        if (mr.enabled) mr.enabled = false;
+        position p = data.geo.toCartesian(parent.radius) / (2 * parent.radius);
+        gameObject.transform.localPosition = (Vector3) (p.swapAxis());
     }
 }

@@ -15,6 +15,7 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
     public planet(string name, planetData data, representationData rData)
     {
         base.name = name;
+        base.positions = data.positions;
         this.data = data;
         base.init(rData);
 

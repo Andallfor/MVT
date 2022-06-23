@@ -53,7 +53,7 @@ public class controller : MonoBehaviour
     public void startMainLoop(bool force = false) {
         if (loop != null && force == false) return;
 
-        loop = StartCoroutine(internalClock(7200, int.MaxValue, (tick) => {
+        loop = StartCoroutine(general.internalClock(7200, int.MaxValue, (tick) => {
             if (master.pause) 
             {
                 master.tickStart(master.time);
@@ -72,32 +72,6 @@ public class controller : MonoBehaviour
             if (!planetOverview.usePlanetOverview) master.requestSchedulingUpdate();
             master.currentTick = tick;
         }, null));
-    }
-
-    private IEnumerator internalClock(float tickRate, int requestedTicks, Action<int> callback, Action termination)
-    {
-        float timePerTick = 1000f * (60f / tickRate);
-        float tickBucket = 0;
-        int tickCount = 0;
-
-        while (tickCount < requestedTicks)
-        {
-            tickBucket += UnityEngine.Time.deltaTime * 1000f;
-            int ticks = (int) Math.Round((tickBucket - (tickBucket % timePerTick)) / timePerTick);
-            tickBucket -= ticks *  timePerTick;
-
-            for (int i = 0; i < ticks; i++)
-            {
-                callback(tickCount);
-                tickCount++;
-                if (tickCount < requestedTicks) break;
-            }
-
-            // using this timer method instead of WaitForSeconds as it is inaccurate for small numbers
-            yield return new WaitForEndOfFrame();
-        }
-
-        termination();
     }
 
     public void Update()
@@ -208,13 +182,6 @@ public class controller : MonoBehaviour
         //dtedInfo di4 = dtedReader.readDted("C:/Users/leozw/Desktop/dteds/Goldstone/d.dt2", "C:/Users/leozw/Desktop/dteds/Goldstone/Goldstone.txt", true);
 
         //dtedReader.toFile(new List<dtedInfo>() {di1, di2, di3, di4}, new geographic(34.8376, -117.3898), new geographic(35.9259, -116.3749), "C:/Users/leozw/Desktop/dteds/goldstone/goldstone.hrt");
-
-        Texture2D tex = new Texture2D(10980, 10980);
-        tex.LoadImage(File.ReadAllBytes("C:/Users/leozw/Desktop/dteds/Goldstone Deep Space Communications Complex/Goldstone Deep Space Communications Complex.png"));
-        Material m = new Material(Resources.Load("Materials/planets/earth/earth") as Material);
-        m.mainTexture = tex;
-
-        highResTerrain.readHRT("C:/Users/leozw/Desktop/dteds/Goldstone Deep Space Communications Complex/Goldstone Deep Space Communications Complex.hrt").drawAll(m, Resources.Load("Prefabs/PlanetMesh") as GameObject, new string[0], null);
         
         return pt;
     }
@@ -364,7 +331,6 @@ public class controller : MonoBehaviour
             satellite s = new satellite(kvp.Key, new satelliteData(kvp.Value), srd);
             if (kvp.Key == "LRO") satellite.addFamilyNode(moon, s);
             else satellite.addFamilyNode(earth, s);
-            
         }
 
         satellite s1 = new satellite("Aura 2", new satelliteData("CSVS/EARTHBASED/AURA", 0.0006944444), srd);

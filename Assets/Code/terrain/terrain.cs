@@ -58,7 +58,7 @@ public class planetTerrain
         float planetZ = general.camera.WorldToScreenPoint(this.parent.representation.gameObject.transform.position).z;
 
         if (distToPlanet > 35) {unloadTerrain(); return;}
-        if (planetOverview.usePlanetOverview || facilityFocus.useFacilityFocus) {unloadTerrain(); return;}
+        if (planetOverview.usePlanetOverview) {unloadTerrain(); return;}
         
         bool move = position.distance(master.currentPosition, lastPlayerPos) > moveThreshold;
         bool tick = master.currentTick - lastTick > tickThreshold;

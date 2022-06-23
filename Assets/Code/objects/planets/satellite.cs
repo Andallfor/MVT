@@ -11,6 +11,7 @@ public class satellite : body, IJsonFile<jsonSatelliteStruct>
     public satellite(string name, satelliteData data, representationData rData)
     {
         base.name = name;
+        base.positions = data.positions;
         this.data = data;
         base.init(rData);
 

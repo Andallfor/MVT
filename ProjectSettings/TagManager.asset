@@ -11,6 +11,7 @@ TagManager:
   - ui/time/display/gregorian
   - ui/time/slider
   - ui/EventSystem
+  - facilityFocus/parent
   layers:
   - Default
   - TransparentFX

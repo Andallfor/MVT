@@ -81,7 +81,7 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
 
     public void updatePos(planet parent)
     {
-        if (planetOverview.usePlanetOverview || facilityFocus.useFacilityFocus) {
+        if (planetOverview.usePlanetOverview) {
             gameObject.SetActive(false);
             shownName.text = "";
             return;
