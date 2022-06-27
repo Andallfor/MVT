@@ -45,7 +45,7 @@ public static class visibility
     return distanceFromObj;
 
   }
-  /// <summary> This is the main raycast function for our program and it takes in 5 arguments. The final argument if set true will return a list of all the hit objects, but if it is set to false the program will break after the first object is hit <summary> ///
+  /// <summary> This is the main raycast function for our program and it takes in 5 arguments. The final argument if set true will return a list of all the hit objects, but if it is set to false the program will break after the first object is hit </summary>
   public static raycastInfo raycast(position p1, position p2, raycastParameters flags, int defaultRadius, bool returnAllHit)
   {
 
@@ -65,7 +65,7 @@ public static class visibility
           double distanceFromObj = raycastMath(p1, p2, p.pos);
           if (distanceFromObj <= p.radius)
           {
-            if (returnAllHit == true)
+            if (returnAllHit)
             {
               hit = true;
               hitPlanets.Add(p);
@@ -90,7 +90,7 @@ public static class visibility
           double distanceFromObj = raycastMath(p1, p2, sat.pos);
           if (distanceFromObj <= defaultRadius)
           {
-            if (returnAllHit == true)
+            if (returnAllHit)
             {
               hit = true;
               hitSats.Add(sat);
@@ -118,7 +118,7 @@ public static class visibility
           double distanceFromObj = raycastMath(p1, p2, fac);
           if (distanceFromObj <= defaultRadius)
           {
-            if (returnAllHit == true)
+            if (returnAllHit)
             {
               hit = true;
               hitFacs.Add(f);
@@ -137,7 +137,7 @@ public static class visibility
     return raycastInfo;
   }
 
-/// <summary> This is the like the above raycast function but the second argument is the direction of the desired vector <summary> ///
+/// <summary> This is the like the above raycast function but the second argument is the direction of the desired vector </summary>
   public static raycastInfo raycastVector(position p1, position vector, raycastParameters flags, int defaultRadius, bool returnAllHit)
   {
 
@@ -162,7 +162,7 @@ public static class visibility
           double distanceFromObj = raycastMath(p1, p2, p.pos);
           if (distanceFromObj <= p.radius)
           {
-            if (returnAllHit == true)
+            if (returnAllHit)
             {
               hit = true;
               hitPlanets.Add(p);
@@ -187,7 +187,7 @@ public static class visibility
           double distanceFromObj = raycastMath(p1, p2, sat.pos);
           if (distanceFromObj <= defaultRadius)
           {
-            if (returnAllHit == true)
+            if (returnAllHit)
             {
               hit = true;
               hitSats.Add(sat);
@@ -214,7 +214,7 @@ public static class visibility
           double distanceFromObj = raycastMath(p1, p2, fac);
           if (distanceFromObj <= defaultRadius)
           {
-            if (returnAllHit == true)
+            if (returnAllHit)
             {
               hit = true;
               hitFacs.Add(f);
