@@ -4,14 +4,17 @@ using UnityEngine;
 using System.IO;
 using System.Linq;
 using System;
+using System.Text;
 
 public static class dtedReader {
-    public static int VOID_VALUE = -32767;
-    public static int uhlLength = 80;
-    public static int dsiLength = 648;
-    public static int accLength = 2700;
-    public static dtedInfo read(string filePath) {
-        FileStream fs = new FileStream(filePath, FileMode.Open);
+    public const int VOID_VALUE = -32767;
+    public const int uhlLength = 80;
+    public const int dsiLength = 648;
+    public const int accLength = 2700;
+    public const int textureSize = 10980;
+
+    public static dtedInfo readDted(string dtedPath, string imageBoundsPath, bool saveData = false) {
+        FileStream fs = new FileStream(dtedPath, FileMode.Open);
 
         byte[] uhl = new byte[uhlLength];
         byte[] dsi = new byte[dsiLength];
@@ -24,14 +27,30 @@ public static class dtedReader {
             r.Read(data, 0, data.Length);
         }
 
+        fs.Close();
+
         dtedUhl dh = new dtedUhl(uhl);
         dtedDsi dd = new dtedDsi(dsi);
         dtedAcc da = new dtedAcc(acc);
 
+
+        string[] bounds = File.ReadAllText(imageBoundsPath).Split(',');
+        geographic sw = new geographic(double.Parse(bounds[0].Trim()), double.Parse(bounds[1].Trim()));
+        geographic ne = new geographic(double.Parse(bounds[2].Trim()), double.Parse(bounds[3].Trim()));
+
+
         meshDistributor<dtedBasedMesh> distributor = new meshDistributor<dtedBasedMesh>(
             new Vector2Int((int) dh.shape.x, (int) dh.shape.y),
-            new Vector2Int((int) ((dd.shape.x - 1) * 360.0), (int) ((dd.shape.y - 1) * 180.0)),
-            new Vector2Int((int) ((dh.origin.lon + 180) * (dd.shape.x - 1)), (int) ((dh.origin.lat + 90) * (dd.shape.y - 1))));
+            Vector2Int.zero, Vector2Int.zero,
+            true,
+            (Vector2Int v) => {
+                geographic p = dd.sw + new geographic((double) v.x / dh.shape.y, (double) v.y / dh.shape.x);
+
+                return new Vector2(
+                    (float) ((p.lon - sw.lon) / (ne.lon - sw.lon)),
+                    (float) ((p.lat - sw.lat) / (ne.lat - sw.lat)));
+            }
+        );
 
         /*
         format of data blocks:
@@ -41,7 +60,9 @@ public static class dtedReader {
         checksum
         */
 
-        position offset = calcPoint(dd.sw - new geographic(0.5, 0.5), dd.sw, new position(0, 0, 0), 0).swapAxis();
+        position offset = centerDtedPoint(dd.sw - new geographic(0.5, 0.5), dd.sw, new position(0, 0, 0), 0).swapAxis();
+        double[] points = new double[0];
+        if (saveData) points = new double[(int) (dh.shape.x * dh.shape.y)];
 
         for (int i = 0; i < data.Length / dd.dataBlockLength; i++) {
             // throw everything into an array
@@ -58,23 +79,67 @@ public static class dtedReader {
                 byte[] _b = reader.read(2).Reverse().ToArray();
                 double h = BitConverter.ToInt16(_b, 0);
                 geographic g = new geographic(index * dh.interval.y, 0) + origin;
-                distributor.addPoint(index, i, calcPoint(dd.sw, g, offset, h));
+                distributor.addPoint(index, i, centerDtedPoint(dd.sw, g, offset, h));
+
+                // points are given in lat... lon order but we want it to be the other way around 
+                // (x corresponds with lon, y with lat) so invert
+                if (saveData) points[i + index * ((dd.dataBlockLength - 12) / 2)] = h;
             }
             reader.read(4);
         }
 
-        return new dtedInfo(dh, dd, da, distributor);
+        return new dtedInfo(dh, dd, da, distributor, points);
     }
 
-    private static position calcPoint(geographic sw, geographic g, position p, double h) => (g.toCartesian(6371.0 + h / 1000.0)
+    public static position centerDtedPoint(geographic sw, geographic g, position p, double h) => (g.toCartesian(6371.0 + h / 1000.0)
         .rotate(0, 0, (-sw.lon - 0.5) * (Mathf.PI / 180.0))
         .rotate((270.0 + sw.lat) * (Math.PI / 180.0), 0, 0)
         - p)
         .swapAxis();
+
+    public static void toFile(List<dtedInfo> data, geographic min, geographic max, string outputPath) {
+        // assumes all dteds have the same info
+        double interval = 1.0 / 3600.0;
+
+        double resX = Math.Floor((max.lon - min.lon) / interval);
+        double resY = Math.Floor((max.lat - min.lat) / interval);
+
+        StringBuilder sb = new StringBuilder();
+        sb.Append($"Interval:{interval}\nMin:{min.lat},{min.lon}\nMax:{max.lat},{max.lon}\nShape:{resX},{resY}\n");
+
+        // start from top left corner (NW) because that is how the info will be pasted into the file
+        for (double y = resY; y > 0; y--) {
+            for (double x = 0; x < resX; x++) {
+                geographic desiredPoint = min + new geographic(y * interval, x * interval);
+                bool foundPoint = false;
+
+                foreach (dtedInfo di in data) {
+                    // check if the dted contains desiredPoint
+                    if (desiredPoint.lat > di.dd.ne.lat || desiredPoint.lat < di.dd.sw.lat ||
+                        desiredPoint.lon > di.dd.ne.lon || desiredPoint.lon < di.dd.sw.lon) continue;
+                    
+                    foundPoint = true;
+                       
+                    int indexX = (int) Math.Round((desiredPoint.lon - di.dd.sw.lon) / interval);
+                    int indexY = (int) Math.Round((desiredPoint.lat - di.dd.sw.lat) / interval);
+
+                    sb.Append($" {di.points[indexY * 3601 + indexX]}");
+                    
+                    break;
+                }
+
+                if (!foundPoint) sb.Append(" 0");
+            }
+            sb.Append('\n');
+        }
+
+        File.WriteAllText(Path.Combine(outputPath), sb.ToString());
+    }
 }
 
-// TODO: we dont actually use this class -> remove
 public class dtedBasedMesh : IMesh {
+    public geographic sw;
+    public position offset;
     public override Vector3 addPoint(int x, int y, geographic g, double h) => Vector3.zero;
 }
 
@@ -83,12 +148,14 @@ public struct dtedInfo {
     public dtedDsi dd;
     public dtedAcc da;
     public meshDistributor<dtedBasedMesh> distributor;
+    public double[] points;
 
-    public dtedInfo(dtedUhl du, dtedDsi dd, dtedAcc da, meshDistributor<dtedBasedMesh> m) {
+    public dtedInfo(dtedUhl du, dtedDsi dd, dtedAcc da, meshDistributor<dtedBasedMesh> m, double[] points) {
         this.du = du;
         this.dd = dd;
         this.da = da;
         this.distributor = m;
+        this.points = points;
     }
 }
 

@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
-using TMPro;
 using UnityEngine.EventSystems;
-using System.Threading.Tasks;
 using System.IO;
+using UnityEngine.SceneManagement;
 
 public class controller : MonoBehaviour
 {
@@ -14,6 +13,7 @@ public class controller : MonoBehaviour
     public static planet earth;
     private double speed = 0.00005;
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
+    private Coroutine loop;
 
     void Awake() {
         // eventually i want to be able to enable this- the only thing currently preventing this is Physics.raycast
@@ -22,7 +22,12 @@ public class controller : MonoBehaviour
 
     void Start()
     {
-        master.sun = new planet("Sun", new planetData(695700, false, "CSVS/NEW/PLANETS/Sol", 0.0416666665, planetType.planet),
+        if (sceneController.alreadyStarted) return;
+        sceneController.alreadyStarted = true;
+
+        SceneManager.sceneLoaded += sceneController.prepareScene;
+
+        master.sun = new planet("Sun", new planetData(695700, false, "CSVS/NEW/PLANETS/Sol", 0.0416666665, planetType.planet), 
             new representationData(
                 "Prefabs/Planet",
                 "Materials/default"));
@@ -35,66 +40,21 @@ public class controller : MonoBehaviour
         onlyEarth();
         //kepler();
 
-        // ultra -> 100, 6 (~8 gib mesh total)
-        // extreme -> 64, 9 (~4 gib total)
-        // high -> 9, 20 (~1 gib total)
-        // med -> 4, 30 (~300 mib total)
-        // low -> 1, 60 (~80 mib total)
-        // tiny -> 1, 100 (~ 36 mib total)
-
-
-        /*terrainProcessor.divideAll("C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/", new List<terrainResolution>() {
-            //new terrainResolution("C:/Users/leozw/Desktop/divided/ultra", 100, 6),
-            //new terrainResolution("C:/Users/leozw/Desktop/divided/extreme", 64, 9),
-            //new terrainResolution("C:/Users/leozw/Desktop/divided/high", 9, 20), // if this doesnt work, regen it
-            //new terrainResolution("C:/Users/leozw/Desktop/divided/medium", 4, 30),
-            //new terrainResolution("C:/Users/leozw/Desktop/divided/low", 1, 60),
-            //new terrainResolution("C:/Users/leozw/Desktop/divided/tiny", 4, 100),
-            },
-            100, "C:/Users/leozw/Desktop/divided/earthNormal.jpg");*/
-
-        //planetTerrain pt = new planetTerrain(6371, 35, earth);
-        //pt.generateFolderInfos(new string[1] {
-            //"C:/Users/leozw/Desktop/divided/ultra",
-            //"C:/Users/leozw/Desktop/divided/extreme",
-            //"C:/Users/leozw/Desktop/divided/high",
-            //"C:/Users/leozw/Desktop/divided/medium"});
-            //"C:/Users/leozw/Desktop/divided/low"});
-            //"C:/Users/leozw/Desktop/divided/tiny"});
-
-        //pt.generateArea(new Bounds(new Vector3(0, 0, 0), new Vector3(360, 180, 1)), "tiny");
-
         csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
-        //GameObject gg = Instantiate(Resources.Load("Prefabs/Default") as GameObject);
+        //planetTerrain pt = loadTerrain();
 
-        //dtedImageCombiner.generateImage(new geographic(35, -117), new geographic(36, -116), "C:/Users/leozw/Desktop/dteds/toProcess");
-
-        /*
-        dtedInfo di = dtedReader.read("C:/Users/leozw/Desktop/dteds/WS1");
-        Texture2D tex = new Texture2D(10980, 10980);
-        tex.LoadImage(File.ReadAllBytes(new DirectoryInfo("C:/Users/leozw/Desktop/dteds/WS1").GetFiles().First(x => x.Name.Contains(".png")).FullName));
-        Material m = new Material(Resources.Load("Materials/planets/earth/earth") as Material);
-        m.mainTexture = tex;
-        di.distributor.drawAll(m,
-            Resources.Load("Prefabs/PlanetMesh") as GameObject,
-            new string[0], null);
-        */
-
-        /*dtedInfo di = dtedReader.read("C:/Users/leozw/Desktop/n35_w117_1arc_v3.dt2");
-        di.distributor.drawAll(Resources.Load("Materials/planets/earth/earth") as Material,
-                               Resources.Load("Prefabs/PlanetMesh") as GameObject,
-                               new string[0], null);
-        di = dtedReader.read("C:/Users/leozw/Desktop/n35_w118_1arc_v3.dt2");
-        di.distributor.drawAll(Resources.Load("Materials/planets/earth/earth") as Material,
-                               Resources.Load("Prefabs/PlanetMesh") as GameObject,
-                               new string[0], earth.representation.transform);*/
-
-        master.pause = true;
+        master.pause = false;
         general.camera = Camera.main;
 
-        StartCoroutine(internalClock(7200, int.MaxValue, (tick) => {
-            if (master.pause)
+        startMainLoop();
+    }
+
+    public void startMainLoop(bool force = false) {
+        if (loop != null && force == false) return;
+
+        loop = StartCoroutine(general.internalClock(7200, int.MaxValue, (tick) => {
+            if (master.pause) 
             {
                 master.tickStart(master.time);
                 master.time.addJulianTime(0);
@@ -112,32 +72,6 @@ public class controller : MonoBehaviour
             if (!planetOverview.usePlanetOverview) master.requestSchedulingUpdate();
             master.currentTick = tick;
         }, null));
-    }
-
-    private IEnumerator internalClock(float tickRate, int requestedTicks, Action<int> callback, Action termination)
-    {
-        float timePerTick = 1000f * (60f / tickRate);
-        float tickBucket = 0;
-        int tickCount = 0;
-
-        while (tickCount < requestedTicks)
-        {
-            tickBucket += UnityEngine.Time.deltaTime * 1000f;
-            int ticks = (int) Math.Round((tickBucket - (tickBucket % timePerTick)) / timePerTick);
-            tickBucket -= ticks *  timePerTick;
-
-            for (int i = 0; i < ticks; i++)
-            {
-                callback(tickCount);
-                tickCount++;
-                if (tickCount < requestedTicks) break;
-            }
-
-            // using this timer method instead of WaitForSeconds as it is inaccurate for small numbers
-            yield return new WaitForEndOfFrame();
-        }
-
-        termination();
     }
 
     public void Update()
@@ -216,8 +150,43 @@ public class controller : MonoBehaviour
 
         if (Input.GetKeyDown("4")) master.time.addJulianTime(2459396.5 - master.time.julian);
     }
+    private planetTerrain loadTerrain() {
+        /*terrainProcessor.divideAll("C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/", new List<terrainResolution>() {
+            //new terrainResolution("C:/Users/leozw/Desktop/divided/ultra", 100, 6),
+            //new terrainResolution("C:/Users/leozw/Desktop/divided/extreme", 64, 9),
+            //new terrainResolution("C:/Users/leozw/Desktop/divided/high", 9, 20), // if this doesnt work, regen it
+            //new terrainResolution("C:/Users/leozw/Desktop/divided/medium", 4, 30),
+            //new terrainResolution("C:/Users/leozw/Desktop/divided/low", 1, 60),
+            //new terrainResolution("C:/Users/leozw/Desktop/divided/tiny", 4, 100),
+            },
+            100, "C:/Users/leozw/Desktop/divided/earthNormal.jpg");*/
+        
+        //List<nearbyFacilites> nfs = highResTerrain.neededAreas();
+        //foreach (nearbyFacilites nf in nfs) Debug.Log(nf);
+        
+        planetTerrain pt = new planetTerrain(6371, 35, earth);
+        pt.generateFolderInfos(new string[6] {
+            "C:/Users/leozw/Desktop/divided/ultra",
+            "C:/Users/leozw/Desktop/divided/extreme", 
+            "C:/Users/leozw/Desktop/divided/high", 
+            "C:/Users/leozw/Desktop/divided/medium",
+            "C:/Users/leozw/Desktop/divided/low",
+            "C:/Users/leozw/Desktop/divided/tiny"});
+        
+        //dtedImageCombiner.parseSentinelKML("C:/Users/leozw/Desktop/S2A_OPER_GIP_TILPAR_MPC__20151209T095117_V20150622T000000_21000101T000000_B00.kml", "C:/Users/leozw/Desktop/Sentinel2Tiles.csv");
+        //sentinelArea.tileKey = csvParser.loadSentinelTiles("C:/Users/leozw/Desktop/dteds/Sentinel2Tiles.csv");
+        //dtedImageCombiner.generateImage(new geographic(34.8376, -117.3898), new geographic(35.9259, -116.3749), "C:/Users/leozw/Desktop/dteds/toProcess", "C:/Users/leozw/Desktop/dteds/Goldstone", "Goldstone");
+        
+        //dtedInfo di1 = dtedReader.readDted("C:/Users/leozw/Desktop/dteds/Goldstone/a.dt2", "C:/Users/leozw/Desktop/dteds/Goldstone/Goldstone.txt", true);
+        //dtedInfo di2 = dtedReader.readDted("C:/Users/leozw/Desktop/dteds/Goldstone/b.dt2", "C:/Users/leozw/Desktop/dteds/Goldstone/Goldstone.txt", true);
+        //dtedInfo di3 = dtedReader.readDted("C:/Users/leozw/Desktop/dteds/Goldstone/c.dt2", "C:/Users/leozw/Desktop/dteds/Goldstone/Goldstone.txt", true);
+        //dtedInfo di4 = dtedReader.readDted("C:/Users/leozw/Desktop/dteds/Goldstone/d.dt2", "C:/Users/leozw/Desktop/dteds/Goldstone/Goldstone.txt", true);
 
-    void onlyEarth()
+        //dtedReader.toFile(new List<dtedInfo>() {di1, di2, di3, di4}, new geographic(34.8376, -117.3898), new geographic(35.9259, -116.3749), "C:/Users/leozw/Desktop/dteds/goldstone/goldstone.hrt");
+        
+        return pt;
+    }
+    private void onlyEarth()
     {
         List<string> sats = new List<string>()
         {
@@ -317,23 +286,21 @@ public class controller : MonoBehaviour
 
         foreach (string sat in sats)
         {
-            try
+            satellite s = new satellite(sat, new satelliteData($"CSVS/SATS/{sat}", oneMin), srd);
+            try 
             {
                 // desync between planet and satellites
-                satellite s = new satellite(sat, new satelliteData($"CSVS/SATS/{sat}", oneMin), srd);
+                
                 //satellite.addFamilyNode(earth, s);
             }
             catch {UnityEngine.Debug.Log($"Unable to load {sat}");}
         }
 
-        foreach (facilityListStruct fls in csvParser.loadFacilites("CSVS/FACILITIES/stationList"))
-        {
-            new facility(fls.name, earth, new facilityData(fls.geo), frd);
-        }
+        foreach (facilityData fd in csvParser.loadFacilites("CSVS/FACILITIES/stationList")) new facility(fd.name, earth, fd, frd);
 
         master.setReferenceFrame(earth);
     }
-    void kepler()
+    private void kepler()
     {
         representationData rd = new representationData(
             "Prefabs/Planet",
@@ -355,11 +322,8 @@ public class controller : MonoBehaviour
 
         earth = new planet("Earth", new planetData(  6371,  true, "CSVS/PLANETS/Earth", oneHour, planetType.planet), erd);
         planet moon =        new planet( "Luna", new planetData(1738.1, false,  "CSVS/PLANETS/Luna", oneHour,   planetType.moon),  rd);
-
-        foreach (facilityListStruct fls in csvParser.loadFacilites("CSVS/FACILITIES/stationList"))
-        {
-            new facility(fls.name, earth, new facilityData(fls.geo), frd);
-        }
+        
+        foreach (facilityData fd in csvParser.loadFacilites("CSVS/FACILITIES/stationList")) new facility(fd.name, earth, fd, frd);
 
         master.setReferenceFrame(earth);
 
@@ -368,7 +332,6 @@ public class controller : MonoBehaviour
             satellite s = new satellite(kvp.Key, new satelliteData(kvp.Value), srd);
             if (kvp.Key == "LRO") satellite.addFamilyNode(moon, s);
             else satellite.addFamilyNode(earth, s);
-
         }
 
         satellite s1 = new satellite("Aura 2", new satelliteData("CSVS/EARTHBASED/AURA", 0.0006944444), srd);

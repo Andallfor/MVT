@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public struct geographic
@@ -11,6 +13,7 @@ public struct geographic
         this.lon = Math.Min(Math.Max(-180, lon), 180);
     }
 
+    /// <summary> Parse DMS format. DO NOT USE WITH DECIMAL FORMAT </summary>
     public geographic(string lat, string lon) {
         double latSign = lat.Last() == 'S' ? -1 : 1;
         double lonSign = lon.Last() == 'W' ? -1 : 1;
@@ -62,6 +65,7 @@ public struct geographic
             Math.Atan2(p.z, p.x) * (180.0 / Math.PI));
     }
 
+    /// <summary> Gets the distance between two geographic points, assuming the shortest path is on the sphere with radius </summary>
     public double distanceKm(geographic g, double radius) {
         double lt1 = this.lat * (Math.PI / 180.0);
         double ln1 = this.lon * (Math.PI / 180.0);
@@ -74,6 +78,11 @@ public struct geographic
             Math.Cos(lt1) * Math.Cos(lt2) * 
             (Math.Sin((ln2 - ln1) / 2.0) * Math.Sin((ln2 - ln1) / 2.0))));
     }
+
+    public double distAs2DVector(geographic g) => Math.Sqrt(
+        (g.lat - this.lat) * (g.lat - this.lat) + (g.lon - this.lon) * (g.lon - this.lon));
+    
+    public double magnitude() => Math.Sqrt(lat * lat + lon * lon);
 
     public jsonGeographicStruct requestJsonFile()
     {

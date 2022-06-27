@@ -1,76 +1,96 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 using TMPro;
 
-public class facilityRepresentation : MonoBehaviour
+public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct>
 {
-    private GameObject parent;
+    private planet parent;
     private representationData data;
     private geographic geo;
     private TextMeshProUGUI shownName;
     private LineRenderer lr;
+    private List<antennaRepresentation> antennas;
     public MeshRenderer mr {get; private set;}
-    private string shownNameText;
+    public GameObject gameObject;
+    private string shownNameText, name;
     private float r;
     public bool selected {get; private set;}
-    public geographic offset {get; private set;} // because we will at times get facilites with the same/very similar positions,
-                                                 // it makes it hard for the ux to be able to tell which one the user wants to point to
-                                                 // in planetFocus. so add a slight offset to each representation to alievate this issue
 
     private bool planetFocusHidden;
 
-    public void init(string name, geographic geo, GameObject parent, representationData data)
-    {
+    public facilityRepresentation(string name, List<antennaData> antennas, geographic geo, planet parent, representationData data) {
+        gameObject = GameObject.Instantiate(data.model);
+        gameObject.GetComponent<MeshRenderer>().material = data.material;
+        gameObject.transform.parent = parent.representation.gameObject.transform;
+
         this.gameObject.name = name;
         this.shownNameText = name;
         this.parent = parent;
         this.geo = geo;
+        this.name = name;
         this.data = data;
+        this.antennas = new List<antennaRepresentation>();
+
+        foreach (antennaData ad in antennas) {
+            antennaRepresentation ar = new antennaRepresentation(ad, this.gameObject);
+            this.antennas.Add(ar);
+        }
 
         r = 25f / (float) master.scale;
         this.gameObject.transform.localScale = new Vector3(r, r, r);
 
         GameObject canvas = GameObject.FindGameObjectWithTag("ui/canvas");
-        lr = this.GetComponent<LineRenderer>();
+        lr = gameObject.GetComponent<LineRenderer>();
         lr.positionCount = 2;
-        mr = this.GetComponent<MeshRenderer>();
+        mr = gameObject.GetComponent<MeshRenderer>();
 
-        System.Random ran = new System.Random(UnityEngine.Random.Range(0, 100000));
-        offset = new geographic(
-            (ran.NextDouble() - 0.5) / 10.0,
-            (ran.NextDouble() - 0.5) / 10.0);
-        
-        this.geo += offset;
-
-        this.shownName = Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
+        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(canvas.transform, false);
         shownName.fontSize = 25;
         shownName.text = name;
         shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
     }
 
-    public static facilityRepresentation createFacility(string name, geographic geo, GameObject parent, representationData data)
-    {
-        GameObject go = Instantiate(data.model);
-        go.GetComponent<MeshRenderer>().material = data.material;
-        go.transform.parent = parent.transform;
-        facilityRepresentation fr = go.GetComponent<facilityRepresentation>();
-        fr.init(name, geo, parent, data);
-        return fr;
+    public void regenerate() {
+        if (gameObject != null) GameObject.Destroy(gameObject);
+        if (shownName != null) GameObject.Destroy(shownName.gameObject);
+
+        gameObject = GameObject.Instantiate(data.model);
+        gameObject.GetComponent<MeshRenderer>().material = data.material;
+        gameObject.transform.parent = parent.representation.gameObject.transform;
+        gameObject.transform.localScale = new Vector3(r, r, r);
+
+        this.gameObject.name = name;
+        this.shownNameText = name;
+
+        foreach (antennaRepresentation ad in antennas) ad.regenerate(this.gameObject);
+
+        GameObject canvas = GameObject.FindGameObjectWithTag("ui/canvas");
+        lr = gameObject.GetComponent<LineRenderer>();
+        lr.positionCount = 2;
+        mr = gameObject.GetComponent<MeshRenderer>();
+
+        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
+        shownName.gameObject.transform.SetParent(canvas.transform, false);
+        shownName.fontSize = 25;
+        shownName.text = name;
+        shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
     }
 
-    public void updatePos(planet parent, double radius)
+    public void updatePos(planet parent)
     {
-        if (planetOverview.usePlanetOverview)
-        {
+        if (planetOverview.usePlanetOverview) {
             gameObject.SetActive(false);
             shownName.text = "";
             return;
         }
 
-        position p = geo.toCartesian(radius) / (2 * radius);
+        position p = geo.toCartesian(parent.radius) / (2 * parent.radius);
         this.gameObject.transform.localPosition = (Vector3) (p.swapAxis());
+
+        foreach (antennaRepresentation ar in antennas) ar.updatePos(parent);
 
         if (!planetFocusHidden) {
             RaycastHit hit;
@@ -85,26 +105,13 @@ public class facilityRepresentation : MonoBehaviour
         } else shownName.text = "";
     }
 
-    public void drawSchedulingConnections(List<scheduling> ss)
-    {
-        // can optimize this, instead of looping through maybe use events
-        Vector3[] linePositions = new Vector3[2];
-        foreach (scheduling s in ss)
-        {
-            // check each satellite this station will connect to
-            foreach (schedulingTime st in s.times)
-            {
-                // check if that satellite should be currently connected
-                if (st.between(master.time.julian))
-                {
-                    linePositions[0] = (this.gameObject.transform.position);
-                    linePositions[1] = (s.connectingTo.representation.gameObject.transform.position);
-                    break;
-                }
-            }
+    public void drawSchedulingConnections(List<antennaData> ads) {
+        foreach (antennaData ad in ads) {
+            if (!ReferenceEquals(ad.schedules, null)) antennas
+                .Where(x => x.name == ad.name)
+                .ToList()
+                .ForEach(x => x.drawSchedulingConnections(ad.schedules));
         }
-
-        lr.SetPositions(linePositions);
     }
 
     public jsonFacilityRepresentationStruct requestJsonFile()

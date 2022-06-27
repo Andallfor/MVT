@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using TMPro;
 
-public class satelliteRepresentation : MonoBehaviour
+public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStruct>
 {
     private GameObject canvas;
     private TextMeshProUGUI shownName;
@@ -13,30 +13,44 @@ public class satelliteRepresentation : MonoBehaviour
     public static readonly float minScale = 0.05f;
     private MeshRenderer mrSelf;
     private string shownNameText;
+    private string name;
+    public GameObject gameObject;
 
-    public void init(string name, representationData data)
-    {
-        this.gameObject.name = name;
+    public satelliteRepresentation(string name, representationData data) {
+        gameObject = GameObject.Instantiate(data.model);
+        gameObject.GetComponent<MeshRenderer>().material = data.material;
+        gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
+        gameObject.name = name;
+
+        this.name = name;
         this.shownNameText = name;
         this.data = data;
         this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
 
-        this.shownName = Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
+        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(this.canvas.transform, false);
         shownName.fontSize = 20;
         shownName.text = name;
 
-        mrSelf = this.GetComponent<MeshRenderer>();
+        mrSelf = gameObject.GetComponent<MeshRenderer>();
     }
 
-    public static satelliteRepresentation createSatellite(string name, representationData data)
-    {
-        GameObject go = Instantiate(data.model);
-        go.GetComponent<MeshRenderer>().material = data.material;
-        go.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
-        satelliteRepresentation sr = go.GetComponent<satelliteRepresentation>();
-        sr.init(name, data);
-        return sr;
+    public void regenerate() {
+        if (gameObject != null) GameObject.Destroy(gameObject);
+        if (shownName != null) GameObject.Destroy(shownName.gameObject);
+
+        gameObject = GameObject.Instantiate(data.model);
+        gameObject.GetComponent<MeshRenderer>().material = data.material;
+        gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
+        gameObject.name = name;
+        mrSelf = gameObject.GetComponent<MeshRenderer>();
+
+        this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
+
+        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
+        shownName.gameObject.transform.SetParent(this.canvas.transform, false);
+        shownName.fontSize = 20;
+        shownName.text = name;
     }
 
     public void setPosition(position pos)

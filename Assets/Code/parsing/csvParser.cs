@@ -9,6 +9,18 @@ using System;
 
 public static class csvParser
 {
+    /// <summary> Returns a dictionary (tilename, all data in line). Note that the tilename will be repeated in the value. </summary>
+    public static Dictionary<string, string> loadSentinelTiles(string path) {
+        // does not parse the value as it would unnecssary. we only use a few tiles so parsing all 57k would be wasteful
+        string[] data = File.ReadAllText(path).Split('\n');
+
+        Dictionary<string, string> output = new Dictionary<string, string>();
+        // the first 5 chars is always the tile name
+        foreach (string line in data) output[general.combineCharArray(line.Take(5).ToArray())] = line;
+
+        return output;
+    }
+
     public static Timeline loadPlanetCsv(string path, double timestep)
     {
         StringBuilder formatted = new StringBuilder();
@@ -62,28 +74,43 @@ public static class csvParser
         return new Timeline(processed, timestep);
     }
 
-    public static IEnumerable<facilityListStruct> loadFacilites(string path)
+    /// <summary> Ignores antenna that has the same name </summary>
+    public static List<facilityData> loadFacilites(string path)
     {
         Regex splitter = new Regex("," + "(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
         TextAsset data = Resources.Load(path) as TextAsset;
         List<string> formatted = data.ToString().Split('\n').ToList();
 
-        int index = 0;
-        foreach (string line in formatted)
-        {
-            if (index == 0)
-            {
-                index++;
-                continue;
-            }
-            List<string> s = splitter.Split(line).ToList();
+        Dictionary<geographic, facilityData> facilities = new Dictionary<geographic, facilityData>();
 
-            if (master.allFacilites.Exists(x => x.name == s[2])) continue;
+        for (int i = 1; i < formatted.Count; i++) {
+            List<string> s = splitter.Split(formatted[i]).ToList();
 
-            yield return new facilityListStruct(s[2], new geographic(
-                double.Parse(s[6], System.Globalization.NumberStyles.Any),
-                double.Parse(s[7], System.Globalization.NumberStyles.Any)));
+            antennaData antenna = new antennaData(
+                payload: int.Parse(s[0], System.Globalization.NumberStyles.Any),
+                groundStation: s[1],
+                antenna: s[2],
+                diameter: double.Parse(s[3], System.Globalization.NumberStyles.Any),
+                freqBand: s[4],
+                centerFreq: double.Parse(s[5], System.Globalization.NumberStyles.Any),
+                geo: new geographic(
+                    double.Parse(s[6], System.Globalization.NumberStyles.Any),
+                    double.Parse(s[7], System.Globalization.NumberStyles.Any)),
+                alt: double.Parse(s[8], System.Globalization.NumberStyles.Any),
+                gPerT: double.Parse(s[9], System.Globalization.NumberStyles.Any),
+                maxRate: int.Parse(s[10], System.Globalization.NumberStyles.Any),
+                network: s[11],
+                priority: double.Parse(s[12], System.Globalization.NumberStyles.Any));
+            
+            KeyValuePair<geographic, string> f = facilityLocations.ToList().OrderBy(x => antenna.geo.distAs2DVector(x.Key)).First();
+
+            if (facilities.ContainsKey(f.Key)) facilities[f.Key].antennas.Add(antenna);
+            else facilities[f.Key] = new facilityData(f.Value, f.Key, new List<antennaData>() {antenna});
+
+            antenna.parent = f.Value;
         }
+
+        return facilities.Values.ToList();
     }
 
     public static void loadScheduling(string path)
@@ -105,26 +132,21 @@ public static class csvParser
             schedulingTime time = new schedulingTime(parseDateTime(s[1]).julian, parseDateTime(s[2]).julian);
 
             satellite connection = master.allSatellites.Find(x => x.name == satName);
-            facility connector = master.allFacilites.Find(x => x.name == facName);
+            facility connector = master.allFacilites.Find(x => x.containsAntenna(facName));
             if (ReferenceEquals(connection, null) || ReferenceEquals(connector, null)) continue;
 
             // handling all cases of if a facility has already been added or not
-            if (dict.ContainsKey(facName))
-            {
-                if (!ReferenceEquals(dict[facName], null) && dict[facName].Exists(x => x.connectingTo.name == satName))
-                {
+            if (dict.ContainsKey(facName)) {
+                if (!ReferenceEquals(dict[facName], null) && dict[facName].Exists(x => x.connectingTo.name == satName)) {
                     scheduling sch = dict[facName].Find(x => x.connectingTo.name == satName);
                     sch.times.Add(time);
-                }
-                else
-                {
+                } else {
                     dict[facName].Add(new scheduling(
                         master.allSatellites.Find(x => x.name == satName), 
                         new List<schedulingTime>() {time}));
                 }
             }
-            else
-            {
+            else {
                 dict[facName] = new List<scheduling>() {new scheduling(
                     master.allSatellites.Find(x => x.name == satName),
                     new List<schedulingTime>() {time})};
@@ -132,11 +154,12 @@ public static class csvParser
         }
 
         // send schedules to facilities
-        foreach (KeyValuePair<string, List<scheduling>> kvp in dict)
-        {
-            facility f = master.allFacilites.Find(x => x.name == kvp.Key);
-            if (ReferenceEquals(kvp.Value, null)) continue;
-            f.registerScheduling(kvp.Value);
+        foreach (KeyValuePair<string, List<scheduling>> kvp in dict) {
+            foreach (facility f in master.allFacilites) {
+                if (f.containsAntenna(kvp.Key)) {
+                    f.registerScheduling(kvp.Key, kvp.Value);
+                }
+            }
         }
     }
 
@@ -216,17 +239,27 @@ public static class csvParser
         {"THD", "THEMIS D"},
         {"THE", "THEMIS E"},
         {"AM1", "TERRA"}};
-}
 
-
-public struct facilityListStruct
-{
-    public geographic geo;
-    public string name;
-
-    public facilityListStruct(string name, geographic geo)
-    {
-        this.geo = geo;
-        this.name = name;
-    }
+    public readonly static Dictionary<geographic, string> facilityLocations = new Dictionary<geographic, string>() {
+        {new geographic(64.8595, -147.8595), "Alaska Satellite Facility"},
+        {new geographic(64.8042, -147.5042), "North Pole Satellite Station"},
+        {new geographic(32.3078, -64.7505), "Bermuda"},
+        {new geographic(-29.0457, 115.3487), "Australia Satellite Station"},
+        {new geographic(-25.8909, 27.686), "Hartebeesthoek Radio Astronomy Observatory"},
+        {new geographic(28.5, -80.6), "Kennedy Uplink Station"},
+        {new geographic(67.8896, 21.0657), "Esrange Satellite Station"},
+        {new geographic(-77.8392, 166.6671), "McMurdo Ground Station"},
+        {new geographic(29.0666, -80.913), "Ponce De Leon Inlet Tracking Annex"},
+        {new geographic(-33.1511, -70.6664), "Santiago Satellite Station"},
+        {new geographic(1.3962, -103.8343), "Seletar Earth Station"},
+        {new geographic(19.0139, -155.6633), "South Point Hawaii Satellite Station"},
+        {new geographic(78.2308, -15.3894), "Svalbard Satellite Station"},
+        {new geographic(-72.0018, 2.5262), "Troll Satellite Station"},
+        {new geographic(37.9282, -75.4758), "Wallops Ground Station"},
+        {new geographic(47.8812, 11.0837), "Weilheim Ground Station Complex"},
+        {new geographic(32.5408, -106.612), "White Sands Complex"},
+        {new geographic(-35.3985, 148.9819), "Canberra Deep Space Communications Complex"},
+        {new geographic(35.3375, -116.8755), "Goldstone Deep Space Communications Complex"},
+        {new geographic(40.4287, -4.2491), "Madrid Deep Space Communications Complex"},
+    };
 }

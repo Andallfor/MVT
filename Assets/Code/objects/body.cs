@@ -3,15 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public abstract class body : IBody
+public abstract class body
 {
+    /// <summary> Name of the body. Acts as the ID, so should be unique. </summary>
     public string name {get; protected set;}
+    /// <summary> Position of body relative to sun. </summary>
     public position pos {get; protected set;}
+    /// <summary> Position of body relative to its parent. </summary>
     public position localPos {get; protected set;}
     public event EventHandler onPositionUpdate = delegate {};
+    public Timeline positions {get; protected set;} = null;
 
-    private protected body parent = null;
-    private protected List<body> children = new List<body>();
+    public body parent {get; protected set;} = null;
+    public List<body> children {get; protected set;} = new List<body>();
 
     public static void addFamilyNode(body parent, body child)
     {
@@ -64,9 +68,4 @@ public abstract class body : IBody
     }
 
     public override int GetHashCode() => name.GetHashCode();
-}
-
-public interface IBody
-{
-    
 }

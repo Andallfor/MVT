@@ -3,39 +3,39 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using TMPro;
-using System.Linq;
-using System.Threading.Tasks;
-using System.IO;
-using System.Text;
-using System.Collections.Concurrent;
 
-public class planetRepresentation : MonoBehaviour
+public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
 {
     private float _r;
     private TextMeshProUGUI shownName;
     private planetType pType;
-    private GameObject canvas;
-    private GameObject planetParent;
+    private GameObject canvas, planetParent;
+    public GameObject gameObject;
     private MeshRenderer mrSelf;
     public Collider hitbox;
-    private string shownNameText;
+    private string shownNameText, name;
+    private double radius;
 
     private representationData data;
     public bool forceHide = false, forceDisable = false;
 
-    // initalization
-    public void init(string name, double radius, planetType pType, representationData data)
-    {
-        this.gameObject.name = name;
+    public planetRepresentation(string name, double radius, planetType pType, representationData data) {
+        gameObject = GameObject.Instantiate(data.model);
+        gameObject.GetComponent<MeshRenderer>().material = data.material;
+        gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
+        gameObject.name = name;
+
         this.shownNameText = name;
+        this.radius = radius;
         this.setRadius(radius);
         this.data = data;
         this.pType = pType;
         this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
-        this.mrSelf = this.GetComponent<MeshRenderer>();
-        this.hitbox = this.GetComponent<Collider>();
-        
-        this.shownName = Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
+        this.mrSelf = gameObject.GetComponent<MeshRenderer>();
+        this.hitbox = gameObject.GetComponent<Collider>();
+        this.name = name;
+
+        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(this.canvas.transform, false);
         shownName.fontSize = 25;
         shownName.text = name;
@@ -44,14 +44,28 @@ public class planetRepresentation : MonoBehaviour
         planetParent = GameObject.FindGameObjectWithTag("planet/parent");
     }
 
-    public static planetRepresentation createPlanet(string name, double radius, planetType pType, representationData data)
-    {
-        GameObject go = Instantiate(data.model);   
-        go.GetComponent<MeshRenderer>().material = data.material;
-        go.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
-        planetRepresentation pr = go.GetComponent<planetRepresentation>();
-        pr.init(name, radius, pType, data);
-        return pr;
+    public void regenerate() {
+        if (gameObject != null) GameObject.Destroy(gameObject);
+        if (shownName != null) GameObject.Destroy(shownName.gameObject);
+
+        gameObject = GameObject.Instantiate(data.model);
+        gameObject.GetComponent<MeshRenderer>().material = data.material;
+        gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
+        gameObject.name = name;
+
+        this.shownNameText = name;
+        this.setRadius(radius);
+        this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
+        this.mrSelf = gameObject.GetComponent<MeshRenderer>();
+        this.hitbox = gameObject.GetComponent<Collider>();
+
+        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
+        shownName.gameObject.transform.SetParent(this.canvas.transform, false);
+        shownName.fontSize = 25;
+        shownName.text = name;
+        shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold | FontStyles.Italic;
+
+        planetParent = GameObject.FindGameObjectWithTag("planet/parent");
     }
 
     public jsonPlanetRepresentationStruct requestJsonFile()
@@ -65,8 +79,7 @@ public class planetRepresentation : MonoBehaviour
     public void setPosition(position pos)
     {
         bool endDisable = false;
-        if (planetOverview.usePlanetOverview && pType == planetType.moon)
-        {
+        if ((planetOverview.usePlanetOverview && pType == planetType.moon)) {
             endDisable = false;
             shownName.text = "";
             return;
@@ -85,9 +98,9 @@ public class planetRepresentation : MonoBehaviour
             gameObject.transform.localPosition = p;
 
             // scale far away planets so they can be seen better
-            float distance = Vector3.Distance(Vector3.zero, this.gameObject.transform.position);
+            float distance = Vector3.Distance(Vector3.zero, gameObject.transform.position);
             float scale = 0.01f * distance + 0;
-            float r = Mathf.Max(Mathf.Min(this.gameObject.transform.localScale.x, _r), scale);
+            float r = Mathf.Max(Mathf.Min(gameObject.transform.localScale.x, _r), scale);
             gameObject.transform.localScale = new Vector3(r, r, r);
         }
 
@@ -105,10 +118,10 @@ public class planetRepresentation : MonoBehaviour
     }
     public Vector3 rotate(position p)
     {
-        this.transform.localEulerAngles = new Vector3((float) p.y, (float) p.x, 0);
-        return new Vector3(this.transform.localEulerAngles.x % 360,
-                           this.transform.localEulerAngles.y % 360,
-                           this.transform.localEulerAngles.z % 360);
+        gameObject.transform.localEulerAngles = new Vector3((float) p.y, (float) p.x, 0);
+        return new Vector3(gameObject.transform.localEulerAngles.x % 360,
+                           gameObject.transform.localEulerAngles.y % 360,
+                           gameObject.transform.localEulerAngles.z % 360);
     }
     public void setRadius(double radius)
     {

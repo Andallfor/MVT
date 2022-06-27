@@ -28,20 +28,20 @@ public class Time
         onChange = delegate {};
     }
 
-    public void addJulianTime(double value)
+    public void addJulianTime(double value, bool silent = false)
     {
         this.julian += value;
         this.date = julianToDate(this.julian);
 
-        if (this.sendEvent) onChange(null, EventArgs.Empty);
+        if (this.sendEvent && !silent) onChange(null, EventArgs.Empty);
     }
 
-    public void addDateTime(TimeSpan value)
+    public void addDateTime(TimeSpan value, bool silent = false)
     {
         this.date.Add(value);
         this.julian = dateToJulian(this.date);
 
-        if (this.sendEvent) onChange(null, EventArgs.Empty);
+        if (this.sendEvent && !silent) onChange(null, EventArgs.Empty);
     }
 
     public static double dateToJulian(DateTime date)

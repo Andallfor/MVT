@@ -11,6 +11,7 @@ public class satellite : body, IJsonFile<jsonSatelliteStruct>
     public satellite(string name, satelliteData data, representationData rData)
     {
         base.name = name;
+        base.positions = data.positions;
         this.data = data;
         base.init(rData);
 
@@ -18,10 +19,7 @@ public class satellite : body, IJsonFile<jsonSatelliteStruct>
         master.requestJsonQueueUpdate();
     }
 
-    private protected override void loadPhysicalData(representationData rData)
-    {
-        representation = satelliteRepresentation.createSatellite(base.name, rData);
-    }
+    private protected override void loadPhysicalData(representationData rData) {representation = new satelliteRepresentation(name, rData);}
 
     public override void updatePosition(object sender, EventArgs args)
     {

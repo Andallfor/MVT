@@ -53,7 +53,7 @@ public class uiTimeController : MonoBehaviour
         lastMousePosition = Input.mousePosition;
 
         master.tickStart(new Time(master.time.julian + totalTimeChange));
-        master.time.addJulianTime(totalTimeChange);
+        master.time.addJulianTime(totalTimeChange, true);
     }
 
     private void onPauseChange(object sender, EventArgs args)

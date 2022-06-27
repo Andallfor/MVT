@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 5262373480380298347}
   - component: {fileID: 5262373480380298324}
   - component: {fileID: 627926929489758955}
-  - component: {fileID: -3242607844058749783}
   m_Layer: 0
   m_Name: satellite
   m_TagString: Untagged
@@ -179,15 +178,3 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
---- !u!114 &-3242607844058749783
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5262373480380298326}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c79a75f195674847aca53ada2309b29, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

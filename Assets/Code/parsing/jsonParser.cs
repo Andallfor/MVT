@@ -102,14 +102,21 @@ public static class jsonParser
     private static void _dsFacility(jsonFacilityStruct jfs)
     {
         bool parentExists = false;
-        if (master.allPlanets.Exists(x => x.name == jfs.name)) parentExists = true;
+        if (master.allPlanets.Exists(x => x.name == jfs.parent)) parentExists = true;
+
+        List<antennaData> antennas = new List<antennaData>();
+        foreach (jsonAntennaStruct jas in jfs.antennas) antennas.Add(_dsAntenna(jas));
 
         new facility(
-            jfs.name, (parentExists) ? master.allPlanets.First(x => x.name == jfs.parentName) : master.sun,
-            new facilityData(new geographic(jfs.geo.lat, jfs.geo.lon)), 
+            jfs.name, (parentExists) ? master.allPlanets.First(x => x.name == jfs.parent) : master.sun,
+            new facilityData(
+                jfs.name,
+                _dsGeographic(jfs.geo),
+                antennas
+            ), 
             new representationData(jfs.representation.modelPath, jfs.representation.materialPath));
         
-        if (!parentExists) addToQueue(new jsonQueueStruct(jfs.parentName, jfs.name));
+        if (!parentExists) addToQueue(new jsonQueueStruct(jfs.parent, jfs.name));
     }
 
     private static void _dsSystem(jsonSystemStruct jss)
@@ -127,14 +134,28 @@ public static class jsonParser
         return p;
     }
 
+    private static antennaData _dsAntenna(jsonAntennaStruct jas) => new antennaData(
+        jas.payload,
+        jas.groundStation,
+        jas.name,
+        jas.diameter,
+        jas.freqBand,
+        jas.centerFreq,
+        _dsGeographic(jas.geo),
+        jas.alt,
+        jas.gPerT,
+        jas.maxRate,
+        jas.network,
+        jas.priority
+    );
+
+    private static geographic _dsGeographic(jsonGeographicStruct jgs) => new geographic(jgs.lat, jgs.lon);
+
     private static Timeline _dsTimeline(jsonTimelineStruct jts)
     {
         Dictionary<double, position> d = new Dictionary<double, position>();
 
-        foreach (KeyValuePair<double, jsonPositionStruct> kvp in jts.positions)
-        {
-            d.Add(kvp.Key, _dsPosition(kvp.Value));
-        }
+        foreach (KeyValuePair<double, jsonPositionStruct> kvp in jts.positions) d.Add(kvp.Key, _dsPosition(kvp.Value));
 
         return new Timeline(d, jts.timestep);
     }

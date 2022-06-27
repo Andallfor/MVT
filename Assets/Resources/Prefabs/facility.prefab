@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 3074529714627308096}
   - component: {fileID: 3074529714627308097}
   - component: {fileID: 3074529714627308098}
-  - component: {fileID: 3074529714627308099}
   - component: {fileID: -1855815855399124192}
   m_Layer: 0
   m_Name: facility
@@ -83,20 +82,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &3074529714627308099
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3074529714627308124}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 14167db3a26113b4fb1a7fe16ee0b49a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lat: 0
-  lon: 0
 --- !u!120 &-1855815855399124192
 LineRenderer:
   m_ObjectHideFlags: 0

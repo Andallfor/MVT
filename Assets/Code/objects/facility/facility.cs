@@ -2,12 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using System.Linq;
 
 public class facility : IJsonFile<jsonFacilityStruct>
 {
     public readonly string name;
     public facilityRepresentation representation {get; private set;}
-    private facilityData data;
+    public facilityData data;
 
     private planet parent;
 
@@ -27,35 +28,27 @@ public class facility : IJsonFile<jsonFacilityStruct>
         master.requestJsonQueueUpdate();
     }
 
-    public void updatePosition(object sender, EventArgs args)
-    {
-        representation.updatePos(parent, parent.radius);
-    }
+    public void updatePosition(object sender, EventArgs args) {representation.updatePos(parent);}
 
-    public void updateScheduling(object sender, EventArgs args)
-    {
-        if (!ReferenceEquals(data.schedules, null)) representation.drawSchedulingConnections(data.schedules);
-    }
+    public void updateScheduling(object sender, EventArgs args) {representation.drawSchedulingConnections(data.antennas);}
 
-    private void loadPhysicalData(representationData rData)
-    {
-        representation = facilityRepresentation.createFacility(name, data.geo, parent.representation.gameObject, rData);
-    }
+    private void loadPhysicalData(representationData rData) {representation = new facilityRepresentation(name, data.antennas, data.geo, parent, rData);}
     private void registerForEvents()
     {
         parent.onPositionUpdate += updatePosition;
         master.updateScheduling += updateScheduling;
     }
-    public void registerScheduling(List<scheduling> s)
-    {
-        this.data.schedules = s;
-    }
+    public void registerScheduling(string antenna, List<scheduling> s) {this.data.antennas.First(x => x.name == antenna).schedules = s;}
 
     public jsonFacilityStruct requestJsonFile()
     {
+        List<jsonAntennaStruct> ants = new List<jsonAntennaStruct>();
+        foreach (antennaData a in data.antennas) ants.Add(a.requestJsonFile());
+
         return new jsonFacilityStruct() {
             name = this.name,
-            parentName = parent.name,
+            parent = parent.name,
+            antennas = ants,
             geo = data.geo.requestJsonFile(),
             representation = representation.requestJsonFile()};
     }
@@ -63,21 +56,67 @@ public class facility : IJsonFile<jsonFacilityStruct>
     public void setParent(planet p)
     {
         this.parent = p;
-        this.representation.transform.SetParent(p.representation.transform);
+        this.representation.gameObject.transform.SetParent(p.representation.gameObject.transform);
 
         // move into representation?
         float r = 100f / (float) master.scale;
         this.representation.gameObject.transform.localScale = new Vector3(r, r, r);
+    }
+
+    public bool containsAntenna(string name) => this.data.antennas.Exists(x => x.name == name);
+}
+
+public class antennaData : IJsonFile<jsonAntennaStruct> {
+    public geographic geo;
+    public double alt, diameter, centerFreq, gPerT, priority;
+    public string name, parent, groundStation, network, freqBand;
+    public int payload, maxRate;
+    public List<scheduling> schedules;
+
+    public antennaData(int payload, string groundStation, string antenna, double diameter, string freqBand, double centerFreq, geographic geo, double alt, double gPerT, int maxRate, string network, double priority)
+    {
+        this.payload = payload;
+        this.groundStation = groundStation;
+        this.name = antenna;
+        this.diameter = diameter;
+        this.freqBand = freqBand;
+        this.centerFreq = centerFreq;
+        this.geo = geo;
+        this.alt = alt * 1000.0; // current file we are given has them in meters
+        this.gPerT = gPerT;
+        this.maxRate = maxRate;
+        this.network = network;
+        this.priority = priority;
+    }
+
+    public jsonAntennaStruct requestJsonFile() {
+        return new jsonAntennaStruct() {
+            name = this.name,
+            parentName = this.parent,
+            groundStation = this.groundStation,
+            network = this.network,
+            freqBand = this.freqBand,
+            alt = this.alt,
+            diameter = this.diameter,
+            centerFreq = this.centerFreq,
+            gPerT = this.gPerT,
+            priority = this.priority,
+            payload = this.payload,
+            maxRate = this.maxRate,
+            geo = this.geo.requestJsonFile()
+        };
     }
 }
 
 public class facilityData
 {
     public geographic geo;
-    public List<scheduling> schedules;
-
-    public facilityData(geographic geo)
-    {
+    public string name;
+    public List<antennaData> antennas;
+    
+    public facilityData(string name, geographic geo, List<antennaData> antennas) {
         this.geo = geo;
+        this.name = name;
+        this.antennas = antennas;
     }
 }

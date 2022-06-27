@@ -10,6 +10,8 @@ public static class general
     /// <summary> Reference to the player's camera in the scene. </summary>
     /// <remarks> Use this instead of <see cref="Camera.main"/> as this is much more efficient. </remarks>
     public static Camera camera;
+    /// <summary> Reference to the gameObject that holds all the planets. </summary>
+    public static GameObject planetParent = GameObject.FindGameObjectWithTag("planet/parent");
 
     /// <summary> Default position of the camera. </summary>
     public static Vector3 defaultCameraPosition = new Vector3(0, 0, -10);
@@ -33,5 +35,31 @@ public static class general
             output += b;
         }
         return output;
+    }
+
+    public static IEnumerator internalClock(float tickRate, int requestedTicks, Action<int> callback, Action termination)
+    {
+        float timePerTick = 1000f * (60f / tickRate);
+        float tickBucket = 0;
+        int tickCount = 0;
+
+        while (tickCount < requestedTicks)
+        {
+            tickBucket += UnityEngine.Time.deltaTime * 1000f;
+            int ticks = (int) Math.Round((tickBucket - (tickBucket % timePerTick)) / timePerTick);
+            tickBucket -= ticks *  timePerTick;
+
+            for (int i = 0; i < ticks; i++)
+            {
+                callback(tickCount);
+                tickCount++;
+                if (tickCount < requestedTicks) break;
+            }
+
+            // using this timer method instead of WaitForSeconds as it is inaccurate for small numbers
+            yield return new WaitForEndOfFrame();
+        }
+
+        termination();
     }
 }
