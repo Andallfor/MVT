@@ -90,7 +90,7 @@ public class controller : MonoBehaviour
 
                 Vector2 adjustedDifference = new Vector2(-difference.y / Screen.height, difference.x / Screen.width);
                 adjustedDifference *= 100f;
-                
+
                 planetFocus.rotation.x = adjustedDifference.x * (planetFocus.zoom / (general.defaultCameraFOV * 1.5f));
                 planetFocus.rotation.y = adjustedDifference.y * (planetFocus.zoom / (general.defaultCameraFOV * 1.5f));
                 planetFocus.rotation.z = 0;
@@ -128,6 +128,7 @@ public class controller : MonoBehaviour
             if (Input.GetKey("s")) master.currentPosition -= forward * playerSpeed * t;
             if (Input.GetKey("d")) master.currentPosition += right * playerSpeed * t;
             if (Input.GetKey("a")) master.currentPosition -= right * playerSpeed * t;
+
         }
 
         if (Input.GetKeyDown("q"))
@@ -253,26 +254,26 @@ public class controller : MonoBehaviour
             "THEMIS_D",
             "THEMIS_E"
         };
-    
+
         representationData rd = new representationData(
             "Prefabs/Planet",
             "Materials/default");
-        
+
         representationData srd = new representationData(
             "Prefabs/Satellite",
             "Materials/default");
-        
+
         representationData frd = new representationData(
             "Prefabs/Facility",
             "Materials/default");
-        
+
         representationData erd = new representationData(
             "Prefabs/Planet",
             "Materials/planets/earth/earthEquirectangular");
 
         double oneMin = 0.0006944444;
         double oneHour = 0.0416666665;
-        
+
         earth =       new planet(  "Earth", new planetData(  6371, true, "CSVS/PLANETS/Earth", oneHour, planetType.planet), erd);
         planet moon = new planet(   "Luna", new planetData(1738.1, false,    "CSVS/PLANETS/Luna", oneHour, planetType.moon),   rd);
                       new planet("Mercury", new planetData(2439.7, false, "CSVS/PLANETS/Mercury", oneHour, planetType.planet), rd);
@@ -304,21 +305,21 @@ public class controller : MonoBehaviour
         representationData rd = new representationData(
             "Prefabs/Planet",
             "Materials/default");
-        
+
         representationData srd = new representationData(
             "Prefabs/Satellite",
             "Materials/default");
-        
+
         representationData frd = new representationData(
             "Prefabs/Facility",
             "Materials/default");
-        
+
         representationData erd = new representationData(
             "Prefabs/Planet",
             "Materials/earthLatLonTest");
 
         double oneHour = 0.0416666665;
-        
+
         earth = new planet("Earth", new planetData(  6371,  true, "CSVS/PLANETS/Earth", oneHour, planetType.planet), erd);
         planet moon =        new planet( "Luna", new planetData(1738.1, false,  "CSVS/PLANETS/Luna", oneHour,   planetType.moon),  rd);
         
