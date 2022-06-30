@@ -177,3 +177,19 @@ public class planetTerrain
         existingMeshes = new Dictionary<planetTerrainFile, planetTerrainMesh>();
     }
 }
+
+public class jp2Metadata {
+    public double ImageWidth, ImageLength, BitsPerSample, PhotometricInterpretation, StripOffsets, SamplesPerPixel, RowsPerStrip, StripByteCounts, XResolution, YResolution, PlanarConfiguration, ResolutionUnit, width, height, xll, yll;
+    public List<double> ModelPixelScale, ModelTiePoint;
+    public jp2MetadataGeoKeyDirectory GeoKeyDirectory;
+}
+
+public class jp2MetadataGeoKeyDirectory {
+    public string version;
+    public double numKeys;
+    public List<jp2MetadataKey> keys;
+}
+
+public class jp2MetadataKey {
+    public string id, value;
+}

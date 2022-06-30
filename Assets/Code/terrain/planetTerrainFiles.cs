@@ -78,7 +78,7 @@ public class planetTerrainFile
 
 public class planetTerrainFolderInfo
 {
-    public readonly double ncols, nrows, cellsize, pointsPerCoord, filesPer45_60, genStep;
+    public readonly double ncols, nrows, cellsize, pointsPerCoord, filesPerTile, genStep;
     public readonly string name, folderPath;
     public readonly geographic increment;
     public readonly List<Bounds> allBounds;
@@ -91,7 +91,7 @@ public class planetTerrainFolderInfo
         nrows = double.Parse(read(data[1]), System.Globalization.NumberStyles.Any);
         cellsize = double.Parse(read(data[2]), System.Globalization.NumberStyles.Any);
         pointsPerCoord = double.Parse(read(data[3]), System.Globalization.NumberStyles.Any);
-        filesPer45_60 = double.Parse(read(data[4]), System.Globalization.NumberStyles.Any);
+        filesPerTile = double.Parse(read(data[4]), System.Globalization.NumberStyles.Any);
         genStep = double.Parse(read(data[5]), System.Globalization.NumberStyles.Any);
 
         name = read(data[6]);

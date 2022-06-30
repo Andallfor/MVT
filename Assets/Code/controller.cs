@@ -14,6 +14,7 @@ public class controller : MonoBehaviour
     private double speed = 0.00005;
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
     private Coroutine loop;
+    private planetTerrain pt;
 
     void Awake() {
         // eventually i want to be able to enable this- the only thing currently preventing this is Physics.raycast
@@ -42,7 +43,11 @@ public class controller : MonoBehaviour
 
         csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
-        //planetTerrain pt = loadTerrain();
+        //pt = loadTerrain();
+
+        //terrainProcessor.divideJpeg2000("C:/Users/leozw/Desktop/lunar", "C:/Users/leozw/Desktop/preparedLunar", new List<terrainResolution>() {
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/min", 16, 128)
+        //});
 
         master.pause = false;
         general.camera = Camera.main;
@@ -54,13 +59,10 @@ public class controller : MonoBehaviour
         if (loop != null && force == false) return;
 
         loop = StartCoroutine(general.internalClock(7200, int.MaxValue, (tick) => {
-            if (master.pause) 
-            {
+            if (master.pause) {
                 master.tickStart(master.time);
                 master.time.addJulianTime(0);
-            }
-            else
-            {
+            } else {
                 Time t = new Time(master.time.julian);
                 t.addJulianTime(speed);
                 master.tickStart(t);
@@ -157,8 +159,7 @@ public class controller : MonoBehaviour
             //new terrainResolution("C:/Users/leozw/Desktop/divided/medium", 4, 30),
             //new terrainResolution("C:/Users/leozw/Desktop/divided/low", 1, 60),
             //new terrainResolution("C:/Users/leozw/Desktop/divided/tiny", 4, 100),
-            },
-            100, "C:/Users/leozw/Desktop/divided/earthNormal.jpg");*/
+            });*/
         
         //List<nearbyFacilites> nfs = highResTerrain.neededAreas();
         //foreach (nearbyFacilites nf in nfs) Debug.Log(nf);
