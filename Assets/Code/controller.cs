@@ -27,7 +27,7 @@ public class controller : MonoBehaviour
 
         SceneManager.sceneLoaded += sceneController.prepareScene;
 
-        master.sun = new planet("Sun", new planetData(695700, false, "CSVS/NEW/PLANETS/Sol", 0.0416666665, planetType.planet), 
+        master.sun = new planet("Sun", new planetData(695700, false, "CSVS/NEW/PLANETS/Sol", 0.0416666665, planetType.planet),
             new representationData(
                 "Prefabs/Planet",
                 "Materials/default"));
@@ -54,7 +54,7 @@ public class controller : MonoBehaviour
         if (loop != null && force == false) return;
 
         loop = StartCoroutine(general.internalClock(7200, int.MaxValue, (tick) => {
-            if (master.pause) 
+            if (master.pause)
             {
                 master.tickStart(master.time);
                 master.time.addJulianTime(0);
@@ -160,30 +160,30 @@ public class controller : MonoBehaviour
             //new terrainResolution("C:/Users/leozw/Desktop/divided/tiny", 4, 100),
             },
             100, "C:/Users/leozw/Desktop/divided/earthNormal.jpg");*/
-        
+
         //List<nearbyFacilites> nfs = highResTerrain.neededAreas();
         //foreach (nearbyFacilites nf in nfs) Debug.Log(nf);
-        
+
         planetTerrain pt = new planetTerrain(6371, 35, earth);
         pt.generateFolderInfos(new string[6] {
             "C:/Users/leozw/Desktop/divided/ultra",
-            "C:/Users/leozw/Desktop/divided/extreme", 
-            "C:/Users/leozw/Desktop/divided/high", 
+            "C:/Users/leozw/Desktop/divided/extreme",
+            "C:/Users/leozw/Desktop/divided/high",
             "C:/Users/leozw/Desktop/divided/medium",
             "C:/Users/leozw/Desktop/divided/low",
             "C:/Users/leozw/Desktop/divided/tiny"});
-        
+
         //dtedImageCombiner.parseSentinelKML("C:/Users/leozw/Desktop/S2A_OPER_GIP_TILPAR_MPC__20151209T095117_V20150622T000000_21000101T000000_B00.kml", "C:/Users/leozw/Desktop/Sentinel2Tiles.csv");
         //sentinelArea.tileKey = csvParser.loadSentinelTiles("C:/Users/leozw/Desktop/dteds/Sentinel2Tiles.csv");
         //dtedImageCombiner.generateImage(new geographic(34.8376, -117.3898), new geographic(35.9259, -116.3749), "C:/Users/leozw/Desktop/dteds/toProcess", "C:/Users/leozw/Desktop/dteds/Goldstone", "Goldstone");
-        
+
         //dtedInfo di1 = dtedReader.readDted("C:/Users/leozw/Desktop/dteds/Goldstone/a.dt2", "C:/Users/leozw/Desktop/dteds/Goldstone/Goldstone.txt", true);
         //dtedInfo di2 = dtedReader.readDted("C:/Users/leozw/Desktop/dteds/Goldstone/b.dt2", "C:/Users/leozw/Desktop/dteds/Goldstone/Goldstone.txt", true);
         //dtedInfo di3 = dtedReader.readDted("C:/Users/leozw/Desktop/dteds/Goldstone/c.dt2", "C:/Users/leozw/Desktop/dteds/Goldstone/Goldstone.txt", true);
         //dtedInfo di4 = dtedReader.readDted("C:/Users/leozw/Desktop/dteds/Goldstone/d.dt2", "C:/Users/leozw/Desktop/dteds/Goldstone/Goldstone.txt", true);
 
         //dtedReader.toFile(new List<dtedInfo>() {di1, di2, di3, di4}, new geographic(34.8376, -117.3898), new geographic(35.9259, -116.3749), "C:/Users/leozw/Desktop/dteds/goldstone/goldstone.hrt");
-        
+
         return pt;
     }
     private void onlyEarth()
@@ -287,10 +287,10 @@ public class controller : MonoBehaviour
         foreach (string sat in sats)
         {
             satellite s = new satellite(sat, new satelliteData($"CSVS/SATS/{sat}", oneMin), srd);
-            try 
+            try
             {
                 // desync between planet and satellites
-                
+
                 //satellite.addFamilyNode(earth, s);
             }
             catch {UnityEngine.Debug.Log($"Unable to load {sat}");}
@@ -322,20 +322,22 @@ public class controller : MonoBehaviour
 
         earth = new planet("Earth", new planetData(  6371,  true, "CSVS/PLANETS/Earth", oneHour, planetType.planet), erd);
         planet moon =        new planet( "Luna", new planetData(1738.1, false,  "CSVS/PLANETS/Luna", oneHour,   planetType.moon),  rd);
-        
+
         foreach (facilityData fd in csvParser.loadFacilites("CSVS/FACILITIES/stationList")) new facility(fd.name, earth, fd, frd);
 
         master.setReferenceFrame(earth);
 
-        foreach (KeyValuePair<string, Timeline> kvp in csvParser.loadRpt(Path.Combine(Application.streamingAssetsPath, "CM_ORB.rpt")))
+        /*foreach (KeyValuePair<string, Timeline> kvp in csvParser.loadRpt(Path.Combine(Application.streamingAssetsPath, "CM_ORB.rpt")))
         {
             satellite s = new satellite(kvp.Key, new satelliteData(kvp.Value), srd);
             if (kvp.Key == "LRO") satellite.addFamilyNode(moon, s);
             else satellite.addFamilyNode(earth, s);
-        }
+        }*/
+        //0.0012803056323726458 42166.394716755305 0.07603377880226884 5.8448456857898 1.9281280538370242 86170.91187060841 3.693310484029208 3.691970164460813
 
-        satellite s1 = new satellite("Aura 2", new satelliteData("CSVS/EARTHBASED/AURA", 0.0006944444), srd);
-        satellite s2 = new satellite("Oco-2 2", new satelliteData("CSVS/EARTHBASED/OCO-2", 0.0006944444), srd);
+        satellite s1 = new satellite("TDRS-POINTS", new satelliteData("CSVS/EARTHBASED/AURA", 0.0006944444), srd);
+        satellite s2 = new satellite("TDRS-KEPLER", new satelliteData(new Timeline())")
+        /*satellite s2 = new satellite("Oco-2 2", new satelliteData("CSVS/EARTHBASED/OCO-2", 0.0006944444), srd);
         satellite s3 = new satellite("Aqua 2", new satelliteData("CSVS/EARTHBASED/AQUA", 0.0006944444), srd);
         satellite s4 = new satellite("Aim 2", new satelliteData("CSVS/EARTHBASED/AIM", 0.0006944444), srd);
         satellite s5 = new satellite("LRO 2", new satelliteData("CSVS/EARTHBASED/LRO", 0.0006944444 * 5.0), srd);
@@ -343,13 +345,13 @@ public class controller : MonoBehaviour
         new satellite("M1", new satelliteData($"CSVS/SATS/MMS 1", 0.0006944444), srd);
         new satellite("M2", new satelliteData($"CSVS/SATS/MMS 2", 0.0006944444), srd);
         new satellite("M3", new satelliteData($"CSVS/SATS/MMS 3", 0.0006944444), srd);
-        new satellite("M4", new satelliteData($"CSVS/SATS/MMS 4", 0.0006944444), srd);
+        new satellite("M4", new satelliteData($"CSVS/SATS/MMS 4", 0.0006944444), srd);*/
 
         satellite.addFamilyNode(earth, s1);
         satellite.addFamilyNode(earth, s2);
-        satellite.addFamilyNode(earth, s3);
+        /*satellite.addFamilyNode(earth, s3);
         satellite.addFamilyNode(earth, s4);
-        satellite.addFamilyNode(moon, s5);
+        satellite.addFamilyNode(moon, s5);*/
     }
 }
 
