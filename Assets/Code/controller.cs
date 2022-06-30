@@ -336,7 +336,7 @@ public class controller : MonoBehaviour
         //0.0012803056323726458 42166.394716755305 0.07603377880226884 5.8448456857898 1.9281280538370242 86170.91187060841 3.693310484029208 3.691970164460813
 
         satellite s1 = new satellite("TDRS-POINTS", new satelliteData("CSVS/EARTHBASED/AURA", 0.0006944444), srd);
-        satellite s2 = new satellite("TDRS-KEPLER", new satelliteData(new Timeline())")
+        //satellite s2 = new satellite("TDRS-KEPLER", new satelliteData(new Timeline())")
         /*satellite s2 = new satellite("Oco-2 2", new satelliteData("CSVS/EARTHBASED/OCO-2", 0.0006944444), srd);
         satellite s3 = new satellite("Aqua 2", new satelliteData("CSVS/EARTHBASED/AQUA", 0.0006944444), srd);
         satellite s4 = new satellite("Aim 2", new satelliteData("CSVS/EARTHBASED/AIM", 0.0006944444), srd);
@@ -348,7 +348,7 @@ public class controller : MonoBehaviour
         new satellite("M4", new satelliteData($"CSVS/SATS/MMS 4", 0.0006944444), srd);*/
 
         satellite.addFamilyNode(earth, s1);
-        satellite.addFamilyNode(earth, s2);
+        //satellite.addFamilyNode(earth, s2);
         /*satellite.addFamilyNode(earth, s3);
         satellite.addFamilyNode(earth, s4);
         satellite.addFamilyNode(moon, s5);*/
