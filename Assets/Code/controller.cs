@@ -40,6 +40,11 @@ public class controller : MonoBehaviour
         onlyEarth();
         //kepler();
 
+        pythonWrapper.runPython(
+            Path.Combine(Application.streamingAssetsPath, $"pythonScripts/test.py"), "1 2 3",
+            onNewData: new System.Diagnostics.DataReceivedEventHandler((sender, e) => Debug.Log(e.Data)),
+            onExit: new EventHandler((sender, e) => Debug.Log("killed")));
+
         csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
         //planetTerrain pt = loadTerrain();
