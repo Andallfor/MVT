@@ -1,6 +1,6 @@
 import time
 import sys
-import numpy as np
+#import numpy as np
 
 # ALL PRINT STATMENTS MUST HAVE flush=True
 print(f"received args {sys.argv}", flush=True)
@@ -9,9 +9,9 @@ for i in range(10):
     print(i, flush=True)
     time.sleep(0.5)
 
-arr = np.array([1, 2, 3, 4])
-arr = arr * -1
-print(arr, flush=True)
+#arr = np.array([1, 2, 3, 4])
+#arr = arr * -1
+#print(arr, flush=True)
 
 print(i/0, flush=True)
 
