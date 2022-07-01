@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System;
 using System.IO;
+using NumSharp;
 
 public class planetTerrainMesh : IMesh
 {
@@ -21,15 +22,20 @@ public class planetTerrainMesh : IMesh
         base.init((int) ptf.ncols + 2, (int) ptf.nrows + 2, ptf.cartPosition, new position(ptfi.ncols, ptfi.nrows, 0));
     }
 
-    public GameObject drawMesh()
+    public GameObject drawMesh(string materialPath)
     {
-        return base.drawMesh(Resources.Load("Materials/planets/earth/earth") as Material,
+        return base.drawMesh(Resources.Load(materialPath) as Material,
                              Resources.Load("Prefabs/PlanetMesh") as GameObject,
                              ptf.name, pt.parent.representation.gameObject.transform);
     }
 
-    public void drawBoundaries(string path)
-    {
+    // TODO: add npy support
+    public void drawBoundaries(string path) {
+        if (ptf.fileType == terrainFileType.txt) drawBoundariesTxt(path);
+        else drawBoundariesNpy(path);
+    }
+
+    private void drawBoundariesTxt(string path) {
         string[] fileData = File.ReadAllLines(path);
         string[] n = fileData[1].Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries).ToArray();
         string[] e = fileData[2].Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries).ToArray();
@@ -52,6 +58,25 @@ public class planetTerrainMesh : IMesh
 
             geographic wp = ptf.cartToGeo(0, y);
             addPoint(0, y, wp, double.Parse(w[y], System.Globalization.NumberStyles.Any));
+        }
+    }
+
+    private void drawBoundariesNpy(string path) {
+        NDArray data = np.load(path);
+        for (int x = 0; x < (int) ptf.ncols + 2; x++) {
+            geographic north = ptf.cartToGeo(x, (int) ptf.nrows + 1);
+            //addPoint(x, (int) ptf.nrows + 1, north, double.Parse((string) data[0, x]));
+
+            geographic south = ptf.cartToGeo(x, 0);
+            //addPoint(x, 0, south, double.Parse((string) data[2, x]));
+        }
+
+        for (int y = 0; y < (int) ptf.nrows + 2; y++) {
+            geographic east = ptf.cartToGeo((int) ptf.ncols + 1, y);
+            //addPoint((int) ptf.ncols + 1, y, east, double.Parse((string) data[1, y]));
+
+            geographic west = ptf.cartToGeo(0, y);
+            //addPoint(0, y, west, double.Parse((string) data[3, y]));
         }
     }
 

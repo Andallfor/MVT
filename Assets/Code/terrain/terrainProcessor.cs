@@ -118,6 +118,7 @@ public static class terrainProcessor
                 info.WriteLine($"generationStep    {res.step}");
                 info.WriteLine($"name              {res.dest.Split('/').Last()}");
                 info.WriteLine($"increment         (lat={geoIncrement.lat}_lon={geoIncrement.lon})");
+                info.WriteLine($"type              txt");
                 info.Close();
             }
             /* #endregion */
@@ -217,7 +218,7 @@ public static class terrainProcessor
         }
     }
 
-    public static void divideJpeg2000(string folderPath, string outputPath, List<terrainResolution> resolutions) {
+    public static void divideJpeg2000(string folderPath, string outputPath, List<terrainResolution> resolutions, bool copyMax = false) {
         Dictionary<string, int> endingKey = new Dictionary<string, int>() {
             {"json", 0},
             {"npy", 1}};
@@ -255,8 +256,8 @@ public static class terrainProcessor
             foreach (terrainResolution res in resolutions) {
                 NDArray downsizedData = data[$"::{res.step}", $"::{res.step}"];
                 int rootNumFiles = (int) Math.Sqrt(res.count);
-                int lengthPerFileX = (int) ((metadata.height / res.step) / rootNumFiles);
-                int lengthPerFileY = (int) ((metadata.width / res.step) / rootNumFiles);
+                int lengthPerFileY = (int) ((metadata.height / res.step) / rootNumFiles);
+                int lengthPerFileX = (int) ((metadata.width / res.step) / rootNumFiles);
 
                 geographic increase = new geographic(
                     (metadata.ModelPixelScale[0] * metadata.height) / rootNumFiles,
@@ -268,13 +269,13 @@ public static class terrainProcessor
                             metadata.yll + increase.lat * fy,
                             metadata.xll + increase.lon * fx);
 
-                        string fileName = terrainProcessor.fileName(ll, increase).Replace(".txt", ".npy");
+                        string fileName = terrainProcessor.fileName(ll, increase, "npy");
                         NDArray arrayData = downsizedData[
-                            $"{fy * lengthPerFileY}:{(fy + 1) * lengthPerFileY + 1}",
-                            $"{fx * lengthPerFileX}:{(fx + 1) * lengthPerFileX + 1}"];
+                            $"{fy * lengthPerFileY}:{(fy + 1) * lengthPerFileY}",
+                            $"{fx * lengthPerFileX}:{(fx + 1) * lengthPerFileX}"];
 
                         // create bounds array if needed
-                        string boundName = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(ll, increase).Replace(".txt", ".npy"));
+                        string boundName = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(ll, increase, "npy"));
                         if (!boundaries.ContainsKey(boundName)) {
                             boundaries[res.dest][boundName] = np.full(
                                 terrainProcessor.NODATA_value,
@@ -287,10 +288,15 @@ public static class terrainProcessor
                         int ds = fy * lengthPerFileY - 1;
                         int de = (fx + 1) * lengthPerFileX + 1;
                         int dw = fx * lengthPerFileX - 1;
-                        if (dn < downsizedData.shape[0] - 1) boundaries[res.dest][boundName]["0", $"1:{1 + lengthPerFileX}"] = downsizedData[$"{dn}", $"{dw + 1}:{de - 1}"];
-                        if (ds > 0) boundaries[res.dest][boundName]["2", $"1:{1 + lengthPerFileX}"] = downsizedData[$"{ds}", $"{dw + 1}:{de - 1}"];
-                        if (de < downsizedData.shape[1] - 1) boundaries[res.dest][boundName]["1", $"1:{1 + lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{de}"];
-                        if (dw > 0) boundaries[res.dest][boundName]["3", $"1:{1 + lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{dw}"];
+                        //if (dn < downsizedData.shape[0] - 1) boundaries[res.dest][boundName]["1", $"1:{1 + lengthPerFileX}"] = downsizedData[$"{dn}", $"{dw + 1}:{de - 1}"];
+                        //if (ds > 0) boundaries[res.dest][boundName]["3", $"1:{1 + lengthPerFileX}"] = downsizedData[$"{ds}", $"{dw + 1}:{de - 1}"];
+                        //if (de < downsizedData.shape[1] - 1) boundaries[res.dest][boundName]["0", $"1:{1 + lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{de}"];
+                        //if (dw > 0) boundaries[res.dest][boundName]["2", $"1:{1 + lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{dw}"];
+
+                        if (dn < downsizedData.shape[0] - 1) boundaries[res.dest][boundName]["2", $"1:{1 + lengthPerFileX}"] = np.full(1000000, ((de - 1) - (dw + 1)));
+                        if (ds > 0) boundaries[res.dest][boundName]["0", $"1:{1 + lengthPerFileX}"] = np.full(1000000, ((de - 1) - (dw + 1)));
+                        if (de < downsizedData.shape[1] - 1) boundaries[res.dest][boundName]["3", $"1:{1 + lengthPerFileY}"] = np.full(1000000, ((dn - 1) - (ds + 1)));
+                        if (dw > 0) boundaries[res.dest][boundName]["1", $"1:{1 + lengthPerFileY}"] = np.full(1000000, ((dn - 1) - (ds + 1)));
 
                         // add corners of bounds
                         if (fx != 0 && fy != 0) { // sw
@@ -310,7 +316,10 @@ public static class terrainProcessor
                             boundaries[res.dest][boundName]["3", $"{lengthPerFileY}"] = downsizedData[$"{dn}", $"{dw}"];
                         }
 
-                        // add bounds to other files
+                        // TODO: add bounds to other files
+                        if (fx == 0) {
+                            
+                        }
 
                         // save data
                         np.save(Path.Combine(res.dest, fileName), arrayData);
@@ -320,14 +329,15 @@ public static class terrainProcessor
                 if (!createdResInfo) {
                     Directory.CreateDirectory(res.dest);
                     StringBuilder sb = new StringBuilder();
-                    sb.AppendLine($"ncols             {(15360.0 / Math.Sqrt(res.count) / res.step)}");
-                    sb.AppendLine($"nrows             {(23040.0 / Math.Sqrt(res.count) / res.step)}");
-                    sb.AppendLine($"cellsize          {metadata.ModelPixelScale[0]}");
-                    sb.AppendLine($"pointsPerCoord    {1.0 / metadata.ModelPixelScale[0]}");
+                    sb.AppendLine($"ncols             {(15360.0 / Math.Sqrt(res.count) / res.step) * rootNumFiles * 8.0}");
+                    sb.AppendLine($"nrows             {(23040.0 / Math.Sqrt(res.count) / res.step) * rootNumFiles * 6.0}"); // tech should be 4 but 6 to allow uvs to gen properly
+                    sb.AppendLine($"cellsize          {metadata.ModelPixelScale[0] * res.step}");
+                    sb.AppendLine($"pointsPerCoord    {(1.0 / metadata.ModelPixelScale[0]) / res.step}");
                     sb.AppendLine($"filesPerTile      {res.count}");
                     sb.AppendLine($"generationStep    {res.step}");
                     sb.AppendLine($"name              {Path.GetDirectoryName(res.dest)}");
                     sb.AppendLine($"increment         (lat={increase.lat}_lon={increase.lon})");
+                    sb.AppendLine($"type              npy");
 
                     File.WriteAllText(Path.Combine(res.dest, terrainProcessor.folderInfoName), sb.ToString());
                 }
@@ -343,7 +353,7 @@ public static class terrainProcessor
             // copy json (metadata) file into output folder
             File.Copy(files[0], Path.Combine(headerFolder, Path.GetFileName(files[0])), true);
             // copy max resolution into folder
-            //File.Copy(files[1], Path.Combine(maxFolder, Path.GetFileName(files[1])), true);
+            if (copyMax) File.Copy(files[1], Path.Combine(maxFolder, Path.GetFileName(files[1])), true);
         }
 
         Debug.Log("finished");
@@ -365,8 +375,8 @@ public static class terrainProcessor
         return v;
     }
 
-    public static string fileName(geographic pos, geographic inc) => $"lat={Math.Round(pos.lat, 2)}_lon={Math.Round(pos.lon, 2)}_+({inc.lat}_{inc.lon}).txt";
-    public static string fileBoundaryName(geographic pos, geographic inc) => fileName(pos, inc).Replace(".txt", "_boundary.txt");
+    public static string fileName(geographic pos, geographic inc, string ending = "txt") => $"lat={Math.Round(pos.lat, 2)}_lon={Math.Round(pos.lon, 2)}_+({inc.lat}_{inc.lon}).{ending}";
+    public static string fileBoundaryName(geographic pos, geographic inc, string ending = "txt") => fileName(pos, inc).Replace(".txt", $"_boundary.{ending}");
     public const string folderInfoName = "resInfo.txt";
     public const int NODATA_value = -32767;
 

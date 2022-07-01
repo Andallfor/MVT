@@ -16,10 +16,12 @@ public class planetTerrain
     List<planetTerrainFolderInfo> sortedResolutions = new List<planetTerrainFolderInfo>();
     public readonly double radius, heightMulti;
     public planet parent;
+    public string materialPath;
 
-    public planetTerrain(double radius, double heightMulti, planet parent)
+    public planetTerrain(double radius, double heightMulti, planet parent, string materialPath)
     {
         this.radius = radius;
+        this.materialPath = materialPath;
         this.heightMulti = heightMulti;
         this.parent = parent;
     }
@@ -54,6 +56,8 @@ public class planetTerrain
     // TODO: if the time step is too great, unload terrain and use sphere instead- we dont want to be constantly loading and unloading terrain
     private async Task _updateTerrain(bool force = false)
     {
+        if (this.parent.representation.gameObject == null) return;
+
         double distToPlanet = Vector3.Distance(general.camera.transform.position, this.parent.representation.gameObject.transform.position);
         float planetZ = general.camera.WorldToScreenPoint(this.parent.representation.gameObject.transform.position).z;
 
@@ -132,9 +136,17 @@ public class planetTerrain
             {
                 if (toIgnore.Contains(desiredMeshes[i])) continue;
 
-                planetTerrainFile ptf = new planetTerrainFile(Path.Combine(
+                string predictedFileName = terrainProcessor.fileName(
+                    desiredMeshes[i],
+                    p.increment,
+                    p.type == terrainFileType.npy ? "npy" : "txt");
+                string predictedPath = Path.Combine(
                     p.folderPath,
-                    terrainProcessor.fileName(desiredMeshes[i], p.increment)), p);
+                    predictedFileName);
+                
+                if (!File.Exists(predictedPath)) continue;
+
+                planetTerrainFile ptf = new planetTerrainFile(predictedPath, p, p.type);
 
                 // thread the generation of ptm because it requires a large amount of mem allocation, assign it afterwards
                 Task t = new Task(() => {
@@ -152,7 +164,7 @@ public class planetTerrain
             // cannot thread mesh generation so this seems to be the best option
             foreach (planetTerrainMesh ptm in emCopy.Values)
             {
-                ptm.drawMesh();
+                ptm.drawMesh(materialPath);
                 await Task.Delay(5); // TODO: maybe replace with value that is determined by how fast the terrain gens?
             }
 

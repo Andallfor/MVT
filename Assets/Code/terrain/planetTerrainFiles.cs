@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 using System.IO;
 using System;
-using System.Threading.Tasks;
+using NumSharp;
 
 public class planetTerrainFile
 {
@@ -13,12 +13,15 @@ public class planetTerrainFile
     public position cartPosition;
     public planetTerrainFolderInfo ptfi;
     public double ncols, nrows;
+    public terrainFileType fileType;
 
-    public planetTerrainFile(string path, planetTerrainFolderInfo ptfi)
-    {
-        name = path.Split('\\').Last(); // get name of file without path
-        name = name.Replace(".txt", ""); // without ext
+    public planetTerrainFile(string path, planetTerrainFolderInfo ptfi, terrainFileType tft) {
+        this.fileType = tft;
+        this.ptfi = ptfi;
         this.path = path;
+        
+        if (tft == terrainFileType.npy) name = Path.GetFileName(path).Replace(".npy", "");
+        else name = Path.GetFileName(path).Replace(".txt", "");
 
         string _increment = name.Split('+').Last();
         _increment = new string(_increment.Where(x => !(x == '(' || x == ')')).ToArray());
@@ -30,8 +33,7 @@ public class planetTerrainFile
         geoPosition = new geographic(
             double.Parse(pos[0].Split('=').Last(), System.Globalization.NumberStyles.Any),
             double.Parse(pos[1].Split('=').Last(), System.Globalization.NumberStyles.Any));
-        
-        this.ptfi = ptfi;
+
         cartPosition = new position(
             ptfi.pointsPerCoord * (geoPosition.lon + 180.0),
             ptfi.pointsPerCoord * (geoPosition.lat + 90.0),
@@ -41,8 +43,25 @@ public class planetTerrainFile
         nrows = (int) (increment.lat * ptfi.pointsPerCoord);
     }
 
-    public void generate(planetTerrainMesh m)
-    {
+    public void generate(planetTerrainMesh m) {
+        if (fileType == terrainFileType.txt) generateTxt(m);
+        else generateNpy(m);
+    }
+
+    private void generateNpy(planetTerrainMesh m) {
+        NDArray data = np.load(path);
+
+        for (int row = 0; row < data.shape[0]; row++) {
+            for (int col = 0; col < data.shape[1]; col++) {
+                int rowOffset = (int) nrows - 1 - row;
+                m.addPoint(col + 1, rowOffset + 1, cartToGeo(col, row), double.Parse((string) data[row, col]));
+            }
+        }
+
+        m.drawBoundaries(Path.Combine(m.ptfi.folderPath, terrainProcessor.fileBoundaryName(geoPosition, increment, "npy")));
+    }
+
+    private void generateTxt(planetTerrainMesh m) {
         string[] data = File.ReadAllLines(path);
         data = data.Skip(6).ToArray();
 
@@ -80,6 +99,7 @@ public class planetTerrainFolderInfo
 {
     public readonly double ncols, nrows, cellsize, pointsPerCoord, filesPerTile, genStep;
     public readonly string name, folderPath;
+    public readonly terrainFileType type;
     public readonly geographic increment;
     public readonly List<Bounds> allBounds;
 
@@ -93,6 +113,7 @@ public class planetTerrainFolderInfo
         pointsPerCoord = double.Parse(read(data[3]), System.Globalization.NumberStyles.Any);
         filesPerTile = double.Parse(read(data[4]), System.Globalization.NumberStyles.Any);
         genStep = double.Parse(read(data[5]), System.Globalization.NumberStyles.Any);
+        type = read(data[8]) == "npy" ? terrainFileType.npy : terrainFileType.txt;
 
         name = read(data[6]);
         this.folderPath = folderPath;
@@ -102,6 +123,7 @@ public class planetTerrainFolderInfo
             double.Parse(inc[0].Split('=').Last(), System.Globalization.NumberStyles.Any),
             double.Parse(inc[1].Split('=').Last(), System.Globalization.NumberStyles.Any));
         
+        // TODO: CHECK IF THIS BREAKS ANYTHING
         allBounds = new List<Bounds>();
         for (double lat = -90; lat < 90; lat += increment.lat)
         {
@@ -129,3 +151,6 @@ public class planetTerrainFolderInfo
     }
 }
 
+public enum terrainFileType {
+    npy = 1, txt = 2
+}

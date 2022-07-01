@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 public class controller : MonoBehaviour
 {
     public float playerSpeed = 100f * (float) master.scale;
-    public static planet earth;
+    public static planet earth, moon;
     private double speed = 0.00005;
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
     private Coroutine loop;
@@ -38,16 +38,17 @@ public class controller : MonoBehaviour
         //jsonParser.deserialize(Path.Combine(Application.streamingAssetsPath, "sytAll.syt"), jsonType.system);
         //master.setReferenceFrame(master.allPlanets.First(x => x.name == "Earth"));
 
-        onlyEarth();
+        //onlyEarth();
+        moonPreset();
         //kepler();
 
         csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
-        //pt = loadTerrain();
+        terrainProcessor.divideJpeg2000("C:/Users/leozw/Desktop/lunar", "C:/Users/leozw/Desktop/preparedLunar", new List<terrainResolution>() {
+            new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/min", 16, 128)
+        });
 
-        //terrainProcessor.divideJpeg2000("C:/Users/leozw/Desktop/lunar", "C:/Users/leozw/Desktop/preparedLunar", new List<terrainResolution>() {
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/min", 16, 128)
-        //});
+        pt = loadTerrain();
 
         master.pause = false;
         general.camera = Camera.main;
@@ -69,7 +70,7 @@ public class controller : MonoBehaviour
                 master.time.addJulianTime(speed);
             }
 
-            //pt.updateTerrain();
+            pt.updateTerrain();
 
             if (!planetOverview.usePlanetOverview) master.requestSchedulingUpdate();
             master.currentTick = tick;
@@ -152,26 +153,28 @@ public class controller : MonoBehaviour
         if (Input.GetKeyDown("4")) master.time.addJulianTime(2459396.5 - master.time.julian);
     }
     private planetTerrain loadTerrain() {
-        /*terrainProcessor.divideAll("C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/", new List<terrainResolution>() {
+        //terrainProcessor.divideGebco("C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/", new List<terrainResolution>() {
             //new terrainResolution("C:/Users/leozw/Desktop/divided/ultra", 100, 6),
             //new terrainResolution("C:/Users/leozw/Desktop/divided/extreme", 64, 9),
             //new terrainResolution("C:/Users/leozw/Desktop/divided/high", 9, 20), // if this doesnt work, regen it
             //new terrainResolution("C:/Users/leozw/Desktop/divided/medium", 4, 30),
             //new terrainResolution("C:/Users/leozw/Desktop/divided/low", 1, 60),
             //new terrainResolution("C:/Users/leozw/Desktop/divided/tiny", 4, 100),
-            });*/
+            //});
         
         //List<nearbyFacilites> nfs = highResTerrain.neededAreas();
         //foreach (nearbyFacilites nf in nfs) Debug.Log(nf);
         
-        planetTerrain pt = new planetTerrain(6371, 35, earth);
-        pt.generateFolderInfos(new string[6] {
-            "C:/Users/leozw/Desktop/divided/ultra",
-            "C:/Users/leozw/Desktop/divided/extreme", 
-            "C:/Users/leozw/Desktop/divided/high", 
-            "C:/Users/leozw/Desktop/divided/medium",
-            "C:/Users/leozw/Desktop/divided/low",
-            "C:/Users/leozw/Desktop/divided/tiny"});
+        planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/moon/moon");
+        pt.generateFolderInfos(new string[1] {"C:/Users/leozw/Desktop/preparedLunar/min"});
+        //planetTerrain pt = new planetTerrain(6371, 35, earth, "Materials/planets/earth/earth");
+        //pt.generateFolderInfos(new string[1] {
+            //"C:/Users/leozw/Desktop/divided/ultra",
+            //"C:/Users/leozw/Desktop/divided/extreme", 
+            //"C:/Users/leozw/Desktop/divided/high", 
+            //"C:/Users/leozw/Desktop/divided/medium",
+            //"C:/Users/leozw/Desktop/divided/low",
+            //"C:/Users/leozw/Desktop/divided/tiny"});
         
         //dtedImageCombiner.parseSentinelKML("C:/Users/leozw/Desktop/S2A_OPER_GIP_TILPAR_MPC__20151209T095117_V20150622T000000_21000101T000000_B00.kml", "C:/Users/leozw/Desktop/Sentinel2Tiles.csv");
         //sentinelArea.tileKey = csvParser.loadSentinelTiles("C:/Users/leozw/Desktop/dteds/Sentinel2Tiles.csv");
@@ -274,15 +277,15 @@ public class controller : MonoBehaviour
         double oneMin = 0.0006944444;
         double oneHour = 0.0416666665;
         
-        earth =       new planet(  "Earth", new planetData(  6371, true, "CSVS/PLANETS/Earth", oneHour, planetType.planet), erd);
-        planet moon = new planet(   "Luna", new planetData(1738.1, false,    "CSVS/PLANETS/Luna", oneHour, planetType.moon),   rd);
-                      new planet("Mercury", new planetData(2439.7, false, "CSVS/PLANETS/Mercury", oneHour, planetType.planet), rd);
-                      new planet(  "Venus", new planetData(6051.8, false,   "CSVS/PLANETS/Venus", oneHour, planetType.planet), rd);
-                      new planet(   "Mars", new planetData(3396.2, false,    "CSVS/PLANETS/Mars", oneHour, planetType.planet), rd);
-                      new planet("Jupiter", new planetData( 71492, false, "CSVS/PLANETS/Jupiter", oneHour, planetType.planet), rd);
-                      new planet( "Saturn", new planetData( 60268, false,  "CSVS/PLANETS/Saturn", oneHour, planetType.planet), rd);
-                      new planet( "Uranus", new planetData( 25559, false,  "CSVS/PLANETS/Uranus", oneHour, planetType.planet), rd);
-                      new planet("Neptune", new planetData( 24764, false, "CSVS/PLANETS/Neptune", oneHour, planetType.planet), rd);
+        earth = new planet(  "Earth", new planetData(  6371, true,    "CSVS/PLANETS/Earth", oneHour, planetType.planet), erd);
+        moon  = new planet(   "Luna", new planetData(1738.1, false,    "CSVS/PLANETS/Luna", oneHour, planetType.moon),   rd);
+                new planet("Mercury", new planetData(2439.7, false, "CSVS/PLANETS/Mercury", oneHour, planetType.planet), rd);
+                new planet(  "Venus", new planetData(6051.8, false,   "CSVS/PLANETS/Venus", oneHour, planetType.planet), rd);
+                new planet(   "Mars", new planetData(3396.2, false,    "CSVS/PLANETS/Mars", oneHour, planetType.planet), rd);
+                new planet("Jupiter", new planetData( 71492, false, "CSVS/PLANETS/Jupiter", oneHour, planetType.planet), rd);
+                new planet( "Saturn", new planetData( 60268, false,  "CSVS/PLANETS/Saturn", oneHour, planetType.planet), rd);
+                new planet( "Uranus", new planetData( 25559, false,  "CSVS/PLANETS/Uranus", oneHour, planetType.planet), rd);
+                new planet("Neptune", new planetData( 24764, false, "CSVS/PLANETS/Neptune", oneHour, planetType.planet), rd);
 
         foreach (string sat in sats)
         {
@@ -350,5 +353,33 @@ public class controller : MonoBehaviour
         satellite.addFamilyNode(earth, s3);
         satellite.addFamilyNode(earth, s4);
         satellite.addFamilyNode(moon, s5);
+    }
+
+    private void moonPreset() {
+        representationData erd = new representationData(
+            "Prefabs/Planet",
+            "Materials/planets/earth/earthEquirectangular");
+        
+        representationData mrd = new representationData(
+            "Prefabs/Planet",
+            "Materials/planets/moon/moon");
+        
+        representationData rd = new representationData(
+            "Prefabs/Planet",
+            "Materials/default");
+        
+        double oneHour = 0.0416666665;
+
+        earth = new planet(  "Earth", new planetData(  6371, true,  "CSVS/PLANETS/Earth", oneHour, planetType.planet),  erd);
+        moon  = new planet(   "Luna", new planetData(1738.1, false, "CSVS/PLANETS/Luna",  oneHour,   planetType.moon),  mrd);
+                new planet("Mercury", new planetData(2439.7, false, "CSVS/PLANETS/Mercury", oneHour, planetType.planet), rd);
+                new planet(  "Venus", new planetData(6051.8, false,   "CSVS/PLANETS/Venus", oneHour, planetType.planet), rd);
+                new planet(   "Mars", new planetData(3396.2, false,    "CSVS/PLANETS/Mars", oneHour, planetType.planet), rd);
+                new planet("Jupiter", new planetData( 71492, false, "CSVS/PLANETS/Jupiter", oneHour, planetType.planet), rd);
+                new planet( "Saturn", new planetData( 60268, false,  "CSVS/PLANETS/Saturn", oneHour, planetType.planet), rd);
+                new planet( "Uranus", new planetData( 25559, false,  "CSVS/PLANETS/Uranus", oneHour, planetType.planet), rd);
+                new planet("Neptune", new planetData( 24764, false, "CSVS/PLANETS/Neptune", oneHour, planetType.planet), rd);
+        
+        master.setReferenceFrame(moon);
     }
 }
