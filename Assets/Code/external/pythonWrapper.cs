@@ -14,79 +14,43 @@ public static class pythonWrapper
     public static int runPython(string scriptPath, string args, DataReceivedEventHandler onNewData = null, EventHandler onExit = null) {
         locatePython();
 
+        Process process = new Process();
+        process.StartInfo.CreateNoWindow = true;
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.RedirectStandardOutput = true;
+        process.StartInfo.RedirectStandardError = true;
+        process.EnableRaisingEvents = true;
+
+        int id = currentId;
+        currentId++;
+
+        runningScripts.Add(id, process);
+
+        process.OutputDataReceived += onNewData;
+        process.Exited += onExit;
+
+        process.Exited += new EventHandler((sender, e) => pythonWrapper.kill(id));
+        process.Disposed += new EventHandler((sender, e) => pythonWrapper.kill(id));
+
+        string errorOuput = "";
+        process.ErrorDataReceived += new DataReceivedEventHandler((sender, e) => {
+            if (String.IsNullOrEmpty(e.Data)) UnityEngine.Debug.LogError($"Script '{Path.GetFileName(scriptPath)}' failed: {errorOuput}");
+            else errorOuput += e.Data + '\n';
+        });
+
         if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor) { 
-            return _runWindows(scriptPath, args, onNewData, onExit);
+            process.StartInfo.FileName = "cmd.exe";
+            process.StartInfo.Arguments = $"/C {pythonLocation} {scriptPath} {args}";
         }
         if (Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXEditor) {
-            return _runMac(scriptPath, args, onNewData, onExit);
+            process.StartInfo.FileName = pythonLocation;
+            process.StartInfo.Arguments = $"{scriptPath} {args}";
         }
 
-        return -1;
-    }
-
-    private static int _runMac(string scriptPath, string args, DataReceivedEventHandler onNewData = null, EventHandler onExit = null) {
-        Process process = new Process();
-        process.StartInfo.CreateNoWindow = true;
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.FileName = pythonLocation;
-        process.StartInfo.Arguments = $"{scriptPath} {args}";
-        process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.RedirectStandardError = true;
-        process.EnableRaisingEvents = true;
-        int id = currentId;
-
-        runningScripts.Add(id, process);
-
-        process.OutputDataReceived += onNewData;
-        process.Exited += onExit;
-
-        process.Exited += new EventHandler((sender, e) => pythonWrapper.kill(id));
-        process.Disposed += new EventHandler((sender, e) => pythonWrapper.kill(id));
-
-        string errorOuput = "";
-        process.ErrorDataReceived += new DataReceivedEventHandler((sender, e) => {
-            if (String.IsNullOrEmpty(e.Data)) UnityEngine.Debug.LogError($"Script '{Path.GetFileName(scriptPath)}' failed: {errorOuput}");
-            else errorOuput += e.Data + '\n';
-        });
-
         process.Start();
-
-        currentId++;
         process.BeginErrorReadLine();
         process.BeginOutputReadLine();
-        return id;
-    }
 
-    private static int _runWindows(string scriptPath, string args, DataReceivedEventHandler onNewData = null, EventHandler onExit = null) {
-        Process process = new Process();
-        process.StartInfo.CreateNoWindow = true;
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.FileName = "cmd.exe";
-        process.StartInfo.Arguments = $"/C {pythonLocation} {scriptPath} {args}";
-        process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.RedirectStandardError = true;
-        process.EnableRaisingEvents = true;
-        int id = currentId;
-
-        runningScripts.Add(id, process);
-
-        process.OutputDataReceived += onNewData;
-        process.Exited += onExit;
-
-        process.Exited += new EventHandler((sender, e) => pythonWrapper.kill(id));
-        process.Disposed += new EventHandler((sender, e) => pythonWrapper.kill(id));
-
-        string errorOuput = "";
-        process.ErrorDataReceived += new DataReceivedEventHandler((sender, e) => {
-            if (String.IsNullOrEmpty(e.Data)) UnityEngine.Debug.LogError($"Script '{Path.GetFileName(scriptPath)}' failed: {errorOuput}");
-            else errorOuput += e.Data + '\n';
-        });
-
-        process.Start();
-
-        currentId++;
-        process.BeginErrorReadLine();
-        process.BeginOutputReadLine();
         return id;
     }
 
