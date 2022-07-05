@@ -34,7 +34,7 @@ public static class pythonWrapper
 
         string errorOuput = "";
         process.ErrorDataReceived += new DataReceivedEventHandler((sender, e) => {
-            if (String.IsNullOrEmpty(e.Data)) UnityEngine.Debug.LogError($"Script '{Path.GetFileName(scriptPath)}' failed: {errorOuput}");
+            if (String.IsNullOrEmpty(e.Data) && !String.IsNullOrEmpty(errorOuput)) UnityEngine.Debug.LogError($"Script '{Path.GetFileName(scriptPath)}' failed: {errorOuput}");
             else errorOuput += e.Data + '\n';
         });
 

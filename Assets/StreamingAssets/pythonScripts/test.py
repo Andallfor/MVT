@@ -21,7 +21,11 @@ arr = np.array([1, 2, 3, 4])
 arr = arr * -1
 print(arr, flush=True)
 
-print(i/0, flush=True)
+from jplephem import Ephemeris
+import de421
+
+eph = Ephemeris(de421)
+print(eph.compute('mars', 2444391.5))
 
 # the last thing outputed by the program is always 'Null'
 
