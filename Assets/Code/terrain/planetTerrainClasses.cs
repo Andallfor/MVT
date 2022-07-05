@@ -65,10 +65,10 @@ public class planetTerrainMesh : IMesh
         NDArray data = np.load(path);
         for (int x = 0; x < (int) ptf.ncols + 2; x++) {
             geographic north = ptf.cartToGeo(x, 0);
-            addPoint(x, 0, north, double.Parse((string) data[0, x]));
+            addPoint(x, 0, north, double.Parse((string) data[2, x]));
 
             geographic south = ptf.cartToGeo(x, (int) ptf.nrows + 1);
-            addPoint(x, (int) ptf.nrows + 1, south, double.Parse((string) data[2, x]));
+            addPoint(x, (int) ptf.nrows + 1, south, double.Parse((string) data[0, x]));
         }
 
         for (int y = 0; y < (int) ptf.nrows + 2; y++) {
