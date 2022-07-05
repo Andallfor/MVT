@@ -45,7 +45,7 @@ public class controller : MonoBehaviour
         csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
         terrainProcessor.divideJpeg2000("C:/Users/leozw/Desktop/lunar", "C:/Users/leozw/Desktop/preparedLunar", new List<terrainResolution>() {
-            new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/min", 16, 128)
+            new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/min", 4, 128)
         });
 
         pt = loadTerrain();
@@ -165,7 +165,7 @@ public class controller : MonoBehaviour
         //List<nearbyFacilites> nfs = highResTerrain.neededAreas();
         //foreach (nearbyFacilites nf in nfs) Debug.Log(nf);
         
-        //planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/moon/moon", true);
+        //planetTerrain pt = new planetTerrain(1737.4, 2, moon, "Materials/planets/moon/moon", true);
         planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/earth/earth", true);
         pt.generateFolderInfos(new string[1] {"C:/Users/leozw/Desktop/preparedLunar/min"});
         //planetTerrain pt = new planetTerrain(6371, 35, earth, "Materials/planets/earth/earth");

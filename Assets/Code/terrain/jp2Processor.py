@@ -36,7 +36,7 @@ keyParsers = {
 
 glymur.set_option('lib.num_threads', 16)
 
-FOLDER_PATH = "C:/Users/leozw/Downloads/jp2/JP2"
+FOLDER_PATH = "C:/Users/leozw/Downloads/JP2"
 OUTPUT_PATH = "C:/Users/leozw/Desktop/lunar"
 RESOLUTIONS = [
     (16, 128),

@@ -262,6 +262,8 @@ public static class terrainProcessor
                 geographic increase = new geographic(
                     (metadata.ModelPixelScale[0] * metadata.height) / rootNumFiles,
                     (metadata.ModelPixelScale[0] * metadata.width) / rootNumFiles);
+                
+                int length = 2 + (int) Math.Max(lengthPerFileX, lengthPerFileY);
 
                 for (int fx = 0; fx < rootNumFiles; fx++) {
                     for (int fy = 0; fy < rootNumFiles; fy++) {
@@ -279,19 +281,21 @@ public static class terrainProcessor
                         if (!boundaries.ContainsKey(boundName)) {
                             boundaries[res.dest][boundName] = np.full(
                                 terrainProcessor.NODATA_value,
-                                (4, 2 + (int) Math.Max(lengthPerFileX, lengthPerFileY)),
+                                (4, length),
                                 Type.GetType("double"));
                         }
+
+                        // why cool code when brute force
                         
                         // add bounds to our own file
-                        int dn = (fy + 1) * lengthPerFileY + 1;
+                        int dn = (fy + 1) * lengthPerFileY;
                         int ds = fy * lengthPerFileY - 1;
-                        int de = (fx + 1) * lengthPerFileX + 1;
+                        int de = (fx + 1) * lengthPerFileX;
                         int dw = fx * lengthPerFileX - 1;
-                        if (dn < downsizedData.shape[0] - 1) boundaries[res.dest][boundName]["0", $"1:{1 + lengthPerFileX}"] = downsizedData[$"{dn}", $"{dw + 1}:{de - 1}"];
-                        if (ds > 0) boundaries[res.dest][boundName]["2", $"1:{1 + lengthPerFileX}"] = downsizedData[$"{ds}", $"{dw + 1}:{de - 1}"];
-                        if (de < downsizedData.shape[1] - 1) boundaries[res.dest][boundName]["1", $"1:{1 + lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{de}"];
-                        if (dw > 0) boundaries[res.dest][boundName]["3", $"1:{1 + lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{dw}"];
+                        if (dn < downsizedData.shape[0] - 1) boundaries[res.dest][boundName]["0", $"1:{lengthPerFileX}"] = downsizedData[$"{dn}", $"{dw + 1}:{de - 1}"];
+                        if (ds > 0) boundaries[res.dest][boundName]["2", $"1:{lengthPerFileX}"] = downsizedData[$"{ds}", $"{dw + 1}:{de - 1}"];
+                        if (de < downsizedData.shape[1] - 1) boundaries[res.dest][boundName]["1", $"1:{lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{de}"];
+                        if (dw > 0) boundaries[res.dest][boundName]["3", $"1:{lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{dw}"];
 
                         // add corners of bounds
                         if (fx != 0 && fy != 0) { // sw
@@ -312,9 +316,31 @@ public static class terrainProcessor
                         }
 
                         // TODO: add bounds to other files
-                        if (fx == 0) {
-                            
+                        /*
+                        if (fy == 0) { // s -> n
+                            string _b = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(wrap(ll, new geographic(-increase.lat, 0)), increase, "npy"));
+                            tryToCreateJp2(_b, boundaries[res.dest], length);
+
+                            boundaries[res.dest][_b]["0", $"1:{1 + lengthPerFileX}"] = downsizedData[$"{ds + 1}", $"{dw + 1}:{de - 1}"];
                         }
+                        if (fy == rootNumFiles - 1) { // n -> s
+                            string _b = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(wrap(ll, new geographic(increase.lat, 0)), increase, "npy"));
+                            tryToCreateJp2(_b, boundaries[res.dest], length);
+
+                            boundaries[res.dest][_b]["2", $"1:{1 + lengthPerFileX}"] = downsizedData[$"{dn - 1}", $"{dw + 1}:{de - 1}"];
+                        }
+                        if (fx == 0) { // w -> e
+                            string _b = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(wrap(ll, new geographic(0, -increase.lon)), increase, "npy"));
+                            tryToCreateJp2(_b, boundaries[res.dest], length);
+
+                            boundaries[res.dest][_b]["1", $"1:{1 + lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{dw + 1}"];
+                        }
+                        if (fx == rootNumFiles - 1) { // e -> w
+                            string _b = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(wrap(ll, new geographic(0, increase.lon)), increase, "npy"));
+                            tryToCreateJp2(_b, boundaries[res.dest], length);
+
+                            boundaries[res.dest][_b]["3", $"1:{1 + lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{de - 1}"];
+                        }*/
 
                         // save data
                         np.save(Path.Combine(res.dest, fileName), arrayData);
@@ -324,10 +350,11 @@ public static class terrainProcessor
                 if (!createdResInfo) {
                     Directory.CreateDirectory(res.dest);
                     StringBuilder sb = new StringBuilder();
-                    sb.AppendLine($"ncols             {(15360.0 / Math.Sqrt(res.count) / res.step) * rootNumFiles * 8.0}");
-                    sb.AppendLine($"nrows             {(23040.0 / Math.Sqrt(res.count) / res.step) * rootNumFiles * 6.0}"); // tech should be 4 but 6 to allow uvs to gen properly
+                    double pointsPerCoord = (1.0 / metadata.ModelPixelScale[0]) / res.step;
+                    sb.AppendLine($"ncols             {pointsPerCoord * 360.0}");
+                    sb.AppendLine($"nrows             {pointsPerCoord * 180.0}");
                     sb.AppendLine($"cellsize          {metadata.ModelPixelScale[0] * res.step}");
-                    sb.AppendLine($"pointsPerCoord    {(1.0 / metadata.ModelPixelScale[0]) / res.step}");
+                    sb.AppendLine($"pointsPerCoord    {pointsPerCoord}");
                     sb.AppendLine($"filesPerTile      {res.count}");
                     sb.AppendLine($"generationStep    {res.step}");
                     sb.AppendLine($"name              {Path.GetDirectoryName(res.dest)}");
@@ -354,11 +381,10 @@ public static class terrainProcessor
         Debug.Log("finished");
     }
 
-    private static bool onCorner(int x, int y, int mx, int my) => 
-        (x == 0 && y == 0) || 
-        (x == mx && y == my) ||
-        (x == 0 && y == my) ||
-        (x == mx && y == 0) ? true : false;
+    private static void tryToCreateJp2(string key, Dictionary<string, NDArray> dict, int length) {
+        if (dict.ContainsKey(key)) return;
+        else dict[key] = np.full(NODATA_value, (4, length), Type.GetType("double"));
+    }
 
     private static Vector2Int wrap(Vector2Int v, BoundsInt b)
     {
@@ -368,6 +394,18 @@ public static class terrainProcessor
         else if (v.y >= b.yMax) v.y -= b.yMax - b.yMin;
 
         return v;
+    }
+
+    private static geographic wrap(geographic g, geographic change) {
+        double lat = g.lat + change.lat;
+        double lon = g.lon + change.lon;
+
+        if (lat < -90.0) lat += 180.0;
+        else if (lat > 90) lat -= 180.0;
+        if (lon < -180.0) lon += 360.0;
+        else if (lon > 180.0) lon -= 360.0;
+
+        return new geographic(lat, lon);
     }
 
     public static string fileName(geographic pos, geographic inc, string ending = "txt") => $"lat={Math.Round(pos.lat, 2)}_lon={Math.Round(pos.lon, 2)}_+({inc.lat}_{inc.lon}).{ending}";

@@ -164,8 +164,7 @@ public class planetTerrain
 
             // dont generate all meshes at once, generate them one a time (to prevent freezing)
             // cannot thread mesh generation so this seems to be the best option
-            foreach (planetTerrainMesh ptm in emCopy.Values)
-            {
+            foreach (planetTerrainMesh ptm in emCopy.Values) {
                 ptm.drawMesh(materialPath);
                 await Task.Delay(5); // TODO: maybe replace with value that is determined by how fast the terrain gens?
             }
