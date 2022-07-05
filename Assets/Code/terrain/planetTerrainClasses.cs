@@ -64,18 +64,18 @@ public class planetTerrainMesh : IMesh
     private void drawBoundariesNpy(string path) {
         NDArray data = np.load(path);
         for (int x = 0; x < (int) ptf.ncols + 2; x++) {
-            geographic north = ptf.cartToGeo(x, (int) ptf.nrows + 1);
+            geographic north = ptf.cartToGeo(x, 0);
             addPoint(x, 0, north, double.Parse((string) data[0, x]));
 
-            geographic south = ptf.cartToGeo(x, 0);
+            geographic south = ptf.cartToGeo(x, (int) ptf.nrows + 1);
             addPoint(x, (int) ptf.nrows + 1, south, double.Parse((string) data[2, x]));
         }
 
         for (int y = 0; y < (int) ptf.nrows + 2; y++) {
-            geographic east = ptf.cartToGeo((int) ptf.ncols + 1, (int) ptf.nrows + 1 - y);
+            geographic east = ptf.cartToGeo((int) ptf.ncols + 1, y);
             addPoint((int) ptf.ncols + 1, y, east, double.Parse((string) data[1, y]));
 
-            geographic west = ptf.cartToGeo(0, (int) ptf.nrows + 1 - y);
+            geographic west = ptf.cartToGeo(0, y);
             addPoint(0, y, west, double.Parse((string) data[3, y]));
         }
     }
