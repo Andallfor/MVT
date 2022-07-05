@@ -13,13 +13,13 @@ public class planetTerrainMesh : IMesh
     public planetTerrainFolderInfo ptfi;
     public planetTerrain pt;
 
-    public planetTerrainMesh(planetTerrainFile ptf, planetTerrainFolderInfo ptfi, planetTerrain pt)
+    public planetTerrainMesh(planetTerrainFile ptf, planetTerrainFolderInfo ptfi, planetTerrain pt, bool reverse)
     {
         this.ptf = ptf;
         this.ptfi = ptfi;
         this.pt = pt;
 
-        base.init((int) ptf.ncols + 2, (int) ptf.nrows + 2, ptf.cartPosition, new position(ptfi.ncols, ptfi.nrows, 0));
+        base.init((int) ptf.ncols + 2, (int) ptf.nrows + 2, ptf.cartPosition, new position(ptfi.ncols, ptfi.nrows, 0), reverse: reverse);
     }
 
     public GameObject drawMesh(string materialPath)
@@ -65,18 +65,18 @@ public class planetTerrainMesh : IMesh
         NDArray data = np.load(path);
         for (int x = 0; x < (int) ptf.ncols + 2; x++) {
             geographic north = ptf.cartToGeo(x, (int) ptf.nrows + 1);
-            //addPoint(x, (int) ptf.nrows + 1, north, double.Parse((string) data[0, x]));
+            addPoint(x, 0, north, double.Parse((string) data[0, x]));
 
             geographic south = ptf.cartToGeo(x, 0);
-            //addPoint(x, 0, south, double.Parse((string) data[2, x]));
+            addPoint(x, (int) ptf.nrows + 1, south, double.Parse((string) data[2, x]));
         }
 
         for (int y = 0; y < (int) ptf.nrows + 2; y++) {
-            geographic east = ptf.cartToGeo((int) ptf.ncols + 1, y);
-            //addPoint((int) ptf.ncols + 1, y, east, double.Parse((string) data[1, y]));
+            geographic east = ptf.cartToGeo((int) ptf.ncols + 1, (int) ptf.nrows + 1 - y);
+            addPoint((int) ptf.ncols + 1, y, east, double.Parse((string) data[1, y]));
 
-            geographic west = ptf.cartToGeo(0, y);
-            //addPoint(0, y, west, double.Parse((string) data[3, y]));
+            geographic west = ptf.cartToGeo(0, (int) ptf.nrows + 1 - y);
+            addPoint(0, y, west, double.Parse((string) data[3, y]));
         }
     }
 

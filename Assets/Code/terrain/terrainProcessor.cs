@@ -266,8 +266,8 @@ public static class terrainProcessor
                 for (int fx = 0; fx < rootNumFiles; fx++) {
                     for (int fy = 0; fy < rootNumFiles; fy++) {
                         geographic ll = new geographic(
-                            metadata.yll + increase.lat * fy,
-                            metadata.xll + increase.lon * fx);
+                            metadata.yll + fy * increase.lat,
+                            metadata.xll - 180.0 + fx * increase.lon); // range given is 0 - 360 but we need it as -180 - 180
 
                         string fileName = terrainProcessor.fileName(ll, increase, "npy");
                         NDArray arrayData = downsizedData[
@@ -288,15 +288,10 @@ public static class terrainProcessor
                         int ds = fy * lengthPerFileY - 1;
                         int de = (fx + 1) * lengthPerFileX + 1;
                         int dw = fx * lengthPerFileX - 1;
-                        //if (dn < downsizedData.shape[0] - 1) boundaries[res.dest][boundName]["1", $"1:{1 + lengthPerFileX}"] = downsizedData[$"{dn}", $"{dw + 1}:{de - 1}"];
-                        //if (ds > 0) boundaries[res.dest][boundName]["3", $"1:{1 + lengthPerFileX}"] = downsizedData[$"{ds}", $"{dw + 1}:{de - 1}"];
-                        //if (de < downsizedData.shape[1] - 1) boundaries[res.dest][boundName]["0", $"1:{1 + lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{de}"];
-                        //if (dw > 0) boundaries[res.dest][boundName]["2", $"1:{1 + lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{dw}"];
-
-                        if (dn < downsizedData.shape[0] - 1) boundaries[res.dest][boundName]["2", $"1:{1 + lengthPerFileX}"] = np.full(1000000, ((de - 1) - (dw + 1)));
-                        if (ds > 0) boundaries[res.dest][boundName]["0", $"1:{1 + lengthPerFileX}"] = np.full(1000000, ((de - 1) - (dw + 1)));
-                        if (de < downsizedData.shape[1] - 1) boundaries[res.dest][boundName]["3", $"1:{1 + lengthPerFileY}"] = np.full(1000000, ((dn - 1) - (ds + 1)));
-                        if (dw > 0) boundaries[res.dest][boundName]["1", $"1:{1 + lengthPerFileY}"] = np.full(1000000, ((dn - 1) - (ds + 1)));
+                        if (dn < downsizedData.shape[0] - 1) boundaries[res.dest][boundName]["0", $"1:{1 + lengthPerFileX}"] = downsizedData[$"{dn}", $"{dw + 1}:{de - 1}"];
+                        if (ds > 0) boundaries[res.dest][boundName]["2", $"1:{1 + lengthPerFileX}"] = downsizedData[$"{ds}", $"{dw + 1}:{de - 1}"];
+                        if (de < downsizedData.shape[1] - 1) boundaries[res.dest][boundName]["1", $"1:{1 + lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{de}"];
+                        if (dw > 0) boundaries[res.dest][boundName]["3", $"1:{1 + lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{dw}"];
 
                         // add corners of bounds
                         if (fx != 0 && fy != 0) { // sw

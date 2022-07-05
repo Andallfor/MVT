@@ -17,13 +17,15 @@ public class planetTerrain
     public readonly double radius, heightMulti;
     public planet parent;
     public string materialPath;
+    private bool invertMesh;
 
-    public planetTerrain(double radius, double heightMulti, planet parent, string materialPath)
+    public planetTerrain(double radius, double heightMulti, planet parent, string materialPath, bool invertMesh = false)
     {
         this.radius = radius;
         this.materialPath = materialPath;
         this.heightMulti = heightMulti;
         this.parent = parent;
+        this.invertMesh = invertMesh;
     }
 
     public void generateFolderInfos(string[] folders)
@@ -150,7 +152,7 @@ public class planetTerrain
 
                 // thread the generation of ptm because it requires a large amount of mem allocation, assign it afterwards
                 Task t = new Task(() => {
-                    planetTerrainMesh ptm = new planetTerrainMesh(ptf, p, this);
+                    planetTerrainMesh ptm = new planetTerrainMesh(ptf, p, this, invertMesh);
                     ptf.generate(ptm);
 
                     emCopy.TryAdd(ptf, ptm);

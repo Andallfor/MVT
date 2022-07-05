@@ -100,7 +100,6 @@ for index, filePath in enumerate(toProcess):
     
     points = jp2[:]
     points = np.array(points)
-    #points = points * -1
     with open(join(OUTPUT_PATH, f'{fileName}.npy'), 'wb') as f:
         np.save(f, points)
     

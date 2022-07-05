@@ -165,7 +165,8 @@ public class controller : MonoBehaviour
         //List<nearbyFacilites> nfs = highResTerrain.neededAreas();
         //foreach (nearbyFacilites nf in nfs) Debug.Log(nf);
         
-        planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/moon/moon");
+        //planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/moon/moon", true);
+        planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/earth/earth", true);
         pt.generateFolderInfos(new string[1] {"C:/Users/leozw/Desktop/preparedLunar/min"});
         //planetTerrain pt = new planetTerrain(6371, 35, earth, "Materials/planets/earth/earth");
         //pt.generateFolderInfos(new string[1] {
