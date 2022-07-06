@@ -18,13 +18,15 @@ def get_julian_datetime(date):
     return julian_datetime
 
 
-def bspReader(startDate, endDate, epoch, path):
+def bsp_reader(startDate, endDate, epoch, path):
     kernel = SPK.open(path)
     positions = []
-    time = startDate
-    for x in range(startDate, endDate):
+    time = float(startDate)
+    for x in range(math.floor(float(startDate)), math.floor(float(endDate))):
         #date = get_julian_datetime(datetime.datetime(2025, 6, x, y, z))
-        index = math.floor((time - epoch)/6.94)
+        index = math.floor((time - float(epoch))/6.94)
         position = (kernel.segments[index].compute(time))
         print([time, position[0], position[1], position[2]], flush=True)
         time += 0.0000116
+
+bsp_reader(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

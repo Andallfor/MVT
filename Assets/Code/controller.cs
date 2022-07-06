@@ -44,7 +44,7 @@ public class controller : MonoBehaviour
         //path: 'HLS-NRHO.bsp'
 
         pythonWrapper.runPython(
-            Path.Combine(Application.streamingAssetsPath, $"pythonScripts/bsp.py"), "2460806.5 2460837.5 2458850.84 'HLS-NRHO.bsp'",
+            Path.Combine(Application.streamingAssetsPath, $"pythonScripts/bsp.py"), "2460806.5 2460837.5 2458850.84 '/Users/arya/HLS-NRHO.bsp'",
             onNewData: new System.Diagnostics.DataReceivedEventHandler((sender, e) => Debug.Log(e.Data)),
             onExit: new EventHandler((sender, e) => Debug.Log("killed")));
 
