@@ -49,8 +49,8 @@ public class planetTerrain
         finishedRunning = true;
     }
 
-    readonly float moveThreshold = 1f, rotateThreshold = 3000, fRotateThreshold = 0.01f;
-    readonly int tickThreshold = 60; // terrain can only update every x ticks
+    const float moveThreshold = 1f, rotateThreshold = 3000, fRotateThreshold = 0.01f;
+    const int tickThreshold = 60; // terrain can only update every x ticks
     position lastPlayerPos, lastRotation;
     Vector2 lastFRot;
     int lastTick = -1000;

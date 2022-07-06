@@ -54,7 +54,7 @@ public class planetTerrainFile
         for (int row = 0; row < data.shape[0]; row++) {
             for (int col = 0; col < data.shape[1]; col++) {
                 int rowOffset = (int) nrows - 1 - row;
-                m.addPoint(col + 1, row + 1, cartToGeo(col + 1, row + 1), double.Parse((string) data[row, col]));
+                m.addPoint(col + 1, row + 1, cartToGeo(col, row), double.Parse((string) data[rowOffset, col]));
             }
         }
 

@@ -45,7 +45,7 @@ public class controller : MonoBehaviour
         csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
         terrainProcessor.divideJpeg2000("C:/Users/leozw/Desktop/lunar", "C:/Users/leozw/Desktop/preparedLunar", new List<terrainResolution>() {
-            new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/min", 9, 32)
+            new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/min", 1, 128)
         });
 
         pt = loadTerrain();
@@ -369,6 +369,10 @@ public class controller : MonoBehaviour
             "Prefabs/Planet",
             "Materials/default");
         
+        representationData frd = new representationData(
+            "Prefabs/Facility",
+            "Materials/default");
+        
         double oneHour = 0.0416666665;
 
         earth = new planet(  "Earth", new planetData(  6371, true,  "CSVS/PLANETS/Earth", oneHour, planetType.planet),  erd);
@@ -380,6 +384,12 @@ public class controller : MonoBehaviour
                 new planet( "Saturn", new planetData( 60268, false,  "CSVS/PLANETS/Saturn", oneHour, planetType.planet), rd);
                 new planet( "Uranus", new planetData( 25559, false,  "CSVS/PLANETS/Uranus", oneHour, planetType.planet), rd);
                 new planet("Neptune", new planetData( 24764, false, "CSVS/PLANETS/Neptune", oneHour, planetType.planet), rd);
+        
+        new facility("Schickard", moon, new facilityData("Schickard", new geographic(-44.4, -55.1), new List<antennaData>()), frd);
+        new facility("Longomontanus", moon, new facilityData("Longomontanus", new geographic(-49.5, -21.7), new List<antennaData>()), frd);
+        new facility("Maginus", moon, new facilityData("Maginus", new geographic(-50, -6.2), new List<antennaData>()), frd);
+        new facility("Apollo", moon, new facilityData("Apollo", new geographic(-36.1, -151.8), new List<antennaData>()), frd);
+        new facility("Mare Crisium", moon, new facilityData("Mare Crisium", new geographic(17, 59.1), new List<antennaData>()), frd);
         
         master.setReferenceFrame(moon);
     }

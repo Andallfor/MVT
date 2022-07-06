@@ -85,7 +85,7 @@ for index, filePath in enumerate(toProcess):
 
     data['width'] = jp2.shape[1]
     data['height'] = jp2.shape[0]
-    data['xll'] = data['ModelTiePoint'][3]
+    data['xll'] = (data['ModelTiePoint'][3] + 180.0) % 360.0 - 180.0
     data['yll'] = data['ModelTiePoint'][4] - data['ModelPixelScale'][0] * jp2.shape[0]
 
     # contained in geokey directory

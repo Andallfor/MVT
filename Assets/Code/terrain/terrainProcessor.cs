@@ -269,7 +269,7 @@ public static class terrainProcessor
                     for (int fy = 0; fy < rootNumFiles; fy++) {
                         geographic ll = new geographic(
                             metadata.yll + fy * increase.lat,
-                            metadata.xll - 180.0 + fx * increase.lon); // range given is 0 - 360 but we need it as -180 - 180
+                            metadata.xll + fx * increase.lon); // range given is 0 - 360 but we need it as -180 - 180
 
                         string fileName = terrainProcessor.fileName(ll, increase, "npy");
                         NDArray arrayData = downsizedData[
