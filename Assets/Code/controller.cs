@@ -37,7 +37,7 @@ public class controller : MonoBehaviour
         //jsonParser.deserialize(Path.Combine(Application.streamingAssetsPath, "sytAll.syt"), jsonType.system);
         //master.setReferenceFrame(master.allPlanets.First(x => x.name == "Earth"));
 
-        onlyEarth();
+        //onlyEarth();
         //kepler();
 
         csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");

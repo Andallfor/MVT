@@ -114,7 +114,21 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
         double EA = meanAnom;
         for (int i = 0; i < 50; i++) EA = meanAnom + eccentricity * Math.Sin(EA);
 
-        double trueAnom = 2.0 * Math.Atan(Math.Sqrt((1.0 + eccentricity) / (1.0 - eccentricity)) * Math.Tan(EA / 2.0));
+        double trueAnom = 2.0 * Math.Atan2(Math.Sqrt(1 + eccentricity) * (Math.Sin(EA) / 2), Math.Sqrt(1 - eccentricity) * (Math.Cos(EA) / 2));
+
+        double radius = semiMajorAxis*(1 - eccentricity * Math.Cos(EA));
+
+        position o = new position(
+        Math.Cos(trueAnom)* radius,
+        Math.Sin(trueAnom)* radius,
+        0);
+
+        position pos = new position(
+        o.x * (Math.Cos(argOfPerigee) * Math.Cos(longOfAscNode) - Math.Sin(argOfPerigee) * Math.Cos(inclination) * Math.Sin(longOfAscNode) - o.y * (Math.Sin(argOfPerigee) * Math.Cos(longOfAscNode) + Math.Cos(argOfPerigee) * Math.Cos(inclination) * Math.Sin(longOfAscNode))),
+        o.x * (Math.Cos(argOfPerigee) * Math.Sin(longOfAscNode) - Math.Sin(argOfPerigee) * Math.Cos(inclination) * Math.Cos(longOfAscNode) - o.y * (Math.Cos(argOfPerigee) * Math.Cos(inclination) * Math.Cos(longOfAscNode) - Math.Sin(argOfPerigee) * Math.Sin(longOfAscNode))),
+        o.x * (Math.Sin(argOfPerigee) * Math.Sin(inclination)) + o.y * (Math.Cos(argOfPerigee) * Math.Sin(inclination)));
+
+        /*double trueAnom = 2.0 * Math.Atan(Math.Sqrt((1.0 + eccentricity) / (1.0 - eccentricity)) * Math.Tan(EA / 2.0));
 
         double radius = (semiMajorAxis * (1 - eccentricity * eccentricity)) / (1 + eccentricity * Math.Cos(trueAnom));
         double p = semiMajorAxis * (1 - eccentricity * eccentricity);
@@ -124,16 +138,17 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
             radius * (Math.Cos(longOfAscNode) * Math.Cos(argOfPerigee + trueAnom) - Math.Sin(longOfAscNode) * Math.Sin(argOfPerigee + trueAnom) * Math.Cos(inclination)),
             radius * (Math.Sin(longOfAscNode) * Math.Cos(argOfPerigee + trueAnom) + Math.Cos(longOfAscNode) * Math.Sin(argOfPerigee + trueAnom) * Math.Cos(inclination)),
             radius * (Math.Sin(inclination) * Math.Sin(argOfPerigee + trueAnom)));
-        
+
         position vel = new position(
             ((pos.x * h * eccentricity) / (radius * p)) * Math.Sin(trueAnom) - (h / radius) * (Math.Cos(longOfAscNode) * Math.Sin(argOfPerigee + trueAnom) + Math.Sin(longOfAscNode) * Math.Cos(argOfPerigee + trueAnom) * Math.Cos(inclination)),
             ((pos.y * h * eccentricity) / (radius * p)) * Math.Sin(trueAnom) - (h / radius) * (Math.Sin(longOfAscNode) * Math.Sin(argOfPerigee + trueAnom) - Math.Cos(longOfAscNode) * Math.Cos(argOfPerigee + trueAnom) * Math.Cos(inclination)),
             ((pos.z * h * eccentricity) / (radius * p)) * Math.Sin(trueAnom) + (h / radius) * (Math.Sin(inclination) * Math.Cos(argOfPerigee + trueAnom)));
-        
+
         if (double.IsNaN(pos.x)) return new position(0, 0, 0);
 
         position rot = controller.earth.representation.gameObject.transform.eulerAngles;
-        return (pos.rotate(rot.y * degToRad, 0, 0));
+        return (pos.rotate(rot.y * degToRad, 0, 0));*/
+        return new position(o.x, o.z, o.y);
     }
 
     // give in degrees
