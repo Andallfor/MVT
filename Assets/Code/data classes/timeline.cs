@@ -110,8 +110,19 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
     {
         // https://drive.google.com/file/d/1so93guuhCO94PEU8vFvDLv_-k9vJBcFs/view
         // offset by elevation angle, in order to make the kepler and earth share the same up direction
-        double meanAnom = (controller.earth.representation.gameObject.transform.eulerAngles.x + startingMeanAnom - 360.0 * (meanAngularMotion * (master.time.julian - this.startingEpoch))) * degToRad;
-        double EA = meanAnom;
+        //double meanAnom = (controller.earth.representation.gameObject.transform.eulerAngles.x + startingMeanAnom - 360.0 * (meanAngularMotion * (master.time.julian - this.startingEpoch))) * degToRad;
+
+        double meanAnom = startingMeanAnom;
+
+        /*if (master.time.julian == startingEpoch)
+        {
+          meanAnom = startingMeanAnom;
+        }
+        else
+        {
+          meanAnom = startingMeanAnom + 86400 * (master.time.julian - startingEpoch) * Math.Sqrt((mu / Math.Pow(semiMajorAxis, 3)));
+        }*/
+
         for (int i = 0; i < 50; i++) EA = meanAnom + eccentricity * Math.Sin(EA);
 
         double trueAnom = 2.0 * Math.Atan2(Math.Sqrt(1 + eccentricity) * (Math.Sin(EA) / 2), Math.Sqrt(1 - eccentricity) * (Math.Cos(EA) / 2));
