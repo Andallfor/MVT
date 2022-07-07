@@ -88,8 +88,8 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
         // scale position
         Vector3 p = new Vector3(
             (float) (pos.x / master.scale),
-            (float) (pos.y / master.scale),
-            (float) (pos.z / master.scale));
+            (float) (pos.z / master.scale),
+            (float) (pos.y / master.scale));
 
         if (Vector3.Distance(p, Vector3.zero) > 1000f) endDisable = false; // hide if too far away
         else
@@ -129,4 +129,3 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
         gameObject.transform.localScale = new Vector3(_r, _r, _r);
     }
 }
-

@@ -120,25 +120,35 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
         }
         else
         {
-          meanAnom = startingMeanAnom + 86400 * (master.time.julian - startingEpoch) * Math.Sqrt((mu / Math.Pow(semiMajorAxis, 3)));
+          meanAnom = startingMeanAnom + 86400.0 * (master.time.julian - startingEpoch) * Math.Sqrt((mu / Math.Pow(semiMajorAxis, 3)));
         }
-        
+
         double EA = meanAnom;
         for (int i = 0; i < 50; i++) EA = meanAnom + eccentricity * Math.Sin(EA);
 
-        double trueAnom = 2.0 * Math.Atan2(Math.Sqrt(1 + eccentricity) * (Math.Sin(EA) / 2), Math.Sqrt(1 - eccentricity) * (Math.Cos(EA) / 2));
+        double trueAnom1 = Math.Sqrt(1 - eccentricity * eccentricity) * (Math.Sin(EA) / (1 - eccentricity * Math.Cos(EA)));
+        double trueAnom2 = (Math.Cos(EA) - eccentricity) / (1 - eccentricity * Math.Cos(EA));
 
-        double radius = semiMajorAxis*(1 - eccentricity * Math.Cos(EA));
+        double trueAnom = Math.Atan2(trueAnom1, trueAnom2);
 
-        position o = new position(
-        Math.Cos(trueAnom)* radius,
-        Math.Sin(trueAnom)* radius,
-        0);
+        double theta = trueAnom + argOfPerigee;
+
+        double radius = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.Cos(trueAnom));
+
+        double xp = radius * Math.Cos(theta);
+        double yp = radius * Math.Sin(theta);
 
         position pos = new position(
-        o.x * (Math.Cos(argOfPerigee) * Math.Cos(longOfAscNode) - Math.Sin(argOfPerigee) * Math.Cos(inclination) * Math.Sin(longOfAscNode) - o.y * (Math.Sin(argOfPerigee) * Math.Cos(longOfAscNode) + Math.Cos(argOfPerigee) * Math.Cos(inclination) * Math.Sin(longOfAscNode))),
-        o.x * (Math.Cos(argOfPerigee) * Math.Sin(longOfAscNode) - Math.Sin(argOfPerigee) * Math.Cos(inclination) * Math.Cos(longOfAscNode) - o.y * (Math.Cos(argOfPerigee) * Math.Cos(inclination) * Math.Cos(longOfAscNode) - Math.Sin(argOfPerigee) * Math.Sin(longOfAscNode))),
-        o.x * (Math.Sin(argOfPerigee) * Math.Sin(inclination)) + o.y * (Math.Cos(argOfPerigee) * Math.Sin(inclination)));
+        xp * Math.Cos(longOfAscNode) - yp * Math.Cos(inclination) * Math.Sin(longOfAscNode),
+        xp * Math.Sin(longOfAscNode) - yp * Math.Cos(inclination) * Math.Cos(longOfAscNode),
+        yp * Math.Sin(inclination));
+
+
+
+        /*position pos = new position(
+          o.x * (Math.Cos(argOfPerigee) * Math.Cos(longOfAscNode) - Math.Sin(argOfPerigee) * Math.Cos(inclination) * Math.Sin(longOfAscNode) - o.y * (Math.Sin(argOfPerigee) * Math.Cos(longOfAscNode) + Math.Cos(argOfPerigee) * Math.Cos(inclination) * Math.Sin(longOfAscNode))),
+          o.x * (Math.Cos(argOfPerigee) * Math.Sin(longOfAscNode) - Math.Sin(argOfPerigee) * Math.Cos(inclination) * Math.Cos(longOfAscNode) - o.y * (Math.Cos(argOfPerigee) * Math.Cos(inclination) * Math.Cos(longOfAscNode) - Math.Sin(argOfPerigee) * Math.Sin(longOfAscNode))),
+          o.x * (Math.Sin(argOfPerigee) * Math.Sin(inclination)) + o.y * (Math.Cos(argOfPerigee) * Math.Sin(inclination)));*/
 
         /*double trueAnom = 2.0 * Math.Atan(Math.Sqrt((1.0 + eccentricity) / (1.0 - eccentricity)) * Math.Tan(EA / 2.0));
 
@@ -160,10 +170,10 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
 
         position rot = controller.earth.representation.gameObject.transform.eulerAngles;
         return (pos.rotate(rot.y * degToRad, 0, 0));*/
-        return new position(o.x, o.z, o.y);
+        return pos;
     }
 
-    // give in degrees
+    /// <summary> give in degrees </summary>
     public TimelineKepler(double semiMajorAxis, double eccentricity, double inclination, double argOfPerigee, double longOfAscNode, double meanAnom, double mass, double startEpoch, double mu)
     {
         this.semiMajorAxis = semiMajorAxis;

@@ -38,7 +38,7 @@ public class controller : MonoBehaviour
         //master.setReferenceFrame(master.allPlanets.First(x => x.name == "Earth"));
 
         //onlyEarth();
-        //kepler();
+        kepler();
 
         csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
@@ -314,14 +314,14 @@ public class controller : MonoBehaviour
             "Prefabs/Facility",
             "Materials/default");
 
-        representationData erd = new representationData(
-            "Prefabs/Planet",
-            "Materials/earthLatLonTest");
+            representationData erd = new representationData(
+                "Prefabs/Planet",
+                "Materials/planets/earth/earthEquirectangular");
 
         double oneHour = 0.0416666665;
 
-        earth = new planet("Earth", new planetData(  6371,  true, "CSVS/PLANETS/Earth", oneHour, planetType.planet), erd);
-        planet moon =        new planet( "Luna", new planetData(1738.1, false,  "CSVS/PLANETS/Luna", oneHour,   planetType.moon),  rd);
+        earth = new planet("Earth", new planetData(  6371,  true, "CSVS/MOONBASED/earth", oneHour, planetType.planet), erd);
+        planet moon =        new planet( "Luna", new planetData(1738.1, false,  "CSVS/MOONBASED/moon", oneHour,   planetType.moon),  rd);
 
         foreach (facilityData fd in csvParser.loadFacilites("CSVS/FACILITIES/stationList")) new facility(fd.name, earth, fd, frd);
 
@@ -335,7 +335,9 @@ public class controller : MonoBehaviour
         }*/
         //0.0012803056323726458 42166.394716755305 0.07603377880226884 5.8448456857898 1.9281280538370242 86170.91187060841 3.693310484029208 3.691970164460813
 
-        satellite s1 = new satellite("TDRS-POINTS", new satelliteData("CSVS/EARTHBASED/AURA", 0.0006944444), srd);
+        //satellite s1 = new satellite("GATEWAY", new satelliteData("CSVS/MOONBASED/Gateway", 0.0006944444), srd);
+        satellite s2 = new satellite("LCN", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 0, 1, 2460628.5283449073, 4902.800066)), srd);
+
         //satellite s2 = new satellite("TDRS-KEPLER", new satelliteData(new Timeline())")
         /*satellite s2 = new satellite("Oco-2 2", new satelliteData("CSVS/EARTHBASED/OCO-2", 0.0006944444), srd);
         satellite s3 = new satellite("Aqua 2", new satelliteData("CSVS/EARTHBASED/AQUA", 0.0006944444), srd);
@@ -347,8 +349,8 @@ public class controller : MonoBehaviour
         new satellite("M3", new satelliteData($"CSVS/SATS/MMS 3", 0.0006944444), srd);
         new satellite("M4", new satelliteData($"CSVS/SATS/MMS 4", 0.0006944444), srd);*/
 
-        satellite.addFamilyNode(earth, s1);
-        //satellite.addFamilyNode(earth, s2);
+        //satellite.addFamilyNode(earth, s1);
+        satellite.addFamilyNode(moon, s2);
         /*satellite.addFamilyNode(earth, s3);
         satellite.addFamilyNode(earth, s4);
         satellite.addFamilyNode(moon, s5);*/

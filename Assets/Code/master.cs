@@ -18,16 +18,16 @@ public static class master
             onScaleChange(null, EventArgs.Empty);
         }
     }
-    
+
     /// <summary> The current time in game. </summary>
-    public readonly static Time time = new Time(2459396.5, true);
-    
+    public readonly static Time time = new Time(2460857.5, true);
+
     /// <summary> Total ticks (times the game has updated) since the game was initialized. </summary>
     public static int currentTick = 0;
-    
+
     /// <summary> The players current position, in km. </summary>
     public static position currentPosition = new position(0, 0, 0);
-    
+
     /// <summary> The current position of the reference frame relative to the sun. See also <see cref="requestReferenceFrame"/>. </summary>
     public static position referenceFrame {
         get {
@@ -35,7 +35,7 @@ public static class master
             else return _refFrameLast;
         }
     }
-    
+
     /// <summary> The current body that is the reference frame. See also <see cref="referenceFrame"/>. </summary>
     public static body requestReferenceFrame() => _referenceFrame;
 
@@ -47,7 +47,7 @@ public static class master
             onPauseChange(null, EventArgs.Empty);
         }
     }
-    
+
 
     private static body _referenceFrame;
     private static position _refFrameLast;
@@ -60,7 +60,7 @@ public static class master
 
     /// <summary> Event that is called when <see cref="pause"/> is changed. </summary>
     public static event EventHandler onPauseChange = delegate {};
-    
+
 
     /// <summary> Event that will update the positions of any class derived from <see cref="body"/>. Called when <see cref="requestPositionUpdate"/> is called. </summary>
     public static event EventHandler updatePositions = delegate {};
@@ -70,7 +70,7 @@ public static class master
 
     /// <summary> Event that will update the planet/system loading queue（see <see cref="jsonParser.updateQueue"/>). Called when <see cref="requestJsonQueueUpdate"/> is called. </summary>
     public static event EventHandler updateJsonQueue = delegate {};
-    
+
 
     /// <summary> Calls <see cref="updatePositions"/>. </summary>
     public static void requestPositionUpdate() {updatePositions(null, EventArgs.Empty);}
