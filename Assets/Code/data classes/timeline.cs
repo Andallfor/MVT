@@ -27,6 +27,21 @@ public class Timeline : ITimeline
         selection = TimelineSelection.kepler;
     }
 
+    /// <summary> if timeline is positions start and end is ignored </summary>
+    public void enableExistanceTime(Time start, Time end) {
+        if (selection == TimelineSelection.positions) tp.alwaysExist = false;
+        else {
+            tk.start = start;
+            tk.end = end;
+            tk.alwaysExist = false;
+        }
+    }
+
+    public void disableExistanceTime() {
+        if (selection == TimelineSelection.positions) tp.alwaysExist = true;
+        else tp.alwaysExist = true;
+    }
+
     public jsonTimelineStruct requestJsonFile()
     {
         if (selection == TimelineSelection.positions) return tp.requestJsonFile();
@@ -52,7 +67,7 @@ public class TimelinePosition : ITimeline
     private TimelineComparer tlc;
     private double timestep;
     private double first, last;
-    private bool alwaysExist;
+    public bool alwaysExist;
 
     // assumes data is sorted
     public TimelinePosition(Dictionary<double, position> data, double timestep, bool alwaysExist)
@@ -119,8 +134,8 @@ public class TimelineComparer : IComparer<double>
 public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
 {
     private double semiMajorAxis, eccentricity, inclination, argOfPerigee, longOfAscNode, mu, startingEpoch, meanAngularMotion, orbitalPeriod, startingMeanAnom;
-    private Time start, end;
-    private bool alwaysExist = true;
+    public Time start, end;
+    public bool alwaysExist = true;
     private planet referenceFrame;
 
     private const double degToRad = Math.PI / 180.0;
@@ -240,7 +255,7 @@ public interface ITimeline
     jsonTimelineStruct requestJsonFile();
 }
 
-internal enum TimelineSelection
+public enum TimelineSelection
 {
     positions, kepler
 }
