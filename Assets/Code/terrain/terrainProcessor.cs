@@ -289,63 +289,6 @@ public static class terrainProcessor
                                 Type.GetType("double"));
                         }
 
-                        // why cool code when brute force
-                        
-                        // add bounds to our own file
-                        //if (fy < rootNumFiles - 1) boundaries[res.dest][boundName]["0", $"1:{lengthPerFileX}"] = downsizedData[$"{north + 1}", $"{west}:{east - 1}"]; // north
-                        //if (fx < rootNumFiles - 1) boundaries[res.dest][boundName]["1", $"1:{lengthPerFileY}"] = downsizedData[$"{south}:{north - 1}", $"{east + 1}"]; // east
-                        //if (fy > 0) boundaries[res.dest][boundName]["2", $"1:{lengthPerFileX}"] = downsizedData[$"{south - 1}", $"{west}:{east - 1}"]; // south
-                        //if (fx > 0) boundaries[res.dest][boundName]["3", $"1:{lengthPerFileY}"] = downsizedData[$"{south}:{north - 1}", $"{west - 1}"]; // west
-
-                        // add corners of bounds
-                        /*
-                        if (fx != 0 && fy != 0) { // sw
-                            boundaries[res.dest][boundName]["2", "0"] = downsizedData[$"{ds}", $"{dw}"];
-                            boundaries[res.dest][boundName]["3", "0"] = downsizedData[$"{ds}", $"{dw}"];
-                        }
-                        if (fx != rootNumFiles - 1 && fy != 0) { // se
-                            boundaries[res.dest][boundName]["2", $"{lengthPerFileX}"] = downsizedData[$"{ds}", $"{de}"];
-                            boundaries[res.dest][boundName]["1", "0"] = downsizedData[$"{ds}", $"{de}"];
-                        }
-                        if (fx != rootNumFiles - 1 && fy != rootNumFiles - 1) { // ne
-                            boundaries[res.dest][boundName]["0", $"{lengthPerFileX}"] = downsizedData[$"{dn}", $"{de}"];
-                            boundaries[res.dest][boundName]["1", $"{lengthPerFileY}"] = downsizedData[$"{dn}", $"{de}"];
-                        }
-                        if (fx != 0 && fy != rootNumFiles - 1) { // nw
-                            boundaries[res.dest][boundName]["0", "0"] = downsizedData[$"{dn}", $"{dw}"];
-                            boundaries[res.dest][boundName]["3", $"{lengthPerFileY}"] = downsizedData[$"{dn}", $"{dw}"];
-                        }*/
-
-                        // TODO: add bounds to other files
-                        if (fy == 0) { // s -> n
-                            string _b = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(wrap(ll, new geographic(-increase.lat, 0)), increase, "npy"));
-                            tryToCreateJp2(_b, boundaries[res.dest], length);
-
-                            boundaries[res.dest][_b]["0", $"1:{lengthPerFileX}"] = downsizedData[$"{south}", $"{west}:{east}"];
-                            //boundaries[res.dest][_b]["0", $"1:{lengthPerFileX}"] = -32767;
-                        }
-                        if (fy == rootNumFiles - 1) { // n -> s
-                            string _b = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(wrap(ll, new geographic(increase.lat, 0)), increase, "npy"));
-                            tryToCreateJp2(_b, boundaries[res.dest], length);
-
-                            //boundaries[res.dest][_b]["2", $"1:{lengthPerFileX}"] = downsizedData[$"{north}", $"{west}:{east}"];
-                            boundaries[res.dest][_b]["2", $"1:{lengthPerFileX}"] = -32767;
-                        }
-                        if (fx == 0) { // w -> e
-                            string _b = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(wrap(ll, new geographic(0, -increase.lon)), increase, "npy"));
-                            tryToCreateJp2(_b, boundaries[res.dest], length);
-
-                            //boundaries[res.dest][_b]["1", $"1:{lengthPerFileY}"] = downsizedData[$"{south}:{north}", $"{west}"];
-                            boundaries[res.dest][_b]["1", $"1:{lengthPerFileY}"] = -32767;
-                        }
-                        if (fx == rootNumFiles - 1) { // e -> w
-                            string _b = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(wrap(ll, new geographic(0, increase.lon)), increase, "npy"));
-                            tryToCreateJp2(_b, boundaries[res.dest], length);
-
-                            //boundaries[res.dest][_b]["3", $"1:{lengthPerFileY}"] = downsizedData[$"{south}:{north}", $"{east}"];
-                            boundaries[res.dest][_b]["3", $"1:{lengthPerFileY}"] = -32767;
-                        }
-
                         // save data
                         np.save(Path.Combine(res.dest, fileName), arrayData);
                     }
@@ -369,12 +312,6 @@ public static class terrainProcessor
                 }
             }
             createdResInfo = true;
-
-            foreach (Dictionary<string, NDArray> d in boundaries.Values) {
-                foreach (KeyValuePair<string, NDArray> kvp in d) {
-                    np.save(kvp.Key, kvp.Value);
-                }
-            }
 
             // copy json (metadata) file into output folder
             File.Copy(files[0], Path.Combine(headerFolder, Path.GetFileName(files[0])), true);

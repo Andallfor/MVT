@@ -54,12 +54,11 @@ public class planetTerrainFile
         for (int row = 0; row < data.shape[0] - 1; row++) {
             for (int col = 0; col < data.shape[1] - 1; col++) {
                 int rowOffset = (int) data.shape[0] - 1 - row;
-                m.addPoint(col + 1, row + 1, cartToGeo(col, row), (short) data[rowOffset, col]); // THIS IS PROB A BIG SLOW DOWN
-                //m.addPoint(col + 1, row + 1, cartToGeo(col, row), (double) row * 1000.0);
+                m.addPoint(col + 1, row + 1, cartToGeo(col, row), (short) data[rowOffset, col]);
             }
         }
 
-        m.drawBoundaries(Path.Combine(m.ptfi.folderPath, terrainProcessor.fileBoundaryName(geoPosition, increment, "npy")));
+        m.drawBoundaries("");
     }
 
     private void generateTxt(planetTerrainMesh m) {

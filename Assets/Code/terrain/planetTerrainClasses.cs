@@ -32,7 +32,7 @@ public class planetTerrainMesh : IMesh
     // TODO: add npy support
     public void drawBoundaries(string path) {
         if (ptf.fileType == terrainFileType.txt) drawBoundariesTxt(path);
-        else drawBoundariesNpy(path);
+        else drawBoundariesNpy();
     }
 
     private void drawBoundariesTxt(string path) {
@@ -61,30 +61,20 @@ public class planetTerrainMesh : IMesh
         }
     }
 
-    private void drawBoundariesNpy(string path) {
-        NDArray data = np.load(path);
+    private void drawBoundariesNpy() {
         for (int x = 0; x < (int) ptf.ncols + 2; x++) {
             geographic north = ptf.cartToGeo(x - 1, (int) ptf.nrows);
-            //addPoint(x, (int) ptf.nrows + 1, north, (short) data[0, x]);
-            //addPoint(x, (int) ptf.nrows + 1, north, 0);
-            //this.verts[toIndex(x, (int) ptf.nrows + 1)] = 
             addPoint(x, (int) ptf.nrows + 1, north, getHeight(this.verts[toIndex(x, (int) ptf.nrows)]));
 
             geographic south = ptf.cartToGeo(x, -1);
-            //addPoint(x, 0, south, (short) data[2, x]);
             addPoint(x, 0, south, getHeight(this.verts[toIndex(x, 1)]));
-            //addPoint(x, 0, south, 0);
         }
 
         for (int y = 0; y < (int) ptf.nrows + 2; y++) {
             geographic east = ptf.cartToGeo((int) ptf.ncols, y - 1);
-            //addPoint((int) ptf.ncols + 1, y, east, (short) data[1, y]);
-            //addPoint((int) ptf.ncols + 1, y, east, 0);
             addPoint((int) ptf.ncols + 1, y, east, getHeight(this.verts[toIndex((int) ptf.ncols, y)]));
 
             geographic west = ptf.cartToGeo(-1, y - 1);
-            //addPoint(0, y, west, (short) data[3, y]);
-            //addPoint(0, y, west, 0);
             addPoint(0, y, west, getHeight(this.verts[toIndex(1, y)]));
         }
     }
