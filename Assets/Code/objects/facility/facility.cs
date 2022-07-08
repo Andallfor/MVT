@@ -15,8 +15,7 @@ public class facility : IJsonFile<jsonFacilityStruct>
     public geographic geo {get {return data.geo;}}
     public planet facParent {get {return parent;}}
     
-    public facility(string name, planet parent, facilityData data, representationData rData)
-    {
+    public facility(string name, planet parent, facilityData data, representationData rData) {
         this.name = name;
         this.data = data;
         this.parent = parent;
@@ -28,7 +27,10 @@ public class facility : IJsonFile<jsonFacilityStruct>
         master.requestJsonQueueUpdate();
     }
 
-    public void updatePosition(object sender, EventArgs args) {representation.updatePos(parent);}
+    public void updatePosition(object sender, EventArgs args) {
+        bool forceHide = !(data.alwaysExist || (master.time > data.start && master.time < data.end));
+        representation.updatePos(parent, forceHide);
+    }
 
     public void updateScheduling(object sender, EventArgs args) {representation.drawSchedulingConnections(data.antennas);}
 
@@ -113,10 +115,22 @@ public class facilityData
     public geographic geo;
     public string name;
     public List<antennaData> antennas;
+    public Time start {get; private set;}
+    public Time end {get; private set;}
+    public bool alwaysExist = true;
     
     public facilityData(string name, geographic geo, List<antennaData> antennas) {
         this.geo = geo;
         this.name = name;
         this.antennas = antennas;
+    }
+
+    public facilityData(string name, geographic geo, List<antennaData> antennas, Time start, Time end) {
+        this.geo = geo;
+        this.name = name;
+        this.antennas = antennas;
+        this.start = start;
+        this.end = end;
+        this.alwaysExist = false;
     }
 }

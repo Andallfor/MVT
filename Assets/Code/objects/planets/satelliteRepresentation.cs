@@ -53,10 +53,15 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
         shownName.text = name;
     }
 
-    public void setPosition(position pos)
+    public void setPosition(position pos, bool forceHide = false)
     {
-        if (planetOverview.usePlanetOverview)
-        {
+        if (forceHide) {
+            mrSelf.enabled = false;
+            shownName.text = "";
+            return;
+        }
+
+        if (planetOverview.usePlanetOverview) {
             mrSelf.enabled = false;
             shownName.text = "";
             return;

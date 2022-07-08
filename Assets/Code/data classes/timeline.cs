@@ -9,15 +9,21 @@ public class Timeline : ITimeline
     private TimelinePosition tp;
     private TimelineKepler tk;
     private TimelineSelection selection;
-    public Timeline(Dictionary<double, position> data, double timestep)
+    public Timeline(Dictionary<double, position> data, double timestep, bool alwaysExist = true)
     {
-        tp = new TimelinePosition(data, timestep);
+        tp = new TimelinePosition(data, timestep, alwaysExist);
         selection = TimelineSelection.positions;
     }
 
     public Timeline(double semiMajorAxis, double eccentricity, double inclination, double argOfPerigee, double longOfAscNode, double meanAnom, double mass, double startingEpoch, double mu)
     {
         tk = new TimelineKepler(semiMajorAxis, eccentricity, inclination, argOfPerigee, longOfAscNode, meanAnom, mass, startingEpoch, mu);
+        selection = TimelineSelection.kepler;
+    }
+
+    public Timeline(double semiMajorAxis, double eccentricity, double inclination, double argOfPerigee, double longOfAscNode, double meanAnom, double mass, double startingEpoch, double mu, Time start, Time end)
+    {
+        tk = new TimelineKepler(semiMajorAxis, eccentricity, inclination, argOfPerigee, longOfAscNode, meanAnom, mass, startingEpoch, mu, start, end);
         selection = TimelineSelection.kepler;
     }
 
@@ -32,6 +38,11 @@ public class Timeline : ITimeline
         if (selection == TimelineSelection.positions) return tp.find(t);
         else return tk.find(t);
     }
+
+    public bool exists(Time t) {
+        if (selection == TimelineSelection.positions) return tp.exists(t);
+        else return tk.exists(t);
+    }
 }
 
 public class TimelinePosition : ITimeline
@@ -41,14 +52,16 @@ public class TimelinePosition : ITimeline
     private TimelineComparer tlc;
     private double timestep;
     private double first, last;
+    private bool alwaysExist;
 
     // assumes data is sorted
-    public TimelinePosition(Dictionary<double, position> data, double timestep)
+    public TimelinePosition(Dictionary<double, position> data, double timestep, bool alwaysExist)
     {
         this.data = data;
         this.tlc = new TimelineComparer(timestep);
         this.timestep = timestep;
         this.index = data.Keys.ToList();
+        this.alwaysExist = alwaysExist;
 
         this.first = index.First();
         this.last = index.Last();
@@ -68,6 +81,11 @@ public class TimelinePosition : ITimeline
 
         if (difference < 0) return position.interpLinear(data[index[timeIndex - 1]], data[closestTime], 1 - percent);
         else return position.interpLinear(data[closestTime], data[index[timeIndex + 1]], percent);
+    }
+
+    public bool exists(Time t) {
+        if (alwaysExist) return true;
+        else return t.julian > first && t.julian < last;
     }
 
     public jsonTimelineStruct requestJsonFile()
@@ -101,6 +119,8 @@ public class TimelineComparer : IComparer<double>
 public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
 {
     private double semiMajorAxis, eccentricity, inclination, argOfPerigee, longOfAscNode, mu, startingEpoch, meanAngularMotion, orbitalPeriod, startingMeanAnom;
+    private Time start, end;
+    private bool alwaysExist = true;
     private planet referenceFrame;
 
     private const double degToRad = Math.PI / 180.0;
@@ -173,6 +193,11 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
         return pos;
     }
 
+    public bool exists(Time t) {
+        if (alwaysExist) return true;
+        else return t > start && t < end;
+    }
+
     /// <summary> give in degrees </summary>
     public TimelineKepler(double semiMajorAxis, double eccentricity, double inclination, double argOfPerigee, double longOfAscNode, double meanAnom, double mass, double startEpoch, double mu)
     {
@@ -186,6 +211,24 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
         this.orbitalPeriod = 2.0 * Math.PI * Math.Sqrt((semiMajorAxis * semiMajorAxis * semiMajorAxis) / mu);
         this.meanAngularMotion = 86400.0 / (this.orbitalPeriod);
         this.startingEpoch = startEpoch;
+    }
+
+    public TimelineKepler(double semiMajorAxis, double eccentricity, double inclination, double argOfPerigee, double longOfAscNode, double meanAnom, double mass, double startEpoch, double mu, Time start, Time end)
+    {
+        this.semiMajorAxis = semiMajorAxis;
+        this.eccentricity = eccentricity;
+        this.inclination = inclination * degToRad;
+        this.argOfPerigee = argOfPerigee * degToRad;
+        this.longOfAscNode = longOfAscNode * degToRad;
+        this.mu = mu;
+        this.startingMeanAnom = meanAnom;
+        this.orbitalPeriod = 2.0 * Math.PI * Math.Sqrt((semiMajorAxis * semiMajorAxis * semiMajorAxis) / mu);
+        this.meanAngularMotion = 86400.0 / (this.orbitalPeriod);
+        this.startingEpoch = startEpoch;
+
+        this.start = start;
+        this.end = end;
+        this.alwaysExist = false;
     }
 
     public jsonTimelineStruct requestJsonFile() => new jsonTimelineStruct();

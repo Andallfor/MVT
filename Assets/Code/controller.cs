@@ -323,9 +323,11 @@ public class controller : MonoBehaviour
         earth = new planet("Earth", new planetData(  6371,  true, "CSVS/MOONBASED/earth", oneHour, planetType.planet), erd);
         planet moon =        new planet( "Luna", new planetData(1738.1, false,  "CSVS/MOONBASED/moon", oneHour,   planetType.moon),  rd);
 
-        foreach (facilityData fd in csvParser.loadFacilites("CSVS/FACILITIES/stationList")) new facility(fd.name, earth, fd, frd);
+        foreach (facilityData fd in csvParser.loadFacilites("CSVS/FACILITIES/stationList")) {
+            new facility(fd.name, earth, new facilityData(fd.name, fd.geo, fd.antennas, new Time(2460857.5), new Time(2460859.5)), frd);
+        }
 
-        master.setReferenceFrame(earth);
+        master.setReferenceFrame(moon);
 
         /*foreach (KeyValuePair<string, Timeline> kvp in csvParser.loadRpt(Path.Combine(Application.streamingAssetsPath, "CM_ORB.rpt")))
         {
@@ -336,7 +338,8 @@ public class controller : MonoBehaviour
         //0.0012803056323726458 42166.394716755305 0.07603377880226884 5.8448456857898 1.9281280538370242 86170.91187060841 3.693310484029208 3.691970164460813
 
         //satellite s1 = new satellite("GATEWAY", new satelliteData("CSVS/MOONBASED/Gateway", 0.0006944444), srd);
-        satellite s2 = new satellite("LCN", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 0, 1, 2460628.5283449073, 4902.800066)), srd);
+        satellite s2 = new satellite("LCN", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 0, 1, 2460628.5283449073, 4902.800066, new Time(2460857.5), new Time(2460859.5))), srd);
+        //satellite s3 = new satellite("Aqua 2", new satelliteData("CSVS/EARTHBASED/AQUA", 0.0006944444), srd);
 
         //satellite s2 = new satellite("TDRS-KEPLER", new satelliteData(new Timeline())")
         /*satellite s2 = new satellite("Oco-2 2", new satelliteData("CSVS/EARTHBASED/OCO-2", 0.0006944444), srd);

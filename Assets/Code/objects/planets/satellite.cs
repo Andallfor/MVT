@@ -26,7 +26,7 @@ public class satellite : body, IJsonFile<jsonSatelliteStruct>
         localPos = pos = data.positions.find(master.time);
         if (!ReferenceEquals(parent, null)) pos += parent.pos;
 
-        representation.setPosition((pos - master.currentPosition - master.referenceFrame));
+        representation.setPosition((pos - master.currentPosition - master.referenceFrame), !data.positions.exists(master.time));
 
         base.updateChildren();
     }
@@ -50,7 +50,7 @@ public class satellite : body, IJsonFile<jsonSatelliteStruct>
 
 public class satelliteData
 {
-    public Timeline positions;
+    public Timeline positions {get; private set;}
 
     public satelliteData(string positionPath, double timestep) {this.positions = csvParser.loadPlanetCsv(positionPath, timestep);}
     public satelliteData(TextAsset positionAsset, double timestep) {this.positions = csvParser.loadPlanetCsv(positionAsset, timestep);}
