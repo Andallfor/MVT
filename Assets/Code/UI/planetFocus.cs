@@ -10,7 +10,7 @@ public static class planetFocus
     public static Vector3 rotation;
     public static float zoom = general.defaultCameraFOV;
 
-    private static planet focus;
+    public static planet focus {get; private set;}
     public static facility hoveringOver = null;
 
 

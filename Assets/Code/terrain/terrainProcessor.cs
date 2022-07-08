@@ -272,13 +272,17 @@ public static class terrainProcessor
                             metadata.xll + fx * increase.lon); // range given is 0 - 360 but we need it as -180 - 180
 
                         string fileName = terrainProcessor.fileName(ll, increase, "npy");
+                        int south = fy * lengthPerFileY;
+                        int north = (fy + 1) * lengthPerFileY - 1;
+                        int west = fx * lengthPerFileX;
+                        int east = (fx + 1) * lengthPerFileX - 1;
                         NDArray arrayData = downsizedData[
-                            $"{fy * lengthPerFileY}:{(fy + 1) * lengthPerFileY}",
-                            $"{fx * lengthPerFileX}:{(fx + 1) * lengthPerFileX}"];
+                            $"{south}:{north + 1}", // +1 bc end is exclusive
+                            $"{west}:{east + 1}"];
 
                         // create bounds array if needed
                         string boundName = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(ll, increase, "npy"));
-                        if (!boundaries.ContainsKey(boundName)) {
+                        if (!boundaries[res.dest].ContainsKey(boundName)) {
                             boundaries[res.dest][boundName] = np.full(
                                 terrainProcessor.NODATA_value,
                                 (4, length),
@@ -288,16 +292,13 @@ public static class terrainProcessor
                         // why cool code when brute force
                         
                         // add bounds to our own file
-                        int dn = (fy + 1) * lengthPerFileY;
-                        int ds = fy * lengthPerFileY - 1;
-                        int de = (fx + 1) * lengthPerFileX;
-                        int dw = fx * lengthPerFileX - 1;
-                        if (dn < downsizedData.shape[0] - 1) boundaries[res.dest][boundName]["0", $"1:{lengthPerFileX}"] = downsizedData[$"{dn}", $"{dw + 1}:{de - 1}"];
-                        if (ds > 0) boundaries[res.dest][boundName]["2", $"1:{lengthPerFileX}"] = downsizedData[$"{ds}", $"{dw + 1}:{de - 1}"];
-                        if (de < downsizedData.shape[1] - 1) boundaries[res.dest][boundName]["1", $"1:{lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{de}"];
-                        if (dw > 0) boundaries[res.dest][boundName]["3", $"1:{lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{dw}"];
+                        //if (fy < rootNumFiles - 1) boundaries[res.dest][boundName]["0", $"1:{lengthPerFileX}"] = downsizedData[$"{north + 1}", $"{west}:{east - 1}"]; // north
+                        //if (fx < rootNumFiles - 1) boundaries[res.dest][boundName]["1", $"1:{lengthPerFileY}"] = downsizedData[$"{south}:{north - 1}", $"{east + 1}"]; // east
+                        //if (fy > 0) boundaries[res.dest][boundName]["2", $"1:{lengthPerFileX}"] = downsizedData[$"{south - 1}", $"{west}:{east - 1}"]; // south
+                        //if (fx > 0) boundaries[res.dest][boundName]["3", $"1:{lengthPerFileY}"] = downsizedData[$"{south}:{north - 1}", $"{west - 1}"]; // west
 
                         // add corners of bounds
+                        /*
                         if (fx != 0 && fy != 0) { // sw
                             boundaries[res.dest][boundName]["2", "0"] = downsizedData[$"{ds}", $"{dw}"];
                             boundaries[res.dest][boundName]["3", "0"] = downsizedData[$"{ds}", $"{dw}"];
@@ -313,32 +314,36 @@ public static class terrainProcessor
                         if (fx != 0 && fy != rootNumFiles - 1) { // nw
                             boundaries[res.dest][boundName]["0", "0"] = downsizedData[$"{dn}", $"{dw}"];
                             boundaries[res.dest][boundName]["3", $"{lengthPerFileY}"] = downsizedData[$"{dn}", $"{dw}"];
-                        }
+                        }*/
 
                         // TODO: add bounds to other files
                         if (fy == 0) { // s -> n
                             string _b = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(wrap(ll, new geographic(-increase.lat, 0)), increase, "npy"));
                             tryToCreateJp2(_b, boundaries[res.dest], length);
 
-                            boundaries[res.dest][_b]["0", $"1:{lengthPerFileX}"] = downsizedData[$"{ds + 1}", $"{dw + 1}:{de - 1}"];
+                            boundaries[res.dest][_b]["0", $"1:{lengthPerFileX}"] = downsizedData[$"{south}", $"{west}:{east}"];
+                            //boundaries[res.dest][_b]["0", $"1:{lengthPerFileX}"] = -32767;
                         }
                         if (fy == rootNumFiles - 1) { // n -> s
                             string _b = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(wrap(ll, new geographic(increase.lat, 0)), increase, "npy"));
                             tryToCreateJp2(_b, boundaries[res.dest], length);
 
-                            boundaries[res.dest][_b]["2", $"1:{lengthPerFileX}"] = downsizedData[$"{dn - 1}", $"{dw + 1}:{de - 1}"];
+                            //boundaries[res.dest][_b]["2", $"1:{lengthPerFileX}"] = downsizedData[$"{north}", $"{west}:{east}"];
+                            boundaries[res.dest][_b]["2", $"1:{lengthPerFileX}"] = -32767;
                         }
                         if (fx == 0) { // w -> e
                             string _b = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(wrap(ll, new geographic(0, -increase.lon)), increase, "npy"));
                             tryToCreateJp2(_b, boundaries[res.dest], length);
 
-                            boundaries[res.dest][_b]["1", $"1:{lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{dw + 1}"];
+                            //boundaries[res.dest][_b]["1", $"1:{lengthPerFileY}"] = downsizedData[$"{south}:{north}", $"{west}"];
+                            boundaries[res.dest][_b]["1", $"1:{lengthPerFileY}"] = -32767;
                         }
                         if (fx == rootNumFiles - 1) { // e -> w
                             string _b = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(wrap(ll, new geographic(0, increase.lon)), increase, "npy"));
                             tryToCreateJp2(_b, boundaries[res.dest], length);
 
-                            boundaries[res.dest][_b]["3", $"1:{lengthPerFileY}"] = downsizedData[$"{ds + 1}:{dn - 1}", $"{de - 1}"];
+                            //boundaries[res.dest][_b]["3", $"1:{lengthPerFileY}"] = downsizedData[$"{south}:{north}", $"{east}"];
+                            boundaries[res.dest][_b]["3", $"1:{lengthPerFileY}"] = -32767;
                         }
 
                         // save data

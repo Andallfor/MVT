@@ -57,6 +57,8 @@ public abstract class IMesh
         mesh.triangles = triangles.ToArray();
         mesh.uv = uvs.ToArray();
 
+        mesh.RecalculateNormals();
+
         go = GameObject.Instantiate(model);
         go.name = name;
         go.transform.parent = parent;
