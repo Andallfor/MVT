@@ -18,7 +18,7 @@ public class controller : MonoBehaviour
 
     void Awake() {
         // eventually i want to be able to enable this- the only thing currently preventing this is Physics.raycast
-        Physics.autoSimulation = false;
+        //Physics.autoSimulation = false;
     }
 
     void Start()
