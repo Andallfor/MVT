@@ -53,10 +53,15 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
         shownName.text = name;
     }
 
-    public void setPosition(position pos)
+    public void setPosition(position pos, bool forceHide = false)
     {
-        if (planetOverview.usePlanetOverview)
-        {
+        if (forceHide) {
+            mrSelf.enabled = false;
+            shownName.text = "";
+            return;
+        }
+
+        if (planetOverview.usePlanetOverview) {
             mrSelf.enabled = false;
             shownName.text = "";
             return;
@@ -64,8 +69,8 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
 
         Vector3 p = new Vector3(
             (float) (pos.x / master.scale),
-            (float) (pos.y / master.scale),
-            (float) (pos.z / master.scale));
+            (float) (pos.z / master.scale),
+            (float) (pos.y / master.scale));
 
         if (Vector3.Distance(p, Vector3.zero) > 1000f) mrSelf.enabled = false;
         else
