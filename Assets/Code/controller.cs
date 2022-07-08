@@ -41,7 +41,7 @@ public class controller : MonoBehaviour
         //kepler();
 
         csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
-        DBReader.getData();
+        //var data = DBReader.getData();
         //planetTerrain pt = loadTerrain();
 
         master.pause = false;
