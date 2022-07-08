@@ -52,7 +52,6 @@ public static class csvParser
 
         return multi;
     }
-
     private static Timeline _loadPlanetCsv(string ss, double timestep)
     {
         List<string> formatted = ss.Split('\n').ToList();

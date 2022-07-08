@@ -41,13 +41,15 @@ public class controller : MonoBehaviour
         //kepler();
         Artemis3();
 
-        //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
+        //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
+        DBReader.getData();
+        
         //planetTerrain pt = loadTerrain();
 
         master.pause = false;
         general.camera = Camera.main;
-
+        
         startMainLoop();
     }
 
