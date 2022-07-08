@@ -14,7 +14,7 @@ public class facility : IJsonFile<jsonFacilityStruct>
 
     public geographic geo {get {return data.geo;}}
     public planet facParent {get {return parent;}}
-    
+
     public facility(string name, planet parent, facilityData data, representationData rData) {
         this.name = name;
         this.data = data;
@@ -118,7 +118,7 @@ public class facilityData
     public Time start {get; private set;}
     public Time end {get; private set;}
     public bool alwaysExist = true;
-    
+
     public facilityData(string name, geographic geo, List<antennaData> antennas) {
         this.geo = geo;
         this.name = name;
