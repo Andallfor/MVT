@@ -18,7 +18,7 @@ public class controller : MonoBehaviour
 
     void Awake() {
         // eventually i want to be able to enable this- the only thing currently preventing this is Physics.raycast
-        //Physics.autoSimulation = false;
+        Physics.autoSimulation = false;
     }
 
     void Start()
@@ -44,9 +44,9 @@ public class controller : MonoBehaviour
 
         csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
-        terrainProcessor.divideJpeg2000("C:/Users/leozw/Desktop/lunar", "C:/Users/leozw/Desktop/preparedLunar", new List<terrainResolution>() {
-            new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/min", 1, 96)
-        });
+        //terrainProcessor.divideJpeg2000("C:/Users/leozw/Desktop/lunar", "C:/Users/leozw/Desktop/preparedLunar", new List<terrainResolution>() {
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/min", 1, 96)
+        //});
 
         pt = loadTerrain();
 
@@ -112,6 +112,7 @@ public class controller : MonoBehaviour
 
             if (Input.mouseScrollDelta.y != 0) {
                 planetFocus.zoom -= Input.mouseScrollDelta.y * UnityEngine.Time.deltaTime * 500f;
+                planetFocus.zoom = Mathf.Max(Mathf.Min(planetFocus.zoom, 75), 1);
             }
 
             planetFocus.update();
@@ -167,7 +168,7 @@ public class controller : MonoBehaviour
         
         planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/moon/moon", false);
         //planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/earth/earth", false);
-        pt.generateFolderInfos(new string[1] {"C:/Users/leozw/Desktop/preparedLunar/min"});
+        pt.generateFolderInfos(new string[1] {Path.Combine(Application.streamingAssetsPath, "terrain")});
         //planetTerrain pt = new planetTerrain(6371, 35, earth, "Materials/planets/earth/earth");
         //pt.generateFolderInfos(new string[1] {
             //"C:/Users/leozw/Desktop/divided/ultra",

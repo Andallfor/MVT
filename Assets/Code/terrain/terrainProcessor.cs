@@ -269,11 +269,14 @@ public static class terrainProcessor
                     for (int fy = 0; fy < rootNumFiles; fy++) {
                         geographic ll = new geographic(
                             metadata.yll + fy * increase.lat,
-                            metadata.xll + fx * increase.lon); // range given is 0 - 360 but we need it as -180 - 180
+                            metadata.xll + fx * increase.lon);
 
                         string fileName = terrainProcessor.fileName(ll, increase, "npy");
-                        int south = fy * lengthPerFileY;
-                        int north = (fy + 1) * lengthPerFileY - 1;
+
+                        int _fy = rootNumFiles - fy - 1;
+                        
+                        int south = _fy * lengthPerFileY;
+                        int north = (_fy + 1) * lengthPerFileY - 1;
                         int west = fx * lengthPerFileX;
                         int east = (fx + 1) * lengthPerFileX - 1;
                         NDArray arrayData = downsizedData[
@@ -349,7 +352,7 @@ public static class terrainProcessor
         return new geographic(lat, lon);
     }
 
-    public static string fileName(geographic pos, geographic inc, string ending = "txt") => $"lat={Math.Round(pos.lat, 2)}_lon={Math.Round(pos.lon, 2)}_+({inc.lat}_{inc.lon}).{ending}";
+    public static string fileName(geographic pos, geographic inc, string ending = "txt") => $"lat={Math.Round(pos.lat, 2).ToString()}_lon={Math.Round(pos.lon, 2).ToString()}_+({inc.lat.ToString()}_{inc.lon.ToString()}).{ending}";
     public static string fileBoundaryName(geographic pos, geographic inc, string ending = "txt") => fileName(pos, inc).Replace(".txt", $"_boundary.{ending}");
     public const string folderInfoName = "resInfo.txt";
     public const int NODATA_value = -32767;
