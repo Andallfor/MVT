@@ -445,6 +445,21 @@ public class controller : MonoBehaviour
                 satellite.addFamilyNode(earth, sat);
               }
             }
+
+            if (dict["User_Provider"] == "user")
+            {
+               master.users.Add(x.Key, false);
+            }
+            if (dict["User_Provider"] == "provider")
+            {
+               master.providers.Add(x.Key, false);
+            }
+            if (dict["User_Provider"] == "user/provider")
+            {
+               master.users.Add(x.Key, false);
+               master.providers.Add(x.Key, false);
+            }
+
             break;
 
           case "Facility":
@@ -481,8 +496,20 @@ public class controller : MonoBehaviour
               List<antennaData> antenna = new List<antennaData>();
               antenna.Append(new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Ground_Priority"]));
               facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna), frd);
+            }
 
-
+            if (dict["User_Provider"] == "user")
+            {
+               master.users.Add(x.Key, true);
+            }
+            if (dict["User_Provider"] == "provider")
+            {
+               master.providers.Add(x.Key, true);
+            }
+            if (dict["User_Provider"] == "user/provider")
+            {
+               master.users.Add(x.Key, true);
+               master.providers.Add(x.Key, true);
             }
           break;
 
@@ -491,8 +518,9 @@ public class controller : MonoBehaviour
             //satellite.addFamilyNode(earth, s);
             break;
         }
-
       }
+
+
 
       /*satellite s1 = new satellite("LCN-1", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 0, 1, 2460628.5283449073, 4902.800066)), srd);
       satellite s2 = new satellite("LCN-2", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 180, 1, 2460628.5283449073, 4902.800066)), srd);
