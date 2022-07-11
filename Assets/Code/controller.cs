@@ -471,7 +471,6 @@ public class controller : MonoBehaviour
                   stop = Double.Parse(dict["TimeInterval_stop"], System.Globalization.NumberStyles.Any);
               }
 
-              
               List<antennaData> antenna = new List<antennaData>();
               antenna.Append(new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"]));
               facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna, new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);
