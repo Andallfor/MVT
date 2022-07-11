@@ -126,4 +126,12 @@ public static class master
         currentPosition = new position(0, 0, 0);
         _referenceFrame = b;
     }
+
+    // TODO: find a better implementation of this
+    /// <summary> Determines relationship between bodies (parent, child, etc) in the form parent, List(child) </summary>
+    /// <remarks> Useful as it does not require a postional dependency (as with normal parenting) </remarks>
+    public static Dictionary<planet, List<planet>> relationshipPlanet = new Dictionary<planet, List<planet>>();
+    /// <summary> Determines relationship between bodies (parent, child, etc) in the form parent, List(child) </summary>
+    /// <remarks> Useful as it does not require a postional dependency (as with normal parenting) </remarks>
+    public static Dictionary<planet, List<satellite>> relationshipSatellite = new Dictionary<planet, List<satellite>>();
 }

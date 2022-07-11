@@ -32,12 +32,8 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
         localPos = pos = data.positions.find(master.time);
         if (!ReferenceEquals(parent, null)) pos += parent.pos;
 
-        if (!planetOverview.usePlanetOverview) representation.setPosition(pos - master.currentPosition - master.referenceFrame);
-        else
-        {
-            representation.setPosition(planetOverview.planetOverviewPosition(pos));
-            representation.setRadius((master.scale / 2.0) / 4.0);
-        }
+        representation.setPosition(pos - master.currentPosition - master.referenceFrame);
+        if (planetOverview.usePlanetOverview) representation.setRadius((master.scale / 2.0) / 4.0);
 
         if (data.rotate) rotation = representation.rotate(this.calculateRotation());
 

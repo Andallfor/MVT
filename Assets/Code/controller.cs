@@ -11,7 +11,7 @@ public class controller : MonoBehaviour
 {
     public float playerSpeed = 100f * (float) master.scale;
     public static planet earth;
-    private double speed = 0.00005;
+    public static double speed = 0.00005;
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
     private Coroutine loop;
 
@@ -79,7 +79,6 @@ public class controller : MonoBehaviour
 
     public void Update()
     {
-        
         if (planetOverview.usePlanetOverview)
         {
             if (Input.GetKey("d")) planetOverview.rotationalOffset -= 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
@@ -153,6 +152,8 @@ public class controller : MonoBehaviour
         if (Input.GetKeyDown("3")) speed = 0.00005;
 
         if (Input.GetKeyDown("4")) master.time.addJulianTime(2460806.5 - master.time.julian);
+
+        //Debug.Log($"{planetOverview.planetOverviewPosition(master.allSatellites.First(x => x.name == "ISS").pos)} {master.allSatellites.First(x => x.name == "ISS").pos}");
     }
     private planetTerrain loadTerrain() {
         /*terrainProcessor.divideAll("C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/", new List<terrainResolution>() {
@@ -278,29 +279,27 @@ public class controller : MonoBehaviour
         double oneMin = 0.0006944444;
         double oneHour = 0.0416666665;
 
-        earth =       new planet(  "Earth", new planetData(  6371, true, "CSVS/PLANETS/Earth", oneHour, planetType.planet), erd);
-        planet moon = new planet(   "Luna", new planetData(1738.1, false,    "CSVS/PLANETS/Luna", oneHour, planetType.moon),   rd);
-                      new planet("Mercury", new planetData(2439.7, false, "CSVS/PLANETS/Mercury", oneHour, planetType.planet), rd);
-                      new planet(  "Venus", new planetData(6051.8, false,   "CSVS/PLANETS/Venus", oneHour, planetType.planet), rd);
-                      new planet(   "Mars", new planetData(3396.2, false,    "CSVS/PLANETS/Mars", oneHour, planetType.planet), rd);
-                      new planet("Jupiter", new planetData( 71492, false, "CSVS/PLANETS/Jupiter", oneHour, planetType.planet), rd);
-                      new planet( "Saturn", new planetData( 60268, false,  "CSVS/PLANETS/Saturn", oneHour, planetType.planet), rd);
-                      new planet( "Uranus", new planetData( 25559, false,  "CSVS/PLANETS/Uranus", oneHour, planetType.planet), rd);
-                      new planet("Neptune", new planetData( 24764, false, "CSVS/PLANETS/Neptune", oneHour, planetType.planet), rd);
+        earth =       new planet(  "Earth", new planetData(  6371, true, "CSVS/OLD/PLANETS/Earth", oneHour, planetType.planet), erd);
+        planet moon = new planet(   "Luna", new planetData(1738.1, false,    "CSVS/OLD/PLANETS/Luna", oneHour, planetType.moon),   rd);
+                      new planet("Mercury", new planetData(2439.7, false, "CSVS/OLD/PLANETS/Mercury", oneHour, planetType.planet), rd);
+                      new planet(  "Venus", new planetData(6051.8, false,   "CSVS/OLD/PLANETS/Venus", oneHour, planetType.planet), rd);
+                      new planet(   "Mars", new planetData(3396.2, false,    "CSVS/OLD/PLANETS/Mars", oneHour, planetType.planet), rd);
+                      new planet("Jupiter", new planetData( 71492, false, "CSVS/OLD/PLANETS/Jupiter", oneHour, planetType.planet), rd);
+                      new planet( "Saturn", new planetData( 60268, false,  "CSVS/OLD/PLANETS/Saturn", oneHour, planetType.planet), rd);
+                      new planet( "Uranus", new planetData( 25559, false,  "CSVS/OLD/PLANETS/Uranus", oneHour, planetType.planet), rd);
+                      new planet("Neptune", new planetData( 24764, false, "CSVS/OLD/PLANETS/Neptune", oneHour, planetType.planet), rd);
 
-        foreach (string sat in sats)
-        {
-            satellite s = new satellite(sat, new satelliteData($"CSVS/SATS/{sat}", oneMin), srd);
-            try
-            {
-                // desync between planet and satellites
+        master.relationshipPlanet.Add(earth, new List<planet>() {moon});
+        master.relationshipSatellite.Add(earth, new List<satellite>() {});
+        master.relationshipSatellite.Add(moon, new List<satellite>() {});
 
-                //satellite.addFamilyNode(earth, s);
-            }
-            catch {UnityEngine.Debug.Log($"Unable to load {sat}");}
+        foreach (string sat in sats) {
+            satellite s = new satellite(sat, new satelliteData($"CSVS/OLD/SATS/{sat}", oneMin), srd);
+            master.relationshipSatellite[earth].Add(s);
+            master.relationshipSatellite[moon].Add(s);
         }
 
-        foreach (facilityData fd in csvParser.loadFacilites("CSVS/FACILITIES/stationList")) new facility(fd.name, earth, fd, frd);
+        foreach (facilityData fd in csvParser.loadFacilites("CSVS/OLD/FACILITIES/stationList")) new facility(fd.name, earth, fd, frd);
 
         master.setReferenceFrame(earth);
     }
@@ -441,6 +440,10 @@ public class controller : MonoBehaviour
       satellite.addFamilyNode(moon, s13);
       satellite.addFamilyNode(moon, s14);
 
+      master.relationshipPlanet.Add(earth, new List<planet>() {moon});
+      master.relationshipSatellite.Add(earth, new List<satellite>() {s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14});
+      master.relationshipSatellite.Add(moon, new List<satellite>() {s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14});
+
       /*facility f1 = new facility("HLS-Surface", moon, new facilityData("HLS-Surface", new geographic(-89.45, -137.31), null, new Time((2460806.5 + 13.0)), new Time((2460806.5 + 20.0))), frd);
       facility f2 = new facility("CLPS9", moon, new facilityData("CLPS9", new geographic(-75.0, 113), new Time(2460806.5), new Time((2460806.5 + 30.0))), frd);
 
@@ -453,21 +456,7 @@ public class controller : MonoBehaviour
       facility f9 = new facility("DSS-35", earth, new facilityData("DSS-34", new geographic(-35.3985, 148.982), null), frd);
       facility f10 = new facility("DSS-36", earth, new facilityData("DSS-36", new geographic(-35.3951, 148.979), null), frd);*/
 
-      Debug.Log(position.distance(s13.pos, moon.pos));
-
-
-
       master.setReferenceFrame(moon);
-
-
-
-
-
-
-
-
-
-
     }
 }
 

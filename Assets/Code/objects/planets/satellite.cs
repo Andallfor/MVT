@@ -26,7 +26,8 @@ public class satellite : body, IJsonFile<jsonSatelliteStruct>
         localPos = pos = data.positions.find(master.time);
         if (!ReferenceEquals(parent, null)) pos += parent.pos;
 
-        representation.setPosition((pos - master.currentPosition - master.referenceFrame), !data.positions.exists(master.time));
+        representation.setPosition(pos - master.currentPosition - master.referenceFrame, !data.positions.exists(master.time));
+        if (planetOverview.usePlanetOverview) representation.setRadius((master.scale / 2.0) / 8.0);
 
         base.updateChildren();
     }

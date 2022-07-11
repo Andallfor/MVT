@@ -71,4 +71,8 @@ public class lineController : MonoBehaviour
             kvp.Value.transform.position = Camera.main.WorldToScreenPoint(lr.GetPosition(kvp.Key));
         }
     }
+
+    public void destory() {
+        Destroy(this.gameObject);
+    }
 }
