@@ -451,12 +451,30 @@ public class controller : MonoBehaviour
 
             if (dict["CentralBody"] == "Moon")
             {
+              double start = 0;
+              double stop = 0;
+              if (dict["TimeInterval_start"] is double)
+              {
+                  start = dict["TimeInterval_start"];
+              }
+              if (dict["TimeInterval_start"] is string)
+              {
+                  start = Double.Parse(dict["TimeInterval_start"], System.Globalization.NumberStyles.Any);
+              }
 
+              if (dict["TimeInterval_stop"] is double)
+              {
+                  start = dict["TimeInterval_start"];
+              }
+              if (dict["TimeInterval_stop"] is string)
+              {
+                  stop = Double.Parse(dict["TimeInterval_stop"], System.Globalization.NumberStyles.Any);
+              }
+
+              
               List<antennaData> antenna = new List<antennaData>();
               antenna.Append(new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"]));
-              facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna, new Time((2460806.5 + dict["TimeInterval_start"])), new Time((2460806.5 + dict["TimeInterval_stop"]))), frd);
-
-
+              facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna, new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);
             }
             else if (dict["CentralBody"] == "Earth")
             {
