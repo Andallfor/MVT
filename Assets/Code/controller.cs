@@ -44,12 +44,12 @@ public class controller : MonoBehaviour
 
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
         DBReader.getData();
-        
+
         //planetTerrain pt = loadTerrain();
 
         master.pause = false;
         general.camera = Camera.main;
-        
+
         startMainLoop();
     }
 
@@ -79,7 +79,7 @@ public class controller : MonoBehaviour
 
     public void Update()
     {
-        
+
         if (planetOverview.usePlanetOverview)
         {
             if (Input.GetKey("d")) planetOverview.rotationalOffset -= 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
@@ -384,6 +384,9 @@ public class controller : MonoBehaviour
       double oneMin = 0.0006944444;
       double oneHour = 0.0416666665;
 
+      double MoonMu = 4902.800066;
+      double EarthMu = 398600.435436;
+
       earth =       new planet(  "Earth", new planetData(  6371, true, "CSVS/ARTEMIS 3/PLANETS/earth", oneHour, planetType.planet), erd);
       planet moon = new planet(   "Luna", new planetData(1738.1, false,    "CSVS/ARTEMIS 3/PLANETS/moon", oneHour, planetType.moon),   rd);
                     new planet("Mercury", new planetData(2439.7, false, "CSVS/ARTEMIS 3/PLANETS/mercury", oneHour, planetType.planet), rd);
@@ -394,7 +397,87 @@ public class controller : MonoBehaviour
                     new planet( "Uranus", new planetData( 25559, false,  "CSVS/ARTEMIS 3/PLANETS/uranus", oneHour, planetType.planet), rd);
                     new planet("Neptune", new planetData( 24764, false, "CSVS/ARTEMIS 3/PLANETS/neptune", oneHour, planetType.planet), rd);
 
-      satellite s1 = new satellite("LCN-1", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 0, 1, 2460628.5283449073, 4902.800066)), srd);
+      var data = DBReader.getData();
+
+      foreach (KeyValuePair<string, dynamic> x in data["Artemis_III"].satellites)
+      {
+
+        var dict = data["Artemis_III"].satellites[x.Key];
+
+        switch(dict["Type"])
+        {
+          case "Satellite":
+
+            if (dict.ContainsKey("RAAN") == true)
+            {
+
+              if (dict["CentralBody"] == "Moon")
+              {
+
+                satellite sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"]/1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), MoonMu)), srd);
+                sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
+                satellite.addFamilyNode(moon, sat);
+
+              }
+              else if (dict["CentralBody"] == "Earth")
+              {
+
+                satellite sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"]/1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), EarthMu)), srd);
+                sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
+                satellite.addFamilyNode(earth, sat);
+
+              }
+            }
+            else if (dict.ContainsKey("FilePath"))
+            {
+              if (dict["CentralBody"] == "Moon")
+              {
+
+                satellite sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneMin), srd);
+                sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
+                satellite.addFamilyNode(moon, sat);
+
+              }
+              else if (dict["CentralBody"] == "Earth")
+              {
+                satellite sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneMin), srd);
+                sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
+                satellite.addFamilyNode(earth, sat);
+              }
+            }
+            break;
+
+          case "Facility":
+
+            if (dict["CentralBody"] == "Moon")
+            {
+
+              List<antennaData> antenna = new List<antennaData>();
+              antenna.Append(new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"]));
+              facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna, new Time((2460806.5 + dict["TimeInterval_start"])), new Time((2460806.5 + dict["TimeInterval_stop"]))), frd);
+
+
+            }
+            else if (dict["CentralBody"] == "Earth")
+            {
+
+              List<antennaData> antenna = new List<antennaData>();
+              antenna.Append(new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Ground_Priority"]));
+              facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna), frd);
+
+
+            }
+          break;
+
+          case "Impact":
+            //satellite s = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/IMPACT/{x.Key}", oneMin), srd);
+            //satellite.addFamilyNode(earth, s);
+            break;
+        }
+
+      }
+
+      /*satellite s1 = new satellite("LCN-1", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 0, 1, 2460628.5283449073, 4902.800066)), srd);
       satellite s2 = new satellite("LCN-2", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 180, 1, 2460628.5283449073, 4902.800066)), srd);
       satellite s3 = new satellite("LCN-3", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 360, 1, 2460628.5283449073, 4902.800066)), srd);
 
@@ -453,20 +536,8 @@ public class controller : MonoBehaviour
       facility f9 = new facility("DSS-35", earth, new facilityData("DSS-34", new geographic(-35.3985, 148.982), null), frd);
       facility f10 = new facility("DSS-36", earth, new facilityData("DSS-36", new geographic(-35.3951, 148.979), null), frd);*/
 
-      Debug.Log(position.distance(s13.pos, moon.pos));
-
-
 
       master.setReferenceFrame(moon);
-
-
-
-
-
-
-
-
-
 
     }
 }
