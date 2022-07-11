@@ -15,10 +15,6 @@ public class controller : MonoBehaviour
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
     private Coroutine loop;
 
-    void Awake() {
-        // eventually i want to be able to enable this- the only thing currently preventing this is Physics.raycast
-        //Physics.autoSimulation = false;
-    }
 
     void Start()
     {
@@ -49,6 +45,8 @@ public class controller : MonoBehaviour
 
         master.pause = false;
         general.camera = Camera.main;
+
+        master.markStartOfSimulation();
         
         startMainLoop();
     }
@@ -74,6 +72,8 @@ public class controller : MonoBehaviour
 
             if (!planetOverview.usePlanetOverview) master.requestSchedulingUpdate();
             master.currentTick = tick;
+
+            master.markTickFinished();
         }, null));
     }
 
@@ -83,6 +83,11 @@ public class controller : MonoBehaviour
         {
             if (Input.GetKey("d")) planetOverview.rotationalOffset -= 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
             if (Input.GetKey("a")) planetOverview.rotationalOffset += 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
+
+            if (Input.mouseScrollDelta.y != 0) {
+                general.camera.orthographicSize -= Input.mouseScrollDelta.y * UnityEngine.Time.deltaTime * 500f;
+                general.camera.orthographicSize = Math.Max(2, Math.Min(20, general.camera.orthographicSize));
+            }
 
             planetOverview.updateAxes();
         } else if (planetFocus.usePlanetFocus) {
@@ -115,7 +120,8 @@ public class controller : MonoBehaviour
             }
 
             planetFocus.update();
-        } else {
+        } 
+        else {
             if (Input.GetMouseButton(1) && !EventSystem.current.IsPointerOverGameObject())
             {
                 Transform c = Camera.main.transform;
@@ -139,12 +145,16 @@ public class controller : MonoBehaviour
             master.requestScaleUpdate();
             planetOverview.enable(!planetOverview.usePlanetOverview);
             master.clearAllLines();
+
+            general.notifyStatusChange();
         }
 
         if (Input.GetKeyDown("e")) {
             master.requestScaleUpdate();
             planetFocus.enable(!planetFocus.usePlanetFocus);
             master.clearAllLines();
+
+            general.notifyStatusChange();
         }
 
         if (Input.GetKeyDown("1")) speed = 0.1;
@@ -153,7 +163,10 @@ public class controller : MonoBehaviour
 
         if (Input.GetKeyDown("4")) master.time.addJulianTime(2460806.5 - master.time.julian);
 
-        //Debug.Log($"{planetOverview.planetOverviewPosition(master.allSatellites.First(x => x.name == "ISS").pos)} {master.allSatellites.First(x => x.name == "ISS").pos}");
+        if (Input.GetKeyDown("z")) {
+            foreach (planet p in master.allPlanets) p.tr.toggle();
+            foreach (satellite s in master.allSatellites) s.tr.toggle();
+        }
     }
     private planetTerrain loadTerrain() {
         /*terrainProcessor.divideAll("C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/", new List<terrainResolution>() {
@@ -361,7 +374,6 @@ public class controller : MonoBehaviour
         satellite.addFamilyNode(earth, s4);
         satellite.addFamilyNode(moon, s5);*/
     }
-
     private void Artemis3()
     {
       representationData rd = new representationData(
@@ -441,7 +453,6 @@ public class controller : MonoBehaviour
       satellite.addFamilyNode(moon, s14);
 
       master.relationshipPlanet.Add(earth, new List<planet>() {moon});
-      master.relationshipSatellite.Add(earth, new List<satellite>() {s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14});
       master.relationshipSatellite.Add(moon, new List<satellite>() {s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14});
 
       /*facility f1 = new facility("HLS-Surface", moon, new facilityData("HLS-Surface", new geographic(-89.45, -137.31), null, new Time((2460806.5 + 13.0)), new Time((2460806.5 + 20.0))), frd);
@@ -461,3 +472,4 @@ public class controller : MonoBehaviour
 }
 
 //hello, it's me
+// wow, it's you

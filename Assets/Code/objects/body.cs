@@ -54,7 +54,7 @@ public abstract class body
 
     public abstract void updatePosition(object sender, EventArgs args);
     public abstract void updateScale(object sender, EventArgs args);
-    public abstract position requestLocalPosition(Time t);
+    public abstract position requestPosition(Time t);
     protected void updateChildren() {onPositionUpdate(null, EventArgs.Empty);}
 
     private protected abstract void loadPhysicalData(representationData rData);

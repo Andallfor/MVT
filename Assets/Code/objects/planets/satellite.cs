@@ -7,6 +7,7 @@ public class satellite : body, IJsonFile<jsonSatelliteStruct>
 {
     public satelliteRepresentation representation {get; private set;}
     private satelliteData data;
+    public trailRenderer tr;
 
     public satellite(string name, satelliteData data, representationData rData)
     {
@@ -17,6 +18,8 @@ public class satellite : body, IJsonFile<jsonSatelliteStruct>
 
         master.allSatellites.Add(this);
         master.requestJsonQueueUpdate();
+
+        tr = new trailRenderer(name, representation.gameObject, positions, this);
     }
 
     private protected override void loadPhysicalData(representationData rData) {representation = new satelliteRepresentation(name, rData);}
@@ -31,10 +34,10 @@ public class satellite : body, IJsonFile<jsonSatelliteStruct>
 
         base.updateChildren();
     }
-    public override position requestLocalPosition(Time t)
+    public override position requestPosition(Time t)
     {
         position p = data.positions.find(t);
-        if (!ReferenceEquals(parent, null)) p += parent.requestLocalPosition(t);
+        if (!ReferenceEquals(parent, null)) p += parent.requestPosition(t);
         return p;
     }
     public override void updateScale(object sender, EventArgs args) {}

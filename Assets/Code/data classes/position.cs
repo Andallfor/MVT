@@ -15,6 +15,12 @@ public readonly struct position
         this.y = y;
     }
 
+    public position(position p) {
+        this.x = p.x;
+        this.y = p.y;
+        this.z = p.z;
+    }
+
     public position swapAxis() => new position(x, z, y);
 
     public static double distance(position p1, position p2) => Math.Sqrt(

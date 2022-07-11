@@ -72,7 +72,7 @@ public class lineController : MonoBehaviour
         }
     }
 
-    public void destory() {
+    public void destroy() {
         Destroy(this.gameObject);
     }
 }

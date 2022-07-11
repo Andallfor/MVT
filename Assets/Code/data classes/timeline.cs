@@ -8,7 +8,7 @@ public class Timeline : ITimeline
 {
     private TimelinePosition tp;
     private TimelineKepler tk;
-    private TimelineSelection selection;
+    public TimelineSelection selection {get; private set;}
     public Timeline(Dictionary<double, position> data, double timestep, bool alwaysExist = true)
     {
         tp = new TimelinePosition(data, timestep, alwaysExist);
@@ -58,6 +58,15 @@ public class Timeline : ITimeline
         if (selection == TimelineSelection.positions) return tp.exists(t);
         else return tk.exists(t);
     }
+
+    public double tryGetStartTime() {
+        if (selection == TimelineSelection.positions) return tp.first;
+        else return 0;
+    }
+    public double tryGetEndTime() {
+        if (selection == TimelineSelection.positions) return tp.last;
+        else return 0;
+    }
 }
 
 public class TimelinePosition : ITimeline
@@ -66,7 +75,7 @@ public class TimelinePosition : ITimeline
     private List<double> index = new List<double>();
     private TimelineComparer tlc;
     private double timestep;
-    private double first, last;
+    public double first, last;
     public bool alwaysExist;
 
     // assumes data is sorted

@@ -158,7 +158,7 @@ public static class planetOverview
         rotationalOffset = 0;
 
         foreach (lineController lc in axes.Values) lc.clearLine();
-        foreach (lineController lc in bodies.Values) lc.destory();
+        foreach (lineController lc in bodies.Values) lc.destroy();
         bodies = new Dictionary<body, lineController>();
 
         updateAxes(true);
@@ -231,6 +231,8 @@ public static class planetOverview
 
             clearAxes();
             drawAxes();
+
+            general.notifyStatusChange();
         }
     }
 
@@ -257,6 +259,8 @@ public static class planetOverview
 
         addDefaultObey();
         drawAxes();
+
+        general.notifyStatusChange();
     }
 
     public static void satCallback(bool value) {
