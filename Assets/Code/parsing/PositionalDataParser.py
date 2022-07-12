@@ -17,8 +17,8 @@ conn.commit()
 
 with open('parsing/TESS.csv', 'r') as file:
 
-    for line in file:
-        cursor.execute("INSERT INTO PositionalData VALUES (?,?,?,?)", line.split(","))
+    for line in file:   
+        cursor.execute("INSERT INTO PositionalData VALUES (?,?,?,?)", line.split(",x"))
 
 conn.commit()
 conn.close()

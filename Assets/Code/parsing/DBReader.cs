@@ -13,9 +13,9 @@ public static class DBReader
 {
     public static Dictionary<string, (string epoch, Dictionary<string, dynamic> satellites)> getData()
     {
-
+        Debug.Log(Directory.GetCurrentDirectory());
         Dictionary<string, (string epoch, Dictionary<string, dynamic> satellites)> missions = new  Dictionary<string, (string epoch, Dictionary<string, dynamic> satellites)>();
-        using (var connection = new SqliteConnection("URI=file:Assets/Code/parsing/main.db;New=False"))
+        using (var connection = new SqliteConnection("URI=file:main.db;New=False"))
         {
             connection.Open();
             List<(string epochDate, string missionName)> tables = new List<(string epochDate, string missionName)>();
@@ -99,6 +99,7 @@ public static class DBReader
             //foreach(KeyValuePair<string, dynamic> kvp in sats) Debug.Log($"Key: {kvp.Key}\t\tValue:{kvp.Value}");
 
         }
+        Debug.Log(missions["Artemis_III"].satellites["LCN-12hourfrozen-1"]["OrbitEpoch"]);
         return missions;
     }
 }   
