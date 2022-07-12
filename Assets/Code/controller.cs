@@ -11,7 +11,7 @@ public class controller : MonoBehaviour
 {
     public float playerSpeed = 100f * (float) master.scale;
     public static planet earth;
-    private double speed = 0.00005;
+    private double speed = 0.0006944444;
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
     private Coroutine loop;
 
@@ -79,6 +79,22 @@ public class controller : MonoBehaviour
 
     public void Update()
     {
+
+        if (master.time.julian < 2460836.5)
+        {
+          linkBudgeting.accessCalls();
+        }
+        if (master.time.julian > 2460811.5)
+        {
+          if (master.loadCheck == false)
+          {
+            Debug.Log("saving file");
+            File.WriteAllLines("connections.txt", master.connections);
+            Debug.Log("File saved");
+          }
+          master.loadCheck = true;
+        }
+
 
         if (planetOverview.usePlanetOverview)
         {
@@ -150,7 +166,7 @@ public class controller : MonoBehaviour
 
         if (Input.GetKeyDown("1")) speed = 0.1;
         if (Input.GetKeyDown("2")) speed = 0.01;
-        if (Input.GetKeyDown("3")) speed = 0.00005;
+        if (Input.GetKeyDown("3")) speed = 0.0006944444;
 
         if (Input.GetKeyDown("4")) master.time.addJulianTime(2460806.5 - master.time.julian);
     }
@@ -408,6 +424,23 @@ public class controller : MonoBehaviour
         {
           case "Satellite":
 
+          //satellite = false
+          //facility = True
+
+            if (dict["user_provider"] == "user")
+            {
+              master.users.Add(x.Key, (false, 2460806.5 +  dict["TimeInterval_start"], 2460806.5 +  dict["TimeInterval_stop"]));
+            }
+            else if (dict["user_provider"] == "provider")
+            {
+              master.providers.Add(x.Key, (false, 2460806.5 +  dict["TimeInterval_start"], 2460806.5 +  dict["TimeInterval_stop"]));
+            }
+            else if (dict["user_provider"] == "user/provider")
+            {
+              master.users.Add(x.Key, (false, 2460806.5 +  dict["TimeInterval_start"], 2460806.5 +  dict["TimeInterval_stop"]));
+              master.providers.Add(x.Key, (false, 2460806.5 +  dict["TimeInterval_start"], 2460806.5 +  dict["TimeInterval_stop"]));
+            }
+
             if (dict.ContainsKey("RAAN") == true)
             {
 
@@ -471,6 +504,20 @@ public class controller : MonoBehaviour
                   stop = Double.Parse(dict["TimeInterval_stop"], System.Globalization.NumberStyles.Any);
               }
 
+              if (dict["user_provider"] == "user")
+              {
+                master.users.Add(x.Key, (true, 2460806.5 +  start, 2460806.5 + stop));
+              }
+              else if (dict["user_provider"] == "provider")
+              {
+                master.providers.Add(x.Key, (true, 2460806.5 + start, 2460806.5 + stop));
+              }
+              else if (dict["user_provider"] == "user/provider")
+              {
+                master.users.Add(x.Key, (true, 2460806.5 + start, 2460806.5 + stop));
+                master.providers.Add(x.Key, (true, 2460806.5 +  start, 2460806.5 +  stop));
+              }
+
               List<antennaData> antenna = new List<antennaData>();
               antenna.Append(new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"]));
               facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna, new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);
@@ -482,7 +529,19 @@ public class controller : MonoBehaviour
               antenna.Append(new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Ground_Priority"]));
               facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna), frd);
 
-
+              if (dict["user_provider"] == "user")
+              {
+                master.users.Add(x.Key, (true, 2460806.5, 2460836.5));
+              }
+              else if (dict["user_provider"] == "provider")
+              {
+                master.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
+              }
+              else if (dict["user_provider"] == "user/provider")
+              {
+                master.users.Add(x.Key, (true, 2460806.5, 2460836.5));
+                master.providers.Add(x.Key, (true, 2460806.5, 2460836));
+              }
             }
           break;
 
