@@ -14,6 +14,9 @@ public class planetTerrainFile
     public planetTerrainFolderInfo ptfi;
     public double ncols, nrows;
     public terrainFileType fileType;
+    private NDArray npData;
+    private string[] txtData;
+    public bool preloaded {get; private set;} = false;
 
     public planetTerrainFile(string path, planetTerrainFolderInfo ptfi, terrainFileType tft) {
         this.fileType = tft;
@@ -43,13 +46,21 @@ public class planetTerrainFile
         nrows = (int) (increment.lat * ptfi.pointsPerCoord);
     }
 
+    public void preload() {
+        if (preloaded) return;
+        preloaded = true;
+
+        if (fileType == terrainFileType.npy) npData = np.load(path);
+        else txtData = File.ReadAllLines(path).Skip(6).ToArray();
+    }
+
     public void generate(planetTerrainMesh m) {
         if (fileType == terrainFileType.txt) generateTxt(m);
         else generateNpy(m);
     }
 
     private void generateNpy(planetTerrainMesh m) {
-        NDArray data = np.load(path);
+        NDArray data = preloaded ? npData : np.load(path);
 
         for (int row = 0; row < data.shape[0] - 1; row++) {
             for (int col = 0; col < data.shape[1] - 1; col++) {
@@ -62,8 +73,7 @@ public class planetTerrainFile
     }
 
     private void generateTxt(planetTerrainMesh m) {
-        string[] data = File.ReadAllLines(path);
-        data = data.Skip(6).ToArray();
+        string[] data = preloaded ? txtData : File.ReadAllLines(path).Skip(6).ToArray();
 
         int y = (int) nrows - 1;
         foreach (string r in data)
@@ -149,6 +159,8 @@ public class planetTerrainFolderInfo
             ((int) increment.lat) + (b.max.y - (b.max.y % (int) increment.lat)), 1);
         return b;
     }
+
+    public override int GetHashCode() => (int) (pointsPerCoord * 100.0);
 }
 
 public enum terrainFileType {

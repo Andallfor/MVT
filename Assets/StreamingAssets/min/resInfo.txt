@@ -4,6 +4,6 @@ cellsize          0.1875
 pointsPerCoord    5.33333333333333
 filesPerTile      1
 generationStep    96
-name              C:\Users\leozw\Desktop\preparedLunar
+name              min
 increment         (lat=30_lon=45)
 type              npy

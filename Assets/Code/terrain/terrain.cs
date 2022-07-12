@@ -11,9 +11,12 @@ using System;
 
 public class planetTerrain
 {
-    Dictionary<string, planetTerrainFolderInfo> folderInfos = new Dictionary<string, planetTerrainFolderInfo>();
-    Dictionary<planetTerrainFile, planetTerrainMesh> existingMeshes = new Dictionary<planetTerrainFile, planetTerrainMesh>();
-    List<planetTerrainFolderInfo> sortedResolutions = new List<planetTerrainFolderInfo>();
+    private Dictionary<string, planetTerrainFolderInfo> folderInfos = new Dictionary<string, planetTerrainFolderInfo>();
+    private List<planetTerrainFolderInfo> sortedResolutions = new List<planetTerrainFolderInfo>();
+    private Dictionary<planetTerrainFolderInfo, Dictionary<geographic, meshContainer>> existingMeshes = new Dictionary<planetTerrainFolderInfo, Dictionary<geographic, meshContainer>>();
+    private Dictionary<planetTerrainFolderInfo, Dictionary<geographic, meshContainer>> hidingMeshes = new Dictionary<planetTerrainFolderInfo, Dictionary<geographic, meshContainer>>();
+    private Dictionary<planetTerrainFolderInfo, List<geographic>> toIgnore = new Dictionary<planetTerrainFolderInfo, List<geographic>>();
+    private List<planetTerrainFolderInfo> invincibleFolders = new List<planetTerrainFolderInfo>();
     public readonly double radius, heightMulti;
     public planet parent;
     public string materialPath;
@@ -35,6 +38,9 @@ public class planetTerrain
             planetTerrainFolderInfo ptfi = new planetTerrainFolderInfo(folder);
 
             folderInfos[ptfi.name] = ptfi;
+            existingMeshes[ptfi] = new Dictionary<geographic, meshContainer>();
+            hidingMeshes[ptfi] = new Dictionary<geographic, meshContainer>();
+            toIgnore[ptfi] = new List<geographic>();
         }
 
         sortedResolutions = folderInfos.Values.ToList();
@@ -47,6 +53,41 @@ public class planetTerrain
         finishedRunning = false;
         await _updateTerrain(force);
         finishedRunning = true;
+    }
+
+    public void preload(string folder, terrainFileType tft) {
+        List<string> files = new List<string>();
+        foreach (string file in Directory.EnumerateFiles(folder)) {
+            if (file.Contains("resInfo") || file.Contains("boundary")) continue;
+            if (!(file.EndsWith("npy") || file.EndsWith("txt"))) continue;
+
+            files.Add(file);
+        }
+
+        preload(files, tft);
+    }
+
+    public void preload(List<string> files, terrainFileType tft) {
+        string directoryName = new DirectoryInfo(Path.GetDirectoryName(files[0])).Name;
+
+        if (!folderInfos.ContainsKey(directoryName)) {
+            Debug.LogWarning("Unable to find respective folder info");
+            return;
+        }
+
+        foreach (string file in files) {
+            planetTerrainFile ptf = new planetTerrainFile(file, folderInfos[directoryName], tft);
+            ptf.preload();
+            planetTerrainMesh ptm = new planetTerrainMesh(ptf, folderInfos[directoryName], this, invertMesh);
+            ptf.generate(ptm);
+            ptm.drawMesh(materialPath);
+            ptm.hide();
+            hidingMeshes[folderInfos[directoryName]][ptf.geoPosition] = new meshContainer(ptf, ptm);
+        }
+    }
+
+    public void markInvincible(string name) {
+        invincibleFolders.Add(folderInfos[name]);
     }
 
     const float moveThreshold = 1f, rotateThreshold = 3000, fRotateThreshold = 0.01f;
@@ -78,8 +119,11 @@ public class planetTerrain
         // move and rot are basic conditions
         if (((move || rot || fRot || wait) && tick) || force)
         {
+            // load this folder
+            // TODO
             planetTerrainFolderInfo p = sortedResolutions[0];
 
+            // determine what meshes to load based on if we can see them or not
             List<geographic> desiredMeshes = new List<geographic>();
             int boundsCount = p.allBounds.Count;
             for (int i = 0; i < boundsCount; i++)
@@ -103,8 +147,7 @@ public class planetTerrain
 
                     Vector3 pos = (Vector3) ((parent.geoOnPlanet(edges[j], -200) + parent.pos - master.currentPosition - master.referenceFrame) / master.scale);
                     float z = general.camera.WorldToScreenPoint(pos).z;
-                    if (z <= planetZ && z > 0)
-                    {
+                    if (z <= planetZ && z > 0) {
                         desiredMeshes.Add(new geographic(b.min.y, b.min.x));
                         break;
                     }
@@ -114,44 +157,75 @@ public class planetTerrain
             // if we dont want to generate anything, quit
             if (desiredMeshes.Count == 0) return;
 
-            // get rid of all ptfs that are no longer seen
-            int existingMeshesCount = existingMeshes.Count;
-            List<planetTerrainFile> existingCopy = existingMeshes.Keys.ToList();
-            List<geographic> toIgnore = new List<geographic>();
-            for (int i = 0; i < existingMeshesCount; i++)
-            {
-                if (!desiredMeshes.Contains(existingCopy[i].geoPosition))
-                {
-                    existingMeshes[existingCopy[i]].clearMesh();
-                    existingMeshes.Remove(existingCopy[i]);
+            geographic[] eMeshes = existingMeshes[p].Keys.ToArray();
+            bool isInvincible = invincibleFolders.Contains(p);
+            int ignoreCount = 0;
+
+            for (int i = 0; i < eMeshes.Length; i++) {
+                if (!desiredMeshes.Contains(eMeshes[i])) {
+                    if (isInvincible) {
+                        // invincible, hide mesh and data instead of destroying
+                        hidingMeshes[p][eMeshes[i]] = existingMeshes[p][eMeshes[i]];
+                        hidingMeshes[p][eMeshes[i]].ptm.hide();
+                    } else {
+                        if (existingMeshes[p][eMeshes[i]].ptf.preloaded) {
+                            // we preloaded this file so dont actually destroy it, but still remove the mesh
+                            hidingMeshes[p][eMeshes[i]] = new meshContainer(existingMeshes[p][eMeshes[i]].ptf, null);
+                        }
+
+                        existingMeshes[p][eMeshes[i]].ptm.clearMesh();
+                    }
+
+                    existingMeshes[p].Remove(eMeshes[i]);
+                } else {
+                    toIgnore[p].Add(eMeshes[i]);
+                    ignoreCount++;
                 }
-                else toIgnore.Add(existingCopy[i].geoPosition); // these meshes have already been generated so dont regen them
             }
 
             // if we arent going to make any changes, return
-            if (toIgnore.Count == desiredMeshes.Count) return;
+            if (ignoreCount == desiredMeshes.Count) return;
 
             // generate meshes
             ConcurrentDictionary<planetTerrainFile, planetTerrainMesh> emCopy = new ConcurrentDictionary<planetTerrainFile, planetTerrainMesh>();
             List<Task> toDraw = new List<Task>();
             int desiredCount = desiredMeshes.Count;
-            for (int i = 0; i < desiredCount; i++)
-            {
-                if (toIgnore.Contains(desiredMeshes[i])) continue;
+            for (int i = 0; i < desiredCount; i++) {
+                if (toIgnore[p].Contains(desiredMeshes[i])) continue;
 
-                string predictedFileName = terrainProcessor.fileName(
-                    desiredMeshes[i],
-                    p.increment,
-                    p.type == terrainFileType.npy ? "npy" : "txt");
-                string predictedPath = Path.Combine(
-                    p.folderPath,
-                    predictedFileName);
-                
-                if (!File.Exists(predictedPath)) continue;
+                planetTerrainFile ptf = null;
+                if (hidingMeshes[p].ContainsKey(desiredMeshes[i])) {
+                    meshContainer mc = hidingMeshes[p][desiredMeshes[i]];
 
-                planetTerrainFile ptf = new planetTerrainFile(predictedPath, p, p.type);
+                    // we already have the mesh saved, so just show it
+                    if (!(mc.ptm is null)) {
+                        mc.ptm.show();
+                        existingMeshes[p][desiredMeshes[i]] = mc;
+                        hidingMeshes[p].Remove(desiredMeshes[i]);
+                    } else {
+                        Debug.Log("passed 1");
+                        // we didnt save the mesh, only the file
+                        ptf = mc.ptf;
+                    }
+                } else {
+                    // generate file normally
+                    string predictedFileName = terrainProcessor.fileName(
+                        desiredMeshes[i],
+                        p.increment,
+                        p.type == terrainFileType.npy ? "npy" : "txt");
+                    string predictedPath = Path.Combine(
+                        p.folderPath,
+                        predictedFileName);
+                    
+                    if (!File.Exists(predictedPath)) continue;
 
-                // thread the generation of ptm because it requires a large amount of mem allocation, assign it afterwards
+                    ptf = new planetTerrainFile(predictedPath, p, p.type);
+                    Debug.Log("passed 2");
+                }
+
+                // this means weve already loaded the mesh
+                if (ptf is null) continue;
+
                 Task t = new Task(() => {
                     planetTerrainMesh ptm = new planetTerrainMesh(ptf, p, this, invertMesh);
                     ptf.generate(ptm);
@@ -160,6 +234,7 @@ public class planetTerrain
                 });
                 toDraw.Add(t);
                 t.Start();
+                
             }
             await Task.WhenAll(toDraw);
 
@@ -171,7 +246,10 @@ public class planetTerrain
             }
 
             // copy emCopy over to existingMeshes
-            foreach (KeyValuePair<planetTerrainFile, planetTerrainMesh> kvp in emCopy) existingMeshes[kvp.Key] = kvp.Value;
+            foreach (KeyValuePair<planetTerrainFile, planetTerrainMesh> kvp in emCopy) existingMeshes[kvp.Key.ptfi][kvp.Key.geoPosition] = new meshContainer(kvp.Key, kvp.Value);
+
+            // clear toIgnore
+            foreach (planetTerrainFolderInfo ptfi in toIgnore.Keys) toIgnore[ptfi].Clear();
 
             lastPlayerPos = master.currentPosition;
             lastRotation = g;
@@ -179,16 +257,46 @@ public class planetTerrain
 
             if (existingMeshes.Count > 0) parent.representation.forceHide = true;
             else parent.representation.forceHide = false;
+
+            // fix issue where the program would detect the function finishing before it actually did
+            await Task.Delay(1);
         }
     }
 
     public void unloadTerrain()
     {
+        if (!terrainLoaded()) return;
+
         parent.representation.forceHide = false;
         parent.representation.setPosition(parent.pos - master.currentPosition - master.referenceFrame);
-        foreach (planetTerrainMesh ptm in existingMeshes.Values) ptm.clearMesh();
+        foreach (KeyValuePair<planetTerrainFolderInfo, Dictionary<geographic, meshContainer>> kvp in existingMeshes) {
+            if (invincibleFolders.Contains(kvp.Key)) {
+                //  copy to hiding, and dont clear
+                hidingMeshes[kvp.Key] = new Dictionary<geographic, meshContainer>(kvp.Value);
+            } else {
+                foreach (KeyValuePair<geographic, meshContainer> _kvp in kvp.Value) {
+                    if (_kvp.Value.ptf.preloaded) {
+                        // preloaded, dont delete
+                        hidingMeshes[kvp.Key][_kvp.Key] = new meshContainer(_kvp.Value.ptf, null);
+                    } else _kvp.Value.ptm.clearMesh();
+                }
+            }
+        }
 
-        existingMeshes = new Dictionary<planetTerrainFile, planetTerrainMesh>();
+        existingMeshes = new Dictionary<planetTerrainFolderInfo, Dictionary<geographic, meshContainer>>();
+        foreach (planetTerrainFolderInfo p in folderInfos.Values) existingMeshes[p] = new Dictionary<geographic, meshContainer>();
+    }
+
+    public bool terrainLoaded() => existingMeshes.Any(x => x.Value.Values.Count > 0);
+}
+
+internal struct meshContainer {
+    public planetTerrainFile ptf;
+    public planetTerrainMesh ptm;
+
+    public meshContainer(planetTerrainFile ptf, planetTerrainMesh ptm) {
+        this.ptf = ptf;
+        this.ptm = ptm;
     }
 }
 

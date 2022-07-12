@@ -81,6 +81,10 @@ public abstract class IMesh
         GameObject.Destroy(go);
     }
 
+    public void hide() {go.GetComponent<MeshRenderer>().enabled = false;}
+
+    public void show() {go.GetComponent<MeshRenderer>().enabled = true;}
+
     public void forceSetPoint(int x, int y, Vector3 v) => this.verts[toIndex(x, y)] = v;
 
     public abstract Vector3 addPoint(int x, int y, geographic g, double h);

@@ -168,7 +168,9 @@ public class controller : MonoBehaviour
         
         planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/moon/moon", false);
         //planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/earth/earth", false);
-        pt.generateFolderInfos(new string[1] {Path.Combine(Application.streamingAssetsPath, "terrain")});
+        pt.generateFolderInfos(new string[1] {Path.Combine(Application.streamingAssetsPath, "min")});
+        pt.preload(Path.Combine(Application.streamingAssetsPath, "min"), terrainFileType.npy);
+        pt.markInvincible("min");
         //planetTerrain pt = new planetTerrain(6371, 35, earth, "Materials/planets/earth/earth");
         //pt.generateFolderInfos(new string[1] {
             //"C:/Users/leozw/Desktop/divided/ultra",
