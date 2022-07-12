@@ -40,7 +40,7 @@ public class controller : MonoBehaviour
 
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
         DBReader.getData();
-        
+        ScheduleStructGenerator.testing();
         //planetTerrain pt = loadTerrain();
 
         master.pause = false;
