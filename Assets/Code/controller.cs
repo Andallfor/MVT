@@ -115,6 +115,13 @@ public class controller : MonoBehaviour
                 planetFocus.zoom = Mathf.Max(Mathf.Min(planetFocus.zoom, 75), 1);
             }
 
+            float t = UnityEngine.Time.deltaTime;
+            float r = planetFocus.zoom / 40f;
+            if (Input.GetKey("w")) general.camera.transform.position += general.camera.transform.up * r * t;
+            if (Input.GetKey("s")) general.camera.transform.position -= general.camera.transform.up * r * t;
+            if (Input.GetKey("d")) general.camera.transform.position += general.camera.transform.right * r * t;
+            if (Input.GetKey("a")) general.camera.transform.position -= general.camera.transform.right * r * t;
+
             planetFocus.update();
         } else {
             if (Input.GetMouseButton(1) && !EventSystem.current.IsPointerOverGameObject())
