@@ -9,6 +9,7 @@ using System;
 using System.Data;
 using System.Net;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 public static class ScheduleStructGenerator
 {
@@ -18,7 +19,27 @@ public static class ScheduleStructGenerator
         string filePath = "Assets/Resources/SchedulingJSONS/LunarWindows-ArtemisIII_06_30_22.json";
         JObject json = JObject.Parse(File.ReadAllText(filePath)); 
         Scenario scenario = new Scenario();
-        
+        scenario.epochTime = (string) json["epochTime"];
+        scenario.fileGenDate = (string) json["fileGenDate"];
+        List<Window> windList = new List<Window>();
+        foreach (var window in json["windows"])
+        {
+            Window wind = new Window();
+            foreach (var block in window["windows"])
+            {                
+                wind.frequency = (string)window["frequency"];
+                wind.source = (string)window["source"];
+                wind.destination = (string)window["destination"];
+                wind.rate = (double)window["rate"];
+                wind.start = (double)block[0];
+                wind.stop = (double)block[1];
+                wind.duration = (double)block[2];
+            }
+            windList.Add(wind);
+        }
+        scenario.windows = windList;
+        string print = JsonConvert.SerializeObject(scenario);
+        Debug.Log(print);
     }
 }
 
@@ -32,7 +53,7 @@ public struct Scenario
 
 public struct Window
 {
-    public string freqency;
+    public string frequency;
     public string source;
     public string destination;
     public double rate;
