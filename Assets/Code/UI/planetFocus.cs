@@ -13,7 +13,6 @@ public static class planetFocus
     public static planet focus {get; private set;}
     public static facility hoveringOver = null;
 
-
     public static void enable(bool use) {
         _upf = use;
         if (use) {
@@ -34,8 +33,10 @@ public static class planetFocus
     }
 
     public static void update() {
+        Vector3 ogPos = general.camera.transform.position;
         general.camera.transform.RotateAround(focus.representation.gameObject.transform.position, general.camera.transform.right, rotation.x);
         general.camera.transform.RotateAround(focus.representation.gameObject.transform.position, general.camera.transform.up, rotation.y);
+
         general.camera.transform.rotation *= Quaternion.AngleAxis(rotation.z, Vector3.forward);
 
         general.camera.fieldOfView = zoom;

@@ -307,7 +307,7 @@ public static class terrainProcessor
                     sb.AppendLine($"pointsPerCoord    {pointsPerCoord}");
                     sb.AppendLine($"filesPerTile      {res.count}");
                     sb.AppendLine($"generationStep    {res.step}");
-                    sb.AppendLine($"name              {Path.GetDirectoryName(res.dest)}");
+                    sb.AppendLine($"name              {new DirectoryInfo(res.dest).Name}");
                     sb.AppendLine($"increment         (lat={increase.lat}_lon={increase.lon})");
                     sb.AppendLine($"type              npy");
 

@@ -62,8 +62,8 @@ public class planetTerrainFile
     private void generateNpy(planetTerrainMesh m) {
         NDArray data = preloaded ? npData : np.load(path);
 
-        for (int row = 0; row < data.shape[0] - 1; row++) {
-            for (int col = 0; col < data.shape[1] - 1; col++) {
+        for (int row = 0; row < data.shape[0]; row++) {
+            for (int col = 0; col < data.shape[1]; col++) {
                 int rowOffset = (int) data.shape[0] - 1 - row;
                 m.addPoint(col + 1, row + 1, cartToGeo(col, row), (short) data[rowOffset, col]);
             }

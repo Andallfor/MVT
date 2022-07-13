@@ -74,7 +74,7 @@ public class planetTerrainMesh : IMesh
             geographic east = ptf.cartToGeo((int) ptf.ncols, y - 1);
             addPoint((int) ptf.ncols + 1, y, east, getHeight(this.verts[toIndex((int) ptf.ncols, y)]));
 
-            geographic west = ptf.cartToGeo(-1, y - 1);
+            geographic west = ptf.cartToGeo(-1, y);
             addPoint(0, y, west, getHeight(this.verts[toIndex(1, y)]));
         }
     }

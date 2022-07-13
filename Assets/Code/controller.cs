@@ -45,7 +45,11 @@ public class controller : MonoBehaviour
         csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
         //terrainProcessor.divideJpeg2000("C:/Users/leozw/Desktop/lunar", "C:/Users/leozw/Desktop/preparedLunar", new List<terrainResolution>() {
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/min", 1, 96)
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/low", 1, 96),
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/medium", 1, 80),
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/high", 4, 40),
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/extreme", 16, 24),
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/ultra", 100, 8),
         //});
 
         pt = loadTerrain();
@@ -111,16 +115,16 @@ public class controller : MonoBehaviour
             }
 
             if (Input.mouseScrollDelta.y != 0) {
-                planetFocus.zoom -= Input.mouseScrollDelta.y * UnityEngine.Time.deltaTime * 500f;
-                planetFocus.zoom = Mathf.Max(Mathf.Min(planetFocus.zoom, 75), 1);
+                planetFocus.zoom -= Mathf.Sign(Input.mouseScrollDelta.y) * planetFocus.zoom / 10f;
+                planetFocus.zoom = Mathf.Max(Mathf.Min(planetFocus.zoom, 75), 0.25f);
             }
 
             float t = UnityEngine.Time.deltaTime;
-            float r = planetFocus.zoom / 40f;
-            if (Input.GetKey("w")) general.camera.transform.position += general.camera.transform.up * r * t;
-            if (Input.GetKey("s")) general.camera.transform.position -= general.camera.transform.up * r * t;
-            if (Input.GetKey("d")) general.camera.transform.position += general.camera.transform.right * r * t;
-            if (Input.GetKey("a")) general.camera.transform.position -= general.camera.transform.right * r * t;
+            float r = planetFocus.zoom / 80f;
+            if (Input.GetKey("w")) master.currentPosition += general.camera.transform.up * playerSpeed * t * r;
+            if (Input.GetKey("s")) master.currentPosition -= general.camera.transform.up * playerSpeed * t * r;
+            if (Input.GetKey("d")) master.currentPosition += general.camera.transform.right * playerSpeed * t * r;
+            if (Input.GetKey("a")) master.currentPosition -= general.camera.transform.right * playerSpeed * t * r;
 
             planetFocus.update();
         } else {
@@ -175,9 +179,15 @@ public class controller : MonoBehaviour
         
         planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/moon/moon", false);
         //planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/earth/earth", false);
-        pt.generateFolderInfos(new string[1] {Path.Combine(Application.streamingAssetsPath, "min")});
-        pt.preload(Path.Combine(Application.streamingAssetsPath, "min"), terrainFileType.npy);
-        pt.markInvincible("min");
+        pt.generateFolderInfos(new string[4] {
+            Path.Combine(Application.streamingAssetsPath, "low"),
+            Path.Combine(Application.streamingAssetsPath, "medium"),
+            Path.Combine(Application.streamingAssetsPath, "high"),
+            Path.Combine(Application.streamingAssetsPath, "extreme"),
+            //Path.Combine(Application.streamingAssetsPath, "ultra"),
+        });
+        pt.preload(Path.Combine(Application.streamingAssetsPath, "low"), terrainFileType.npy);
+        pt.markInvincible("low");
         //planetTerrain pt = new planetTerrain(6371, 35, earth, "Materials/planets/earth/earth");
         //pt.generateFolderInfos(new string[1] {
             //"C:/Users/leozw/Desktop/divided/ultra",

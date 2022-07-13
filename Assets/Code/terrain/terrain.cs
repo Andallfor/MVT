@@ -90,6 +90,12 @@ public class planetTerrain
         invincibleFolders.Add(folderInfos[name]);
     }
 
+    private List<Vector2> screenCorners = new List<Vector2>() {
+        new Vector2(0, 0),
+        new Vector2(Screen.width, 0),
+        new Vector2(Screen.width, Screen.height),
+        new Vector2(0, Screen.height)};
+
     const float moveThreshold = 1f, rotateThreshold = 3000, fRotateThreshold = 0.01f;
     const int tickThreshold = 60; // terrain can only update every x ticks
     position lastPlayerPos, lastRotation;
@@ -118,153 +124,221 @@ public class planetTerrain
         // tick is necessary for basic conditions
         // move and rot are basic conditions
         if (((move || rot || fRot || wait) && tick) || force)
-        {
-            // load this folder
-            // TODO
-            planetTerrainFolderInfo p = sortedResolutions[0];
+        {   
+            Dictionary<planetTerrainFolderInfo, List<geographic>> allDesiredMeshes = new Dictionary<planetTerrainFolderInfo, List<geographic>>();
+            foreach (planetTerrainFolderInfo ptfi in folderInfos.Values) allDesiredMeshes[ptfi] = new List<geographic>();
+            List<planetTerrainMesh> toKill = new List<planetTerrainMesh>();
 
-            // determine what meshes to load based on if we can see them or not
-            List<geographic> desiredMeshes = new List<geographic>();
-            int boundsCount = p.allBounds.Count;
-            for (int i = 0; i < boundsCount; i++)
-            {
-                Bounds b = p.allBounds[i];
-                List<geographic> edges = new List<geographic>() {
-                    new geographic(b.min.y, b.min.x),
-                    new geographic(b.max.y, b.max.x),
-                    new geographic(b.min.y, b.max.x),
-                    new geographic(b.max.y, b.min.x)};
-                
-                for (int j = 0; j < 4; j++)
-                {
-                    /*for some godforsaken reason raycasting just does not seem to fucking work no matter what i try
-                    I have spent a total of 3 hours on this shit, and cannot get it to work so im writing my own detection algorithm instead
-                    I even fucking copy pasted values from FacilityRepresentation.cs *that worked* but here and in other scripts they dont for some fucking reason
-                    I give up, i dont ever want to see this shit again and holy fuck i have no idea why it doesnt work- the raycast visibly passes through the collider
-                    and again, TESTING VALUES THAT WORK results in a failure
-                    I cant even find anything online- everything they said I've already done
-                    its so fucking retarded i want to die*/
+            for (int i = 0; i < sortedResolutions[0].allBounds.Count; i++) findDesiredMeshes(ref allDesiredMeshes, sortedResolutions[0].allBounds[i], 0, planetZ);
 
-                    Vector3 pos = (Vector3) ((parent.geoOnPlanet(edges[j], -200) + parent.pos - master.currentPosition - master.referenceFrame) / master.scale);
-                    float z = general.camera.WorldToScreenPoint(pos).z;
-                    if (z <= planetZ && z > 0) {
-                        desiredMeshes.Add(new geographic(b.min.y, b.min.x));
-                        break;
-                    }
-                }
-            }
+            for (int j = 0; j < sortedResolutions.Count; j++) {
+                planetTerrainFolderInfo p = sortedResolutions[j];
+                List<geographic> desiredMeshes = allDesiredMeshes[p].Distinct().ToList();
 
-            // if we dont want to generate anything, quit
-            if (desiredMeshes.Count == 0) return;
+                // if we dont want to generate anything, quit
+                if (desiredMeshes.Count == 0 && existingMeshes[p].Count == 0) continue;
 
-            geographic[] eMeshes = existingMeshes[p].Keys.ToArray();
-            bool isInvincible = invincibleFolders.Contains(p);
-            int ignoreCount = 0;
+                // we want to generate higher resolution terrain, so dont load anything from lower resolutions
+                // TODO: this is a bug -> we should not be getting higher resolution in allDesiredMeshes
+                if (j != sortedResolutions.Count - 1 && allDesiredMeshes[sortedResolutions[j + 1]].Count > 0) allDesiredMeshes[p] = new List<geographic>();
 
-            for (int i = 0; i < eMeshes.Length; i++) {
-                if (!desiredMeshes.Contains(eMeshes[i])) {
-                    if (isInvincible) {
-                        // invincible, hide mesh and data instead of destroying
-                        hidingMeshes[p][eMeshes[i]] = existingMeshes[p][eMeshes[i]];
-                        hidingMeshes[p][eMeshes[i]].ptm.hide();
-                    } else {
-                        if (existingMeshes[p][eMeshes[i]].ptf.preloaded) {
-                            // we preloaded this file so dont actually destroy it, but still remove the mesh
-                            hidingMeshes[p][eMeshes[i]] = new meshContainer(existingMeshes[p][eMeshes[i]].ptf, null);
+                geographic[] eMeshes = existingMeshes[p].Keys.ToArray();
+                bool isInvincible = invincibleFolders.Contains(p);
+                int ignoreCount = 0;
+
+                // figure out what to do with the meshes we no longer need
+                for (int i = 0; i < eMeshes.Length; i++) {
+                    if (!desiredMeshes.Contains(eMeshes[i])) {
+                        if (isInvincible) {
+                            // invincible, hide mesh and data instead of destroying
+                            hidingMeshes[p][eMeshes[i]] = existingMeshes[p][eMeshes[i]];
+                            hidingMeshes[p][eMeshes[i]].ptm.hide();
+                        } else {
+                            if (existingMeshes[p][eMeshes[i]].ptf.preloaded) {
+                                // we preloaded this file so dont actually destroy it, but still remove the mesh
+                                hidingMeshes[p][eMeshes[i]] = new meshContainer(existingMeshes[p][eMeshes[i]].ptf, null);
+                            }
+
+                            //toKill.Add(existingMeshes[p][eMeshes[i]].ptm);
+                            existingMeshes[p][eMeshes[i]].ptm.clearMesh();
                         }
 
-                        existingMeshes[p][eMeshes[i]].ptm.clearMesh();
-                    }
-
-                    existingMeshes[p].Remove(eMeshes[i]);
-                } else {
-                    toIgnore[p].Add(eMeshes[i]);
-                    ignoreCount++;
-                }
-            }
-
-            // if we arent going to make any changes, return
-            if (ignoreCount == desiredMeshes.Count) return;
-
-            // generate meshes
-            ConcurrentDictionary<planetTerrainFile, planetTerrainMesh> emCopy = new ConcurrentDictionary<planetTerrainFile, planetTerrainMesh>();
-            List<Task> toDraw = new List<Task>();
-            int desiredCount = desiredMeshes.Count;
-            for (int i = 0; i < desiredCount; i++) {
-                if (toIgnore[p].Contains(desiredMeshes[i])) continue;
-
-                planetTerrainFile ptf = null;
-                if (hidingMeshes[p].ContainsKey(desiredMeshes[i])) {
-                    meshContainer mc = hidingMeshes[p][desiredMeshes[i]];
-
-                    // we already have the mesh saved, so just show it
-                    if (!(mc.ptm is null)) {
-                        mc.ptm.show();
-                        existingMeshes[p][desiredMeshes[i]] = mc;
-                        hidingMeshes[p].Remove(desiredMeshes[i]);
+                        existingMeshes[p].Remove(eMeshes[i]);
                     } else {
-                        Debug.Log("passed 1");
-                        // we didnt save the mesh, only the file
-                        ptf = mc.ptf;
+                        toIgnore[p].Add(eMeshes[i]);
+                        ignoreCount++;
                     }
-                } else {
-                    // generate file normally
-                    string predictedFileName = terrainProcessor.fileName(
-                        desiredMeshes[i],
-                        p.increment,
-                        p.type == terrainFileType.npy ? "npy" : "txt");
-                    string predictedPath = Path.Combine(
-                        p.folderPath,
-                        predictedFileName);
-                    
-                    if (!File.Exists(predictedPath)) continue;
-
-                    ptf = new planetTerrainFile(predictedPath, p, p.type);
-                    Debug.Log("passed 2");
                 }
 
-                // this means weve already loaded the mesh
-                if (ptf is null) continue;
+                // if we arent going to make any changes, return
+                if (ignoreCount == desiredMeshes.Count) continue;
 
-                Task t = new Task(() => {
-                    planetTerrainMesh ptm = new planetTerrainMesh(ptf, p, this, invertMesh);
-                    ptf.generate(ptm);
+                // generate meshes
+                ConcurrentDictionary<planetTerrainFile, planetTerrainMesh> emCopy = new ConcurrentDictionary<planetTerrainFile, planetTerrainMesh>();
+                List<Task> toDraw = new List<Task>();
+                int desiredCount = desiredMeshes.Count;
+                for (int i = 0; i < desiredCount; i++) {
+                    if (toIgnore[p].Contains(desiredMeshes[i])) continue;
 
-                    emCopy.TryAdd(ptf, ptm);
-                });
-                toDraw.Add(t);
-                t.Start();
-                
+                    planetTerrainFile ptf = null;
+                    if (hidingMeshes[p].ContainsKey(desiredMeshes[i])) {
+                        meshContainer mc = hidingMeshes[p][desiredMeshes[i]];
+
+                        // we already have the mesh saved, so just show it
+                        if (!(mc.ptm is null)) {
+                            mc.ptm.show();
+                            existingMeshes[p][desiredMeshes[i]] = mc;
+                            hidingMeshes[p].Remove(desiredMeshes[i]);
+                        } else {
+                            // we didnt save the mesh, only the file
+                            ptf = mc.ptf;
+                        }
+                    } else {
+                        // generate file normally
+                        string predictedFileName = terrainProcessor.fileName(
+                            desiredMeshes[i],
+                            p.increment,
+                            p.type == terrainFileType.npy ? "npy" : "txt");
+                        string predictedPath = Path.Combine(
+                            p.folderPath,
+                            predictedFileName);
+                        
+                        if (!File.Exists(predictedPath)) continue;
+
+                        ptf = new planetTerrainFile(predictedPath, p, p.type);
+                    }
+
+                    // this means weve already loaded the mesh
+                    if (ptf is null) continue;
+
+                    Task t = new Task(() => {
+                        planetTerrainMesh ptm = new planetTerrainMesh(ptf, p, this, invertMesh);
+                        ptf.generate(ptm);
+
+                        emCopy.TryAdd(ptf, ptm);
+                    });
+                    toDraw.Add(t);
+                    t.Start();
+                    
+                }
+                await Task.WhenAll(toDraw);
+
+                // dont generate all meshes at once, generate them one a time (to prevent freezing)
+                // cannot thread mesh generation so this seems to be the best option
+                foreach (planetTerrainMesh ptm in emCopy.Values) {
+                    ptm.drawMesh(materialPath);
+                    await Task.Delay(5); // TODO: maybe replace with value that is determined by how fast the terrain gens?
+                }
+
+                // copy emCopy over to existingMeshes
+                foreach (KeyValuePair<planetTerrainFile, planetTerrainMesh> kvp in emCopy) existingMeshes[kvp.Key.ptfi][kvp.Key.geoPosition] = new meshContainer(kvp.Key, kvp.Value);
+
+                // clear toIgnore
+                toIgnore[p].Clear();
             }
-            await Task.WhenAll(toDraw);
-
-            // dont generate all meshes at once, generate them one a time (to prevent freezing)
-            // cannot thread mesh generation so this seems to be the best option
-            foreach (planetTerrainMesh ptm in emCopy.Values) {
-                ptm.drawMesh(materialPath);
-                await Task.Delay(5); // TODO: maybe replace with value that is determined by how fast the terrain gens?
-            }
-
-            // copy emCopy over to existingMeshes
-            foreach (KeyValuePair<planetTerrainFile, planetTerrainMesh> kvp in emCopy) existingMeshes[kvp.Key.ptfi][kvp.Key.geoPosition] = new meshContainer(kvp.Key, kvp.Value);
-
-            // clear toIgnore
-            foreach (planetTerrainFolderInfo ptfi in toIgnore.Keys) toIgnore[ptfi].Clear();
 
             lastPlayerPos = master.currentPosition;
             lastRotation = g;
-            lastTick = master.currentTick;
+            if (!wait) lastTick = master.currentTick;
 
-            if (existingMeshes.Count > 0) parent.representation.forceHide = true;
+            if (terrainLoaded()) parent.representation.forceHide = true;
             else parent.representation.forceHide = false;
 
             // fix issue where the program would detect the function finishing before it actually did
             await Task.Delay(1);
+
+            //foreach (planetTerrainMesh ptm in toKill) ptm.clearMesh();
+            //toKill = new List<planetTerrainMesh>();
         }
     }
 
-    public void unloadTerrain()
-    {
+    private void findDesiredMeshes(ref Dictionary<planetTerrainFolderInfo, List<geographic>> map, Bounds b, int resolutionIndex, float planetZ) {
+        List<geographic> edges = new List<geographic>() {
+            new geographic(b.min.y, b.min.x), // sw
+            new geographic(b.max.y, b.max.x), // ne
+            new geographic(b.min.y, b.max.x), // se
+            new geographic(b.max.y, b.min.x)}; // nw
+        
+        List<Vector3> screenEdges = new List<Vector3>();
+        
+        geographic avg = new geographic(0.5 * (b.max.y + b.min.y), 0.5 * (b.max.x + b.min.x));
+        bool valid = false;
+        
+        for (int j = 0; j < 4; j++)
+        {
+            // check if visible
+            position geoPos = parent.geoOnPlanet(edges[j], 0) + parent.pos;
+            position playerPos = master.currentPosition + master.referenceFrame;
+            Vector3 worldPos = (Vector3) ((geoPos - master.currentPosition - master.referenceFrame) / master.scale);
+            
+            // check if point is behind the player / hidden by planet
+            Vector3 v = general.camera.WorldToScreenPoint(worldPos);
+            screenEdges.Add(v);
+
+            // is point within screen bounds
+            if (v.x < 0 || v.y < 0 || v.x > Screen.width || v.y > Screen.height || v.z < 0 || v.z > planetZ) continue;
+
+            valid = true;
+        }
+
+        // check if the player is instead fully within the bounds (and cannot see the corners)
+        if (!valid) {
+            Vector2 min = new Vector2(100000000, 10000000);
+            Vector2 max = new Vector2(-100000000, -10000000);
+            int failureCount = 0;
+            foreach (Vector3 v in screenEdges) {
+                if (v.z < 0 || v.z > planetZ) failureCount++;
+
+                if (v.x < min.x) min.x = v.x;
+                if (v.y < min.y) min.y = v.y;
+                if (v.x > max.x) max.x = v.x;
+                if (v.y > max.y) max.y = v.y;
+            }
+
+            if (failureCount != 4) {
+                for (int j = 0; j < 4; j++) {
+                    // check if any screen corner is within the bounds of the mesh
+                    Vector2 v = screenCorners[j];
+                    if (v.x > min.x && v.y > min.y && v.x < max.x && v.y < max.y) {
+                        valid = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (valid) {
+            // at end of possible resolutions
+            if (resolutionIndex == sortedResolutions.Count - 1) map[sortedResolutions[resolutionIndex]].Add(new geographic(b.min.y, b.min.x));
+            // check if the mesh is smaller then the screen
+            else {
+                double angle = Math.Atan2(screenEdges[2].y - screenEdges[0].y, screenEdges[2].x - screenEdges[0].x);
+                double xl = Vector3.Distance(screenEdges[0], screenEdges[2]);
+                double yl = Vector3.Distance(screenEdges[0], screenEdges[3]);
+                double txl = Math.Abs(xl * Math.Sin(angle)) + Math.Abs(yl * Math.Cos(angle));
+                double tyl = Math.Abs(xl * Math.Cos(angle)) + Math.Abs(yl * Math.Cos(angle));
+
+                if (Screen.height * Screen.width < 0.25 * txl * tyl) {
+                    // mesh is valid, but this isnt the best resolution (as we havent exhausted all resolutions, and mesh is bigger then the screen)
+                    // so get the next resolution
+                    planetTerrainFolderInfo nextResolution = sortedResolutions[resolutionIndex + 1];
+                    double diagonalDist = edges[0].distAs2DVector(edges[1]);
+
+                    for (int i = 0; i < nextResolution.allBounds.Count; i++) {
+                        Bounds bound = nextResolution.allBounds[i];
+                        geographic g = new geographic(bound.min.y, bound.min.x);
+
+                        if (map[sortedResolutions[resolutionIndex]].Contains(g)) continue;
+
+                        // bound is close enough to be considered
+                        if (g.distAs2DVector(edges[0]) <= diagonalDist) findDesiredMeshes(ref map, bound, resolutionIndex + 1, planetZ);
+                    }
+                } else map[sortedResolutions[resolutionIndex]].Add(edges[0]); // mesh is fully visible, we've reached the best resolution
+            }
+        }
+    }
+
+    public void unloadTerrain() {
         if (!terrainLoaded()) return;
 
         parent.representation.forceHide = false;
