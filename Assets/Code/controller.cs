@@ -39,8 +39,13 @@ public class controller : MonoBehaviour
 
 
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
-        DBReader.getData();
+        //DBReader.getData();
+        Debug.Log("Generating DB.....");
         ScheduleStructGenerator.genDB();
+        //Debug.Log("Generating conflict list.....");
+        //ScheduleStructGenerator.createConflictList();
+        //Debug.Log("Testing.....");
+        //ScheduleStructGenerator.test();
         //planetTerrain pt = loadTerrain();
 
         master.pause = false;
