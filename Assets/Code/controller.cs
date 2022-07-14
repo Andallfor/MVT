@@ -393,6 +393,9 @@ public class controller : MonoBehaviour
     }
     private void Artemis3()
     {
+        List<satellite> moonSats =  new List<satellite>();
+        List<satellite> earthSats =  new List<satellite>();
+        
       Debug.Log("Time Start");
 
       representationData rd = new representationData(
@@ -461,6 +464,7 @@ public class controller : MonoBehaviour
                 satellite sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"]/1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), MoonMu)), srd);
                 sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
                 satellite.addFamilyNode(moon, sat);
+                moonSats.Add(sat);
 
               }
               else if (dict["CentralBody"] == "Earth")
@@ -469,6 +473,7 @@ public class controller : MonoBehaviour
                 satellite sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"]/1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), EarthMu)), srd);
                 sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
                 satellite.addFamilyNode(earth, sat);
+                earthSats.Add(sat);
 
               }
             }
@@ -480,6 +485,7 @@ public class controller : MonoBehaviour
                 satellite sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneMin), srd);
                 sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
                 satellite.addFamilyNode(moon, sat);
+                moonSats.Add(sat);
 
               }
               else if (dict["CentralBody"] == "Earth")
@@ -487,6 +493,7 @@ public class controller : MonoBehaviour
                 satellite sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneMin), srd);
                 sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
                 satellite.addFamilyNode(earth, sat);
+                earthSats.Add(sat);
               }
             }
           break;
@@ -564,6 +571,9 @@ public class controller : MonoBehaviour
         }
       }
       master.setReferenceFrame(moon);
+      master.relationshipPlanet[earth] = new List<planet>() {moon};
+      master.relationshipSatellite[moon] = moonSats;
+      master.relationshipSatellite[earth] = earthSats;
     }
 
 }

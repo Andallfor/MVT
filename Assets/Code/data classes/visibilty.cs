@@ -31,44 +31,44 @@ public static class visibility
     }
   }
 
-  public static double dotProducts(position vector1, position vector2)
+  public static double dotProduct(position vector1, position vector2)
   {
-    double dot = vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z;
-    double a = Math.Sqrt(vector1.x * vector1.x + vector1.y * vector1.y + vector1.z * vector1.z);
-    double b = Math.Sqrt(vector2.x * vector2.x + vector2.y * vector2.y + vector2.z * vector2.z);
+    double dot = vector2.x * vector1.x + vector2.y * vector1.y + vector2.z * vector1.z;
+    double abs1 = Math.Sqrt(vector2.x * vector2.x + vector2.y * vector2.y + vector2.z * vector2.z);
+    double abs2 = Math.Sqrt(vector1.x * vector1.x + vector1.y * vector1.y + vector1.z * vector1.z);
 
-    double theta = Math.Acos(dot/(a*b));
+    double theta = Math.Acos(dot/(abs1 * abs2)) * 180 / Math.PI;
+
     return theta;
   }
 
   private static double raycastMath(position position1, position position2, position obj)
   {
     position vector1 = new position(
-    position1.x + -1 * position1.x,
-    position1.y + -1 * position1.y,
-    position1.z + -1 * position1.z
+      position1.x * -1 + position1.x,
+      position1.y * -1 + position1.y,
+      position1.z * -1 + position1.z
     );
 
     position vector2 = new position(
-    position2.x + -1 * position1.x,
-    position2.y + -1 * position1.y,
-    position2.z + -1 * position1.z
+      position1.x * -1 + position2.x,
+      position1.y * -1 + position2.y,
+      position1.z * -1 + position2.z
     );
 
     position vectorOBJ = new position(
-    obj.x + -1 * position1.x,
-    obj.y + -1 * position1.y,
-    obj.z + -1 * position1.z
+      position1.x * -1 + obj.x,
+      position1.y * -1 + obj.y,
+      position1.z * -1 + obj.z
     );
 
-    double theta = dotProducts(vector2, vectorOBJ);
+    double theta = dotProduct(vectorOBJ, vector2);
 
     double distance1 = position.distance(position1, obj);
 
     double distanceFromObj = Math.Sin(theta) * distance1;
 
     return distanceFromObj;
-
   }
   /// <summary> This is the main raycast function for our program and it takes in 5 arguments. The final argument if set true will return a list of all the hit objects, but if it is set to false the program will break after the first object is hit </summary>
   public static raycastInfo raycast(position p1, position p2, raycastParameters flags, int defaultRadius, bool returnAllHit)

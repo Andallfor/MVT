@@ -15,11 +15,11 @@ public class linkBudgeting
     {
       foreach(KeyValuePair<string, (bool, double, double)> user in master.users)
       {
+
         if (((master.time.julian > provider.Value.Item2 & master.time.julian < provider.Value.Item3) & (master.time.julian > user.Value.Item2 & master.time.julian < user.Value.Item3)) == true)
         {
           if (user.Key != provider.Key)
           {
-
             switch (provider.Value.Item1)
             {
               case false:
@@ -28,6 +28,7 @@ public class linkBudgeting
                 {
                   satellite _provider = master.allSatellites.Find(x => x.name == provider.Key);
                   satellite _user = master.allSatellites.Find(x => x.name == user.Key);
+
                   if (visibility.raycast(_provider.pos, _user.pos, visibility.raycastParameters.planet, 1, false).hit == false)
                   {
                     master.connections.Add(master.time + ": " + provider.Key + " to " + user.Key);
@@ -55,6 +56,7 @@ public class linkBudgeting
 
                 if (user.Value.Item1 == false)
                 {
+
                   facility _provider = master.allFacilites.Find(x => x.name == provider.Key);
                   satellite _user = master.allSatellites.Find(x => x.name == user.Key);
                   //inset altitude here later
