@@ -82,8 +82,8 @@ public static class planetFocus
         }
 
         if (Input.GetMouseButtonDown(0) && target is facility) {
-            planetFocus.enable(false);
-            facilityFocus.enable(true, target.name);
+            //planetFocus.enable(false);
+            //facilityFocus.enable(true, target.name);
         }
     }
 }

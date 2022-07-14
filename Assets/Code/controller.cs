@@ -45,11 +45,12 @@ public class controller : MonoBehaviour
         csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
         //terrainProcessor.divideJpeg2000("C:/Users/leozw/Desktop/lunar", "C:/Users/leozw/Desktop/preparedLunar", new List<terrainResolution>() {
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/low", 1, 96),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/medium", 1, 80),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/high", 4, 40),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/extreme", 16, 24),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/ultra", 100, 8),
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/1", 1, 96),
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/2", 4, 48),
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/3", 16, 24),
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/4", 64, 12),
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/5", 256, 6),
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/6", 1024, 3),
         //});
 
         pt = loadTerrain();
@@ -115,16 +116,16 @@ public class controller : MonoBehaviour
             }
 
             if (Input.mouseScrollDelta.y != 0) {
-                planetFocus.zoom -= Mathf.Sign(Input.mouseScrollDelta.y) * planetFocus.zoom / 10f;
+                planetFocus.zoom -= Input.mouseScrollDelta.y * planetFocus.zoom / 10f;
                 planetFocus.zoom = Mathf.Max(Mathf.Min(planetFocus.zoom, 75), 0.25f);
             }
 
             float t = UnityEngine.Time.deltaTime;
-            float r = planetFocus.zoom / 80f;
-            if (Input.GetKey("w")) master.currentPosition += general.camera.transform.up * playerSpeed * t * r;
-            if (Input.GetKey("s")) master.currentPosition -= general.camera.transform.up * playerSpeed * t * r;
-            if (Input.GetKey("d")) master.currentPosition += general.camera.transform.right * playerSpeed * t * r;
-            if (Input.GetKey("a")) master.currentPosition -= general.camera.transform.right * playerSpeed * t * r;
+            float r = planetFocus.zoom / 40f;
+            if (Input.GetKey("w")) general.camera.transform.position += general.camera.transform.up * r * t;
+            if (Input.GetKey("s")) general.camera.transform.position -= general.camera.transform.up * r * t;
+            if (Input.GetKey("d")) general.camera.transform.position += general.camera.transform.right * r * t;
+            if (Input.GetKey("a")) general.camera.transform.position -= general.camera.transform.right * r * t;
 
             planetFocus.update();
         } else {
@@ -176,18 +177,32 @@ public class controller : MonoBehaviour
         
         //List<nearbyFacilites> nfs = highResTerrain.neededAreas();
         //foreach (nearbyFacilites nf in nfs) Debug.Log(nf);
+
+        string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT");
+
+        if (!Directory.Exists(p)) {
+            Directory.CreateDirectory(p);
+
+            // TODO: THIS ONLY WORKS IN EDITOR
+            string t = Path.Combine(Directory.GetParent(Application.dataPath).FullName, "terrain");
+            foreach (string folder in Directory.EnumerateDirectories(t)) {
+                Directory.Move(folder, Path.Combine(p, new DirectoryInfo(folder).Name));
+            }
+        }
         
         planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/moon/moon", false);
         //planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/earth/earth", false);
-        pt.generateFolderInfos(new string[4] {
-            Path.Combine(Application.streamingAssetsPath, "low"),
-            Path.Combine(Application.streamingAssetsPath, "medium"),
-            Path.Combine(Application.streamingAssetsPath, "high"),
-            Path.Combine(Application.streamingAssetsPath, "extreme"),
-            //Path.Combine(Application.streamingAssetsPath, "ultra"),
+
+        
+        pt.generateFolderInfos(new string[5] {
+            Path.Combine(p, "1"),
+            Path.Combine(p, "2"),
+            Path.Combine(p, "3"),
+            Path.Combine(p, "4"),
+            Path.Combine(p, "5")
         });
-        pt.preload(Path.Combine(Application.streamingAssetsPath, "low"), terrainFileType.npy);
-        pt.markInvincible("low");
+        pt.preload(Path.Combine(p, "1"), terrainFileType.npy);
+        pt.markInvincible("1");
         //planetTerrain pt = new planetTerrain(6371, 35, earth, "Materials/planets/earth/earth");
         //pt.generateFolderInfos(new string[1] {
             //"C:/Users/leozw/Desktop/divided/ultra",

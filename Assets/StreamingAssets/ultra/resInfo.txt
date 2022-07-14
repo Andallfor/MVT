@@ -1,9 +1,0 @@
-ncols             23040
-nrows             11520
-cellsize          0.015625
-pointsPerCoord    64
-filesPerTile      100
-generationStep    8
-name              ultra
-increment         (lat=3_lon=4.5)
-type              npy

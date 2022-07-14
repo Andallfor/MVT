@@ -1,9 +1,0 @@
-ncols             2304
-nrows             1152
-cellsize          0.15625
-pointsPerCoord    6.4
-filesPerTile      1
-generationStep    80
-name              medium
-increment         (lat=30_lon=45)
-type              npy

@@ -1,9 +1,0 @@
-ncols             4608
-nrows             2304
-cellsize          0.078125
-pointsPerCoord    12.8
-filesPerTile      4
-generationStep    40
-name              high
-increment         (lat=15_lon=22.5)
-type              npy

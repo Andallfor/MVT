@@ -1,9 +1,0 @@
-ncols             7680
-nrows             3840
-cellsize          0.046875
-pointsPerCoord    21.3333333333333
-filesPerTile      16
-generationStep    24
-name              extreme
-increment         (lat=7.5_lon=11.25)
-type              npy

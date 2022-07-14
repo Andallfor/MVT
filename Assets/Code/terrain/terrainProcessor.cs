@@ -238,8 +238,13 @@ public static class terrainProcessor
         string headerFolder = Path.Combine(outputPath, "headers");
         string maxFolder = Path.Combine(outputPath, "max");
         Directory.CreateDirectory(headerFolder);
-        Directory.CreateDirectory(maxFolder);
+        if (copyMax) Directory.CreateDirectory(maxFolder);
         bool createdResInfo = false;
+
+        foreach (terrainResolution res in resolutions) {
+            if (Directory.Exists(res.dest)) Directory.Delete(res.dest);
+            Directory.CreateDirectory(res.dest);
+        }
 
         // n, e, s, w
         Dictionary<string, Dictionary<string, NDArray>> boundaries = new Dictionary<string, Dictionary<string, NDArray>>();
