@@ -31,48 +31,41 @@ public static class visibility
     }
   }
 
+  public static double dotProducts(position vector1, position vector2)
+  {
+    double dot = vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z;
+    double a = Math.Sqrt(vector1.x * vector1.x + vector1.y * vector1.y + vector1.z * vector1.z);
+    double b = Math.Sqrt(vector2.x * vector2.x + vector2.y * vector2.y + vector2.z * vector2.z);
+
+    double theta = Math.Acos(dot/(a*b));
+    return theta;
+  }
+
   private static double raycastMath(position position1, position position2, position obj)
   {
+    position vector1 = new position(
+    position1.x + -1 * position1.x,
+    position1.y + -1 * position1.y,
+    position1.z + -1 * position1.z
+    );
+
+    position vector2 = new position(
+    position2.x + -1 * position1.x,
+    position2.y + -1 * position1.y,
+    position2.z + -1 * position1.z
+    );
+
+    position vectorOBJ = new position(
+    obj.x + -1 * position1.x,
+    obj.y + -1 * position1.y,
+    obj.z + -1 * position1.z
+    );
+
+    double theta = dotProducts(vector2, vectorOBJ);
+
     double distance1 = position.distance(position1, obj);
-    double distancePercent = distance1 / position.distance(position1, position2);
 
-    double x = 0;
-    double y = 0;
-    double z = 0;
-
-    if (position1.x >= position2.x)
-    {
-      x = position2.x;
-    }
-    if (position1.x < position2.x)
-    {
-      x = position1.x;
-    }
-
-    if (position1.y >= position2.y)
-    {
-      y = position2.y;
-    }
-    if (position1.y < position2.y)
-    {
-      y = position1.y;
-    }
-
-    if (position1.z >= position2.z)
-    {
-      z = position2.z;
-    }
-    if (position1.z < position2.z)
-    {
-      z = position1.z;
-    }
-
-    position pointOnLine = new position(
-    (Math.Abs(position1.x - position2.x) + x) * distancePercent,
-    (Math.Abs(position1.y - position2.y) + y) * distancePercent,
-    (Math.Abs(position1.z - position2.z) + z) * distancePercent);
-
-    double distanceFromObj = position.distance(pointOnLine, obj);
+    double distanceFromObj = Math.Sin(theta) * distance1;
 
     return distanceFromObj;
 
@@ -92,6 +85,7 @@ public static class visibility
     {
       foreach(planet p in master.allPlanets)
       {
+
         if (position.distance(p1, p.pos) < p1p2Distance)
         {
           double distanceFromObj = raycastMath(p1, p2, p.pos);

@@ -56,7 +56,7 @@ public class controller : MonoBehaviour
     public void startMainLoop(bool force = false) {
         if (loop != null && force == false) return;
 
-        loop = StartCoroutine(general.internalClock(7200, int.MaxValue, (tick) => {
+        loop = StartCoroutine(general.internalClock(1440, int.MaxValue, (tick) => {
             if (master.pause)
             {
                 master.tickStart(master.time);
@@ -84,7 +84,7 @@ public class controller : MonoBehaviour
         {
           linkBudgeting.accessCalls();
         }
-        if (master.time.julian > 2460816.5)
+        if (master.time.julian > 2460810.5)
         {
           if (master.fileCheck == false)
           {
@@ -437,7 +437,7 @@ public class controller : MonoBehaviour
             if (dict["user_provider"] == "user/provider")
             {
                master.users.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
-               master.providers.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+               //master.providers.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
             }
 
             if (dict.ContainsKey("RAAN") == true)

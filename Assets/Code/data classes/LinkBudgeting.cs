@@ -31,7 +31,7 @@ public class linkBudgeting
                   if (visibility.raycast(_provider.pos, _user.pos, visibility.raycastParameters.planet, 1, false).hit == false)
                   {
                     master.connections.Add(master.time + ": " + provider.Key + " to " + user.Key);
-                    Debug.Log(master.time + ": " + provider.Key + " to " + user.Key);
+                    Debug.DrawLine(_provider.representation.gameObject.transform.position, _user.representation.gameObject.transform.position, Color.cyan, 1);
                   }
                 }
 
@@ -40,10 +40,12 @@ public class linkBudgeting
                   satellite _provider = master.allSatellites.Find(x => x.name == provider.Key);
                   facility _user = master.allFacilites.Find(x => x.name == user.Key);
                   //inset altitude here later
-                  position fac = _user.facParent.geoOnPlanet(_user.geo, 0);
+                  position fac = _user.facParent.geoOnPlanet(_user.geo, 0) + _user.facParent.pos;
                   if (visibility.raycast(_provider.pos, fac, visibility.raycastParameters.planet, 1, false).hit == false)
                   {
                     master.connections.Add(master.time + ": " + provider.Key + " to " + user.Key);
+                    Debug.DrawLine(_provider.representation.gameObject.transform.position, _user.representation.gameObject.transform.position, Color.cyan, 1);
+                  
                   }
                 }
               break;
@@ -56,11 +58,12 @@ public class linkBudgeting
                   facility _provider = master.allFacilites.Find(x => x.name == provider.Key);
                   satellite _user = master.allSatellites.Find(x => x.name == user.Key);
                   //inset altitude here later
-                  position fac = _provider.facParent.geoOnPlanet(_provider.geo, 0);
+                  position fac = _provider.facParent.geoOnPlanet(_provider.geo, 0) + _provider.facParent.pos;
                   if (visibility.raycast(fac, _user.pos, visibility.raycastParameters.planet, 1, false).hit == false)
                   {
                     master.connections.Add(master.time + ": " + provider.Key + " to " + user.Key);
-                    Debug.Log(master.time + ": " + provider.Key + " to " + user.Key);
+                    Debug.DrawLine(_provider.representation.gameObject.transform.position, _user.representation.gameObject.transform.position, Color.cyan, 1);
+                  
                   }
                 }
 
@@ -69,11 +72,12 @@ public class linkBudgeting
                   facility _provider = master.allFacilites.Find(x => x.name == provider.Key);
                   facility _user = master.allFacilites.Find(x => x.name == user.Key);
                   //inset altitude here later
-                  position fac2 = _user.facParent.geoOnPlanet(_user.geo, 0);
-                  position fac1 = _provider.facParent.geoOnPlanet(_provider.geo, 0);
+                  position fac2 = _user.facParent.geoOnPlanet(_user.geo, 0) + _user.facParent.pos;
+                  position fac1 = _provider.facParent.geoOnPlanet(_provider.geo, 0) + _provider.facParent.pos;
                   if (visibility.raycast(fac1, fac2, visibility.raycastParameters.planet, 1, false).hit == false)
                   {
                     master.connections.Add(master.time + ": " + provider.Key + " to " + user.Key);
+                    Debug.DrawLine(_provider.representation.gameObject.transform.position, _user.representation.gameObject.transform.position, Color.cyan, 1);
                   }
                 }
               break;
