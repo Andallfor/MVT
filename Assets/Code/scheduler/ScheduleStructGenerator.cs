@@ -66,7 +66,7 @@ public static class ScheduleStructGenerator
                 if (wind.boxes.Count>1)
                 {
                     wind.timeSpentInBox.Add(wind.boxes[0]-wind.start);
-                    foreach (int day in Enumerable.Range(wind.boxes[0], wind.boxes[wind.boxes.Count-1]-wind.boxes[0])) wind.timeSpentInBox.Add(1);
+                    foreach (int day in Enumerable.Range(wind.boxes[0], wind.boxes[wind.boxes.Count-1]-1-wind.boxes[0])) wind.timeSpentInBox.Add(1);
                     wind.timeSpentInBox.Add(wind.stop-wind.boxes[wind.boxes.Count-2]);
                 }
                 else wind.timeSpentInBox.Add(wind.stop-wind.start);
