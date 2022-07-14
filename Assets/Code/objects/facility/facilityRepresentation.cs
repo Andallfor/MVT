@@ -17,7 +17,6 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
     private string shownNameText, name;
     private float r;
     public bool selected {get; private set;}
-
     private bool planetFocusHidden;
 
     public void initDebugger() {
@@ -93,8 +92,13 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
         shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
     }
 
-    public void updatePos(planet parent)
-    {
+    public void updatePos(planet parent, bool forceHide = false) {
+        if (forceHide) {
+            gameObject.SetActive(false);
+            shownName.text = "";
+            return;
+        }
+
         if (planetOverview.usePlanetOverview) {
             gameObject.SetActive(false);
             shownName.text = "";

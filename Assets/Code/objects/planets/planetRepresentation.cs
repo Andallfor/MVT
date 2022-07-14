@@ -11,7 +11,7 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
     private planetType pType;
     private GameObject canvas, planetParent;
     public GameObject gameObject;
-    private MeshRenderer mrSelf;
+    public MeshRenderer mrSelf;
     public Collider hitbox;
     private string shownNameText, name;
     private double radius;
@@ -79,10 +79,14 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
     public void setPosition(position pos)
     {
         bool endDisable = false;
-        if ((planetOverview.usePlanetOverview && pType == planetType.moon)) {
-            endDisable = false;
-            shownName.text = "";
-            return;
+        if (planetOverview.usePlanetOverview) {
+            if (!planetOverview.obeyingPlanets.Exists(x => x.name == name)) {
+                shownName.text = "";
+                mrSelf.enabled = false;
+                return;
+            }
+
+            pos = planetOverview.planetOverviewPosition(pos - planetOverview.focus.pos + master.currentPosition + master.referenceFrame);
         }
 
         // scale position
@@ -92,14 +96,15 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
             (float) (pos.z / master.scale));
 
         if (Vector3.Distance(p, Vector3.zero) > 1000f) endDisable = false; // hide if too far away
-        else
-        {
+        else {
             endDisable = true;
             gameObject.transform.localPosition = p;
 
+            if (shownName.text == "") shownName.text = shownNameText;
+
             // scale far away planets so they can be seen better
             float distance = Vector3.Distance(Vector3.zero, gameObject.transform.position);
-            float scale = 0.01f * distance + 0;
+            float scale = 0.01f * distance;
             float r = Mathf.Max(Mathf.Min(gameObject.transform.localScale.x, _r), scale);
             gameObject.transform.localScale = new Vector3(r, r, r);
         }
@@ -129,4 +134,3 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
         gameObject.transform.localScale = new Vector3(_r, _r, _r);
     }
 }
-

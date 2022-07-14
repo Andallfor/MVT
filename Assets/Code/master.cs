@@ -18,16 +18,16 @@ public static class master
             onScaleChange(null, EventArgs.Empty);
         }
     }
-    
+
     /// <summary> The current time in game. </summary>
-    public readonly static Time time = new Time(2459396.5, true);
-    
+    public readonly static Time time = new Time(2460806.5, true);
+
     /// <summary> Total ticks (times the game has updated) since the game was initialized. </summary>
     public static int currentTick = 0;
-    
+
     /// <summary> The players current position, in km. </summary>
     public static position currentPosition = new position(0, 0, 0);
-    
+
     /// <summary> The current position of the reference frame relative to the sun. See also <see cref="requestReferenceFrame"/>. </summary>
     public static position referenceFrame {
         get {
@@ -35,7 +35,7 @@ public static class master
             else return _refFrameLast;
         }
     }
-    
+
     /// <summary> The current body that is the reference frame. See also <see cref="referenceFrame"/>. </summary>
     public static body requestReferenceFrame() => _referenceFrame;
 
@@ -47,7 +47,7 @@ public static class master
             onPauseChange(null, EventArgs.Empty);
         }
     }
-    
+
 
     private static body _referenceFrame;
     private static position _refFrameLast;
@@ -60,7 +60,11 @@ public static class master
 
     /// <summary> Event that is called when <see cref="pause"/> is changed. </summary>
     public static event EventHandler onPauseChange = delegate {};
-    
+    /// <summary> Event that is called when <see cref="referenceFrame"/> is changed via calling <see cref="setReferenceFrame"/>. </summary>
+    public static event EventHandler onReferenceFrameChange = delegate {};
+    /// <summary> Event that is called the moment before the main loop is about to start. </summary>
+    public static event EventHandler onFinalSetup = delegate {};
+
 
     /// <summary> Event that will update the positions of any class derived from <see cref="body"/>. Called when <see cref="requestPositionUpdate"/> is called. </summary>
     public static event EventHandler updatePositions = delegate {};
@@ -70,7 +74,10 @@ public static class master
 
     /// <summary> Event that will update the planet/system loading queue（see <see cref="jsonParser.updateQueue"/>). Called when <see cref="requestJsonQueueUpdate"/> is called. </summary>
     public static event EventHandler updateJsonQueue = delegate {};
-    
+
+    /// <summary> Event that is called at the end of each tick (frame). Called when <see cref="markTickFinished"/> is called. </summary>
+    public static event EventHandler finishTick = delegate {};
+
 
     /// <summary> Calls <see cref="updatePositions"/>. </summary>
     public static void requestPositionUpdate() {updatePositions(null, EventArgs.Empty);}
@@ -83,6 +90,8 @@ public static class master
 
     /// <summary> Calls <see cref="updateJsonQueue"/>. </summary>
     public static void requestJsonQueueUpdate() {updateJsonQueue(null, EventArgs.Empty);}
+    /// <summary> Calls <see cref="finishTick"/>. </summary>
+    public static void markTickFinished() {finishTick(null, EventArgs.Empty);}
 
     /// <summary> List of all <see cref="planet"/> currently loaded. </summary>
     public static List<planet> allPlanets = new List<planet>();
@@ -116,7 +125,7 @@ public static class master
     /// <remarks><paramref name="nextTime"/> The time that will be the new time. </remarks>
     public static void tickStart(Time nextTime)
     {
-        _refFrameLast = _referenceFrame.requestLocalPosition(nextTime);
+        _refFrameLast = _referenceFrame.requestPosition(nextTime);
     }
 
     /// <summary> Sets the reference frame to <paramref name="b"/>. </summary>
@@ -125,5 +134,46 @@ public static class master
     {
         currentPosition = new position(0, 0, 0);
         _referenceFrame = b;
+
+        onReferenceFrameChange(null, EventArgs.Empty);
     }
+
+    private static bool alreadyStarted = false;
+    /// <summary> Tell the program that the simulation is about ready to start. Calls <see cref="onFinalSetup"/>. <summary>
+    public static void markStartOfSimulation() {
+        if (alreadyStarted) return;
+        alreadyStarted = true;
+
+        onFinalSetup(null, EventArgs.Empty);
+    }
+
+    // TODO: find a better implementation of this
+    /// <summary> Determines relationship between bodies (parent, child, etc) in the form parent, List(child) </summary>
+    /// <remarks> Useful as it does not require a postional dependency (as with normal parenting) </remarks>
+    public static Dictionary<planet, List<planet>> relationshipPlanet = new Dictionary<planet, List<planet>>();
+    /// <summary> Determines relationship between bodies (parent, child, etc) in the form parent, List(child) </summary>
+    /// <remarks> Useful as it does not require a postional dependency (as with normal parenting) </remarks>
+    public static Dictionary<planet, List<satellite>> relationshipSatellite = new Dictionary<planet, List<satellite>>();
+
+    /// <summary> Stores the orbital periods of bodies in julian. </summary>
+    /// <remarks> Find a better way to do this. </summary>
+    public static Dictionary<string, double> orbitalPeriods = new Dictionary<string, double>() {
+        {"Earth", 365.25},
+        {"Luna", 27.322},
+        {"Mercury", 115.88},
+        {"Venus", 583.92},
+        {"Mars", 779.94},
+        {"Jupiter", 398.88},
+        {"Saturn", 378.09},
+        {"Uranus", 369.66},
+        {"Neptune", 367.49},
+        {"LCN-1", 0.50000030159},
+        {"LCN-2", 0.50000030159},
+        {"LCN-3", 0.50000030159},
+        {"Moonlight-1", 0.50000030159},
+        {"Moonlight-2", 0.50000030159},
+        {"CubeSat-1", 0.3671969293},
+        {"CubeSat-2", 0.08179930284},
+        {"Io", 1.74880219028}
+    };
 }

@@ -20,6 +20,8 @@ public static class general
 
     /// <summary> Default FOV of camera. </summary>
     public static float defaultCameraFOV = 60;
+    public static event EventHandler onStatusChange = delegate {};
+    public static void notifyStatusChange() {onStatusChange(null, EventArgs.Empty);}
 
     /// <summary> Parse an array of bytes into a string. </summary>
     public static string parseByteArray(byte[] data) {

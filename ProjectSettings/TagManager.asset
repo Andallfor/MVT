@@ -12,6 +12,11 @@ TagManager:
   - ui/time/slider
   - ui/EventSystem
   - facilityFocus/parent
+  - ui/planetOverview/back
+  - ui/planetOverview/sat
+  - ui/planetOverview/moon
+  - ui/planetOverview/parent
+  - planet/trails
   layers:
   - Default
   - TransparentFX
