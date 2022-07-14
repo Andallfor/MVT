@@ -11,7 +11,7 @@ public class controller : MonoBehaviour
 {
     public float playerSpeed = 100f * (float) master.scale;
     public static planet earth;
-    private double speed = 0.00005;
+    private double speed = 0.0006944444;
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
     private Coroutine loop;
 
@@ -79,6 +79,22 @@ public class controller : MonoBehaviour
 
     public void Update()
     {
+
+        if (master.time.julian < 2460836.5)
+        {
+          linkBudgeting.accessCalls();
+        }
+        if (master.time.julian > 2460816.5)
+        {
+          if (master.fileCheck == false)
+          {
+            Debug.Log("file loading");
+            File.WriteAllLines("/Users/arya/connections.txt", master.connections);
+            Debug.Log("file loaded");
+            Debug.Log("Time Stop");
+            master.fileCheck = true;
+          }
+        }
 
         if (planetOverview.usePlanetOverview)
         {
@@ -365,6 +381,8 @@ public class controller : MonoBehaviour
 
     private void Artemis3()
     {
+      Debug.Log("Time Start");
+
       representationData rd = new representationData(
           "Prefabs/Planet",
           "Materials/default");
@@ -408,6 +426,20 @@ public class controller : MonoBehaviour
         {
           case "Satellite":
 
+            if (dict["user_provider"] == "user")
+            {
+               master.users.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+            }
+            if (dict["user_provider"] == "provider")
+            {
+               master.providers.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+            }
+            if (dict["user_provider"] == "user/provider")
+            {
+               master.users.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+               master.providers.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+            }
+
             if (dict.ContainsKey("RAAN") == true)
             {
 
@@ -445,22 +477,7 @@ public class controller : MonoBehaviour
                 satellite.addFamilyNode(earth, sat);
               }
             }
-
-            if (dict["User_Provider"] == "user")
-            {
-               master.users.Add(x.Key, false);
-            }
-            if (dict["User_Provider"] == "provider")
-            {
-               master.providers.Add(x.Key, false);
-            }
-            if (dict["User_Provider"] == "user/provider")
-            {
-               master.users.Add(x.Key, false);
-               master.providers.Add(x.Key, false);
-            }
-
-            break;
+          break;
 
           case "Facility":
 
@@ -489,6 +506,21 @@ public class controller : MonoBehaviour
               List<antennaData> antenna = new List<antennaData>();
               antenna.Append(new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"]));
               facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna, new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);
+
+              if (dict["user_provider"] == "user")
+              {
+                 master.users.Add(x.Key, (true, 2460806.5 + start, 2460806.5 + stop));
+              }
+              if (dict["user_provider"] == "provider")
+              {
+                 master.providers.Add(x.Key, (true, 2460806.5 + start, 2460806.5 + stop));
+              }
+              if (dict["user_provider"] == "user/provider")
+              {
+                 master.users.Add(x.Key, (true, 2460806.5 + start, 2460806.5 + stop));
+                 master.providers.Add(x.Key, (true, 2460806.5 + start, 2460806.5 + stop));
+              }
+
             }
             else if (dict["CentralBody"] == "Earth")
             {
@@ -496,20 +528,20 @@ public class controller : MonoBehaviour
               List<antennaData> antenna = new List<antennaData>();
               antenna.Append(new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Ground_Priority"]));
               facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna), frd);
-            }
 
-            if (dict["User_Provider"] == "user")
-            {
-               master.users.Add(x.Key, true);
-            }
-            if (dict["User_Provider"] == "provider")
-            {
-               master.providers.Add(x.Key, true);
-            }
-            if (dict["User_Provider"] == "user/provider")
-            {
-               master.users.Add(x.Key, true);
-               master.providers.Add(x.Key, true);
+              if (dict["user_provider"] == "user")
+              {
+                 master.users.Add(x.Key, (true, 2460806.5, 2460836.5));
+              }
+              if (dict["user_provider"] == "provider")
+              {
+                 master.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
+              }
+              if (dict["user_provider"] == "user/provider")
+              {
+                 master.users.Add(x.Key, (true, 2460806.5, 2460836.5));
+                 master.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
+              }
             }
           break;
 
@@ -519,72 +551,9 @@ public class controller : MonoBehaviour
             break;
         }
       }
-
-
-
-      /*satellite s1 = new satellite("LCN-1", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 0, 1, 2460628.5283449073, 4902.800066)), srd);
-      satellite s2 = new satellite("LCN-2", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 180, 1, 2460628.5283449073, 4902.800066)), srd);
-      satellite s3 = new satellite("LCN-3", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 360, 1, 2460628.5283449073, 4902.800066)), srd);
-
-      satellite s4 = new satellite("Moonlight-1", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 0, 1, 2460628.5283449073, 4902.800066)), srd);
-      satellite s5 = new satellite("Moonlight-2", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 180, 1, 2460628.5283449073, 4902.800066)), srd);
-
-      satellite s6 = new satellite("CubeSat-1", new satelliteData(new Timeline(5000, 0.51, 74.3589, 90, 356.858, 311.274, 1, 2460615.5, 4902.800066)), srd);
-      satellite s7 = new satellite("CubeSat-2", new satelliteData(new Timeline(1837.4, 0.000000000000000195, 114.359, 0, 356.858, 360, 1, 2460615.5, 4902.800066)), srd);
-
-      satellite s8 = new satellite("HLS-NRHO", new satelliteData("CSVS/ARTEMIS 3/SATS/HLS/HLS-NRHO", oneMin), srd);
-      satellite s9 = new satellite("HLS-Docked", new satelliteData("CSVS/ARTEMIS 3/SATS/HLS/HLS-Docked", oneMin), srd);
-      satellite s10 = new satellite("HLS-Disposal", new satelliteData("CSVS/ARTEMIS 3/SATS/HLS/HLS-Disposal", oneMin), srd);
-
-      satellite s11 = new satellite("Orion-Transit-O", new satelliteData("CSVS/ARTEMIS 3/SATS/ORION/Orion-Transit-O", oneMin), srd);
-      satellite s12 = new satellite("Orion-Docked", new satelliteData("CSVS/ARTEMIS 3/SATS/ORION/Orion-Docked", oneMin), srd);
-      satellite s13 = new satellite("Orion-NRHO", new satelliteData("CSVS/ARTEMIS 3/SATS/ORION/Orion-NRHO", oneMin), srd);
-      satellite s14 = new satellite("Orion-Transit-R", new satelliteData("CSVS/ARTEMIS 3/SATS/ORION/Orion-Transit-R", oneMin), srd);
-
-      s8.positions.enableExistanceTime(new Time(2460806.5), new Time((2460806.5 + 9.0)));
-      s9.positions.enableExistanceTime(new Time((2460806.5 + 9.0)), new Time((2460806.5 + 13.0)));
-      s10.positions.enableExistanceTime(new Time((2460806.5 + 13.0)), new Time((2460806.5 + 20.29504301)));
-
-      s11.positions.enableExistanceTime(new Time(2460806.5), new Time((2460806.5 + 9.0)));
-      s12.positions.enableExistanceTime(new Time((2460806.5 + 9.0)), new Time((2460806.5 + 13.0)));
-      s13.positions.enableExistanceTime(new Time((2460806.5 + 13.0)), new Time((2460806.5 + 20.29504301)));
-      s14.positions.enableExistanceTime(new Time((2460806.5 + 20.29504301)), new Time((2460806.5 + 30.0)));
-
-      satellite.addFamilyNode(moon, s1);
-      satellite.addFamilyNode(moon, s2);
-      satellite.addFamilyNode(moon, s3);
-
-      satellite.addFamilyNode(moon, s4);
-      satellite.addFamilyNode(moon, s5);
-
-      satellite.addFamilyNode(moon, s6);
-      satellite.addFamilyNode(moon, s7);
-
-      satellite.addFamilyNode(moon, s8);
-      satellite.addFamilyNode(moon, s9);
-      satellite.addFamilyNode(moon, s10);
-
-      satellite.addFamilyNode(moon, s11);
-      satellite.addFamilyNode(moon, s12);
-      satellite.addFamilyNode(moon, s13);
-      satellite.addFamilyNode(moon, s14);
-
-      /*facility f1 = new facility("HLS-Surface", moon, new facilityData("HLS-Surface", new geographic(-89.45, -137.31), null, new Time((2460806.5 + 13.0)), new Time((2460806.5 + 20.0))), frd);
-      facility f2 = new facility("CLPS9", moon, new facilityData("CLPS9", new geographic(-75.0, 113), new Time(2460806.5), new Time((2460806.5 + 30.0))), frd);
-
-      facility f3 = new facility("DSS-14", earth, new facilityData("DSS-14", new geographic(35.4295, -116.889), null), frd);
-      facility f4 = new facility("DSS-23", earth, new facilityData("DSS-23", new geographic(35.3399, -116.87), null), frd);
-      facility f5 = new facility("DSS-24", earth, new facilityData("DSS-24", new geographic(35.3399, -116.875), null), frd);
-      facility f6 = new facility("DSS-25", earth, new facilityData("DSS-25", new geographic(35.3376, -116.875), null), frd);
-      facility f7 = new facility("DSS-26", earth, new facilityData("DSS-26", new geographic(35.3357, -116.873), null), frd);
-      facility f8 = new facility("DSS-33", earth, new facilityData("DSS-33", new geographic(-35.3985, 148.982), null), frd);
-      facility f9 = new facility("DSS-35", earth, new facilityData("DSS-34", new geographic(-35.3985, 148.982), null), frd);
-      facility f10 = new facility("DSS-36", earth, new facilityData("DSS-36", new geographic(-35.3951, 148.979), null), frd);*/
-
-
       master.setReferenceFrame(moon);
-
     }
+
 }
 
 //hello, it's me

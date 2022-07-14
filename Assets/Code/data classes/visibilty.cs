@@ -36,9 +36,41 @@ public static class visibility
     double distance1 = position.distance(position1, obj);
     double distancePercent = distance1 / position.distance(position1, position2);
 
-    position pointOnLine = new position((position1.x + position2.x) * distancePercent,
-    (position1.y + position2.y) * distancePercent,
-    (position1.z + position2.z) * distancePercent);
+    double x = 0;
+    double y = 0;
+    double z = 0;
+
+    if (position1.x >= position2.x)
+    {
+      x = position2.x;
+    }
+    if (position1.x < position2.x)
+    {
+      x = position1.x;
+    }
+
+    if (position1.y >= position2.y)
+    {
+      y = position2.y;
+    }
+    if (position1.y < position2.y)
+    {
+      y = position1.y;
+    }
+
+    if (position1.z >= position2.z)
+    {
+      z = position2.z;
+    }
+    if (position1.z < position2.z)
+    {
+      z = position1.z;
+    }
+
+    position pointOnLine = new position(
+    (Math.Abs(position1.x - position2.x) + x) * distancePercent,
+    (Math.Abs(position1.y - position2.y) + y) * distancePercent,
+    (Math.Abs(position1.z - position2.z) + z) * distancePercent);
 
     double distanceFromObj = position.distance(pointOnLine, obj);
 
@@ -60,7 +92,7 @@ public static class visibility
     {
       foreach(planet p in master.allPlanets)
       {
-        if (position.distance(p1, p.pos) > p1p2Distance)
+        if (position.distance(p1, p.pos) < p1p2Distance)
         {
           double distanceFromObj = raycastMath(p1, p2, p.pos);
           if (distanceFromObj <= p.radius)
