@@ -8,14 +8,26 @@ public static class uiHelper
     public static Canvas canvas = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<Canvas>();
     public static void drawTextOverObject(TextMeshProUGUI text, Vector3 dest)
     {
+        Vector3 p = getScreenPosition(dest);
+        text.rectTransform.anchoredPosition = p;
+
+        if (p.z < 0) text.enabled = false;
+        else if (!text.enabled) text.enabled = true;
+    }
+
+    public static Vector3 getScreenPosition(Vector3 pos) {
         Vector3 screenSize = new Vector3(Screen.width, Screen.height, 0);
-        Vector3 screenPos = Camera.main.WorldToScreenPoint(dest) - (screenSize / 2f);
+        Vector3 screenPos = general.camera.WorldToScreenPoint(pos) - (screenSize / 2f);
         
         screenPos /= canvas.scaleFactor;
-        text.rectTransform.anchoredPosition = screenPos;
 
-        if (screenPos.z < 0) text.enabled = false;
-        else if (!text.enabled) text.enabled = true;
+        return screenPos;
+    }
+
+    public static Vector2 getPixelPosition(Vector3 screenPos) {
+        return new Vector2(
+            Screen.width * ((screenPos.x + canvas.pixelRect.width) / (2f * canvas.pixelRect.width * canvas.scaleFactor)),
+            Screen.height * ((screenPos.y + canvas.pixelRect.height) / (2f * canvas.pixelRect.height * canvas.scaleFactor)));
     }
 
     public static Vector3 vRotate(float pitch, float roll, float yaw, Vector3 pos)

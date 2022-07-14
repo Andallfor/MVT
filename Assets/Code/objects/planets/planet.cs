@@ -11,6 +11,7 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
     public double radius {get {return data.radius;}}
     public planetType pType {get {return data.pType;}}
     public position rotation {get; private set;}
+    public trailRenderer tr;
 
     public planet(string name, planetData data, representationData rData)
     {
@@ -21,6 +22,8 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
 
         master.allPlanets.Add(this);
         master.requestJsonQueueUpdate();
+
+        tr = new trailRenderer(name, representation.gameObject, positions, this);
     }
 
     // INITALIZATION
@@ -32,21 +35,17 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
         localPos = pos = data.positions.find(master.time);
         if (!ReferenceEquals(parent, null)) pos += parent.pos;
 
-        if (!planetOverview.usePlanetOverview) representation.setPosition(pos - master.currentPosition - master.referenceFrame);
-        else
-        {
-            representation.setPosition(planetOverview.planetOverviewPosition(pos));
-            representation.setRadius((master.scale / 2.0) / 4.0);
-        }
+        representation.setPosition(pos - master.currentPosition - master.referenceFrame);
+        if (planetOverview.usePlanetOverview) representation.setRadius((master.scale / 2.0) / 4.0);
 
         if (data.rotate) rotation = representation.rotate(this.calculateRotation());
 
         base.updateChildren();
     }
-    public override position requestLocalPosition(Time t)
+    public override position requestPosition(Time t)
     {
         position p = data.positions.find(t);
-        if (!ReferenceEquals(parent, null)) p += parent.requestLocalPosition(t);
+        if (!ReferenceEquals(parent, null)) p += parent.requestPosition(t);
         return p;
     }
     public override void updateScale(object sender, EventArgs args)

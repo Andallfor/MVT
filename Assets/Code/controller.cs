@@ -15,10 +15,6 @@ public class controller : MonoBehaviour
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
     private Coroutine loop;
 
-    void Awake() {
-        // eventually i want to be able to enable this- the only thing currently preventing this is Physics.raycast
-        //Physics.autoSimulation = false;
-    }
 
     void Start()
     {
@@ -50,6 +46,8 @@ public class controller : MonoBehaviour
         master.pause = false;
         general.camera = Camera.main;
 
+        master.markStartOfSimulation();
+
         startMainLoop();
     }
 
@@ -74,6 +72,8 @@ public class controller : MonoBehaviour
 
             if (!planetOverview.usePlanetOverview) master.requestSchedulingUpdate();
             master.currentTick = tick;
+
+            master.markTickFinished();
         }, null));
     }
 
@@ -100,6 +100,11 @@ public class controller : MonoBehaviour
         {
             if (Input.GetKey("d")) planetOverview.rotationalOffset -= 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
             if (Input.GetKey("a")) planetOverview.rotationalOffset += 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
+
+            if (Input.mouseScrollDelta.y != 0) {
+                general.camera.orthographicSize -= Input.mouseScrollDelta.y * UnityEngine.Time.deltaTime * 500f;
+                general.camera.orthographicSize = Math.Max(2, Math.Min(20, general.camera.orthographicSize));
+            }
 
             planetOverview.updateAxes();
         } else if (planetFocus.usePlanetFocus) {
@@ -132,7 +137,8 @@ public class controller : MonoBehaviour
             }
 
             planetFocus.update();
-        } else {
+        }
+        else {
             if (Input.GetMouseButton(1) && !EventSystem.current.IsPointerOverGameObject())
             {
                 Transform c = Camera.main.transform;
@@ -156,12 +162,16 @@ public class controller : MonoBehaviour
             master.requestScaleUpdate();
             planetOverview.enable(!planetOverview.usePlanetOverview);
             master.clearAllLines();
+
+            general.notifyStatusChange();
         }
 
         if (Input.GetKeyDown("e")) {
             master.requestScaleUpdate();
             planetFocus.enable(!planetFocus.usePlanetFocus);
             master.clearAllLines();
+
+            general.notifyStatusChange();
         }
 
         if (Input.GetKeyDown("1")) speed = 0.1;
@@ -169,6 +179,11 @@ public class controller : MonoBehaviour
         if (Input.GetKeyDown("3")) speed = 0.00005;
 
         if (Input.GetKeyDown("4")) master.time.addJulianTime(2460806.5 - master.time.julian);
+
+        if (Input.GetKeyDown("z")) {
+            foreach (planet p in master.allPlanets) p.tr.toggle();
+            foreach (satellite s in master.allSatellites) s.tr.toggle();
+        }
     }
     private planetTerrain loadTerrain() {
         /*terrainProcessor.divideAll("C:/Users/leozw/Desktop/GEBCO_30_Dec_2021_7c5d3c80c8ee/", new List<terrainResolution>() {
@@ -294,29 +309,27 @@ public class controller : MonoBehaviour
         double oneMin = 0.0006944444;
         double oneHour = 0.0416666665;
 
-        earth =       new planet(  "Earth", new planetData(  6371, true, "CSVS/PLANETS/Earth", oneHour, planetType.planet), erd);
-        planet moon = new planet(   "Luna", new planetData(1738.1, false,    "CSVS/PLANETS/Luna", oneHour, planetType.moon),   rd);
-                      new planet("Mercury", new planetData(2439.7, false, "CSVS/PLANETS/Mercury", oneHour, planetType.planet), rd);
-                      new planet(  "Venus", new planetData(6051.8, false,   "CSVS/PLANETS/Venus", oneHour, planetType.planet), rd);
-                      new planet(   "Mars", new planetData(3396.2, false,    "CSVS/PLANETS/Mars", oneHour, planetType.planet), rd);
-                      new planet("Jupiter", new planetData( 71492, false, "CSVS/PLANETS/Jupiter", oneHour, planetType.planet), rd);
-                      new planet( "Saturn", new planetData( 60268, false,  "CSVS/PLANETS/Saturn", oneHour, planetType.planet), rd);
-                      new planet( "Uranus", new planetData( 25559, false,  "CSVS/PLANETS/Uranus", oneHour, planetType.planet), rd);
-                      new planet("Neptune", new planetData( 24764, false, "CSVS/PLANETS/Neptune", oneHour, planetType.planet), rd);
+        earth =       new planet(  "Earth", new planetData(  6371, true, "CSVS/OLD/PLANETS/Earth", oneHour, planetType.planet), erd);
+        planet moon = new planet(   "Luna", new planetData(1738.1, false,    "CSVS/OLD/PLANETS/Luna", oneHour, planetType.moon),   rd);
+                      new planet("Mercury", new planetData(2439.7, false, "CSVS/OLD/PLANETS/Mercury", oneHour, planetType.planet), rd);
+                      new planet(  "Venus", new planetData(6051.8, false,   "CSVS/OLD/PLANETS/Venus", oneHour, planetType.planet), rd);
+                      new planet(   "Mars", new planetData(3396.2, false,    "CSVS/OLD/PLANETS/Mars", oneHour, planetType.planet), rd);
+                      new planet("Jupiter", new planetData( 71492, false, "CSVS/OLD/PLANETS/Jupiter", oneHour, planetType.planet), rd);
+                      new planet( "Saturn", new planetData( 60268, false,  "CSVS/OLD/PLANETS/Saturn", oneHour, planetType.planet), rd);
+                      new planet( "Uranus", new planetData( 25559, false,  "CSVS/OLD/PLANETS/Uranus", oneHour, planetType.planet), rd);
+                      new planet("Neptune", new planetData( 24764, false, "CSVS/OLD/PLANETS/Neptune", oneHour, planetType.planet), rd);
 
-        foreach (string sat in sats)
-        {
-            satellite s = new satellite(sat, new satelliteData($"CSVS/SATS/{sat}", oneMin), srd);
-            try
-            {
-                // desync between planet and satellites
+        master.relationshipPlanet.Add(earth, new List<planet>() {moon});
+        master.relationshipSatellite.Add(earth, new List<satellite>() {});
+        master.relationshipSatellite.Add(moon, new List<satellite>() {});
 
-                //satellite.addFamilyNode(earth, s);
-            }
-            catch {UnityEngine.Debug.Log($"Unable to load {sat}");}
+        foreach (string sat in sats) {
+            satellite s = new satellite(sat, new satelliteData($"CSVS/OLD/SATS/{sat}", oneMin), srd);
+            master.relationshipSatellite[earth].Add(s);
+            master.relationshipSatellite[moon].Add(s);
         }
 
-        foreach (facilityData fd in csvParser.loadFacilites("CSVS/FACILITIES/stationList")) new facility(fd.name, earth, fd, frd);
+        foreach (facilityData fd in csvParser.loadFacilites("CSVS/OLD/FACILITIES/stationList")) new facility(fd.name, earth, fd, frd);
 
         master.setReferenceFrame(earth);
     }
@@ -378,7 +391,6 @@ public class controller : MonoBehaviour
         satellite.addFamilyNode(earth, s4);
         satellite.addFamilyNode(moon, s5);*/
     }
-
     private void Artemis3()
     {
       Debug.Log("Time Start");
@@ -557,3 +569,4 @@ public class controller : MonoBehaviour
 }
 
 //hello, it's me
+// wow, it's you
