@@ -65,6 +65,17 @@ public readonly struct position
             z / l);
     }
 
+    public static double dotProduct(position vector1, position vector2)
+    {
+        double dot = vector2.x * vector1.x + vector2.y * vector1.y + vector2.z * vector1.z;
+        double abs1 = Math.Sqrt(vector2.x * vector2.x + vector2.y * vector2.y + vector2.z * vector2.z);
+        double abs2 = Math.Sqrt(vector1.x * vector1.x + vector1.y * vector1.y + vector1.z * vector1.z);
+
+        double theta = Math.Acos(dot/(abs1 * abs2)) * 180 / Math.PI;
+
+        return theta;
+    }
+
     public jsonPositionStruct requestJsonFile() => new jsonPositionStruct() {x=x, y=y, z=z};
 
     public double length() => Math.Sqrt(x * x + y * y + z * z);

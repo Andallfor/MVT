@@ -158,14 +158,8 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
 
         double meanAnom = startingMeanAnom;
 
-        if (master.time.julian == startingEpoch)
-        {
-          meanAnom = startingMeanAnom;
-        }
-        else
-        {
-          meanAnom = startingMeanAnom + 86400.0 * (master.time.julian - startingEpoch) * Math.Sqrt((mu / Math.Pow(semiMajorAxis, 3)));
-        }
+        if (t.julian == startingEpoch) meanAnom = startingMeanAnom;
+        else meanAnom = startingMeanAnom + 86400.0 * (t.julian - startingEpoch) * Math.Sqrt((mu / Math.Pow(semiMajorAxis, 3)));
 
         double EA = meanAnom;
         for (int i = 0; i < 50; i++) EA = meanAnom + eccentricity * Math.Sin(EA);
