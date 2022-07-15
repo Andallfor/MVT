@@ -26,14 +26,16 @@ public static class ScheduleStructGenerator
             connection.Open();
             var createCommand = connection.CreateCommand();
             createCommand.CommandText = @"
-            CREATE TABLE IF NOT EXISTS ""Windows"" (
-                ""ID""	INTEGER,
+            CREATE TABLE IF NOT EXISTS ""Windows_data"" (
+                ""Block_ID""	INTEGER,
                 ""Source""	TEXT,
                 ""Destination""	TEXT,
                 ""Start""	NUMERIC,
                 ""Stop""	NUMERIC,
                 ""Frequency""	TEXT,
-                PRIMARY KEY(""ID"")
+                ""Rate"" NUMERIC,
+                ""Latency"" Numeric,
+                PRIMARY KEY(""Block_ID"")
             );";
             createCommand.ExecuteNonQuery();
             Debug.Log("Created DB");
@@ -44,6 +46,12 @@ public static class ScheduleStructGenerator
         scenario.fileGenDate = (string) json["fileGenDate"];
         List<Window> windList = new List<Window>();
         int count = 1;
+        if (!fileExists)
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = "BEGIN;";
+            command.ExecuteNonQuery();
+        }
         foreach (var window in json["windows"])
         {
             
@@ -51,36 +59,44 @@ public static class ScheduleStructGenerator
             {                
                 Window wind = new Window();
                 wind.ID = count;
-                wind.frequency = (string)window["frequency"];
-                wind.frequency = wind.frequency.Replace("\"", "");
-                wind.source = (string)window["source"];
-                wind.destination = (string)window["destination"];
-                wind.source = wind.source.Replace("\"", "");
-                wind.destination = wind.destination.Replace("\"", "");
-                wind.rate = (double)window["rate"];
+                double start = (double)block[0];
+                double stop = (double)block[1];
+                //wind.frequency = (string)window["frequency"];
+                //wind.frequency = wind.frequency.Replace("\"", "");
+                //wind.source = (string)window["source"];
+                //wind.destination = (string)window["destination"];
+                wind.source = ((string)window["source"]).Replace("\"", "");
+                wind.destination = ((string)window["source"]).Replace("\"", "");
+                //wind.rate = (double)window["rate"];
                 wind.start = (double)block[0];
                 wind.stop = (double)block[1];
-                wind.latency = (double)block[2];
-                wind.boxes = Enumerable.Range((int)Math.Floor(wind.start+1.0), (int)Math.Floor(wind.stop+1.0)-(int)Math.Floor(wind.start+1.0)+1).ToList();
+                //wind.latency = (double)block[2];
+                wind.boxes = Enumerable.Range((int)Math.Floor(start+1.0), (int)Math.Floor(stop+1.0)-(int)Math.Floor(start+1.0)+1).ToList();
                 wind.timeSpentInBox = new List<double>();
                 if (wind.boxes.Count>1)
                 {
-                    wind.timeSpentInBox.Add(wind.boxes[0]-wind.start);
+                    wind.timeSpentInBox.Add(wind.boxes[0]-start);
                     foreach (int day in Enumerable.Range(wind.boxes[0], wind.boxes[wind.boxes.Count-1]-1-wind.boxes[0])) wind.timeSpentInBox.Add(1);
-                    wind.timeSpentInBox.Add(wind.stop-wind.boxes[wind.boxes.Count-2]);
+                    wind.timeSpentInBox.Add(stop-wind.boxes[wind.boxes.Count-2]);
                 }
-                else wind.timeSpentInBox.Add(wind.stop-wind.start);
-                Debug.Log($"Start: {wind.start}, Stop: {wind.stop}\t\t{string.Join(", ", wind.boxes)}\t{string.Join(", ", wind.timeSpentInBox)}");
+                else wind.timeSpentInBox.Add(stop-start);
+                //Debug.Log($"Start: {start}, Stop: {stop}\t\t{string.Join(", ", wind.boxes)}\t{string.Join(", ", wind.timeSpentInBox)}");
                 if (!fileExists)
                 {
                     var command = connection.CreateCommand();
-                    command.CommandText = $"INSERT INTO Windows (ID, Source, Destination, Start, Stop, Frequency) VALUES ({wind.ID},\"{wind.source}\",\"{wind.destination}\",{wind.start},{wind.stop},\"{wind.frequency}\")";
+                    command.CommandText = $"INSERT INTO Windows_data (Block_ID, Source, Destination, Start, Stop, Frequency) VALUES ({wind.ID},\"{wind.source}\",\"{wind.destination}\",{start},{stop},\"{(string)window["frequency"]}\")";
                     command.ExecuteNonQuery();
                 }
                 count +=1;
                 windList.Add(wind);
             }
-            
+        }
+        if(!fileExists)
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = "COMMIT;";
+            command.ExecuteNonQuery();
+            connection.Close();
         }
         scenario.windows = windList;
         /*foreach (var printWindow in scenario.windows)
@@ -88,42 +104,40 @@ public static class ScheduleStructGenerator
             string print = JsonUtility.ToJson(printWindow, true);
             Debug.Log(print);
         }*/
-         if (!fileExists) connection.Close();
     }
     public static void createConflictList()
     {
         SqliteConnection connection = new SqliteConnection("URI=file:Assets/Code/scheduler/windows.db;New=False");
         connection.Open();
-        //foreach (Window block in scenario.windows)
-        for (int i = 1; i <= scenario.windows.Count;i++)
+        var command = connection.CreateCommand();
+        command.CommandText = "BEGIN;";
+        command.ExecuteNonQuery();
+        for (int i = 1; i <= scenario.windows.Count-1;i++)
         {
             //Debug.Log(i);
             Window block = scenario.windows[i];
-            var command = connection.CreateCommand();
-            command.CommandText = "drop table if exists TimeFiltered;";
-            command.ExecuteNonQuery();
             List<int> cons = new List<int>();
             int id = block.ID;
             command = connection.CreateCommand();
             command.CommandText = $@"
-                SELECT ID from Windows WHERE ID <> {id} AND
+                SELECT Block_ID from Windows_data WHERE Block_ID <> {id} AND
                 (
-                    (Start BETWEEN (Select Start from Windows where ID ={id}) AND (Select Stop from Windows where ID={id})) OR
-                    (Stop BETWEEN (Select Start from Windows where ID ={id}) AND (Select Stop from Windows where ID={id})) OR
-                    (Start <=  (Select Start from Windows where ID ={id}) AND Stop >= (Select Stop from Windows where ID={id}))
+                    (Start BETWEEN {block.start} AND {block.stop}) OR
+                    (Stop BETWEEN {block.start} AND {block.stop}) OR
+                    (Start <=  {block.start} AND Stop >= {block.stop})
                 )
                 AND
                 (
                     (
-                        Source = (select Source from Windows where ID={id}) or 
-                        Destination = (select Destination from Windows where ID={id})
+                        Source = ""{block.source}"" or 
+                        Destination = ""{block.destination}""
                     )
                     AND NOT
                     (
-                        Source = (select Source from Windows where ID={id}) and
-                        Destination = (select Destination from Windows where ID={id})
+                        Source = ""{block.source}"" and
+                        Destination = ""{block.destination}""
                     )
-                )
+                );
             ";
             IDataReader reader = command.ExecuteReader();
             while (reader.Read())
@@ -141,6 +155,9 @@ public static class ScheduleStructGenerator
                 }
             }*/
         }
+        command = connection.CreateCommand();
+        command.CommandText = "COMMIT;";
+        command.ExecuteNonQuery();
         connection.Close();
     }
 
@@ -163,14 +180,15 @@ public struct Scenario
 public struct Window
 {
     public int ID;
-    public string frequency;
+    //public string frequency;
     public string source; //user
     public string destination;
-    public double rate;
+    //public double rate;
     public double start;
     public double stop;
-    public double latency;
+    //public double latency;
     public List<int> conflicts;
     public List<int> boxes;
     public List<double> timeSpentInBox;
 }
+

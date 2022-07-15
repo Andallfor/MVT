@@ -42,8 +42,8 @@ public class controller : MonoBehaviour
         //DBReader.getData();
         Debug.Log("Generating DB.....");
         ScheduleStructGenerator.genDB();
-        //Debug.Log("Generating conflict list.....");
-        //ScheduleStructGenerator.createConflictList();
+        Debug.Log("Generating conflict list.....");
+        ScheduleStructGenerator.createConflictList();
         //Debug.Log("Testing.....");
         //ScheduleStructGenerator.test();
         //planetTerrain pt = loadTerrain();
