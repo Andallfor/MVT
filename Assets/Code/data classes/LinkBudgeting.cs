@@ -1,70 +1,66 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System.Threading.Tasks;
 
-public class linkBudgeting
+public static class linkBudgeting
 {
-  public linkBudgeting()
-  {
-    //satellite = false
-    //facility = True
 
-    foreach(KeyValuePair<string, bool> provider in master.providers)
+  public static Dictionary<string, (bool, double, double)> users = new Dictionary<string, (bool, double, double)>();
+  public static Dictionary<string, (bool, double, double)> providers = new Dictionary<string, (bool, double, double)>();
+
+
+  public static void accessCalls(string path)
+   {
+     Debug.Log("Starting access calls");
+		Time time = new Time(2460810.5);
+		List<string> connections = new List<string>();
+        //satellite = false
+        //facility = True
+
+		Task t = new Task(() =>
     {
-      foreach(KeyValuePair<string, bool> user in master.users)
+			while (time.julian < 2460836.5)
       {
-        if (provider.Value == false)
-        {
-          if(user.Value == false)
-          {
-            satellite _provider = master.allSatellites.Find(x => x.name == provider.Key);
-            satellite _user = master.allSatellites.Find(x => x.name == user.Key);
-            if (visibility.raycast(_provider.pos, _user.pos, visibility.raycastParameters.all, 1, false).hit == false)
+				foreach (KeyValuePair<string, (bool t, double start, double end)> provider in providers) {
+					foreach (KeyValuePair<string, (bool t, double start, double end)> user in users) {
+						if (user.Key == provider.Key) continue;
+
+						if (((time.julian > provider.Value.Item2 & time.julian < provider.Value.Item3) & (time.julian > user.Value.Item2 & time.julian < user.Value.Item3)))
             {
-              master.connections.Add(master.time + ": " + provider.Key + " to " + user.Key);
-            }
-          }
-          else
-          {
-            satellite _provider = master.allSatellites.Find(x => x.name == provider.Key);
-            facility _user = master.allFacilites.Find(x => x.name == user.Key);
-            //inset altitude here later
-            position fac = _user.facParent.geoOnPlanet(_user.geo, 0);
-            if (visibility.raycast(_provider.pos, fac, visibility.raycastParameters.all, 1, false).hit == false)
-            {
-              master.connections.Add(master.time + ": " + provider.Key + " to " + user.Key);
-            }
-          }
-        }
-        else
-        {
-          if(user.Value == false)
-          {
-            facility _provider = master.allFacilites.Find(x => x.name == provider.Key);
-            satellite _user = master.allSatellites.Find(x => x.name == user.Key);
-            //inset altitude here later
-            position fac = _provider.facParent.geoOnPlanet(_provider.geo, 0);
-            if (visibility.raycast(fac, _user.pos, visibility.raycastParameters.all, 1, false).hit == false)
-            {
-              master.connections.Add(master.time + ": " + provider.Key + " to " + user.Key);
-            }
-          }
-          else
-          {
-            facility _provider = master.allFacilites.Find(x => x.name == provider.Key);
-            facility _user = master.allFacilites.Find(x => x.name == user.Key);
-            //inset altitude here later
-            position fac2 = _user.facParent.geoOnPlanet(_user.geo, 0);
-            position fac1 = _provider.facParent.geoOnPlanet(_provider.geo, 0);
-            if (visibility.raycast(fac1, fac2, visibility.raycastParameters.all, 1, false).hit == false)
-            {
-              master.connections.Add(master.time + ": " + provider.Key + " to " + user.Key);
-            }
-          }
-        }
-      }
-    }
-    return;
+							position pp = new position(0, 0, 0);
+							position up = new position(0, 0, 0);
+
+							if (!provider.Value.t) pp = master.allSatellites.Find(x => x.name == provider.Key).requestPosition(time);
+							else
+              {
+								facility _provider = master.allFacilites.Find(x => x.name == provider.Key);
+								pp = _provider.facParent.geoOnPlanet(_provider.geo, 0) + _provider.facParent.requestPosition(time);
+							}
+
+							if (!user.Value.t) up = master.allSatellites.Find(x => x.name == user.Key).requestPosition(time);
+							else
+              {
+								facility _user = master.allFacilites.Find(x => x.name == user.Key);
+								up = _user.facParent.geoOnPlanet(_user.geo, 0) + _user.facParent.pos;
+							}
+
+							if (pp != new position(0, 0, 0) && up != new position(0, 0, 0))
+              {
+								if (!visibility.raycast(pp, up, visibility.raycastParameters.planet, time, 1, false).hit) connections.Add(time + ": " + provider.Key + " to " + user.Key);
+							}
+						}
+					}
+				}
+
+				time.addJulianTime(0.0006944444);
+			}
+
+			File.WriteAllLines(path, connections);
+
+			Debug.Log("Access calls finished");
+		});
+
+		t.Start();
   }
-}
+}  

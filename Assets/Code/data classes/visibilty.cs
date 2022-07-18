@@ -31,7 +31,6 @@ public static class visibility
     }
   }
 
-<<<<<<< HEAD
   private static double raycastMath(position position1, position position2, position obj)
   {
     double distance1 = position.distance(position1, obj);
@@ -45,7 +44,6 @@ public static class visibility
 
     return distanceFromObj;
 
-=======
   public static double dotProduct(position vector1, position vector2)
   {
     double dot = vector2.x * vector1.x + vector2.y * vector1.y + vector2.z * vector1.z;
@@ -59,13 +57,8 @@ public static class visibility
 
   private static double raycastMath(position position1, position position2, position obj)
   {
-    position vector1 = new position(
-      position1.x * -1 + position1.x,
-      position1.y * -1 + position1.y,
-      position1.z * -1 + position1.z
-    );
 
-    position vector2 = new position(
+    position vectorSender = new position(
       position1.x * -1 + position2.x,
       position1.y * -1 + position2.y,
       position1.z * -1 + position2.z
@@ -77,15 +70,15 @@ public static class visibility
       position1.z * -1 + obj.z
     );
 
-    double theta = dotProduct(vectorOBJ, vector2);
+    double theta = dotProduct(vectorOBJ, vectorSender);
 
     double distance1 = position.distance(position1, obj);
 
     double distanceFromObj = Math.Sin(theta) * distance1;
 
     return distanceFromObj;
->>>>>>> parent of 01eb8201 (Major performance increase)
   }
+
   /// <summary> This is the main raycast function for our program and it takes in 5 arguments. The final argument if set true will return a list of all the hit objects, but if it is set to false the program will break after the first object is hit </summary>
   public static raycastInfo raycast(position p1, position p2, raycastParameters flags, int defaultRadius, bool returnAllHit)
   {
@@ -101,12 +94,7 @@ public static class visibility
     {
       foreach(planet p in master.allPlanets)
       {
-<<<<<<< HEAD
         if (position.distance(p1, p.pos) > p1p2Distance)
-=======
-
-        if (position.distance(p1, p.pos) < p1p2Distance)
->>>>>>> parent of 01eb8201 (Major performance increase)
         {
           double distanceFromObj = raycastMath(p1, p2, p.pos);
           if (distanceFromObj <= p.radius)
