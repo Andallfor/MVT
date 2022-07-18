@@ -132,8 +132,7 @@ public class planetTerrainFolderInfo
         increment = new geographic(
             double.Parse(inc[0].Split('=').Last(), System.Globalization.NumberStyles.Any),
             double.Parse(inc[1].Split('=').Last(), System.Globalization.NumberStyles.Any));
-        
-        // TODO: CHECK IF THIS BREAKS ANYTHING
+
         allBounds = new List<Bounds>();
         for (double lat = -90; lat < 90; lat += increment.lat)
         {

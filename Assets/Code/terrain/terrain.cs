@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System;
 using UnityEngine.UI;
-
-// theres a lot of variation between for and foreach loops in this code, its bc im still wavering on which one i want to use
 
 public class planetTerrain
 {
@@ -17,12 +16,17 @@ public class planetTerrain
     private Dictionary<planetTerrainFolderInfo, Dictionary<geographic, meshContainer>> existingMeshes = new Dictionary<planetTerrainFolderInfo, Dictionary<geographic, meshContainer>>();
     private Dictionary<planetTerrainFolderInfo, Dictionary<geographic, meshContainer>> hidingMeshes = new Dictionary<planetTerrainFolderInfo, Dictionary<geographic, meshContainer>>();
     private Dictionary<planetTerrainFolderInfo, List<geographic>> toIgnore = new Dictionary<planetTerrainFolderInfo, List<geographic>>();
+    private List<meshContainer> placeholderMeshes = new List<meshContainer>();
     private List<planetTerrainFolderInfo> invincibleFolders = new List<planetTerrainFolderInfo>();
+    private ConcurrentBag<CancellationTokenSource> runningTasks = new ConcurrentBag<CancellationTokenSource>();
+    private planetTerrainFolderInfo designatedPlaceholder = null;
     public readonly double radius, heightMulti;
     public planet parent;
     public string materialPath;
     private bool invertMesh;
+    private terrainUtility terrainUtil;
 
+    private int mainThreadId;
     public planetTerrain(double radius, double heightMulti, planet parent, string materialPath, bool invertMesh = false)
     {
         this.radius = radius;
@@ -30,6 +34,10 @@ public class planetTerrain
         this.heightMulti = heightMulti;
         this.parent = parent;
         this.invertMesh = invertMesh;
+
+        this.terrainUtil = new terrainUtility(parent);
+
+        mainThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
     }
 
     public void generateFolderInfos(string[] folders)
@@ -46,15 +54,8 @@ public class planetTerrain
 
         sortedResolutions = folderInfos.Values.ToList();
         sortedResolutions.Sort((x, y) => x.pointsPerCoord.CompareTo(y.pointsPerCoord));
-    }
 
-    public async void updateTerrain(bool force = false)
-    {
-        if (finishedRunning == false) return;
-        finishedRunning = false;
-        await _updateTerrain(force);
-        finishMeshCleanup();
-        finishedRunning = true;
+        lastP = sortedResolutions[0];
     }
 
     public void preload(string folder, terrainFileType tft) {
@@ -84,12 +85,15 @@ public class planetTerrain
             ptf.generate(ptm);
             ptm.drawMesh(materialPath);
             ptm.hide();
-            hidingMeshes[folderInfos[directoryName]][ptf.geoPosition] = new meshContainer(ptf, ptm);
+            meshContainer mc = new meshContainer(ptf, ptm);
+            hidingMeshes[folderInfos[directoryName]][ptf.geoPosition] = mc;
+            placeholderMeshes.Add(mc);
         }
     }
 
     public void markInvincible(string name) {
         invincibleFolders.Add(folderInfos[name]);
+        designatedPlaceholder = folderInfos[name];
     }
 
     private List<Vector2> screenCorners = new List<Vector2>() {
@@ -98,158 +102,145 @@ public class planetTerrain
         new Vector2(Screen.width, Screen.height),
         new Vector2(0, Screen.height)};
     
-    private void finishMeshCleanup() {
+    private void finishMeshCleanup(bool clearPlaceholders) {
         foreach (planetTerrainMesh ptm in toKill) ptm.clearMesh();
         foreach (planetTerrainMesh ptm in toHide) ptm.hide();
+        if (clearPlaceholders) {
+            foreach (meshContainer mc in placeholderMeshes) mc.ptm.hide();
+        }
 
         toKill = new List<planetTerrainMesh>();
         toHide = new List<planetTerrainMesh>();
     }
 
-    const float moveThreshold = 0.01f, rotateThreshold = 3000, fRotateThreshold = 0.01f, camMoveThreshold = 0.001f, fovThreshold = 0.005f;
-    const int tickThreshold = 60; // terrain can only update every x ticks
-    position lastPlayerPos, lastRotation;
-    Vector3 lastCamPos;
-    Vector2 lastFRot;
-    float lastFov;
-    int lastTick = -1000;
-    bool finishedRunning = true, lastWaitFailed = false;
-    planetTerrainFolderInfo lastP;
-    List<planetTerrainMesh> toKill = new List<planetTerrainMesh>();
-        List<planetTerrainMesh> toHide = new List<planetTerrainMesh>();
-    // TODO: if the time step is too great, unload terrain and use sphere instead- we dont want to be constantly loading and unloading terrain
-    private async Task _updateTerrain(bool force = false)
+    private bool finishedRunning = true;
+    private planetTerrainFolderInfo lastP;
+    public async void updateTerrain(bool force = false)
     {
         if (this.parent.representation.gameObject == null) return;
-
-        double distToPlanet = Vector3.Distance(general.camera.transform.position, this.parent.representation.gameObject.transform.position);
-        float planetZ = general.camera.WorldToScreenPoint(this.parent.representation.gameObject.transform.position).z;
-
-        if (distToPlanet > 7 && !planetFocus.usePlanetFocus) {unloadTerrain(); return;}
         if (planetOverview.usePlanetOverview) {unloadTerrain(); return;}
-        
-        bool move = position.distance(master.currentPosition, lastPlayerPos) > moveThreshold;
-        bool tick = master.currentTick - lastTick > tickThreshold;
-        bool wait = master.currentTick - lastTick > tickThreshold * 3.0;
-        position g = parent.geoOnPlanet(geographic.toGeographic(master.currentPosition - parent.pos, parent.radius), 0);
-        bool rot = position.distance(g, lastRotation) > rotateThreshold;
-        bool fRot = Vector2.Distance(lastFRot, planetFocus.rotation) > fRotateThreshold;
-        bool cmove = Vector3.Distance(lastCamPos, general.camera.transform.position) > camMoveThreshold;
-        bool fov = Mathf.Abs(lastFov - general.camera.fieldOfView) > fovThreshold;
+        double distToPlanet = Vector3.Distance(general.camera.transform.position, this.parent.representation.gameObject.transform.position);
+        if (distToPlanet > 7 && !planetFocus.usePlanetFocus) {unloadTerrain(); return;}
 
-        lastWaitFailed = true;
+        bool shouldClearPlaceholder = false;
+        planetTerrainFolderInfo desiredP = findDesiredResolution();
+        // TODO: add culling when moving around, nto just adjusting res
+        if (desiredP != lastP) {
+            // resolution changed, unload previous
+            // mark previous meshes for cleanup
+            cleanupMeshes(lastP, new List<geographic>(), ref toKill, ref toHide);
+            // stop previous generation attempt
+            foreach (CancellationTokenSource token in runningTasks) token.Cancel();
+            runningTasks = new ConcurrentBag<CancellationTokenSource>();
 
-        // force bypasses all conditions
-        // tick is necessary for basic conditions
-        // move and rot are basic conditions
-        // TODO: scale based on planetFocus.zoom when in planetFocus
-        if (((move || rot || fRot || (wait && !lastWaitFailed) || cmove || fov) && tick) || force)
-        {   
-            Dictionary<planetTerrainFolderInfo, List<geographic>> allDesiredMeshes = new Dictionary<planetTerrainFolderInfo, List<geographic>>();
-            foreach (planetTerrainFolderInfo ptfi in folderInfos.Values) allDesiredMeshes[ptfi] = new List<geographic>();
-
-            List<geographic> desiredMeshes = new List<geographic>();
-            planetTerrainFolderInfo p = findDesiredMeshes(planetZ, out desiredMeshes);
-
-            // changed resolutions, unload previous res
-            if (lastP != p && lastP is planetTerrainFolderInfo) cleanupMeshes(lastP, new List<geographic>(), ref toKill, ref toHide);
-            lastP = p;
-
-            // if we dont want to generate anything, quit
-            if (desiredMeshes.Count == 0 && existingMeshes[p].Count == 0) return;
-
-            //Debug.Log("starting generation attempt");
-            int ignoreCount = cleanupMeshes(p, desiredMeshes, ref toKill, ref toHide);
-
-            // if we arent going to make any changes, return
-            if (ignoreCount == desiredMeshes.Count) return;
-
-            //Debug.Log("preparing new meshes");
-            // generate meshes
-            ConcurrentDictionary<planetTerrainFile, planetTerrainMesh> emCopy = new ConcurrentDictionary<planetTerrainFile, planetTerrainMesh>();
-            List<Task> toDraw = new List<Task>();
-            int desiredCount = desiredMeshes.Count;
-            for (int i = 0; i < desiredCount; i++) {
-                if (toIgnore[p].Contains(desiredMeshes[i])) continue;
-
-                planetTerrainFile ptf = null;
-                if (hidingMeshes[p].ContainsKey(desiredMeshes[i])) {
-                    meshContainer mc = hidingMeshes[p][desiredMeshes[i]];
-
-                    // we already have the mesh saved, so just show it
-                    if (!(mc.ptm is null)) {
-                        mc.ptm.show();
-                        existingMeshes[p][desiredMeshes[i]] = mc;
-                        hidingMeshes[p].Remove(desiredMeshes[i]);
-                    } else {
-                        // we didnt save the mesh, only the file
-                        ptf = mc.ptf;
-                    }
-                } else {
-                    // generate file normally
-                    string predictedFileName = terrainProcessor.fileName(
-                        desiredMeshes[i],
-                        p.increment,
-                        p.type == terrainFileType.npy ? "npy" : "txt");
-                    string predictedPath = Path.Combine(
-                        p.folderPath,
-                        predictedFileName);
-                    
-                    if (!File.Exists(predictedPath)) continue;
-
-                    //Debug.Log("creating new ptf");
-
-                    ptf = new planetTerrainFile(predictedPath, p, p.type);
-                }
-
-                // this means weve already loaded the mesh
-                if (ptf is null) continue;
-
-                //Debug.Log("reading mesh");
-
-                Task t = new Task(() => {
-                    planetTerrainMesh ptm = new planetTerrainMesh(ptf, p, this, invertMesh);
-                    ptf.generate(ptm);
-
-                    emCopy.TryAdd(ptf, ptm);
-                });
-                toDraw.Add(t);
-                t.Start();
-                
-            }
-            await Task.WhenAll(toDraw);
-
-            // dont generate all meshes at once, generate them one a time (to prevent freezing)
-            // cannot thread mesh generation so this seems to be the best option
-            foreach (planetTerrainMesh ptm in emCopy.Values) {
-                //Debug.Log("drawing mesh");
-                ptm.drawMesh(materialPath);
-                await Task.Delay(5); // TODO: maybe replace with value that is determined by how fast the terrain gens?
+            // if the new resolution is greater then the previous one (zooming out), then load in placeholder meshes to cover the holes
+            if (desiredP.pointsPerCoord < lastP.pointsPerCoord && desiredP != sortedResolutions[0]) {
+                foreach (meshContainer mc in placeholderMeshes) mc.ptm.show();
+                shouldClearPlaceholder = true;
             }
 
-            // copy emCopy over to existingMeshes
-            foreach (KeyValuePair<planetTerrainFile, planetTerrainMesh> kvp in emCopy) existingMeshes[kvp.Key.ptfi][kvp.Key.geoPosition] = new meshContainer(kvp.Key, kvp.Value);
-
-            // clear toIgnore
-            toIgnore[p].Clear();
+            lastP = desiredP;
+            force = true;
         }
 
-        lastPlayerPos = master.currentPosition;
-        lastRotation = g;
-        lastCamPos = general.camera.transform.position;
-        lastFov = general.camera.fieldOfView;
-        if (!wait) lastTick = master.currentTick;
+        if (force || (terrainUtil.canRun() && finishedRunning)) {
+            finishedRunning = false;
+            await _updateTerrain(desiredP, force);
+            finishMeshCleanup(shouldClearPlaceholder);
+            finishedRunning = true;
+        }
+    }
+
+    private List<planetTerrainMesh> toKill = new List<planetTerrainMesh>(), toHide = new List<planetTerrainMesh>();
+    // TODO: if the time step is too great, unload terrain and use sphere instead- we dont want to be constantly loading and unloading terrain
+    private async Task _updateTerrain(planetTerrainFolderInfo p, bool force = false)
+    {
+        float planetZ = general.camera.WorldToScreenPoint(this.parent.representation.gameObject.transform.position).z;
+
+        Dictionary<planetTerrainFolderInfo, List<geographic>> allDesiredMeshes = new Dictionary<planetTerrainFolderInfo, List<geographic>>();
+        foreach (planetTerrainFolderInfo ptfi in folderInfos.Values) allDesiredMeshes[ptfi] = new List<geographic>();
+
+        List<geographic> desiredMeshes = findDesiredMeshes(planetZ);
+
+        // if we dont want to generate anything, quit
+        if (desiredMeshes.Count == 0 && existingMeshes[p].Count == 0) return;
+
+        int ignoreCount = cleanupMeshes(p, desiredMeshes, ref toKill, ref toHide);
+
+        // if we arent going to make any changes, return
+        if (ignoreCount == desiredMeshes.Count) return;
+
+        // generate meshes
+        ConcurrentDictionary<planetTerrainFile, planetTerrainMesh> emCopy = new ConcurrentDictionary<planetTerrainFile, planetTerrainMesh>();
+        List<Task> toDraw = new List<Task>();
+        int desiredCount = desiredMeshes.Count;
+        for (int i = 0; i < desiredCount; i++) {
+            if (toIgnore[p].Contains(desiredMeshes[i])) continue;
+
+            planetTerrainFile ptf = null;
+            if (hidingMeshes[p].ContainsKey(desiredMeshes[i])) {
+                meshContainer mc = hidingMeshes[p][desiredMeshes[i]];
+
+                // we already have the mesh saved, so just show it
+                if (!(mc.ptm is null)) {
+                    mc.ptm.show();
+                    existingMeshes[p][desiredMeshes[i]] = mc;
+                    hidingMeshes[p].Remove(desiredMeshes[i]);
+                } else {
+                    // we didnt save the mesh, only the file
+                    ptf = mc.ptf;
+                }
+            } else {
+                // generate file normally
+                string predictedFileName = terrainProcessor.fileName(
+                    desiredMeshes[i],
+                    p.increment,
+                    p.type == terrainFileType.npy ? "npy" : "txt");
+                string predictedPath = Path.Combine(
+                    p.folderPath,
+                    predictedFileName);
+                
+                if (!File.Exists(predictedPath)) continue;
+
+                ptf = new planetTerrainFile(predictedPath, p, p.type);
+            }
+
+            // this means weve already loaded the mesh
+            if (ptf is null) continue;
+
+            CancellationTokenSource tokenSource = new CancellationTokenSource();
+            CancellationToken token = tokenSource.Token;
+            Task t = new Task(() => {
+                planetTerrainMesh ptm = new planetTerrainMesh(ptf, p, this, invertMesh);
+                if (token.IsCancellationRequested) return;
+                ptf.generate(ptm);
+
+                if (token.IsCancellationRequested) return;
+                emCopy.TryAdd(ptf, ptm);
+            });
+            Task tt = t.ContinueWith((task) => {
+                if (token.IsCancellationRequested) return;
+                emCopy[ptf].drawMesh(materialPath);
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+
+            runningTasks.Add(tokenSource);
+            toDraw.Add(tt);
+            t.Start();
+            
+        }
+        await Task.WhenAll(toDraw);
+
+        // copy emCopy over to existingMeshes
+        foreach (KeyValuePair<planetTerrainFile, planetTerrainMesh> kvp in emCopy) existingMeshes[kvp.Key.ptfi][kvp.Key.geoPosition] = new meshContainer(kvp.Key, kvp.Value);
+
+        // clear toIgnore
+        toIgnore[p].Clear();
 
         if (terrainLoaded()) parent.representation.forceHide = true;
         else parent.representation.forceHide = false;
 
         // fix issue where the program would detect the function finishing before it actually did
         await Task.Delay(1);
-
-        lastWaitFailed = false;
-
-        //foreach (planetTerrainMesh ptm in toKill) ptm.clearMesh();
-        //toKill = new List<planetTerrainMesh>();
     }
 
     private int cleanupMeshes(planetTerrainFolderInfo p, List<geographic> desiredMeshes, ref List<planetTerrainMesh> toClear, ref List<planetTerrainMesh> toHide) {
@@ -264,7 +255,6 @@ public class planetTerrain
                     // invincible, hide mesh and data instead of destroying
                     hidingMeshes[p][eMeshes[i]] = existingMeshes[p][eMeshes[i]];
                     toHide.Add(hidingMeshes[p][eMeshes[i]].ptm);
-                    //hidingMeshes[p][eMeshes[i]].ptm.hide();
                 } else {
                     if (existingMeshes[p][eMeshes[i]].ptf.preloaded) {
                         // we preloaded this file so dont actually destroy it, but still remove the mesh
@@ -272,7 +262,6 @@ public class planetTerrain
                     }
 
                     toClear.Add(existingMeshes[p][eMeshes[i]].ptm);
-                    //existingMeshes[p][eMeshes[i]].ptm.clearMesh();
                 }
 
                 existingMeshes[p].Remove(eMeshes[i]);
@@ -286,10 +275,7 @@ public class planetTerrain
         return ignoreCount;
     }
 
-    //List<double> resolutionPercents = quickSum(5, 4);
-    List<double> resolutionPercents = new List<double>() {
-        0.666667, 0.8888889, 0.94, 0.96, 0.98
-    };
+    List<double> resolutionPercents = quickSum(5, 4);
     private static List<double> quickSum(int count, double denom) {
         List<double> output = new List<double>();
         double value = 0;
@@ -301,7 +287,7 @@ public class planetTerrain
         return output;
     }
 
-    private planetTerrainFolderInfo findDesiredMeshes(float planetZ, out List<geographic> points) {
+    private planetTerrainFolderInfo findDesiredResolution() {
         double minFov = 0.2;
         double maxFov = 75;
         double percent = 1.0 - (general.camera.fieldOfView + minFov) / (maxFov + minFov);
@@ -316,7 +302,13 @@ public class planetTerrain
             }
         }
 
-        points = new List<geographic>();
+        return p;
+    }
+
+    private List<geographic> findDesiredMeshes(float planetZ) {
+        planetTerrainFolderInfo p = findDesiredResolution();
+
+        List<geographic> points = new List<geographic>();
         for (int i = 0; i < p.allBounds.Count; i++) {
             Bounds b = p.allBounds[i];
             List<geographic> edges = new List<geographic>() {
@@ -375,7 +367,7 @@ public class planetTerrain
             if (valid) points.Add(new geographic(b.min.y, b.min.x));
         }
 
-        return p;
+        return points;
     }
 
     public void unloadTerrain() {
@@ -412,20 +404,4 @@ internal struct meshContainer {
         this.ptf = ptf;
         this.ptm = ptm;
     }
-}
-
-public class jp2Metadata {
-    public double ImageWidth, ImageLength, BitsPerSample, PhotometricInterpretation, StripOffsets, SamplesPerPixel, RowsPerStrip, StripByteCounts, XResolution, YResolution, PlanarConfiguration, ResolutionUnit, width, height, xll, yll;
-    public List<double> ModelPixelScale, ModelTiePoint;
-    public jp2MetadataGeoKeyDirectory GeoKeyDirectory;
-}
-
-public class jp2MetadataGeoKeyDirectory {
-    public string version;
-    public double numKeys;
-    public List<jp2MetadataKey> keys;
-}
-
-public class jp2MetadataKey {
-    public string id, value;
 }

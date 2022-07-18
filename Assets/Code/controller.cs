@@ -210,7 +210,6 @@ public class controller : MonoBehaviour
         planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/moon/moon", false);
         //planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/earth/earth", false);
 
-        
         pt.generateFolderInfos(new string[5] {
             Path.Combine(p, "1"),
             Path.Combine(p, "2"),
