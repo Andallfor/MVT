@@ -50,6 +50,11 @@ public class controller : MonoBehaviour
         master.pause = false;
         general.camera = Camera.main;
 
+<<<<<<< HEAD
+=======
+        master.markStartOfSimulation();
+
+>>>>>>> parent of 01eb8201 (Major performance increase)
         startMainLoop();
     }
 
@@ -84,6 +89,7 @@ public class controller : MonoBehaviour
         {
           linkBudgeting.accessCalls();
         }
+<<<<<<< HEAD
         if (master.time.julian > 2460811.5)
         {
           if (master.loadCheck == false)
@@ -96,6 +102,20 @@ public class controller : MonoBehaviour
         }
 
 
+=======
+        if (master.time.julian > 2460810.5)
+        {
+          if (master.fileCheck == false)
+          {
+            Debug.Log("file loading");
+            File.WriteAllLines("/Users/arya/connections.txt", master.connections);
+            Debug.Log("file loaded");
+            Debug.Log("Time Stop");
+            master.fileCheck = true;
+          }
+        }
+
+>>>>>>> parent of 01eb8201 (Major performance increase)
         if (planetOverview.usePlanetOverview)
         {
             if (Input.GetKey("d")) planetOverview.rotationalOffset -= 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
@@ -381,6 +401,14 @@ public class controller : MonoBehaviour
 
     private void Artemis3()
     {
+<<<<<<< HEAD
+=======
+        List<satellite> moonSats =  new List<satellite>();
+        List<satellite> earthSats =  new List<satellite>();
+        
+      Debug.Log("Time Start");
+
+>>>>>>> parent of 01eb8201 (Major performance increase)
       representationData rd = new representationData(
           "Prefabs/Planet",
           "Materials/default");
@@ -424,6 +452,7 @@ public class controller : MonoBehaviour
         {
           case "Satellite":
 
+<<<<<<< HEAD
           //satellite = false
           //facility = True
 
@@ -552,6 +581,142 @@ public class controller : MonoBehaviour
         }
 
       }
+=======
+            if (dict["user_provider"] == "user")
+            {
+               master.users.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+            }
+            if (dict["user_provider"] == "provider")
+            {
+               master.providers.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+            }
+            if (dict["user_provider"] == "user/provider")
+            {
+               master.users.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+               //master.providers.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+            }
+
+            if (dict.ContainsKey("RAAN") == true)
+            {
+
+              if (dict["CentralBody"] == "Moon")
+              {
+
+                satellite sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"]/1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), MoonMu)), srd);
+                sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
+                satellite.addFamilyNode(moon, sat);
+                moonSats.Add(sat);
+
+              }
+              else if (dict["CentralBody"] == "Earth")
+              {
+
+                satellite sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"]/1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), EarthMu)), srd);
+                sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
+                satellite.addFamilyNode(earth, sat);
+                earthSats.Add(sat);
+
+              }
+            }
+            else if (dict.ContainsKey("FilePath"))
+            {
+              if (dict["CentralBody"] == "Moon")
+              {
+
+                satellite sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneMin), srd);
+                sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
+                satellite.addFamilyNode(moon, sat);
+                moonSats.Add(sat);
+
+              }
+              else if (dict["CentralBody"] == "Earth")
+              {
+                satellite sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneMin), srd);
+                sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
+                satellite.addFamilyNode(earth, sat);
+                earthSats.Add(sat);
+              }
+            }
+          break;
+
+          case "Facility":
+
+            if (dict["CentralBody"] == "Moon")
+            {
+              double start = 0;
+              double stop = 0;
+              if (dict["TimeInterval_start"] is double)
+              {
+                  start = dict["TimeInterval_start"];
+              }
+              if (dict["TimeInterval_start"] is string)
+              {
+                  start = Double.Parse(dict["TimeInterval_start"], System.Globalization.NumberStyles.Any);
+              }
+
+              if (dict["TimeInterval_stop"] is double)
+              {
+                  start = dict["TimeInterval_start"];
+              }
+              if (dict["TimeInterval_stop"] is string)
+              {
+                  stop = Double.Parse(dict["TimeInterval_stop"], System.Globalization.NumberStyles.Any);
+              }
+
+              List<antennaData> antenna = new List<antennaData>();
+              antenna.Append(new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"]));
+              facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna, new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);
+
+              if (dict["user_provider"] == "user")
+              {
+                 master.users.Add(x.Key, (true, 2460806.5 + start, 2460806.5 + stop));
+              }
+              if (dict["user_provider"] == "provider")
+              {
+                 master.providers.Add(x.Key, (true, 2460806.5 + start, 2460806.5 + stop));
+              }
+              if (dict["user_provider"] == "user/provider")
+              {
+                 master.users.Add(x.Key, (true, 2460806.5 + start, 2460806.5 + stop));
+                 master.providers.Add(x.Key, (true, 2460806.5 + start, 2460806.5 + stop));
+              }
+
+            }
+            else if (dict["CentralBody"] == "Earth")
+            {
+
+              List<antennaData> antenna = new List<antennaData>();
+              antenna.Append(new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Ground_Priority"]));
+              facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna), frd);
+
+              if (dict["user_provider"] == "user")
+              {
+                 master.users.Add(x.Key, (true, 2460806.5, 2460836.5));
+              }
+              if (dict["user_provider"] == "provider")
+              {
+                 master.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
+              }
+              if (dict["user_provider"] == "user/provider")
+              {
+                 master.users.Add(x.Key, (true, 2460806.5, 2460836.5));
+                 master.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
+              }
+            }
+          break;
+
+          case "Impact":
+            //satellite s = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/IMPACT/{x.Key}", oneMin), srd);
+            //satellite.addFamilyNode(earth, s);
+            break;
+        }
+      }
+      master.setReferenceFrame(moon);
+      master.relationshipPlanet[earth] = new List<planet>() {moon};
+      master.relationshipSatellite[moon] = moonSats;
+      master.relationshipSatellite[earth] = earthSats;
+    }
+>>>>>>> parent of 01eb8201 (Major performance increase)
 
       master.setReferenceFrame(moon);
 

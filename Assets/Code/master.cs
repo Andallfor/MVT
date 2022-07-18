@@ -96,6 +96,10 @@ public static class master
     public static Dictionary<string, (bool, double, double)> users = new Dictionary<string, (bool, double, double)>();
     public static Dictionary<string, (bool, double, double)> providers = new Dictionary<string, (bool, double, double)>();
     public static List<string> connections = new List<string>();
+<<<<<<< HEAD
+=======
+    public static bool fileCheck = false;
+>>>>>>> parent of 01eb8201 (Major performance increase)
 
 
     /// <summary> Clear all <see cref="LineRenderer"/> components on <see cref="planet"/>, <see cref="satellite"/>, and <see cref="facility"/>. </summary>
