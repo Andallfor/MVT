@@ -31,19 +31,6 @@ public static class visibility
     }
   }
 
-  private static double raycastMath(position position1, position position2, position obj)
-  {
-    double distance1 = position.distance(position1, obj);
-    double distancePercent = distance1 / position.distance(position1, position2);
-
-    position pointOnLine = new position((position1.x + position2.x) * distancePercent,
-    (position1.y + position2.y) * distancePercent,
-    (position1.z + position2.z) * distancePercent);
-
-    double distanceFromObj = position.distance(pointOnLine, obj);
-
-    return distanceFromObj;
-
   public static double dotProduct(position vector1, position vector2)
   {
     double dot = vector2.x * vector1.x + vector2.y * vector1.y + vector2.z * vector1.z;
@@ -78,7 +65,6 @@ public static class visibility
 
     return distanceFromObj;
   }
-
   /// <summary> This is the main raycast function for our program and it takes in 5 arguments. The final argument if set true will return a list of all the hit objects, but if it is set to false the program will break after the first object is hit </summary>
   public static raycastInfo raycast(position p1, position p2, raycastParameters flags, int defaultRadius, bool returnAllHit)
   {
@@ -94,7 +80,8 @@ public static class visibility
     {
       foreach(planet p in master.allPlanets)
       {
-        if (position.distance(p1, p.pos) > p1p2Distance)
+
+        if (position.distance(p1, p.pos) < p1p2Distance)
         {
           double distanceFromObj = raycastMath(p1, p2, p.pos);
           if (distanceFromObj <= p.radius)

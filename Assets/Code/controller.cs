@@ -48,8 +48,6 @@ public class controller : MonoBehaviour
 
         master.markStartOfSimulation();
 
-        linkBudgeting.accessCalls("C:/Users/leozw/Desktop/connections.txt");
-
         startMainLoop();
     }
 
@@ -367,6 +365,8 @@ public class controller : MonoBehaviour
     {
         List<satellite> moonSats =  new List<satellite>();
         List<satellite> earthSats =  new List<satellite>();
+
+      Debug.Log("Time Start");
 
       representationData rd = new representationData(
           "Prefabs/Planet",

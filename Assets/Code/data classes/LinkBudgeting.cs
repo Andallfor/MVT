@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
-using System.Threading.Tasks;
 
-public static class linkBudgeting
+public class linkBudgeting
 {
 
   public static Dictionary<string, (bool, double, double)> users = new Dictionary<string, (bool, double, double)>();
@@ -22,8 +21,10 @@ public static class linkBudgeting
     {
 			while (time.julian < 2460836.5)
       {
-				foreach (KeyValuePair<string, (bool t, double start, double end)> provider in providers) {
-					foreach (KeyValuePair<string, (bool t, double start, double end)> user in users) {
+				foreach (KeyValuePair<string, (bool t, double start, double end)> provider in providers)
+        {
+					foreach (KeyValuePair<string, (bool t, double start, double end)> user in users)
+          {
 						if (user.Key == provider.Key) continue;
 
 						if (((time.julian > provider.Value.Item2 & time.julian < provider.Value.Item3) & (time.julian > user.Value.Item2 & time.julian < user.Value.Item3)))
@@ -52,15 +53,7 @@ public static class linkBudgeting
 						}
 					}
 				}
-
-				time.addJulianTime(0.0006944444);
-			}
-
-			File.WriteAllLines(path, connections);
-
-			Debug.Log("Access calls finished");
-		});
-
 		t.Start();
+    }
   }
-}  
+}
