@@ -51,6 +51,8 @@ public class controller : MonoBehaviour
         linkBudgeting.accessCalls("C:/Users/leozw/Desktop/connections.txt");
 
         startMainLoop();
+
+        Debug.Log(position.J2000(new position(0, 1, 0), new position(0, 0, -1), new position(0, 1, 0)));
     }
 
     public void startMainLoop(bool force = false) {

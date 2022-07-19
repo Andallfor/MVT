@@ -45,7 +45,7 @@ public static class visibility
           position1.z * -1 + obj.z
         );
 
-        return Math.Sin(position.dotProduct(vectorOBJ, vector2)) * position.distance(position1, obj);
+        return Math.Sin(position.dotProductTheta(vectorOBJ, vector2)) * position.distance(position1, obj);
     }
     /// <summary> This is the main raycast function for our program and it takes in 5 arguments. The final argument if set true will return a list of all the hit objects, but if it is set to false the program will break after the first object is hit </summary>
     public static raycastInfo raycast(position p1, position p2, raycastParameters flags, Time t, int defaultRadius, bool returnAllHit)

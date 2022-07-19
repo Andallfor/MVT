@@ -65,15 +65,59 @@ public readonly struct position
             z / l);
     }
 
-    public static double dotProduct(position vector1, position vector2)
+    public static double dotProductTheta(position vector1, position vector2)
     {
         double dot = vector2.x * vector1.x + vector2.y * vector1.y + vector2.z * vector1.z;
         double abs1 = Math.Sqrt(vector2.x * vector2.x + vector2.y * vector2.y + vector2.z * vector2.z);
         double abs2 = Math.Sqrt(vector1.x * vector1.x + vector1.y * vector1.y + vector1.z * vector1.z);
 
-        double theta = Math.Acos(dot/(abs1 * abs2)) * 180 / Math.PI;
+        double theta = Math.Acos(dot/(abs1 * abs2)); //* 180 / Math.PI;
 
         return theta;
+    }
+
+    public static double dotProduct(position vector1, position vector2)
+    {
+        return vector2.x * vector1.x + vector2.y * vector1.y + vector2.z * vector1.z;
+    }
+
+    public static double norm(position p)
+    {
+        return Math.Sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
+    }
+
+    public static position cross(position v1, position v2)
+    {
+        position p1 = new position(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v1.x);
+        return p1;
+    }
+
+    public static position J2000(position moon, position velocity, position sat)
+    {
+        position j2000_x = new position(1, 0, 0);
+        position j2000_y = new position(0, 1, 0);
+        position Earth_j2000 = new position(0, 0, 0);
+
+        //calculate moonfixed_x in j2000
+        position M_x_j2000 = Earth_j2000 - moon;
+
+        //calculate angle and rotation
+        double angle = dotProductTheta(M_x_j2000, j2000_x);
+ 
+        position k = cross(j2000_x, M_x_j2000);
+
+
+        position yprime=velocity*Math.Cos(angle)+cross(k,velocity)*Math.Sin(angle)+k*(dotProduct(k,velocity))*(1-Math.Cos(angle));
+        //  need to caluclate y offset and rotate around x
+        double angle2 = dotProductTheta(yprime, j2000_y);
+        position k2 = cross(j2000_y, velocity);
+
+
+        position output1 = sat * (Math.Cos(angle2)) + cross(k2,sat) * Math.Sin(angle2) + k2 * (dotProduct(k2,sat)) * (1-Math.Cos(angle2));
+        position output2 = output1 *Math.Cos(angle)+cross(k,output1)*Math.Sin(angle)+k*(dotProduct(k,output1))*(1-Math.Cos(angle));
+
+        position T_j2000 = output2 + moon;
+        return T_j2000 + sat;
     }
 
     public jsonPositionStruct requestJsonFile() => new jsonPositionStruct() {x=x, y=y, z=z};
