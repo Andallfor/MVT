@@ -17,8 +17,12 @@ using Mono.Data.Sqlite;
 public static class ScheduleStructGenerator
 {
     public static Scenario scenario = new Scenario();
-    public static void genDB()
+    public static void genDB(dynamic missionStructure, string misName, string JSONPath)
     {
+        if(File.Exists(@"Assets/Code/scheduler/windows.db"))
+        {
+            File.Delete(@"Assets/Code/scheduler/windows.db");
+        }
         bool fileExists = File.Exists("Assets/Code/scheduler/windows.db");
         SqliteConnection connection = new SqliteConnection("URI=file:Assets/Code/scheduler/windows.db;New=False");
         if (!fileExists)
@@ -33,19 +37,21 @@ public static class ScheduleStructGenerator
                 ""Start""	NUMERIC,
                 ""Stop""	NUMERIC,
                 ""Frequency""	TEXT,
-                ""Rate"" NUMERIC,
-                ""Latency"" Numeric,
-                PRIMARY KEY(""Block_ID"")
-            );";
+                ""Freq_Priority"" INTEGER,
+                ""Schedule_Priority"" NUMERIC,
+                ""Ground_Priority"" NUMERIC,
+                ""Service_Level"" NUMERIC,
+                PRIMARY KEY(""Block_ID""));    
+                ";
             createCommand.ExecuteNonQuery();
             Debug.Log("Created DB");
         }
-        string filePath = "Assets/Resources/SchedulingJSONS/LunarWindows-ArtemisIII_06_30_22.json";
+        string filePath = $"Assets/Resources/SchedulingJSONS/{JSONPath}";
         JObject json = JObject.Parse(File.ReadAllText(filePath)); 
         scenario.epochTime = (string) json["epochTime"];
         scenario.fileGenDate = (string) json["fileGenDate"];
         List<Window> windList = new List<Window>();
-        int count = 1;
+        int count = 0;
         if (!fileExists)
         {
             var command = connection.CreateCommand();
@@ -54,37 +60,128 @@ public static class ScheduleStructGenerator
         }
         foreach (var window in json["windows"])
         {
-            
+            string source = ((string)window["source"]).Replace("\"", "");
+            source = source.EndsWith("-Backup") ? source.Remove(source.LastIndexOf("-Backup")) : source;
+            string destination = ((string)window["destination"]).Replace("\"", "");
+            double schedPrio = source.EndsWith("-Backup") ? 0.1 : 0;
+            double service_Level = 0;
+            double groundPrio = 0;
+            try
+            {
+                    service_Level = (double)missionStructure[misName].Item2[source]["Service_Level"];
+            }
+            catch (KeyNotFoundException)
+            {
+                //Debug.Log($"Either satellite: {wind.source} or Service Level didn't exist");
+            }
+            try
+            {
+                    schedPrio += (double)missionStructure[misName].Item2[source]["Schedule_Priority"];
+            }
+            catch (KeyNotFoundException)
+            {
+                // Debug.Log($"Either satellite: {wind.source} or schedule priority didn't exist");
+            }
+            try
+            {
+                groundPrio = (double)missionStructure[misName].Item2[destination]["Ground_Priority"];
+            }
+            catch (KeyNotFoundException)
+            {
+                //Debug.Log($"Either destination: {wind.destination} or ground priority didn't exist");
+            }
+            int freqPrio = 0;
+            switch((string)window["frequency"])
+            {
+                case "Ka Band":
+                    freqPrio = 1;
+                    break;
+                case "X Band":
+                    freqPrio = 2;
+                    break;
+                case "S Band":
+                    freqPrio = 3;
+                    break;
+            }
+            if (!scenario.users.ContainsKey(source))
+            {
+                User currentUser = new User();
+                string stringServicePeriod = "1 Day";
+                double servicePeriod = 1;
+                try
+                {
+                    stringServicePeriod = missionStructure[misName].Item2[source]["Service_Period"];
+                    servicePeriod += Double.Parse(stringServicePeriod.Remove(stringServicePeriod.LastIndexOf(" Day")))-1;
+                }
+                catch (KeyNotFoundException)
+                {
+                    //Debug.Log($"Either satellite: {wind.source} or service period didn't exist");
+                }
+                currentUser.numDays = (int)(30/servicePeriod);
+                currentUser.serviceLevel = service_Level;
+                currentUser.timeIntervalStart = (double)missionStructure[misName].Item2[source]["TimeInterval_start"];
+                currentUser.timeIntervalStop = (double)missionStructure[misName].Item2[source]["TimeInterval_stop"];
+                for (double i = 0; i <= currentUser.numDays;i+=servicePeriod)
+                {
+                    
+                    (double, double) curBox = (i,0);
+                    if(i == Math.Floor(currentUser.timeIntervalStart) && currentUser.timeIntervalStart%1!=0)
+                    {
+                        curBox.Item2 = (1-(currentUser.timeIntervalStart-i))*currentUser.serviceLevel;
+                    }
+                    else if (i == Math.Floor(currentUser.timeIntervalStop) && currentUser.timeIntervalStop%1!=0)
+                    {
+                        curBox.Item2 = (currentUser.timeIntervalStop-i)*currentUser.serviceLevel;
+                    }
+                    else if (currentUser.timeIntervalStart <=i && i <= currentUser.timeIntervalStop)
+                    {
+                        curBox.Item2 = currentUser.serviceLevel;
+                    }
+                    currentUser.boxes.Add(curBox.Item1, curBox.Item2);
+                }
+                scenario.users.Add(source, currentUser);
+            }
+            string debugJson = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
+            System.IO.File.WriteAllText (@"NewUsers.txt", debugJson);
             foreach (var block in window["windows"])
             {                
                 Window wind = new Window();
                 wind.ID = count;
                 double start = (double)block[0];
                 double stop = (double)block[1];
-                //wind.frequency = (string)window["frequency"];
-                //wind.frequency = wind.frequency.Replace("\"", "");
+                wind.frequency = (string)window["frequency"];
+                wind.frequency = wind.frequency.Replace("\"", "");
+                wind.Freq_Priority = freqPrio;
+                wind.Schedule_Priority = schedPrio;
+                wind.Ground_Priority = groundPrio;
                 //wind.source = (string)window["source"];
                 //wind.destination = (string)window["destination"];
-                wind.source = ((string)window["source"]).Replace("\"", "");
-                wind.destination = ((string)window["source"]).Replace("\"", "");
+                wind.source = source;
+                wind.destination = destination;
                 //wind.rate = (double)window["rate"];
-                wind.start = (double)block[0];
-                wind.stop = (double)block[1];
+                wind.start = start;
+                wind.stop = stop;
+                wind.duration =stop-start;
                 //wind.latency = (double)block[2];
-                wind.boxes = Enumerable.Range((int)Math.Floor(start+1.0), (int)Math.Floor(stop+1.0)-(int)Math.Floor(start+1.0)+1).ToList();
-                wind.timeSpentInBox = new List<double>();
-                if (wind.boxes.Count>1)
+                wind.days = Enumerable.Range((int)Math.Floor(start+1.0), (int)Math.Floor(stop+1.0)-(int)Math.Floor(start+1.0)+1).ToList();
+                wind.timeSpentInDay = new List<double>();
+                if (wind.days.Count>1)
                 {
-                    wind.timeSpentInBox.Add(wind.boxes[0]-start);
-                    foreach (int day in Enumerable.Range(wind.boxes[0], wind.boxes[wind.boxes.Count-1]-1-wind.boxes[0])) wind.timeSpentInBox.Add(1);
-                    wind.timeSpentInBox.Add(stop-wind.boxes[wind.boxes.Count-2]);
+                    wind.timeSpentInDay.Add(wind.days[0]-start);
+                    foreach (int day in Enumerable.Range(wind.days[0], wind.days[wind.days.Count-1]-1-wind.days[0])) wind.timeSpentInDay.Add(1);
+                    wind.timeSpentInDay.Add(stop-wind.days[wind.days.Count-2]);
                 }
-                else wind.timeSpentInBox.Add(stop-start);
-                //Debug.Log($"Start: {start}, Stop: {stop}\t\t{string.Join(", ", wind.boxes)}\t{string.Join(", ", wind.timeSpentInBox)}");
+                else wind.timeSpentInDay.Add(stop-start);
+                //Debug.Log($"Start: {start}, Stop: {stop}\t\t{string.Join(", ", wind.days)}\t{string.Join(", ", wind.timeSpentInDay)}");
+
+                
+                
                 if (!fileExists)
                 {
                     var command = connection.CreateCommand();
-                    command.CommandText = $"INSERT INTO Windows_data (Block_ID, Source, Destination, Start, Stop, Frequency) VALUES ({wind.ID},\"{wind.source}\",\"{wind.destination}\",{start},{stop},\"{(string)window["frequency"]}\")";
+                    command.CommandText = $@"
+                    INSERT INTO Windows_data (Block_ID, Source, Destination, Start, Stop, Frequency, Freq_Priority, Schedule_Priority, Ground_Priority, Service_Level) VALUES 
+                    ({wind.ID},""{source}"",""{destination}"",{start},{stop},""{(string)window["frequency"]}"", {freqPrio}, {schedPrio}, {groundPrio}, {service_Level})";
                     command.ExecuteNonQuery();
                 }
                 count +=1;
@@ -98,13 +195,18 @@ public static class ScheduleStructGenerator
             command.ExecuteNonQuery();
             connection.Close();
         }
-        scenario.windows = windList;
+        scenario.windows = windList.OrderBy(s => s.Schedule_Priority).ThenBy(s => s.Ground_Priority).ThenBy(s=>s.Freq_Priority).ThenByDescending(s=>s.duration).ToList();
+        Debug.Log($@"ID: {scenario.windows[0].ID}\tSource:{scenario.windows[0].source}\tDestination{scenario.windows[0].destination}
+        \tschedPrio: {scenario.windows[0].Schedule_Priority}\tGroundPrio: {scenario.windows[0].Ground_Priority}\tFreq_Prio: {scenario.windows[0].Freq_Priority}\tDuration: {scenario.windows[0].duration}");
         /*foreach (var printWindow in scenario.windows)
         {
             string print = JsonUtility.ToJson(printWindow, true);
             Debug.Log(print);
         }*/
     }
+    //Ka - highest priority
+    //X
+    //s - lowest priority
     public static void createConflictList()
     {
         SqliteConnection connection = new SqliteConnection("URI=file:Assets/Code/scheduler/windows.db;New=False");
@@ -112,7 +214,7 @@ public static class ScheduleStructGenerator
         var command = connection.CreateCommand();
         command.CommandText = "BEGIN;";
         command.ExecuteNonQuery();
-        for (int i = 1; i <= scenario.windows.Count-1;i++)
+        for (int i = 0; i < scenario.windows.Count-1;i++)
         {
             //Debug.Log(i);
             Window block = scenario.windows[i];
@@ -137,7 +239,13 @@ public static class ScheduleStructGenerator
                         Source = ""{block.source}"" and
                         Destination = ""{block.destination}""
                     )
-                );
+                )
+                ORDER by 
+	            Schedule_Priority ASC,
+	            Ground_Priority ASC,
+	            Freq_Priority ASC,
+	            (Stop-Start) DESC
+                ;
             ";
             IDataReader reader = command.ExecuteReader();
             while (reader.Read())
@@ -161,6 +269,21 @@ public static class ScheduleStructGenerator
         connection.Close();
     }
 
+    public static void doDFS()
+    {
+        List<int> totalConflicts = new List<int>();
+        foreach (var curBlock in scenario.windows)
+        {
+            if (totalConflicts.Contains(curBlock.ID)) continue;
+            totalConflicts.AddRange(curBlock.conflicts);
+            for (int i = 0; i < curBlock.days.Count;i++)
+            {
+                scenario.users[curBlock.source].boxes[curBlock.days[i]] -= curBlock.timeSpentInDay[i];
+            }
+        }
+        string json = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
+        System.IO.File.WriteAllText (@"Post-DFSUsers.txt", json);
+    }
    /* public static void test()
     {
         Window finded = scenario.windows.Find(item => item.ID==6);
@@ -170,25 +293,44 @@ public static class ScheduleStructGenerator
 }
 
 
-public struct Scenario
+public class Scenario
 {
     public string epochTime;
     public string fileGenDate;
     public List<Window> windows;
+    public Dictionary<string, User> users = new Dictionary<string, User>();
 }
 
-public struct Window
+public class Window
 {
     public int ID;
-    //public string frequency;
+    public string frequency;
     public string source; //user
     public string destination;
+    public int Freq_Priority;
+    public double Schedule_Priority;
+    public double Ground_Priority;
     //public double rate;
     public double start;
     public double stop;
+    public double duration;
     //public double latency;
     public List<int> conflicts;
-    public List<int> boxes;
-    public List<double> timeSpentInBox;
+    public List<int> days;
+    public List<double> timeSpentInDay;
 }
 
+public class User
+{
+    public int numDays;
+    public double serviceLevel;
+    public double timeIntervalStart;
+    public double timeIntervalStop;
+    //public List<(double box, double timeInBox)> boxes = new List<(double, double)>();
+    public Dictionary<double, double> boxes = new Dictionary<double, double>();
+    public string print()
+    {
+        return $"NumDays: {numDays}\ttimeStart:{timeIntervalStart}\ttimeStop{timeIntervalStop}";
+    }
+
+}

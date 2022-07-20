@@ -1,3 +1,8 @@
+Select Source, Destination, Start, Stop, Frequency, Schedule_Priority, Ground_Priority from Windows_data
+ORDER by 
+	Schedule_Priority ASC,
+	Ground_Priority ASC;
+------------------------------------------------------------------
 create table if not exists variable(var INTEGER);
 Insert into variable (var) values (6);
 CREATE TABLE if not exists TimeFiltered AS SELECT * FROM Windows WHERE 0;

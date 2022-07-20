@@ -6,6 +6,8 @@ using System.Linq;
 using UnityEngine.EventSystems;
 using System.IO;
 using UnityEngine.SceneManagement;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 public class controller : MonoBehaviour
 {
@@ -39,11 +41,15 @@ public class controller : MonoBehaviour
 
 
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
-        //DBReader.getData();
+        var missionStructure = DBReader.getData();
+        //string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
+        //System.IO.File.WriteAllText (@"NewMissionStructure.txt", json);
         Debug.Log("Generating DB.....");
-        ScheduleStructGenerator.genDB();
+        ScheduleStructGenerator.genDB(missionStructure, "Artemis_III", "LunarWindows-RAC2_1_07_19_22.json");
         Debug.Log("Generating conflict list.....");
         ScheduleStructGenerator.createConflictList();
+        Debug.Log("Doing DFS.....");
+        ScheduleStructGenerator.doDFS();
         //Debug.Log("Testing.....");
         //ScheduleStructGenerator.test();
         //planetTerrain pt = loadTerrain();
