@@ -19,11 +19,10 @@ public static class DBReader
         {
             connection.Open();
             List<(string epochDate, string missionName)> tables = new List<(string epochDate, string missionName)>();
-            
+
             using (var command = connection.CreateCommand()) //creates list of tables/missions
             {
-                command.CommandText = "SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE \"%_details\" ORDER BY name;";
-                using (IDataReader reader = command.ExecuteReader())
+                command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE \"%_details\" ORDER BY name;";using (IDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -63,7 +62,7 @@ public static class DBReader
                         sats.Add((string)reader["Name"], data);
                     }
                     reader.Close();
-                    
+
                 }
                 missions.Add(table.missionName, (table.epochDate, sats));
             }
@@ -101,6 +100,4 @@ public static class DBReader
         }
         return missions;
     }
-}   
-
-
+}

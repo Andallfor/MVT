@@ -244,7 +244,7 @@ public static class planetOverview
 
         double adjustedRatio = 0.25 * Math.Log(ratio + 0.01, 10) + 0.5;
 
-        return p * adjustedRatio * master.scale * 12.0;
+        return p.swapAxis() * adjustedRatio * master.scale * 12.0;
     }
 
     public static void backCallback() {
