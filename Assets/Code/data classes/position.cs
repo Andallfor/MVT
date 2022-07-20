@@ -71,7 +71,7 @@ public readonly struct position
         double abs1 = Math.Sqrt(vector2.x * vector2.x + vector2.y * vector2.y + vector2.z * vector2.z);
         double abs2 = Math.Sqrt(vector1.x * vector1.x + vector1.y * vector1.y + vector1.z * vector1.z);
 
-        double theta = Math.Acos(dot/(abs1 * abs2)); //* 180 / Math.PI;
+        double theta = Math.Acos(dot/(abs1 * abs2)); // 180 / Math.PI;
 
         return theta;
     }
@@ -108,16 +108,17 @@ public readonly struct position
 
 
         position yprime=velocity*Math.Cos(angle)+cross(k,velocity)*Math.Sin(angle)+k*(dotProduct(k,velocity))*(1-Math.Cos(angle));
+
         //  need to caluclate y offset and rotate around x
         double angle2 = dotProductTheta(yprime, j2000_y);
         position k2 = cross(j2000_y, velocity);
 
-
         position output1 = sat * (Math.Cos(angle2)) + cross(k2,sat) * Math.Sin(angle2) + k2 * (dotProduct(k2,sat)) * (1-Math.Cos(angle2));
-        position output2 = output1 *Math.Cos(angle)+cross(k,output1)*Math.Sin(angle)+k*(dotProduct(k,output1))*(1-Math.Cos(angle));
+        position output2 = output1 * Math.Cos(angle)+cross(k,output1)*Math.Sin(angle)+k*(dotProduct(k,output1))*(1-Math.Cos(angle));
 
-        position T_j2000 = output2 + moon;
-        return T_j2000 + sat;
+        position T_j2000 = output2+moon;
+        Debug.Log((T_j2000+sat));
+        return new position(T_j2000+sat);
     }
 
     public jsonPositionStruct requestJsonFile() => new jsonPositionStruct() {x=x, y=y, z=z};

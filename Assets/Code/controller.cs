@@ -406,7 +406,7 @@ public class controller : MonoBehaviour
       double EarthMu = 398600.435436;
 
       earth =       new planet(  "Earth", new planetData(  6371, true, "CSVS/ARTEMIS 3/PLANETS/earth", oneHour, planetType.planet), erd);
-      planet moon = new planet(   "Luna", new planetData(1738.1, false,    "CSVS/ARTEMIS 3/PLANETS/moon", oneHour, planetType.moon),   rd);
+      planet moon = new planet(   "Luna", new planetData(1738.1, false,    "CSVS/ARTEMIS 3/PLANETS/moon", oneMin, planetType.moon),   rd);
                     new planet("Mercury", new planetData(2439.7, false, "CSVS/ARTEMIS 3/PLANETS/mercury", oneHour, planetType.planet), rd);
                     new planet(  "Venus", new planetData(6051.8, false,   "CSVS/ARTEMIS 3/PLANETS/venus", oneHour, planetType.planet), rd);
                     new planet(   "Mars", new planetData(3396.2, false,    "CSVS/ARTEMIS 3/PLANETS/mars", oneHour, planetType.planet), rd);
@@ -475,6 +475,9 @@ public class controller : MonoBehaviour
       master.relationshipPlanet[earth] = new List<planet>() {moon};
       master.relationshipSatellite[moon] = moonSats;
       master.relationshipSatellite[earth] = earthSats;
+
+      master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/PLANETS/moon", 0.0006944444));
+      master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/SATS/v", 0.0006944444));
     }
 
 }
