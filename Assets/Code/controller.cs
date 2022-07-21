@@ -10,6 +10,8 @@ using UnityEngine.SceneManagement;
 public class controller : MonoBehaviour
 {
     public float playerSpeed = 100f * (float) master.scale;
+
+    public DropdownHelper dropdown;
     public static planet earth;
     public static double speed = 0.00005;
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
@@ -47,7 +49,7 @@ public class controller : MonoBehaviour
         general.camera = Camera.main;
 
         master.markStartOfSimulation();
-        
+        dropdown.initdropdown();
         startMainLoop();
     }
 
