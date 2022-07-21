@@ -118,6 +118,7 @@ public class planetTerrain
     public async void updateTerrain(bool force = false)
     {
         if (this.parent.representation.gameObject == null) return;
+        if (planetFocus.usePoleFocus) {unloadTerrain(); return;}
         if (planetOverview.usePlanetOverview) {unloadTerrain(); return;}
         double distToPlanet = Vector3.Distance(general.camera.transform.position, this.parent.representation.gameObject.transform.position);
         if (distToPlanet > 7 && !planetFocus.usePlanetFocus) {unloadTerrain(); return;}
@@ -210,6 +211,7 @@ public class planetTerrain
 
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
+            Debug.Log("reading data");
             Task t = new Task(() => {
                 planetTerrainMesh ptm = new planetTerrainMesh(ptf, p, this, invertMesh);
                 if (token.IsCancellationRequested) return;
@@ -220,7 +222,9 @@ public class planetTerrain
             });
             Task tt = t.ContinueWith((task) => {
                 if (token.IsCancellationRequested) return;
+                Debug.Log("drawing mesh");
                 emCopy[ptf].drawMesh(materialPath);
+                Debug.Log("finished drawing mesh");
             }, TaskScheduler.FromCurrentSynchronizationContext());
 
             runningTasks.Add(tokenSource);
@@ -388,6 +392,8 @@ public class planetTerrain
                 }
             }
         }
+
+        foreach (meshContainer mc in placeholderMeshes) mc.ptm.hide();
 
         existingMeshes = new Dictionary<planetTerrainFolderInfo, Dictionary<geographic, meshContainer>>();
         foreach (planetTerrainFolderInfo p in folderInfos.Values) existingMeshes[p] = new Dictionary<geographic, meshContainer>();

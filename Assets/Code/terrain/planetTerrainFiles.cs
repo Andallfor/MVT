@@ -62,6 +62,7 @@ public class planetTerrainFile
     private void generateNpy(planetTerrainMesh m) {
         NDArray data = preloaded ? npData : np.load(path);
 
+        // TODO: this seems to be a major slowdown-> thread it or move to gpu?
         for (int row = 0; row < data.shape[0]; row++) {
             for (int col = 0; col < data.shape[1]; col++) {
                 int rowOffset = (int) data.shape[0] - 1 - row;

@@ -53,6 +53,7 @@ public abstract class IMesh
 
     public GameObject drawMesh(Material mat, GameObject model, string name, Transform parent) {
         mesh = new Mesh();
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         mesh.vertices = verts;
         mesh.triangles = triangles.ToArray();
         mesh.uv = uvs.ToArray();
