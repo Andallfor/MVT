@@ -328,7 +328,11 @@ namespace B83.MeshTools
             Dictionary<string, long[]> key = poleTerrain.savedPositions[name];
 
             long count = key["count"][0];
-            byte[] data = File.ReadAllBytes(path);
+            byte[] data = new byte[0];
+            using (FileStream fs = File.Open(path, FileMode.Open)) {
+                data = new byte[fs.Length];
+                await fs.ReadAsync(data, 0, (int) fs.Length);
+            }
 
             // where we save the processed data
             int[] gindices = new int[key["indices"][2]];

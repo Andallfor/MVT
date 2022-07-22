@@ -142,7 +142,7 @@ public class controller : MonoBehaviour
             }
 
             if (planetFocus.usePoleFocus) {
-                if (Input.GetKeyDown("+")) plt.increaseScale();
+                if (Input.GetKeyDown("=")) plt.increaseScale();
                 if (Input.GetKeyDown("-")) plt.decreaseScale();
 
                 planetFocus.focus.representation.forceHide = true;

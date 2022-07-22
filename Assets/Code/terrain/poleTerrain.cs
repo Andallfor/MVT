@@ -15,7 +15,7 @@ using System.Threading;
 
 
 public class poleTerrain {
-    private List<poleTerrainFile> ptfs = new List<poleTerrainFile>();
+    private List<GameObject> meshes = new List<GameObject>();
     private List<int> scales = new List<int>();
     private Dictionary<int, string> scaleKey = new Dictionary<int, string>();
     private int currentScaleIndex = 0;
@@ -39,38 +39,50 @@ public class poleTerrain {
         //saveMeshes(5, "C:/Users/leozw/Desktop/poles/25m", "C:/Users/leozw/Desktop/terrain/polesBinary/25m");
     }
 
-    private void generateScale(int scale) {
+    private async void generateScale(int scale) {
         savedPositions = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long[]>>>(
             File.ReadAllText(Path.Combine(scaleKey[scale], "data.json")));
+        
+        int totalFiles = 0;
+        Queue<string> files = new Queue<string>();
 
-        Parallel.ForEach(Directory.EnumerateFiles(scaleKey[scale]), async (file) => {
-            if (Path.GetExtension(file) != ".trn") return;
+        foreach (string file in Directory.EnumerateFiles(scaleKey[scale])) {
+            if (Path.GetExtension(file) != ".trn") continue;
 
-            poleTerrainFile ptf = new poleTerrainFile(file, scale);
-            deserialzedMeshData dmd = await ptf.load();
+            files.Enqueue(file);
+            totalFiles++;
+        }
 
-            UnityMainThreadDispatcher.Instance().Enqueue(() => {
-                GameObject go = GameObject.Instantiate(model);
-                go.name = "a";
-                go.transform.parent = null;
-                go.transform.localPosition = Vector3.zero;
-                go.transform.localEulerAngles = Vector3.zero;
-                go.GetComponent<MeshRenderer>().material = mat;
-                go.GetComponent<MeshFilter>().mesh = dmd.generate();
-            });
-        });
-    }
+        // load data in batches
+        float batchCount = 2;
+        for (int i = 0; i < (float) totalFiles / batchCount; i++) {
+            List<Task> tasks = new List<Task>();
 
-    private async Task generateSingleFile(string file, int scale) {
-        deserialzedMeshData dmd = null;
-        poleTerrainFile ptf = null;
-        Task t = Task.Run(async () => {
-            ptf = new poleTerrainFile(file, scale);
-            dmd = await ptf.load();
-        });
-        await t;
+            for (int j = 0; j < batchCount; j++) {
+                if (files.Count == 0) break;
 
-        UnityMainThreadDispatcher.Instance().Enqueue(ptf.draw(dmd, model, mat));
+                string file = files.Dequeue();
+
+                tasks.Add(Task.Run(async () => {
+                    poleTerrainFile ptf = new poleTerrainFile(file, scale);
+                    deserialzedMeshData dmd = await ptf.load();
+
+                    UnityMainThreadDispatcher.Instance().Enqueue(() => {
+                        GameObject go = GameObject.Instantiate(model);
+                        go.name = "a";
+                        go.transform.parent = null;
+                        go.transform.localPosition = Vector3.zero;
+                        go.transform.localEulerAngles = Vector3.zero;
+                        go.GetComponent<MeshRenderer>().material = mat;
+                        go.GetComponent<MeshFilter>().mesh = dmd.generate();
+
+                        meshes.Add(go);
+                    });
+                }));
+            }
+
+            await Task.WhenAll(tasks);
+        }
     }
 
     private void saveMeshes(int scale, string srcFolder, string output) {
@@ -92,7 +104,7 @@ public class poleTerrain {
     }
 
     public void increaseScale() {
-        if (currentScaleIndex != scales.Count - 1) return;
+        if (currentScaleIndex == scales.Count - 1) return;
         clear();
         currentScaleIndex++;
         generateScale(scales[currentScaleIndex]);
@@ -105,8 +117,8 @@ public class poleTerrain {
     }
 
     public void clear() {
-        foreach (poleTerrainFile ptf in ptfs) ptf.clear();
-        ptfs = new List<poleTerrainFile>();
+        foreach (GameObject go in meshes) GameObject.Destroy(go);
+        meshes = new List<GameObject>();
     }
 }
 
