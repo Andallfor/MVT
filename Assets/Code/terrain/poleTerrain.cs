@@ -10,6 +10,9 @@ using UnityEditor;
 using System.Diagnostics;
 using B83.MeshTools;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
+using System.Threading;
+
 
 public class poleTerrain {
     private List<poleTerrainFile> ptfs = new List<poleTerrainFile>();
@@ -31,27 +34,31 @@ public class poleTerrain {
         model = GameObject.Instantiate(Resources.Load("Prefabs/PlanetMesh") as GameObject);
         mat = Resources.Load("Materials/default") as Material;
 
+        //saveMeshes(20, "C:/Users/leozw/Desktop/poles/100m", "C:/Users/leozw/Desktop/terrain/polesBinary/100m");
         //saveMeshes(10, "C:/Users/leozw/Desktop/poles/50m", "C:/Users/leozw/Desktop/terrain/polesBinary/50m");
+        //saveMeshes(5, "C:/Users/leozw/Desktop/poles/25m", "C:/Users/leozw/Desktop/terrain/polesBinary/25m");
     }
 
-    private async void generateScale(int scale) {
+    private void generateScale(int scale) {
         savedPositions = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long[]>>>(
             File.ReadAllText(Path.Combine(scaleKey[scale], "data.json")));
 
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
-        List<Task> tasks = new List<Task>();
-        foreach (string file in Directory.EnumerateFiles(scaleKey[scale])) {
-            if (Path.GetExtension(file) != ".trn") continue;
+        Parallel.ForEach(Directory.EnumerateFiles(scaleKey[scale]), async (file) => {
+            if (Path.GetExtension(file) != ".trn") return;
 
-            Task t = generateSingleFile(file, scale);
-            tasks.Add(t);
-        }
-        await Task.WhenAll(tasks);
+            poleTerrainFile ptf = new poleTerrainFile(file, scale);
+            deserialzedMeshData dmd = await ptf.load();
 
-        sw.Stop();
-
-        UnityEngine.Debug.Log($"Took {sw.ElapsedMilliseconds}ms to generate {scaleKey[scale]}");
+            UnityMainThreadDispatcher.Instance().Enqueue(() => {
+                GameObject go = GameObject.Instantiate(model);
+                go.name = "a";
+                go.transform.parent = null;
+                go.transform.localPosition = Vector3.zero;
+                go.transform.localEulerAngles = Vector3.zero;
+                go.GetComponent<MeshRenderer>().material = mat;
+                go.GetComponent<MeshFilter>().mesh = dmd.generate();
+            });
+        });
     }
 
     private async Task generateSingleFile(string file, int scale) {
@@ -63,7 +70,7 @@ public class poleTerrain {
         });
         await t;
 
-        ptf.draw(dmd, model, mat);
+        UnityMainThreadDispatcher.Instance().Enqueue(ptf.draw(dmd, model, mat));
     }
 
     private void saveMeshes(int scale, string srcFolder, string output) {
@@ -93,7 +100,7 @@ public class poleTerrain {
 
     public void genMinScale() {
         clear();
-        currentScaleIndex = 1;
+        currentScaleIndex = 0;
         generateScale(scales[currentScaleIndex]);
     }
 
@@ -136,7 +143,7 @@ public class poleTerrainFile {
     //public deserialzedMeshData load() => MeshSerializer.DeserializeMesh(File.ReadAllBytes(this.filePath));
     public async Task<deserialzedMeshData> load() => await MeshSerializer.quickDeserialize(this.filePath);
 
-    public void draw(deserialzedMeshData md, GameObject model, Material mat) {
+    public IEnumerator draw(deserialzedMeshData md, GameObject model, Material mat) {
         go = GameObject.Instantiate(model);
         go.name = name;
         go.transform.parent = null;
@@ -144,8 +151,9 @@ public class poleTerrainFile {
         go.transform.localEulerAngles = Vector3.zero;
         go.GetComponent<MeshRenderer>().material = mat;
         Mesh m = md.generate();
-        UnityEngine.Debug.Log(m.indexFormat);
         go.GetComponent<MeshFilter>().mesh = m;
+
+        yield return null;
     }
 
     public void clear() {GameObject.Destroy(go);}

@@ -194,6 +194,7 @@ namespace B83.MeshTools
                     if (max < 256)
                     {
                         aWriter.Write((byte)1);
+                        poleTerrain.savedPositions[name]["componentCount"] = new long[1] {1};
                         p1 = aWriter.BaseStream.Length;
                         foreach (var index in indices)
                             aWriter.Write((byte)index);
@@ -201,6 +202,7 @@ namespace B83.MeshTools
                     else if (max < 65536)
                     {
                         aWriter.Write((byte)2);
+                        poleTerrain.savedPositions[name]["componentCount"] = new long[1] {2};
                         p1 = aWriter.BaseStream.Length;
                         foreach (var index in indices)
                             aWriter.Write((ushort)index);
@@ -208,6 +210,7 @@ namespace B83.MeshTools
                     else
                     {
                         aWriter.Write((byte)4);
+                        poleTerrain.savedPositions[name]["componentCount"] = new long[1] {4};
                         p1 = aWriter.BaseStream.Length;
                         foreach (var index in indices)
                             aWriter.Write(index);
@@ -303,7 +306,11 @@ namespace B83.MeshTools
                         int indexCount = aReader.ReadInt32();
                         var indices = new int[indexCount];
                         componentCount = aReader.ReadByte();
-                        for (int i = 0; i < indexCount; i++) indices[i] = aReader.ReadUInt16();
+                        if (componentCount == 2) {
+                            for (int i = 0; i < indexCount; i++) indices[i] = aReader.ReadUInt16();
+                        } else {
+                            for (int i = 0; i < indexCount; i++) indices[i] = aReader.ReadInt32();
+                        }
                         md.indices = indices;
                         md.topology = topology;
                         break;
@@ -348,7 +355,15 @@ namespace B83.MeshTools
             tasks[0] = Task.Run(() => {for (int i = 0; i < count; i++) gvertices[i] = verts.ReadVector3();});
             tasks[1] = Task.Run(() => {for (int i = 0; i < count; i++) gnormals[i] = norms.ReadVector3();});
             tasks[2] = Task.Run(() => {for (int i = 0; i < count; i++) guvs[i] = bruvs.ReadVector4();});
-            tasks[3] = Task.Run(() => {for (int i = 0; i < gindices.Length; i++) gindices[i] = indcs.ReadUInt16();});
+            long componentCount = poleTerrain.savedPositions[name]["componentCount"][0];
+            if (componentCount == 2) {
+                tasks[3] = Task.Run(() => {for (int i = 0; i < gindices.Length; i++) gindices[i] = indcs.ReadUInt16();});
+            } else if (componentCount == 4) {
+                tasks[3] = Task.Run(() => {for (int i = 0; i < gindices.Length; i++) gindices[i] = indcs.ReadInt32();});
+            } else {
+                Debug.LogWarning("Encountered unknown component count. Please implement count for 1");
+                // https://pastebin.com/yW91qEQh
+            }
 
             await Task.WhenAll(tasks);
 
@@ -386,7 +401,7 @@ namespace B83.MeshTools
             Mesh m = new Mesh();
 
             m.subMeshCount = subMeshCount;
-            m.indexFormat = UnityEngine.Rendering.IndexFormat.UInt16;
+            m.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
             m.vertices = vertices;
             m.SetIndices(indices, topology, 0, false);
             m.SetUVs(uvChannel, uvs);
