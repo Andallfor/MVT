@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3074529714627308097}
   - component: {fileID: 3074529714627308098}
   - component: {fileID: -1855815855399124192}
+  - component: {fileID: 1987478419091535042}
   m_Layer: 0
   m_Name: facility
   m_TagString: Untagged
@@ -178,3 +179,17 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
+--- !u!114 &1987478419091535042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3074529714627308124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b74988e089172774e82bfe1237bb7a2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lat: 0
+  lon: 0

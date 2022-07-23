@@ -19,6 +19,18 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
     public bool selected {get; private set;}
     private bool planetFocusHidden;
 
+    public void initDebugger() {
+        facilityDebugger debugger = gameObject.GetComponent<facilityDebugger>();
+        debugger.parent = this;
+        debugger.lat = (float) geo.lat;
+        debugger.lon = (float) geo.lon;
+    }
+
+    /// <summary> WARNING: May break things </summary>
+    public void forceChangeGeo(geographic g) {
+        this.geo = g;
+    }
+
     public facilityRepresentation(string name, List<antennaData> antennas, geographic geo, planet parent, representationData data) {
         gameObject = GameObject.Instantiate(data.model);
         gameObject.GetComponent<MeshRenderer>().material = data.material;
@@ -31,6 +43,8 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
         this.name = name;
         this.data = data;
         this.antennas = new List<antennaRepresentation>();
+
+        initDebugger();
 
         foreach (antennaData ad in antennas) {
             antennaRepresentation ar = new antennaRepresentation(ad, this.gameObject);
