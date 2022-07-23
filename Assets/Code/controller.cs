@@ -45,7 +45,7 @@ public class controller : MonoBehaviour
         //string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
         //System.IO.File.WriteAllText (@"NewMissionStructure.txt", json);
         Debug.Log("Generating DB.....");
-        ScheduleStructGenerator.genDB(missionStructure, "Artemis_III", "LunarWindows-RAC2_1_07_19_22.json");
+        ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", "LunarWindows-RAC2_1_07_19_22.json");
         Debug.Log("Generating conflict list.....");
         ScheduleStructGenerator.createConflictList();
         Debug.Log("Doing DFS.....");
