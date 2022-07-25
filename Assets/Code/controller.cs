@@ -38,7 +38,7 @@ public class controller : MonoBehaviour
         //onlyEarth();
         //kepler();
         Artemis3();
-
+        //testing git on reset computer
 
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
         var missionStructure = DBReader.getData();
