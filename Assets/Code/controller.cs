@@ -158,10 +158,10 @@ public class controller : MonoBehaviour
             Vector3 forward = Camera.main.transform.forward;
             Vector3 right = Camera.main.transform.right;
             float t = UnityEngine.Time.deltaTime;
-            if (Input.GetKey("w")) planetFocus.movementOffset += forward * playerSpeed * t;
-            if (Input.GetKey("s")) planetFocus.movementOffset -= forward * playerSpeed * t;
-            if (Input.GetKey("d")) planetFocus.movementOffset += right * playerSpeed * t;
-            if (Input.GetKey("a")) planetFocus.movementOffset -= right * playerSpeed * t;
+            if (Input.GetKey("w")) master.currentPosition += forward * playerSpeed * t;
+            if (Input.GetKey("s")) master.currentPosition -= forward * playerSpeed * t;
+            if (Input.GetKey("d")) master.currentPosition += right * playerSpeed * t;
+            if (Input.GetKey("a")) master.currentPosition -= right * playerSpeed * t;
 
         }
 
