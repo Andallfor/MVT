@@ -146,6 +146,20 @@ public class planetTerrainFolderInfo
         }
     }
 
+    public planetTerrainFolderInfo(planetTerrainFolderInfo ptfi) {
+        ncols = ptfi.ncols;
+        nrows = ptfi.nrows;
+        cellsize = ptfi.cellsize;
+        pointsPerCoord = ptfi.pointsPerCoord;
+        filesPerTile = ptfi.filesPerTile;
+        genStep = ptfi.genStep;
+        type = ptfi.type;
+        name = ptfi.name;
+        folderPath = ptfi.folderPath;
+        increment = ptfi.increment;
+        allBounds = new List<Bounds>(ptfi.allBounds);
+    }
+
     private string read(string s) => s.Split(' ').Last();
 
     // expands each bound to the closest points that are on increment
@@ -161,6 +175,11 @@ public class planetTerrainFolderInfo
     }
 
     public override int GetHashCode() => (int) (pointsPerCoord * 100.0);
+    public override bool Equals(object obj)
+    {
+        if (!(obj is planetTerrainFolderInfo)) return false;
+        return ((planetTerrainFolderInfo) obj).GetHashCode() == this.GetHashCode();
+    }
 }
 
 public enum terrainFileType {

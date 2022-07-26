@@ -19,18 +19,21 @@ public class poleTerrain {
     private List<int> scales = new List<int>();
     private Dictionary<int, string> scaleKey = new Dictionary<int, string>();
     private int currentScaleIndex = 0;
-
+    private Transform parent;
     private GameObject model;
     private Material mat;
+    public bool currentlyDrawing = false;
 
     public static Dictionary<string, Dictionary<string, long[]>> savedPositions = new Dictionary<string, Dictionary<string, long[]>>();
 
-    public poleTerrain(Dictionary<int, string> scaleKey) {
+    public poleTerrain(Dictionary<int, string> scaleKey, Transform parent) {
         this.scaleKey = scaleKey;
+        this.parent = parent;
         this.scales = scaleKey.Keys.ToList();
         scales.Sort();
         scales.Reverse();
 
+        // TODO: why are we insatntiating here?
         model = GameObject.Instantiate(Resources.Load("Prefabs/PlanetMesh") as GameObject);
         mat = Resources.Load("Materials/default") as Material;
 
@@ -40,6 +43,7 @@ public class poleTerrain {
     }
 
     private async void generateScale(int scale) {
+        currentlyDrawing = true;
         savedPositions = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long[]>>>(
             File.ReadAllText(Path.Combine(scaleKey[scale], "data.json")));
         
@@ -70,7 +74,7 @@ public class poleTerrain {
                     UnityMainThreadDispatcher.Instance().Enqueue(() => {
                         GameObject go = GameObject.Instantiate(model);
                         go.name = "a";
-                        go.transform.parent = null;
+                        go.transform.parent = parent;
                         go.transform.localPosition = Vector3.zero;
                         go.transform.localEulerAngles = Vector3.zero;
                         go.GetComponent<MeshRenderer>().material = mat;
@@ -83,6 +87,8 @@ public class poleTerrain {
 
             await Task.WhenAll(tasks);
         }
+
+        currentlyDrawing = false;
     }
 
     private void saveMeshes(int scale, string srcFolder, string output) {
@@ -97,27 +103,31 @@ public class poleTerrain {
     }
 
     public void decreaseScale() {
-        if (currentScaleIndex == 0) return;
+        if (currentScaleIndex == 0 || currentlyDrawing) return;
         clear();
         currentScaleIndex--;
         generateScale(scales[currentScaleIndex]);
     }
 
     public void increaseScale() {
-        if (currentScaleIndex == scales.Count - 1) return;
+        if (currentScaleIndex == scales.Count - 1 || currentlyDrawing) return;
         clear();
         currentScaleIndex++;
         generateScale(scales[currentScaleIndex]);
     }
 
     public void genMinScale() {
+        if (currentlyDrawing) return;
         clear();
         currentScaleIndex = 0;
         generateScale(scales[currentScaleIndex]);
     }
 
     public void clear() {
-        foreach (GameObject go in meshes) GameObject.Destroy(go);
+        foreach (GameObject go in meshes) {
+            GameObject.Destroy(go.GetComponent<MeshFilter>().sharedMesh);
+            GameObject.Destroy(go);
+        }
         meshes = new List<GameObject>();
     }
 }
@@ -153,7 +163,7 @@ public class poleTerrainFile {
     }
 
     //public deserialzedMeshData load() => MeshSerializer.DeserializeMesh(File.ReadAllBytes(this.filePath));
-    public async Task<deserialzedMeshData> load() => await MeshSerializer.quickDeserialize(this.filePath);
+    public async Task<deserialzedMeshData> load() => await MeshSerializer.quickDeserialize(this.filePath, poleTerrain.savedPositions);
 
     public IEnumerator draw(deserialzedMeshData md, GameObject model, Material mat) {
         go = GameObject.Instantiate(model);
@@ -183,7 +193,7 @@ public class poleTerrainFile {
         // dont question it
         GameObject go = ptm.drawMesh("Materials/default", "a", null);
 
-        File.WriteAllBytes(path, MeshSerializer.SerializeMesh(go.GetComponent<MeshFilter>().mesh, name));
+        File.WriteAllBytes(path, MeshSerializer.SerializeMesh(go.GetComponent<MeshFilter>().mesh, name, ref poleTerrain.savedPositions));
 
         GameObject.Destroy(go);
     }

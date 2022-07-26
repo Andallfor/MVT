@@ -17,6 +17,7 @@ public static class planetFocus
     public static void enable(bool use) {
         usePlanetFocus = use;
         usePoleFocus = false;
+        reset();
         if (use) {
             // only if we are focused on a planet
             if (master.requestReferenceFrame() is planet) {
@@ -25,7 +26,7 @@ public static class planetFocus
                 master.requestPositionUpdate();
                 general.camera.transform.LookAt(focus.representation.gameObject.transform.position);
             } else usePlanetFocus = false;
-        } else reset();
+        }
     }
 
     public static void togglePoleFocus(bool use) {
@@ -46,6 +47,7 @@ public static class planetFocus
     private static void reset() {
         general.camera.transform.position = general.defaultCameraPosition;
         general.camera.fieldOfView = general.defaultCameraFOV;
+        zoom = general.defaultCameraFOV;
         general.camera.transform.rotation = Quaternion.Euler(0, 0, 0);
         rotation = Vector3.zero;
         offset = new Vector3();

@@ -30,24 +30,9 @@ public class controller : MonoBehaviour
                 "Prefabs/Planet",
                 "Materials/default"));
 
-        //jsonParser.deserialize(Path.Combine(Application.streamingAssetsPath, "sytEarth.syt"), jsonType.system);
-
-        //jsonParser.deserialize(Path.Combine(Application.streamingAssetsPath, "sytAll.syt"), jsonType.system);
-        //master.setReferenceFrame(master.allPlanets.First(x => x.name == "Earth"));
-
         //onlyEarth();
         //kepler();
         Artemis3();
-
-
-        //terrainProcessor.divideJpeg2000("C:/Users/leozw/Desktop/lunar", "C:/Users/leozw/Desktop/preparedLunar", new List<terrainResolution>() {
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/1", 1, 96),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/2", 1, 48),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/3", 1, 24),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/4", 1, 12),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/5", 1, 6),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/6", 4, 3),
-        //});
 
         pt = loadTerrain();
         plt = loadPoles();
@@ -135,7 +120,7 @@ public class controller : MonoBehaviour
             if (Input.GetKey("d")) general.camera.transform.position += general.camera.transform.right * r * t;
             if (Input.GetKey("a")) general.camera.transform.position -= general.camera.transform.right * r * t;
 
-            if (Input.GetKeyDown("t")) {
+            if (Input.GetKeyDown("t") && !plt.currentlyDrawing) {
                 planetFocus.togglePoleFocus(!planetFocus.usePoleFocus);
                 if (planetFocus.usePoleFocus) plt.genMinScale();
                 else plt.clear();
@@ -181,6 +166,8 @@ public class controller : MonoBehaviour
         if (Input.GetKeyDown("e")) {
             master.requestScaleUpdate();
             planetFocus.enable(!planetFocus.usePlanetFocus);
+            pt.unload();
+            plt.clear();
             master.clearAllLines();
 
             general.notifyStatusChange();
@@ -198,39 +185,44 @@ public class controller : MonoBehaviour
         }
     }
     private planetTerrain loadTerrain() {
-        string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT");
+        planetTerrain pt = new planetTerrain(moon, "Materials/planets/moon/moon", 1737.4, 1);
 
-        if (!Directory.Exists(p)) {
-            Directory.CreateDirectory(p);
-
-            // TODO: THIS ONLY WORKS IN EDITOR
-            string t = Path.Combine(Directory.GetParent(Application.dataPath).FullName, "terrain");
-            foreach (string folder in Directory.EnumerateDirectories(t)) {
-                Directory.Move(folder, Path.Combine(p, new DirectoryInfo(folder).Name));
-            }
-        }
-        
-        planetTerrain pt = new planetTerrain(1737.4, 1, moon, "Materials/planets/moon/moon", false);
+        string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT/terrain");
 
         pt.generateFolderInfos(new string[5] {
-            Path.Combine(p, "1"),
-            Path.Combine(p, "2"),
-            Path.Combine(p, "3"),
-            Path.Combine(p, "4"),
-            Path.Combine(p, "5")
+            Path.Combine(p, "lunaBinary/1"),
+            Path.Combine(p, "lunaBinary/2"),
+            Path.Combine(p, "lunaBinary/3"),
+            Path.Combine(p, "lunaBinary/4"),
+            Path.Combine(p, "lunaBinary/5")
         });
-        pt.preload(Path.Combine(p, "1"), terrainFileType.npy);
-        pt.markInvincible("1");
+
+        //string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT");
+        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/1", Path.Combine(p, "1"));
+        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/2", Path.Combine(p, "2"));
+        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/3", Path.Combine(p, "3"));
+        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/4", Path.Combine(p, "4"));
+        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/5", Path.Combine(p, "5"));
+
+        //terrainProcessor.divideJpeg2000("C:/Users/leozw/Desktop/lunar", "C:/Users/leozw/Desktop/preparedLunar", new List<terrainResolution>() {
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/1", 1, 96),
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/2", 1, 48),
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/3", 1, 24),
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/4", 1, 12),
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/5", 1, 6),
+        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/6", 4, 3),
+        //});
 
         return pt;
     }
 
     private poleTerrain loadPoles() {
+        string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT/terrain");
         return new poleTerrain(new Dictionary<int, string>() {
-            {5, "C:/Users/leozw/Desktop/terrain/polesBinary/25m"},
-            {10, "C:/Users/leozw/Desktop/terrain/polesBinary/50m"},
-            {20, "C:/Users/leozw/Desktop/terrain/polesBinary/100m"}
-        });
+            {5,  Path.Combine(p, "polesBinary/25m")},
+            {10, Path.Combine(p, "polesBinary/50m")},
+            {20, Path.Combine(p, "polesBinary/100m")}
+        }, moon.representation.gameObject.transform);
     }
 
     private void onlyEarth()

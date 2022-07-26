@@ -103,23 +103,23 @@ namespace B83.MeshTools
         }
         const uint m_Magic = 0x6873654D; // "Mesh"
 
-        public static byte[] SerializeMesh(Mesh aMesh, string name)
+        public static byte[] SerializeMesh(Mesh aMesh, string name, ref Dictionary<string, Dictionary<string, long[]>> pos)
         {
             using (var stream = new MemoryStream())
             {
-                SerializeMesh(stream, aMesh, name);
+                SerializeMesh(stream, aMesh, name, ref pos);
                 return stream.ToArray();
             }
         }
-        public static void SerializeMesh(MemoryStream aStream, Mesh aMesh, string name)
+        public static void SerializeMesh(MemoryStream aStream, Mesh aMesh, string name, ref Dictionary<string, Dictionary<string, long[]>> pos)
         {
             using (var writer = new BinaryWriter(aStream))
-                SerializeMesh(writer, aMesh, name);
+                SerializeMesh(writer, aMesh, name, ref pos);
         }
-        public static void SerializeMesh(BinaryWriter aWriter, Mesh aMesh, string name)
+        public static void SerializeMesh(BinaryWriter aWriter, Mesh aMesh, string name, ref Dictionary<string, Dictionary<string, long[]>> pos)
         {
-            poleTerrain.savedPositions[name] = new Dictionary<string, long[]>();
-            poleTerrain.savedPositions[name]["count"] = new long[1] {aMesh.vertices.Length};
+            pos[name] = new Dictionary<string, long[]>();
+            pos[name]["count"] = new long[1] {aMesh.vertices.Length};
 
             aWriter.Write(m_Magic);
             var vertices = aMesh.vertices;
@@ -130,7 +130,7 @@ namespace B83.MeshTools
 
             long p1 = aWriter.BaseStream.Length;
             foreach (var v in vertices) aWriter.WriteVector3(v);
-            poleTerrain.savedPositions[name]["verts"] = new long[2] {p1, aWriter.BaseStream.Length - p1};
+            pos[name]["verts"] = new long[2] {p1, aWriter.BaseStream.Length - p1};
 
             // start of tagged chunks
             if (!string.IsNullOrEmpty(aMesh.name)) {
@@ -144,7 +144,7 @@ namespace B83.MeshTools
                 aWriter.Write((byte)EChunkID.Normals);
                 p1 = aWriter.BaseStream.Length;
                 foreach (var v in normals) aWriter.WriteVector3(v);
-                poleTerrain.savedPositions[name]["normals"] = new long[2] {p1, aWriter.BaseStream.Length - p1};
+                pos[name]["normals"] = new long[2] {p1, aWriter.BaseStream.Length - p1};
                 normals = null;
             }
             List<Vector4> uvs = new List<Vector4>();
@@ -178,7 +178,7 @@ namespace B83.MeshTools
                         foreach (var uv in uvs)
                             aWriter.WriteVector4(uv);
                 }
-                poleTerrain.savedPositions[name]["uvs"] = new long[2] {p1, aWriter.BaseStream.Length - p1};
+                pos[name]["uvs"] = new long[2] {p1, aWriter.BaseStream.Length - p1};
             }
             List<int> indices = new List<int>(count * 3);
             for (int i = 0; i < subMeshCount; i++)
@@ -194,7 +194,7 @@ namespace B83.MeshTools
                     if (max < 256)
                     {
                         aWriter.Write((byte)1);
-                        poleTerrain.savedPositions[name]["componentCount"] = new long[1] {1};
+                        pos[name]["componentCount"] = new long[1] {1};
                         p1 = aWriter.BaseStream.Length;
                         foreach (var index in indices)
                             aWriter.Write((byte)index);
@@ -202,7 +202,7 @@ namespace B83.MeshTools
                     else if (max < 65536)
                     {
                         aWriter.Write((byte)2);
-                        poleTerrain.savedPositions[name]["componentCount"] = new long[1] {2};
+                        pos[name]["componentCount"] = new long[1] {2};
                         p1 = aWriter.BaseStream.Length;
                         foreach (var index in indices)
                             aWriter.Write((ushort)index);
@@ -210,12 +210,12 @@ namespace B83.MeshTools
                     else
                     {
                         aWriter.Write((byte)4);
-                        poleTerrain.savedPositions[name]["componentCount"] = new long[1] {4};
+                        pos[name]["componentCount"] = new long[1] {4};
                         p1 = aWriter.BaseStream.Length;
                         foreach (var index in indices)
                             aWriter.Write(index);
                     }
-                    poleTerrain.savedPositions[name]["indices"] = new long[3] {p1, aWriter.BaseStream.Length - p1, indices.Count};
+                    pos[name]["indices"] = new long[3] {p1, aWriter.BaseStream.Length - p1, indices.Count};
                 }
             }
             aWriter.Write((byte)EChunkID.End);
@@ -323,9 +323,9 @@ namespace B83.MeshTools
 
             return md;
         }
-        public static async Task<deserialzedMeshData> quickDeserialize(string path) {
+        public static async Task<deserialzedMeshData> quickDeserialize(string path, Dictionary<string, Dictionary<string, long[]>> pos) {
             string name = Path.GetFileNameWithoutExtension(path);
-            Dictionary<string, long[]> key = poleTerrain.savedPositions[name];
+            Dictionary<string, long[]> key = pos[name];
 
             long count = key["count"][0];
             byte[] data = new byte[0];
@@ -358,8 +358,8 @@ namespace B83.MeshTools
             Task[] tasks = new Task[4];
             tasks[0] = Task.Run(() => {for (int i = 0; i < count; i++) gvertices[i] = verts.ReadVector3();});
             tasks[1] = Task.Run(() => {for (int i = 0; i < count; i++) gnormals[i] = norms.ReadVector3();});
-            tasks[2] = Task.Run(() => {for (int i = 0; i < count; i++) guvs[i] = bruvs.ReadVector4();});
-            long componentCount = poleTerrain.savedPositions[name]["componentCount"][0];
+            tasks[2] = Task.Run(() => {for (int i = 0; i < count; i++) guvs[i] = bruvs.ReadVector2();});
+            long componentCount = pos[name]["componentCount"][0];
             if (componentCount == 2) {
                 tasks[3] = Task.Run(() => {for (int i = 0; i < gindices.Length; i++) gindices[i] = indcs.ReadUInt16();});
             } else if (componentCount == 4) {
@@ -384,8 +384,8 @@ namespace B83.MeshTools
             dmd.normals = gnormals;
             dmd.indices = gindices;
             dmd.topology = MeshTopology.Triangles;
-            dmd.name = "a";
-            dmd.uvChannel = 2;
+            dmd.name = name;
+            dmd.uvChannel = 0;
 
             return dmd;
         }

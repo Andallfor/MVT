@@ -361,6 +361,7 @@ public static class terrainProcessor
     public static string fileBoundaryName(geographic pos, geographic inc, string ending = "txt") => fileName(pos, inc).Replace(".txt", $"_boundary.{ending}");
     public const string folderInfoName = "resInfo.txt";
     public const int NODATA_value = -32767;
+    public static string terrainName(geographic pos, planetTerrainFolderInfo ptfi) => $"{ptfi.pointsPerCoord}_{pos.lat}x{pos.lon}.trn";
 
     private static Vector2Int getKey(double x, double y, double stepWidth, double stepHeight) => new Vector2Int(
        (int)(stepWidth * Math.Floor(x / stepWidth)),

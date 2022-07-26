@@ -22,9 +22,11 @@ public class planetTerrainMesh : IMesh
         base.init((int) ptf.ncols + 2, (int) ptf.nrows + 2, ptf.cartPosition, new position(ptfi.ncols, ptfi.nrows, 0), reverse: reverse);
     }
 
-    public GameObject drawMesh(string materialPath)
+    public GameObject drawMesh(string materialPath) => drawMesh(Resources.Load(materialPath) as Material);
+
+    public GameObject drawMesh(Material mat)
     {
-        return base.drawMesh(Resources.Load(materialPath) as Material,
+        return base.drawMesh(mat,
                              Resources.Load("Prefabs/PlanetMesh") as GameObject,
                              ptf.name, pt.parent.representation.gameObject.transform);
     }

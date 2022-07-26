@@ -1,9 +1,0 @@
-ncols             3840
-nrows             1920
-cellsize          0.09375
-pointsPerCoord    10.6666666666667
-filesPerTile      4
-generationStep    48
-name              2
-increment         (lat=15_lon=22.5)
-type              npy
