@@ -130,7 +130,11 @@ public static class ScheduleStructGenerator
                     {
                         curBox.Item2 = (1-(currentUser.timeIntervalStart-i))*currentUser.serviceLevel;
                     }
-                    else if (i == Math.Floor(currentUser.timeIntervalStop) && currentUser.timeIntervalStop%1!=0)
+                    //else if (i == Math.Floor(currentUser.timeIntervalStop) && currentUser.timeIntervalStop%1!=0)
+                    //{
+                        //curBox.Item2 = (currentUser.timeIntervalStop-i)*currentUser.serviceLevel;
+                    //}
+                    else if (i == Math.Floor(currentUser.timeIntervalStop))
                     {
                         curBox.Item2 = (currentUser.timeIntervalStop-i)*currentUser.serviceLevel;
                     }
@@ -143,7 +147,7 @@ public static class ScheduleStructGenerator
                 scenario.users.Add(source, currentUser);
             }
             string debugJson = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
-            System.IO.File.WriteAllText (@"NewUsers.txt", debugJson);
+            System.IO.File.WriteAllText (@"PresentationNewUsersCorrectedFinal.txt", debugJson);
             foreach (var block in window["windows"])
             {                
                 Window wind = new Window();
@@ -236,11 +240,11 @@ public static class ScheduleStructGenerator
                         Source = ""{block.source}"" or 
                         Destination = ""{block.destination}""
                     )
-                    AND NOT
-                    (
-                        Source = ""{block.source}"" and
-                        Destination = ""{block.destination}""
-                    )
+                    --AND NOT
+                    --(
+                        --Source = ""{block.source}"" and
+                        --Destination = ""{block.destination}""
+                    --)
                 )
                 ORDER by 
 	            Schedule_Priority ASC,
@@ -285,6 +289,7 @@ public static class ScheduleStructGenerator
             for (int i = 0; i < curBlock.days.Count;i++)
             {
                 if (scenario.users[curBlock.source].blockedDays.Contains(curBlock.days[i])) continue;
+                if (scenario.users[curBlock.source].boxes[curBlock.days[i]] == 0) continue;
                 if (!scenario.schedule.Contains(curBlock)) scenario.schedule.Add(curBlock);
                 /*if (curBlock.source == "HLS-Docked")
                 {
@@ -296,7 +301,7 @@ public static class ScheduleStructGenerator
                     Debug.Log($"Source:{curBlock.source}\tI:{i}\tcurBlock.days[i]:{curBlock.days[i]}\tTimeSpentInDay: {curBlock.timeSpentInDay[i]}\nBox after subtraction: {scenario.users[curBlock.source].boxes[curBlock.days[i]]}");
                 }*/
                 //if (scenario.users[curBlock.source].boxes[curBlock.days[i]] < 0) scenario.users[curBlock.source].boxes[curBlock.days[i]] = 0;
-                if (scenario.users[curBlock.source].boxes[curBlock.days[i]] < 0)
+                if (scenario.users[curBlock.source].boxes[curBlock.days[i]] <= 0)
                 {
                     scenario.users[curBlock.source].blockedDays.Add(curBlock.days[i]);
                 }

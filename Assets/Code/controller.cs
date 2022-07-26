@@ -29,7 +29,7 @@ public class controller : MonoBehaviour
             new representationData(
                 "Prefabs/Planet",
                 "Materials/default"));
-
+ 
         //jsonParser.deserialize(Path.Combine(Application.streamingAssetsPath, "sytEarth.syt"), jsonType.system);
 
         //jsonParser.deserialize(Path.Combine(Application.streamingAssetsPath, "sytAll.syt"), jsonType.system);
