@@ -35,7 +35,7 @@ public class poleTerrain {
 
         // TODO: why are we insatntiating here?
         model = GameObject.Instantiate(Resources.Load("Prefabs/PlanetMesh") as GameObject);
-        mat = Resources.Load("Materials/default") as Material;
+        mat = Resources.Load("Materials/planets/moon/lunarSouthPole") as Material;
 
         //saveMeshes(20, "C:/Users/leozw/Desktop/poles/100m", "C:/Users/leozw/Desktop/terrain/polesBinary/100m");
         //saveMeshes(10, "C:/Users/leozw/Desktop/poles/50m", "C:/Users/leozw/Desktop/terrain/polesBinary/50m");
@@ -79,6 +79,11 @@ public class poleTerrain {
                         go.transform.localEulerAngles = Vector3.zero;
                         go.GetComponent<MeshRenderer>().material = mat;
                         go.GetComponent<MeshFilter>().mesh = dmd.generate();
+
+                        // the meshes were saved with a master.scale of 1000, however the current scale may not match
+                        // adjust the scale of the meshes so that it matches master.scale
+                        float diff = 1000f / (float) master.scale;
+                        go.transform.localScale *= diff;
 
                         meshes.Add(go);
                     });
@@ -182,7 +187,13 @@ public class poleTerrainFile {
 
     public void saveMesh(string path) {
         NDArray data = np.load(filePath);
-        poleTerrainMesh ptm = new poleTerrainMesh(data.shape[1], data.shape[0], new position(pos.x / scale, pos.y / scale, 0), new position(maxSize / scale, maxSize / scale, 1), true);
+        poleTerrainMesh ptm = new poleTerrainMesh(
+            data.shape[1], data.shape[0],
+            new position(pos.x / scale, pos.y / scale, 0), new position(maxSize / scale, maxSize / scale, 1), true,
+            (p) => new Vector2(
+                ((float) p.x * (float) scale) / 40_000f,
+                (40_000f - (float) p.y * (float) scale) / 40_000f
+            ));
 
         for (int y = 0; y < data.shape[0]; y++) {
             for (int x = 0; x < data.shape[1]; x++) {
@@ -212,8 +223,8 @@ public class poleTerrainFile {
 }
 
 public class poleTerrainMesh : IMesh {
-    public poleTerrainMesh(int width, int height, position ll, position max, bool reverse) {
-        base.init(width, height, ll, max, reverse);
+    public poleTerrainMesh(int width, int height, position ll, position max, bool reverse, Func<Vector2Int, Vector2> customUV) {
+        base.init(width, height, ll, max, reverse, customUV: customUV);
     }
 
     // y is ignored

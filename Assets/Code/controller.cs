@@ -109,16 +109,27 @@ public class controller : MonoBehaviour
             }
 
             if (Input.mouseScrollDelta.y != 0) {
-                planetFocus.zoom -= Input.mouseScrollDelta.y * planetFocus.zoom / 10f;
-                planetFocus.zoom = Mathf.Max(Mathf.Min(planetFocus.zoom, 75), 0.25f);
+                // hi!
+                // i know you probably have questions about y tf the code below here exists
+                // well too bad
+                // if u want to fix it go ahead, otherwise its staying here
+                if (planetFocus.usePoleFocus) {
+                    float change = (float) (0.1 * master.scale) * Mathf.Sign(Input.mouseScrollDelta.y);
+                    master.scale -= change;
+                    planetFocus.update();
+                    master.requestPositionUpdate();
+                } else {
+                    planetFocus.zoom -= Input.mouseScrollDelta.y * planetFocus.zoom / 10f;
+                    planetFocus.zoom = Mathf.Max(Mathf.Min(planetFocus.zoom, 75), 4f);
+                }
             }
 
             float t = UnityEngine.Time.deltaTime;
             float r = planetFocus.zoom / 40f;
-            if (Input.GetKey("w")) general.camera.transform.position += general.camera.transform.up * r * t;
-            if (Input.GetKey("s")) general.camera.transform.position -= general.camera.transform.up * r * t;
-            if (Input.GetKey("d")) general.camera.transform.position += general.camera.transform.right * r * t;
-            if (Input.GetKey("a")) general.camera.transform.position -= general.camera.transform.right * r * t;
+            if (Input.GetKey("w")) planetFocus.movementOffset += (float) master.scale * 0.75f * general.camera.transform.up * r * t;
+            if (Input.GetKey("s")) planetFocus.movementOffset -= (float) master.scale * 0.75f * general.camera.transform.up * r * t;
+            if (Input.GetKey("d")) planetFocus.movementOffset += (float) master.scale * 0.75f * general.camera.transform.right * r * t;
+            if (Input.GetKey("a")) planetFocus.movementOffset -= (float) master.scale * 0.75f * general.camera.transform.right * r * t;
 
             if (Input.GetKeyDown("t") && !plt.currentlyDrawing) {
                 planetFocus.togglePoleFocus(!planetFocus.usePoleFocus);
@@ -147,10 +158,10 @@ public class controller : MonoBehaviour
             Vector3 forward = Camera.main.transform.forward;
             Vector3 right = Camera.main.transform.right;
             float t = UnityEngine.Time.deltaTime;
-            if (Input.GetKey("w")) master.currentPosition += forward * playerSpeed * t;
-            if (Input.GetKey("s")) master.currentPosition -= forward * playerSpeed * t;
-            if (Input.GetKey("d")) master.currentPosition += right * playerSpeed * t;
-            if (Input.GetKey("a")) master.currentPosition -= right * playerSpeed * t;
+            if (Input.GetKey("w")) planetFocus.movementOffset += forward * playerSpeed * t;
+            if (Input.GetKey("s")) planetFocus.movementOffset -= forward * playerSpeed * t;
+            if (Input.GetKey("d")) planetFocus.movementOffset += right * playerSpeed * t;
+            if (Input.GetKey("a")) planetFocus.movementOffset -= right * playerSpeed * t;
 
         }
 
@@ -500,7 +511,6 @@ public class controller : MonoBehaviour
 
         master.setReferenceFrame(moon);
     }
-
     private void moonPreset() {
         representationData erd = new representationData(
             "Prefabs/Planet",

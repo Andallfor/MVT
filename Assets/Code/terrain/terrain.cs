@@ -183,7 +183,7 @@ public class planetTerrain
         currentRes = sortedResolutions[0];
     }
 
-    List<double> resolutionPercents = quickSum(5, 4);
+    List<double> resolutionPercents = quickSum(5, 3);
     private static List<double> quickSum(int count, double denom) {
         List<double> output = new List<double>();
         double value = 0;
@@ -196,7 +196,7 @@ public class planetTerrain
     }
 
     private planetTerrainFolderInfo findDesiredResolution() {
-        double minFov = 0.2;
+        double minFov = 4;
         double maxFov = 75;
         // TODO: get rid of fov
         double percent = 1.0 - (general.camera.fieldOfView + minFov) / (maxFov + minFov);
@@ -302,7 +302,6 @@ public class planetTerrainMeshCreator {
         this.geo = geo;
         this.savedPositions = pos;
         this.parent = parent;
-        // TODO
         this.filePath = path;
         this.name = Path.GetFileNameWithoutExtension(filePath);
         token = new CancellationTokenSource();
@@ -341,6 +340,11 @@ public class planetTerrainMeshCreator {
                     go.transform.localEulerAngles = Vector3.zero;
                     go.GetComponent<MeshRenderer>().material = mat;
                     go.GetComponent<MeshFilter>().mesh = dmd.generate();
+
+                    // the meshes were saved with a master.scale of 1000, however the current scale may not match
+                    // adjust the scale of the meshes so that it matches master.scale
+                    float diff = 1000f / (float) master.scale;
+                    go.transform.localScale *= diff;
                 });
             });
 
