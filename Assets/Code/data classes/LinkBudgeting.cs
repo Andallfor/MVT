@@ -72,7 +72,6 @@ public static class linkBudgeting
 
 				while (time.julian < 2460836.5)
 				{
-					Debug.Log(user.Key + ", " + provider.Key + " " + time.julian + ": " + ((time.julian >= provider.Value.Item2 && time.julian <= provider.Value.Item3) && (time.julian >= user.Value.Item2 && time.julian <= user.Value.Item3)));
 					if (user.Key == provider.Key) continue;
 
 					if (((time.julian > provider.Value.Item2 & time.julian < provider.Value.Item3) & (time.julian > user.Value.Item2 & time.julian < user.Value.Item3))) 
@@ -113,7 +112,6 @@ public static class linkBudgeting
 				distance.Clear();
 			}
 		}
-		Debug.Log("worked");
 		return Dictionary;
 	}
 }

@@ -92,8 +92,9 @@ public readonly struct position
         return p1;
     }
 
-    public static position J2000(position moon, position velocity, position sat)
+    public static List<(double, position)> J2000(position moon, position velocity, position sat)
     {
+        List<(double, position)> returnList = new List<(double, position)>();
         position j2000_x = new position(1, 0, 0);
         position j2000_y = new position(0, 1, 0);
         position Earth_j2000 = new position(0, 0, 0);
@@ -101,24 +102,29 @@ public readonly struct position
         //calculate moonfixed_x in j2000
         position M_x_j2000 = Earth_j2000 - moon;
 
+        //calculate adjusted y axis
+        position k3 = cross(M_x_j2000, velocity);
+        position M_y_j2000 = cross(k3, M_x_j2000);
+
         //calculate angle and rotation
         double angle = dotProductTheta(M_x_j2000, j2000_x);
  
         position k = cross(j2000_x, M_x_j2000);
 
 
-        position yprime=velocity*Math.Cos(angle)+cross(k,velocity)*Math.Sin(angle)+k*(dotProduct(k,velocity))*(1-Math.Cos(angle));
+        position yprime=velocity*Math.Cos(angle)+cross(k,velocity)*Math.Sin(angle)+k*(dotProduct(k,M_y_j2000))*(1-Math.Cos(angle));
 
         //  need to caluclate y offset and rotate around x
         double angle2 = dotProductTheta(yprime, j2000_y);
-        position k2 = cross(j2000_y, velocity);
+        position k2 = cross(j2000_y, M_y_j2000);
 
         position output1 = sat * (Math.Cos(angle2)) + cross(k2,sat) * Math.Sin(angle2) + k2 * (dotProduct(k2,sat)) * (1-Math.Cos(angle2));
-        position output2 = output1 * Math.Cos(angle)+cross(k,output1)*Math.Sin(angle)+k*(dotProduct(k,output1))*(1-Math.Cos(angle));
+        position output2 = output1 * Math.Cos(angle) + cross(k,output1)*Math.Sin(angle)+k*(dotProduct(k,output1))*(1-Math.Cos(angle));
 
-        position T_j2000 = output2+moon;
-        Debug.Log((T_j2000+sat));
-        return new position(T_j2000+sat);
+        returnList.Add((angle2, output2));
+        returnList.Add((angle, output1));
+
+        return returnList;
     }
 
     public jsonPositionStruct requestJsonFile() => new jsonPositionStruct() {x=x, y=y, z=z};
