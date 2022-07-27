@@ -34,8 +34,8 @@ public class controller : MonoBehaviour
         //kepler();
         Artemis3();
 
-        pt = loadTerrain();
-        plt = loadPoles();
+        //pt = loadTerrain();
+        //plt = loadPoles();
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
         DBReader.getData();
 
@@ -61,7 +61,7 @@ public class controller : MonoBehaviour
                 master.time.addJulianTime(speed);
             }
 
-            pt.updateTerrain();
+            //pt.updateTerrain();
 
             if (!planetOverview.usePlanetOverview) master.requestSchedulingUpdate();
             master.currentTick = tick;
