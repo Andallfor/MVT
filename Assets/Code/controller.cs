@@ -38,18 +38,29 @@ public class controller : MonoBehaviour
         //onlyEarth();
         //kepler();
         Artemis3();
+        string date = DateTime.Now.ToString("MM-dd_hhmm");
         //testing git on reset computer
 
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
+        
+        if(!File.Exists(@"Assets\Code\parsing\main.db"))
+        {
+            Debug.Log("Generating main.db");
+            System.Diagnostics.Process.Start(@"Assets\Code\parsing\parser.exe", @"Assets\Code\parsing\ScenarioAssetsSTK_2_w_pivot.xlsx Assets\Code\parsing\main.db").WaitForExit();  
+        }
         var missionStructure = DBReader.getData();
+        System.IO.Directory.CreateDirectory($"Assets/Code/scheduler/{date}");
         //string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
-        //System.IO.File.WriteAllText (@"NewMissionStructure.txt", json);
-        Debug.Log("Generating DB.....");
-        ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", "LunarWindows-RAC2_1_07_19_22.json");
+        //System.IO.File.WriteAllText (@"NewMissionStructure.txt", json);       
+        Debug.Log("Generating windows.....");
+        ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", "LunarWindows-RAC2_1_07_19_22.json", date);
         Debug.Log("Generating conflict list.....");
-        ScheduleStructGenerator.createConflictList();
+        ScheduleStructGenerator.createConflictList(date);
         Debug.Log("Doing DFS.....");
-        ScheduleStructGenerator.doDFS();
+        ScheduleStructGenerator.doDFS(date);
+        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PreDFSUsers_{date}.txt Assets/Code/scheduler/{date}/PreDFSUsers_{date}.png");
+        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PostDFSUsers_{date}.txt Assets/Code/scheduler/{date}/PostDFSUsers_{date}.png");
+
         //Debug.Log("Testing.....");
         //ScheduleStructGenerator.test();
         //planetTerrain pt = loadTerrain();

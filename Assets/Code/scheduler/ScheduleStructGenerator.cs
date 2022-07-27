@@ -13,18 +13,17 @@ using Newtonsoft.Json;
 using Mono.Data.Sqlite;
 
 
-
 public static class ScheduleStructGenerator
 {
     public static Scenario scenario = new Scenario();
-    public static void genDB(dynamic missionStructure, string misName, string JSONPath)
+    public static void genDB(dynamic missionStructure, string misName, string JSONPath, string date)
     {
-        if(File.Exists(@"Assets/Code/scheduler/windows.db"))
+        if(File.Exists(@$"Assets/Code/scheduler/{date}/windows_{date}.db"))
         {
-            File.Delete(@"Assets/Code/scheduler/windows.db");
+            File.Delete(@$"Assets/Code/scheduler/{date}/windows_{date}.db");
         }
-        bool fileExists = File.Exists("Assets/Code/scheduler/windows.db");
-        SqliteConnection connection = new SqliteConnection("URI=file:Assets/Code/scheduler/windows.db;New=False");
+        bool fileExists = false;
+        SqliteConnection connection = new SqliteConnection($"URI=file:Assets/Code/scheduler/{date}/windows_{date}.db;New=False");
         if (!fileExists)
         {
             connection.Open();
@@ -46,6 +45,8 @@ public static class ScheduleStructGenerator
             createCommand.ExecuteNonQuery();
             Debug.Log("Created DB");
         }
+        string restrictionPath = $"Assets/Code/scheduler/restrictions.json";
+        JObject restrictionJson = JObject.Parse(File.ReadAllText(restrictionPath));
         string filePath = $"Assets/Resources/SchedulingJSONS/{JSONPath}";
         JObject json = JObject.Parse(File.ReadAllText(filePath)); 
         scenario.epochTime = (string) json["epochTime"];
@@ -117,6 +118,7 @@ public static class ScheduleStructGenerator
                 {
                     //Debug.Log($"Either satellite: {wind.source} or service period didn't exist");
                 }
+
                 currentUser.numDays = (int)(30/servicePeriod);
                 currentUser.serviceLevel = service_Level;
                 currentUser.priority = (double)missionStructure[misName].Item2[source]["Schedule_Priority"];
@@ -144,10 +146,18 @@ public static class ScheduleStructGenerator
                     }
                     currentUser.boxes.Add(curBox.Item1, curBox.Item2);
                 }
+                try
+                {
+                foreach(var provider in restrictionJson[source]) currentUser.allowedProviders.Add((string) provider);
+                }
+                catch {}
                 scenario.users.Add(source, currentUser);
             }
-            string debugJson = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
-            System.IO.File.WriteAllText (@"PresentationNewUsersCorrectedFinal.txt", debugJson);
+            if (!(scenario.users[source].allowedProviders.Contains(destination)))
+            {
+                //Debug.Log($"Window kicked out because {source} is not allowed to talk to {destination}");
+                continue;
+            }
             foreach (var block in window["windows"])
             {                
                 Window wind = new Window();
@@ -177,8 +187,7 @@ public static class ScheduleStructGenerator
                     wind.timeSpentInDay.Add(stop-wind.days[wind.days.Count-1]);
                 }
                 else wind.timeSpentInDay.Add(stop-start);
-                if (wind.ID ==11377)
-                    Debug.Log($"Start: {start}, Stop: {stop}\t\t{string.Join(", ", wind.days)}\t{string.Join(", ", wind.timeSpentInDay)}");
+                //Debug.Log($"Start: {start}, Stop: {stop}\t\t{string.Join(", ", wind.days)}\t{string.Join(", ", wind.timeSpentInDay)}");
 
                 
                 
@@ -202,6 +211,8 @@ public static class ScheduleStructGenerator
             connection.Close();
         }
         scenario.windows = windList.OrderBy(s => s.Schedule_Priority).ThenBy(s => s.Ground_Priority).ThenBy(s=>s.Freq_Priority).ThenByDescending(s=>s.duration).ToList();
+        string debugJson = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
+        System.IO.File.WriteAllText ($"PreDFSUsers_{date}.txt", debugJson);
         //Debug.Log($@"ID: {scenario.windows[0].ID}\tSource:{scenario.windows[0].source}\tDestination{scenario.windows[0].destination}
         //\tschedPrio: {scenario.windows[0].Schedule_Priority}\tGroundPrio: {scenario.windows[0].Ground_Priority}\tFreq_Prio: {scenario.windows[0].Freq_Priority}\tDuration: {scenario.windows[0].duration}");
         /*foreach (var printWindow in scenario.windows)
@@ -213,9 +224,9 @@ public static class ScheduleStructGenerator
     //Ka - highest priority
     //X
     //s - lowest priority
-    public static void createConflictList()
+    public static void createConflictList(string date)
     {
-        SqliteConnection connection = new SqliteConnection("URI=file:Assets/Code/scheduler/windows.db;New=False");
+        SqliteConnection connection = new SqliteConnection($"URI=file:Assets/Code/scheduler/{date}/windows_{date}.db;New=False");
         connection.Open();
         var command = connection.CreateCommand();
         command.CommandText = "BEGIN;";
@@ -275,7 +286,7 @@ public static class ScheduleStructGenerator
         connection.Close();
     }
 
-    public static void doDFS()
+    public static void doDFS(string date)
     {
         List<int> totalConflicts = new List<int>();
         foreach (var curBlock in scenario.windows)
@@ -311,12 +322,13 @@ public static class ScheduleStructGenerator
         }
         scenario.users.ToList();
         string json = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
-        System.IO.File.WriteAllText (@"CorrectedUsers.txt", json);
+        System.IO.File.WriteAllText (@$"PostDFSUsers_{date}.txt", json);
 
         List<int> ScheduleIDs = (from x in scenario.schedule select x.ID).ToList();
         Debug.Log(string.Join(", ", ScheduleIDs));
         json = JsonConvert.SerializeObject(scenario.schedule, Formatting.Indented);
-        System.IO.File.WriteAllText(@"CorrectedScheduleWithExtra.txt", json);
+        System.IO.File.WriteAllText(@$"Schedule_{date}.txt", json);
+        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\json2csv.exe", $"Schedule_{date}.txt Assets/Code/scheduler/{date}/ScheduleCSV.csv").WaitForExit();
     }
    /* public static void test()
     {
@@ -324,6 +336,7 @@ public static class ScheduleStructGenerator
         foreach(var con in finded.conflicts)
             Debug.Log($"ID: {con.ID}, Source: {con.source}, Destination: {con.destination}, Start: {con.start}, Stop: {con.stop}");
     }*/
+
 }
 
 
@@ -370,6 +383,7 @@ public class User
     //public List<(double box, double timeInBox)> boxes = new List<(double, double)>();
     public Dictionary<double, double> boxes = new Dictionary<double, double>();
     public List<int> blockedDays = new List<int>();
+    public List<string> allowedProviders = new List<string>();
     public string print()
     {
         return $"NumDays: {numDays}\ttimeStart:{timeIntervalStart}\ttimeStop{timeIntervalStop}";

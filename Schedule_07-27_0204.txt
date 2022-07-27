@@ -1,0 +1,5617 @@
+[
+  {
+    "ID": 1063,
+    "frequency": "Ka Band",
+    "source": "HLS-Descent",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 15.966469907407408,
+    "stop": 16.123559699074075,
+    "duration": 0.15708979166666737,
+    "days": [
+      15,
+      16
+    ],
+    "timeSpentInDay": [
+      0.0335300925925921,
+      0.12355969907407527
+    ]
+  },
+  {
+    "ID": 1064,
+    "frequency": "Ka Band",
+    "source": "HLS-Descent",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 16.156543819444444,
+    "stop": 16.207373541666666,
+    "duration": 0.050829722222221818,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.050829722222221818
+    ]
+  },
+  {
+    "ID": 1056,
+    "frequency": "Ka Band",
+    "source": "HLS-Descent",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 16.401359375000002,
+    "stop": 16.4511309375,
+    "duration": 0.049771562499998367,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.049771562499998367
+    ]
+  },
+  {
+    "ID": 1065,
+    "frequency": "Ka Band",
+    "source": "HLS-Descent",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 16.301062337962964,
+    "stop": 16.349817129629631,
+    "duration": 0.048754791666667074,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.048754791666667074
+    ]
+  },
+  {
+    "ID": 1054,
+    "frequency": "Ka Band",
+    "source": "HLS-Descent",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 16.22964400462963,
+    "stop": 16.275989930555557,
+    "duration": 0.046345925925926679,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.046345925925926679
+    ]
+  },
+  {
+    "ID": 1067,
+    "frequency": "Ka Band",
+    "source": "HLS-Descent",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 16.47565627314815,
+    "stop": 16.503859074074075,
+    "duration": 0.028202800925924976,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.028202800925924976
+    ]
+  },
+  {
+    "ID": 1068,
+    "frequency": "S Band",
+    "source": "HLS-Descent",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 15.633832303240743,
+    "stop": 15.749792696759258,
+    "duration": 0.11596039351851495,
+    "days": [
+      15
+    ],
+    "timeSpentInDay": [
+      0.11596039351851495
+    ]
+  },
+  {
+    "ID": 965,
+    "frequency": "Ka Band",
+    "source": "HLS-Ascent",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 22.623505636574077,
+    "stop": 22.892245370370372,
+    "duration": 0.2687397337962949,
+    "days": [
+      22
+    ],
+    "timeSpentInDay": [
+      0.2687397337962949
+    ]
+  },
+  {
+    "ID": 959,
+    "frequency": "Ka Band",
+    "source": "HLS-Ascent",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 22.099999999999998,
+    "stop": 22.263539201388891,
+    "duration": 0.16353920138889322,
+    "days": [
+      22
+    ],
+    "timeSpentInDay": [
+      0.16353920138889322
+    ]
+  },
+  {
+    "ID": 978,
+    "frequency": "Ka Band",
+    "source": "HLS-Ascent",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 22.46647625,
+    "stop": 22.510275069444443,
+    "duration": 0.043798819444443637,
+    "days": [
+      22
+    ],
+    "timeSpentInDay": [
+      0.043798819444443637
+    ]
+  },
+  {
+    "ID": 979,
+    "frequency": "Ka Band",
+    "source": "HLS-Ascent",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 22.54608693287037,
+    "stop": 22.589394166666665,
+    "duration": 0.043307233796294753,
+    "days": [
+      22
+    ],
+    "timeSpentInDay": [
+      0.043307233796294753
+    ]
+  },
+  {
+    "ID": 960,
+    "frequency": "Ka Band",
+    "source": "HLS-Ascent",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 22.300581400462963,
+    "stop": 22.343826666666669,
+    "duration": 0.043245266203705057,
+    "days": [
+      22
+    ],
+    "timeSpentInDay": [
+      0.043245266203705057
+    ]
+  },
+  {
+    "ID": 977,
+    "frequency": "Ka Band",
+    "source": "HLS-Ascent",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 22.388241041666664,
+    "stop": 22.431233078703702,
+    "duration": 0.042992037037038244,
+    "days": [
+      22
+    ],
+    "timeSpentInDay": [
+      0.042992037037038244
+    ]
+  },
+  {
+    "ID": 975,
+    "frequency": "Ka Band",
+    "source": "HLS-Ascent",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 22.264014155092596,
+    "stop": 22.286340740740741,
+    "duration": 0.022326585648144714,
+    "days": [
+      22
+    ],
+    "timeSpentInDay": [
+      0.022326585648144714
+    ]
+  },
+  {
+    "ID": 973,
+    "frequency": "S Band",
+    "source": "HLS-Ascent",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 23.021896446759257,
+    "stop": 23.109677557870373,
+    "duration": 0.087781111111116417,
+    "days": [
+      23
+    ],
+    "timeSpentInDay": [
+      0.087781111111116417
+    ]
+  },
+  {
+    "ID": 1422,
+    "frequency": "Ka Band",
+    "source": "HLS-NRHO",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 9.2385300925925922,
+    "stop": 9.73505787037037,
+    "duration": 0.49652777777777857,
+    "days": [
+      9
+    ],
+    "timeSpentInDay": [
+      0.49652777777777857
+    ]
+  },
+  {
+    "ID": 1433,
+    "frequency": "Ka Band",
+    "source": "HLS-NRHO",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 2.4377430555555555,
+    "stop": 2.8773263888888891,
+    "duration": 0.43958333333333366,
+    "days": [
+      2
+    ],
+    "timeSpentInDay": [
+      0.43958333333333366
+    ]
+  },
+  {
+    "ID": 1444,
+    "frequency": "S Band",
+    "source": "HLS-NRHO",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 9.7503531481481485,
+    "stop": 10.2367159375,
+    "duration": 0.48636278935185118,
+    "days": [
+      9,
+      10
+    ],
+    "timeSpentInDay": [
+      0.24964685185185154,
+      0.23671593749999964
+    ]
+  },
+  {
+    "ID": 1439,
+    "frequency": "S Band",
+    "source": "HLS-NRHO",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 3.2641406597222229,
+    "stop": 3.7134375,
+    "duration": 0.44929684027777705,
+    "days": [
+      3
+    ],
+    "timeSpentInDay": [
+      0.44929684027777705
+    ]
+  },
+  {
+    "ID": 1437,
+    "frequency": "S Band",
+    "source": "HLS-NRHO",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 1.8021412037037037,
+    "stop": 2.2374708217592594,
+    "duration": 0.4353296180555557,
+    "days": [
+      1,
+      2
+    ],
+    "timeSpentInDay": [
+      0.19785879629629632,
+      0.23747082175925938
+    ]
+  },
+  {
+    "ID": 1429,
+    "frequency": "S Band",
+    "source": "HLS-NRHO",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 8.5684606481481485,
+    "stop": 8.9969362268518527,
+    "duration": 0.42847557870370423,
+    "days": [
+      8
+    ],
+    "timeSpentInDay": [
+      0.42847557870370423
+    ]
+  },
+  {
+    "ID": 1445,
+    "frequency": "S Band",
+    "source": "HLS-NRHO",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 10.256529178240742,
+    "stop": 10.613472222222223,
+    "duration": 0.35694304398148091,
+    "days": [
+      10
+    ],
+    "timeSpentInDay": [
+      0.35694304398148091
+    ]
+  },
+  {
+    "ID": 1436,
+    "frequency": "S Band",
+    "source": "HLS-NRHO",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 1.462777777777778,
+    "stop": 1.6523611111111112,
+    "duration": 0.18958333333333321,
+    "days": [
+      1
+    ],
+    "timeSpentInDay": [
+      0.18958333333333321
+    ]
+  },
+  {
+    "ID": 1285,
+    "frequency": "Ka Band",
+    "source": "HLS-NRHO",
+    "destination": "DSS-24",
+    "start": 0.82043340277777776,
+    "stop": 1.4044500115740741,
+    "duration": 0.58401660879629635,
+    "days": [
+      0,
+      1
+    ],
+    "timeSpentInDay": [
+      0.17956659722222224,
+      0.40445001157407412
+    ]
+  },
+  {
+    "ID": 1288,
+    "frequency": "Ka Band",
+    "source": "HLS-NRHO",
+    "destination": "DSS-24",
+    "start": 3.9546844907407408,
+    "stop": 4.4714835648148146,
+    "duration": 0.51679907407407377,
+    "days": [
+      3,
+      4
+    ],
+    "timeSpentInDay": [
+      0.0453155092592592,
+      0.47148356481481457
+    ]
+  },
+  {
+    "ID": 1289,
+    "frequency": "Ka Band",
+    "source": "HLS-NRHO",
+    "destination": "DSS-24",
+    "start": 4.9922432523148146,
+    "stop": 5.4809891666666664,
+    "duration": 0.48874591435185177,
+    "days": [
+      4,
+      5
+    ],
+    "timeSpentInDay": [
+      0.0077567476851854167,
+      0.48098916666666636
+    ]
+  },
+  {
+    "ID": 1290,
+    "frequency": "Ka Band",
+    "source": "HLS-NRHO",
+    "destination": "DSS-24",
+    "start": 6.027398692129629,
+    "stop": 6.4936030555555559,
+    "duration": 0.46620436342592697,
+    "days": [
+      6
+    ],
+    "timeSpentInDay": [
+      0.46620436342592697
+    ]
+  },
+  {
+    "ID": 1291,
+    "frequency": "Ka Band",
+    "source": "HLS-NRHO",
+    "destination": "DSS-24",
+    "start": 7.0623217824074063,
+    "stop": 7.5105126388888879,
+    "duration": 0.4481908564814816,
+    "days": [
+      7
+    ],
+    "timeSpentInDay": [
+      0.4481908564814816
+    ]
+  },
+  {
+    "ID": 1284,
+    "frequency": "Ka Band",
+    "source": "HLS-NRHO",
+    "destination": "DSS-24",
+    "start": 0.0,
+    "stop": 0.37180701388888893,
+    "duration": 0.37180701388888893,
+    "days": [
+      0
+    ],
+    "timeSpentInDay": [
+      0.37180701388888893
+    ]
+  },
+  {
+    "ID": 1506,
+    "frequency": "Ka Band",
+    "source": "HLS-Surface",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 16.564103761574074,
+    "stop": 16.953316875000002,
+    "duration": 0.389213113425928,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.389213113425928
+    ]
+  },
+  {
+    "ID": 1507,
+    "frequency": "Ka Band",
+    "source": "HLS-Surface",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 17.064397256944442,
+    "stop": 17.453419803240738,
+    "duration": 0.38902254629629596,
+    "days": [
+      17
+    ],
+    "timeSpentInDay": [
+      0.38902254629629596
+    ]
+  },
+  {
+    "ID": 1508,
+    "frequency": "Ka Band",
+    "source": "HLS-Surface",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 17.564641527777777,
+    "stop": 17.953482106481484,
+    "duration": 0.38884057870370725,
+    "days": [
+      17
+    ],
+    "timeSpentInDay": [
+      0.38884057870370725
+    ]
+  },
+  {
+    "ID": 1509,
+    "frequency": "Ka Band",
+    "source": "HLS-Surface",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 18.064832384259258,
+    "stop": 18.453502835648148,
+    "duration": 0.38867045138889011,
+    "days": [
+      18
+    ],
+    "timeSpentInDay": [
+      0.38867045138889011
+    ]
+  },
+  {
+    "ID": 1510,
+    "frequency": "Ka Band",
+    "source": "HLS-Surface",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 18.564966608796297,
+    "stop": 18.953481516203706,
+    "duration": 0.38851490740740857,
+    "days": [
+      18
+    ],
+    "timeSpentInDay": [
+      0.38851490740740857
+    ]
+  },
+  {
+    "ID": 1511,
+    "frequency": "Ka Band",
+    "source": "HLS-Surface",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 19.065041782407409,
+    "stop": 19.453418090277779,
+    "duration": 0.38837630787037014,
+    "days": [
+      19
+    ],
+    "timeSpentInDay": [
+      0.38837630787037014
+    ]
+  },
+  {
+    "ID": 1512,
+    "frequency": "Ka Band",
+    "source": "HLS-Surface",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 19.565056342592595,
+    "stop": 19.953313009259258,
+    "duration": 0.38825666666666336,
+    "days": [
+      19
+    ],
+    "timeSpentInDay": [
+      0.38825666666666336
+    ]
+  },
+  {
+    "ID": 1513,
+    "frequency": "Ka Band",
+    "source": "HLS-Surface",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 20.065009664351852,
+    "stop": 20.453167141203703,
+    "duration": 0.38815747685185187,
+    "days": [
+      20
+    ],
+    "timeSpentInDay": [
+      0.38815747685185187
+    ]
+  },
+  {
+    "ID": 1514,
+    "frequency": "Ka Band",
+    "source": "HLS-Surface",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 20.564902060185183,
+    "stop": 20.952981817129629,
+    "duration": 0.38807975694444607,
+    "days": [
+      20
+    ],
+    "timeSpentInDay": [
+      0.38807975694444607
+    ]
+  },
+  {
+    "ID": 1515,
+    "frequency": "Ka Band",
+    "source": "HLS-Surface",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 21.064734849537036,
+    "stop": 21.452758958333334,
+    "duration": 0.3880241087962979,
+    "days": [
+      21
+    ],
+    "timeSpentInDay": [
+      0.3880241087962979
+    ]
+  },
+  {
+    "ID": 1516,
+    "frequency": "Ka Band",
+    "source": "HLS-Surface",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 21.564510300925928,
+    "stop": 21.952500960648148,
+    "duration": 0.38799065972222024,
+    "days": [
+      21
+    ],
+    "timeSpentInDay": [
+      0.38799065972222024
+    ]
+  },
+  {
+    "ID": 1870,
+    "frequency": "S Band",
+    "source": "Orion-Transit-O",
+    "destination": "DSS-24",
+    "start": 9.1617277893518523,
+    "stop": 9.5742318749999988,
+    "duration": 0.41250408564814656,
+    "days": [
+      9
+    ],
+    "timeSpentInDay": [
+      0.41250408564814656
+    ]
+  },
+  {
+    "ID": 1869,
+    "frequency": "S Band",
+    "source": "Orion-Transit-O",
+    "destination": "DSS-24",
+    "start": 8.1627312037037036,
+    "stop": 8.5744295254629623,
+    "duration": 0.41169832175925869,
+    "days": [
+      8
+    ],
+    "timeSpentInDay": [
+      0.41169832175925869
+    ]
+  },
+  {
+    "ID": 1864,
+    "frequency": "S Band",
+    "source": "Orion-Transit-O",
+    "destination": "DSS-24",
+    "start": 3.1573992013888894,
+    "stop": 3.5514425347222223,
+    "duration": 0.39404333333333286,
+    "days": [
+      3
+    ],
+    "timeSpentInDay": [
+      0.39404333333333286
+    ]
+  },
+  {
+    "ID": 1863,
+    "frequency": "S Band",
+    "source": "Orion-Transit-O",
+    "destination": "DSS-24",
+    "start": 2.1517895949074077,
+    "stop": 2.5399706944444445,
+    "duration": 0.38818109953703672,
+    "days": [
+      2
+    ],
+    "timeSpentInDay": [
+      0.38818109953703672
+    ]
+  },
+  {
+    "ID": 1871,
+    "frequency": "S Band",
+    "source": "Orion-Transit-O",
+    "destination": "DSS-24",
+    "start": 10.193600972222221,
+    "stop": 10.577303425925924,
+    "duration": 0.38370245370370348,
+    "days": [
+      10
+    ],
+    "timeSpentInDay": [
+      0.38370245370370348
+    ]
+  },
+  {
+    "ID": 1878,
+    "frequency": "S Band",
+    "source": "Orion-Transit-O",
+    "destination": "DSS-25",
+    "start": 7.1626695949074088,
+    "stop": 7.571039085648148,
+    "duration": 0.40836949074073914,
+    "days": [
+      7
+    ],
+    "timeSpentInDay": [
+      0.40836949074073914
+    ]
+  },
+  {
+    "ID": 1877,
+    "frequency": "S Band",
+    "source": "Orion-Transit-O",
+    "destination": "DSS-25",
+    "start": 6.1622543055555559,
+    "stop": 6.567456759259259,
+    "duration": 0.40520245370370311,
+    "days": [
+      6
+    ],
+    "timeSpentInDay": [
+      0.40520245370370311
+    ]
+  },
+  {
+    "ID": 1876,
+    "frequency": "S Band",
+    "source": "Orion-Transit-O",
+    "destination": "DSS-25",
+    "start": 5.1614547569444449,
+    "stop": 5.5634148379629629,
+    "duration": 0.401960081018518,
+    "days": [
+      5
+    ],
+    "timeSpentInDay": [
+      0.401960081018518
+    ]
+  },
+  {
+    "ID": 1875,
+    "frequency": "S Band",
+    "source": "Orion-Transit-O",
+    "destination": "DSS-25",
+    "start": 4.16002943287037,
+    "stop": 4.5584070023148149,
+    "duration": 0.39837756944444447,
+    "days": [
+      4
+    ],
+    "timeSpentInDay": [
+      0.39837756944444447
+    ]
+  },
+  {
+    "ID": 1872,
+    "frequency": "S Band",
+    "source": "Orion-Transit-O",
+    "destination": "DSS-25",
+    "start": 1.1302383796296296,
+    "stop": 1.5118582407407406,
+    "duration": 0.381619861111111,
+    "days": [
+      1
+    ],
+    "timeSpentInDay": [
+      0.381619861111111
+    ]
+  },
+  {
+    "ID": 1922,
+    "frequency": "S Band",
+    "source": "Orion-Transit-O",
+    "destination": "DSS-53",
+    "start": 10.937329097222223,
+    "stop": 10.999983877314817,
+    "duration": 0.0626547800925934,
+    "days": [
+      10
+    ],
+    "timeSpentInDay": [
+      0.0626547800925934
+    ]
+  },
+  {
+    "ID": 1689,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-24",
+    "start": 22.529283807870371,
+    "stop": 23.122337326388887,
+    "duration": 0.5930535185185164,
+    "days": [
+      22,
+      23
+    ],
+    "timeSpentInDay": [
+      0.470716192129629,
+      0.12233732638888739
+    ]
+  },
+  {
+    "ID": 1693,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-24",
+    "start": 26.691362685185187,
+    "stop": 27.284294756944444,
+    "duration": 0.59293207175925744,
+    "days": [
+      26,
+      27
+    ],
+    "timeSpentInDay": [
+      0.30863731481481338,
+      0.28429475694444406
+    ]
+  },
+  {
+    "ID": 1692,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-24",
+    "start": 25.657768460648143,
+    "stop": 26.245940659722223,
+    "duration": 0.58817219907408,
+    "days": [
+      25,
+      26
+    ],
+    "timeSpentInDay": [
+      0.34223153935185735,
+      0.24594065972222268
+    ]
+  },
+  {
+    "ID": 1691,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-24",
+    "start": 24.622675891203702,
+    "stop": 25.20754319444444,
+    "duration": 0.58486730324073832,
+    "days": [
+      24,
+      25
+    ],
+    "timeSpentInDay": [
+      0.37732410879629796,
+      0.20754319444444036
+    ]
+  },
+  {
+    "ID": 1690,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-24",
+    "start": 23.583552060185184,
+    "stop": 24.167144641203706,
+    "duration": 0.58359258101852163,
+    "days": [
+      23,
+      24
+    ],
+    "timeSpentInDay": [
+      0.416447939814816,
+      0.16714464120370565
+    ]
+  },
+  {
+    "ID": 1688,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-24",
+    "start": 21.524761354166667,
+    "stop": 22.051730011574076,
+    "duration": 0.52696865740740861,
+    "days": [
+      21,
+      22
+    ],
+    "timeSpentInDay": [
+      0.47523864583333264,
+      0.051730011574075974
+    ]
+  },
+  {
+    "ID": 1687,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-24",
+    "start": 20.514570740740741,
+    "stop": 20.999989456018518,
+    "duration": 0.48541871527777758,
+    "days": [
+      20
+    ],
+    "timeSpentInDay": [
+      0.48541871527777758
+    ]
+  },
+  {
+    "ID": 1686,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-24",
+    "start": 19.5004584375,
+    "stop": 19.953625833333337,
+    "duration": 0.45316739583333643,
+    "days": [
+      19
+    ],
+    "timeSpentInDay": [
+      0.45316739583333643
+    ]
+  },
+  {
+    "ID": 1685,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-24",
+    "start": 18.481303657407405,
+    "stop": 18.908626215277774,
+    "duration": 0.42732255787036877,
+    "days": [
+      18
+    ],
+    "timeSpentInDay": [
+      0.42732255787036877
+    ]
+  },
+  {
+    "ID": 1684,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-24",
+    "start": 17.45433396990741,
+    "stop": 17.86397508101852,
+    "duration": 0.40964111111111023,
+    "days": [
+      17
+    ],
+    "timeSpentInDay": [
+      0.40964111111111023
+    ]
+  },
+  {
+    "ID": 1683,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-24",
+    "start": 16.411437199074076,
+    "stop": 16.820269282407406,
+    "duration": 0.40883208333332988,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.40883208333332988
+    ]
+  },
+  {
+    "ID": 1682,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-24",
+    "start": 15.386045092592594,
+    "stop": 15.755573958333335,
+    "duration": 0.36952886574074029,
+    "days": [
+      15
+    ],
+    "timeSpentInDay": [
+      0.36952886574074029
+    ]
+  },
+  {
+    "ID": 1681,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-24",
+    "start": 14.365975381944445,
+    "stop": 14.697223032407409,
+    "duration": 0.33124765046296467,
+    "days": [
+      14
+    ],
+    "timeSpentInDay": [
+      0.33124765046296467
+    ]
+  },
+  {
+    "ID": 1680,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-24",
+    "start": 13.335011400462962,
+    "stop": 13.650361805555555,
+    "duration": 0.31535040509259282,
+    "days": [
+      13
+    ],
+    "timeSpentInDay": [
+      0.31535040509259282
+    ]
+  },
+  {
+    "ID": 1722,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-34",
+    "start": 13.0,
+    "stop": 13.078482754629627,
+    "duration": 0.0784827546296274,
+    "days": [
+      13
+    ],
+    "timeSpentInDay": [
+      0.0784827546296274
+    ]
+  },
+  {
+    "ID": 1753,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-53",
+    "start": 14.067623854166667,
+    "stop": 14.345936273148148,
+    "duration": 0.27831241898148029,
+    "days": [
+      14
+    ],
+    "timeSpentInDay": [
+      0.27831241898148029
+    ]
+  },
+  {
+    "ID": 1766,
+    "frequency": "S Band",
+    "source": "Orion-NRHO",
+    "destination": "DSS-53",
+    "start": 27.393156180555554,
+    "stop": 27.499985104166669,
+    "duration": 0.10682892361111485,
+    "days": [
+      27
+    ],
+    "timeSpentInDay": [
+      0.10682892361111485
+    ]
+  },
+  {
+    "ID": 1662,
+    "frequency": "S Band",
+    "source": "Orion-Docked",
+    "destination": "DSS-24",
+    "start": 11.248225347222224,
+    "stop": 11.592631215277779,
+    "duration": 0.34440586805555462,
+    "days": [
+      11
+    ],
+    "timeSpentInDay": [
+      0.34440586805555462
+    ]
+  },
+  {
+    "ID": 1663,
+    "frequency": "S Band",
+    "source": "Orion-Docked",
+    "destination": "DSS-24",
+    "start": 12.294625081018518,
+    "stop": 12.6156278125,
+    "duration": 0.32100273148148162,
+    "days": [
+      12
+    ],
+    "timeSpentInDay": [
+      0.32100273148148162
+    ]
+  },
+  {
+    "ID": 1673,
+    "frequency": "S Band",
+    "source": "Orion-Docked",
+    "destination": "DSS-53",
+    "start": 11.989577453703705,
+    "stop": 12.272052604166667,
+    "duration": 0.28247515046296279,
+    "days": [
+      11,
+      12
+    ],
+    "timeSpentInDay": [
+      0.010422546296295465,
+      0.27205260416666732
+    ]
+  },
+  {
+    "ID": 1812,
+    "frequency": "S Band",
+    "source": "Orion-Tranit-R",
+    "destination": "DSS-24",
+    "start": 27.726423310185186,
+    "stop": 28.33168947916667,
+    "duration": 0.60526616898148333,
+    "days": [
+      27,
+      28
+    ],
+    "timeSpentInDay": [
+      0.27357668981481353,
+      0.3316894791666698
+    ]
+  },
+  {
+    "ID": 1813,
+    "frequency": "S Band",
+    "source": "Orion-Tranit-R",
+    "destination": "DSS-24",
+    "start": 28.766633182870368,
+    "stop": 29.350677407407403,
+    "duration": 0.58404422453703475,
+    "days": [
+      28,
+      29
+    ],
+    "timeSpentInDay": [
+      0.2333668171296317,
+      0.35067740740740305
+    ]
+  },
+  {
+    "ID": 1814,
+    "frequency": "S Band",
+    "source": "Orion-Tranit-R",
+    "destination": "DSS-24",
+    "start": 29.76480872685185,
+    "stop": 29.999987534722223,
+    "duration": 0.23517880787037271,
+    "days": [
+      29
+    ],
+    "timeSpentInDay": [
+      0.23517880787037271
+    ]
+  },
+  {
+    "ID": 1201,
+    "frequency": "Ka Band",
+    "source": "HLS-Disposal",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 28.652071759259258,
+    "stop": 28.948524988425927,
+    "duration": 0.29645322916666927,
+    "days": [
+      28
+    ],
+    "timeSpentInDay": [
+      0.29645322916666927
+    ]
+  },
+  {
+    "ID": 1211,
+    "frequency": "Ka Band",
+    "source": "HLS-Disposal",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 28.9956427662037,
+    "stop": 29.198414351851852,
+    "duration": 0.20277158564815068,
+    "days": [
+      28,
+      29
+    ],
+    "timeSpentInDay": [
+      0.0043572337962984875,
+      0.19841435185185219
+    ]
+  },
+  {
+    "ID": 1218,
+    "frequency": "S Band",
+    "source": "HLS-Disposal",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 29.268288715277777,
+    "stop": 29.74742759259259,
+    "duration": 0.47913887731481353,
+    "days": [
+      29
+    ],
+    "timeSpentInDay": [
+      0.47913887731481353
+    ]
+  },
+  {
+    "ID": 1213,
+    "frequency": "S Band",
+    "source": "HLS-Disposal",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 23.270512662037035,
+    "stop": 23.67537037037037,
+    "duration": 0.4048577083333349,
+    "days": [
+      23
+    ],
+    "timeSpentInDay": [
+      0.4048577083333349
+    ]
+  },
+  {
+    "ID": 1205,
+    "frequency": "S Band",
+    "source": "HLS-Disposal",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 27.692175925925923,
+    "stop": 27.908148148148147,
+    "duration": 0.21597222222222356,
+    "days": [
+      27
+    ],
+    "timeSpentInDay": [
+      0.21597222222222356
+    ]
+  },
+  {
+    "ID": 1133,
+    "frequency": "Ka Band",
+    "source": "HLS-Disposal",
+    "destination": "DSS-26",
+    "start": 26.691363113425925,
+    "stop": 27.284282592592589,
+    "duration": 0.59291947916666388,
+    "days": [
+      26,
+      27
+    ],
+    "timeSpentInDay": [
+      0.30863688657407451,
+      0.28428259259258937
+    ]
+  },
+  {
+    "ID": 1132,
+    "frequency": "Ka Band",
+    "source": "HLS-Disposal",
+    "destination": "DSS-26",
+    "start": 25.657768530092593,
+    "stop": 26.245928912037034,
+    "duration": 0.58816038194444076,
+    "days": [
+      25,
+      26
+    ],
+    "timeSpentInDay": [
+      0.34223146990740716,
+      0.2459289120370336
+    ]
+  },
+  {
+    "ID": 1131,
+    "frequency": "Ka Band",
+    "source": "HLS-Disposal",
+    "destination": "DSS-26",
+    "start": 24.622675613425926,
+    "stop": 25.207531689814815,
+    "duration": 0.58485607638888837,
+    "days": [
+      24,
+      25
+    ],
+    "timeSpentInDay": [
+      0.37732438657407386,
+      0.20753168981481451
+    ]
+  },
+  {
+    "ID": 1280,
+    "frequency": "S Band",
+    "source": "HLS-Docked",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 15.140277777777778,
+    "stop": 15.497728344907408,
+    "duration": 0.35745056712963041,
+    "days": [
+      15
+    ],
+    "timeSpentInDay": [
+      0.35745056712963041
+    ]
+  },
+  {
+    "ID": 1281,
+    "frequency": "S Band",
+    "source": "HLS-Docked",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 15.517098530092591,
+    "stop": 15.633831180555555,
+    "duration": 0.11673265046296422,
+    "days": [
+      15
+    ],
+    "timeSpentInDay": [
+      0.11673265046296422
+    ]
+  },
+  {
+    "ID": 1230,
+    "frequency": "Ka Band",
+    "source": "HLS-Docked",
+    "destination": "DSS-26",
+    "start": 11.248205613425926,
+    "stop": 11.592640127314814,
+    "duration": 0.34443451388888846,
+    "days": [
+      11
+    ],
+    "timeSpentInDay": [
+      0.34443451388888846
+    ]
+  },
+  {
+    "ID": 1233,
+    "frequency": "Ka Band",
+    "source": "HLS-Docked",
+    "destination": "DSS-26",
+    "start": 14.365953553240741,
+    "stop": 14.697232800925926,
+    "duration": 0.33127924768518469,
+    "days": [
+      14
+    ],
+    "timeSpentInDay": [
+      0.33127924768518469
+    ]
+  },
+  {
+    "ID": 1231,
+    "frequency": "Ka Band",
+    "source": "HLS-Docked",
+    "destination": "DSS-26",
+    "start": 12.294602546296296,
+    "stop": 12.615639155092593,
+    "duration": 0.32103660879629636,
+    "days": [
+      12
+    ],
+    "timeSpentInDay": [
+      0.32103660879629636
+    ]
+  },
+  {
+    "ID": 1232,
+    "frequency": "Ka Band",
+    "source": "HLS-Docked",
+    "destination": "DSS-26",
+    "start": 13.334987974537036,
+    "stop": 13.65037366898148,
+    "duration": 0.3153856944444442,
+    "days": [
+      13
+    ],
+    "timeSpentInDay": [
+      0.3153856944444442
+    ]
+  },
+  {
+    "ID": 1261,
+    "frequency": "Ka Band",
+    "source": "HLS-Docked",
+    "destination": "DSS-54",
+    "start": 11.989572673611113,
+    "stop": 12.272061550925926,
+    "duration": 0.28248887731481354,
+    "days": [
+      11,
+      12
+    ],
+    "timeSpentInDay": [
+      0.010427326388887437,
+      0.2720615509259261
+    ]
+  },
+  {
+    "ID": 1263,
+    "frequency": "Ka Band",
+    "source": "HLS-Docked",
+    "destination": "DSS-54",
+    "start": 14.067618645833333,
+    "stop": 14.345945393518519,
+    "duration": 0.2783267476851865,
+    "days": [
+      14
+    ],
+    "timeSpentInDay": [
+      0.2783267476851865
+    ]
+  },
+  {
+    "ID": 1262,
+    "frequency": "Ka Band",
+    "source": "HLS-Docked",
+    "destination": "DSS-54",
+    "start": 13.034677523148149,
+    "stop": 13.300998969907406,
+    "duration": 0.26632144675925673,
+    "days": [
+      13
+    ],
+    "timeSpentInDay": [
+      0.26632144675925673
+    ]
+  },
+  {
+    "ID": 911,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 28.736770370370369,
+    "stop": 29.335354062500002,
+    "duration": 0.59858369212963325,
+    "days": [
+      28,
+      29
+    ],
+    "timeSpentInDay": [
+      0.26322962962963103,
+      0.33535406250000221
+    ]
+  },
+  {
+    "ID": 910,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 27.699850787037036,
+    "stop": 28.291840231481483,
+    "duration": 0.59198944444444734,
+    "days": [
+      27,
+      28
+    ],
+    "timeSpentInDay": [
+      0.30014921296296393,
+      0.29184023148148341
+    ]
+  },
+  {
+    "ID": 905,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 22.503582962962966,
+    "stop": 23.088973263888889,
+    "duration": 0.5853903009259227,
+    "days": [
+      22,
+      23
+    ],
+    "timeSpentInDay": [
+      0.496417037037034,
+      0.08897326388888871
+    ]
+  },
+  {
+    "ID": 909,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 26.665907546296296,
+    "stop": 27.250472349537038,
+    "duration": 0.58456480324074178,
+    "days": [
+      26,
+      27
+    ],
+    "timeSpentInDay": [
+      0.334092453703704,
+      0.25047234953703779
+    ]
+  },
+  {
+    "ID": 885,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 1.8293735185185185,
+    "stop": 2.4099829050925923,
+    "duration": 0.58060938657407379,
+    "days": [
+      1,
+      2
+    ],
+    "timeSpentInDay": [
+      0.17062648148148152,
+      0.40998290509259228
+    ]
+  },
+  {
+    "ID": 908,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 25.632060405092588,
+    "stop": 26.212415983796294,
+    "duration": 0.58035557870370624,
+    "days": [
+      25,
+      26
+    ],
+    "timeSpentInDay": [
+      0.367939594907412,
+      0.21241598379629423
+    ]
+  },
+  {
+    "ID": 907,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 24.59668940972222,
+    "stop": 25.174210891203703,
+    "duration": 0.57752148148148308,
+    "days": [
+      24,
+      25
+    ],
+    "timeSpentInDay": [
+      0.40331059027777982,
+      0.17421089120370326
+    ]
+  },
+  {
+    "ID": 906,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 23.557240011574077,
+    "stop": 24.133921759259255,
+    "duration": 0.57668174768517844,
+    "days": [
+      23,
+      24
+    ],
+    "timeSpentInDay": [
+      0.442759988425923,
+      0.13392175925925542
+    ]
+  },
+  {
+    "ID": 884,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 0.794647986111111,
+    "stop": 1.3712900925925926,
+    "duration": 0.57664210648148162,
+    "days": [
+      0,
+      1
+    ],
+    "timeSpentInDay": [
+      0.20535201388888902,
+      0.3712900925925926
+    ]
+  },
+  {
+    "ID": 886,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 2.8798373842592593,
+    "stop": 3.4346872222222227,
+    "duration": 0.55484983796296339,
+    "days": [
+      2,
+      3
+    ],
+    "timeSpentInDay": [
+      0.12016261574074072,
+      0.43468722222222267
+    ]
+  },
+  {
+    "ID": 904,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 21.496183275462965,
+    "stop": 22.020126006944448,
+    "duration": 0.52394273148148329,
+    "days": [
+      21,
+      22
+    ],
+    "timeSpentInDay": [
+      0.5038167245370353,
+      0.020126006944447994
+    ]
+  },
+  {
+    "ID": 887,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 3.9259816319444449,
+    "stop": 4.4426092476851853,
+    "duration": 0.51662761574074034,
+    "days": [
+      3,
+      4
+    ],
+    "timeSpentInDay": [
+      0.074018368055555062,
+      0.44260924768518528
+    ]
+  },
+  {
+    "ID": 888,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 4.9621035648148153,
+    "stop": 5.453359236111111,
+    "duration": 0.49125567129629566,
+    "days": [
+      4,
+      5
+    ],
+    "timeSpentInDay": [
+      0.037896435185184707,
+      0.45335923611111095
+    ]
+  },
+  {
+    "ID": 903,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 20.484013414351853,
+    "stop": 20.970983599537036,
+    "duration": 0.4869701851851822,
+    "days": [
+      20
+    ],
+    "timeSpentInDay": [
+      0.4869701851851822
+    ]
+  },
+  {
+    "ID": 889,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 5.9960261805555559,
+    "stop": 6.4670017129629622,
+    "duration": 0.47097553240740631,
+    "days": [
+      5,
+      6
+    ],
+    "timeSpentInDay": [
+      0.0039738194444440822,
+      0.46700171296296222
+    ]
+  },
+  {
+    "ID": 902,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 19.468196828703704,
+    "stop": 19.926486782407409,
+    "duration": 0.45828995370370507,
+    "days": [
+      19
+    ],
+    "timeSpentInDay": [
+      0.45828995370370507
+    ]
+  },
+  {
+    "ID": 890,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 7.0298690740740746,
+    "stop": 7.4847159143518516,
+    "duration": 0.454846840277777,
+    "days": [
+      7
+    ],
+    "timeSpentInDay": [
+      0.454846840277777
+    ]
+  },
+  {
+    "ID": 892,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 9.1026059027777784,
+    "stop": 9.5513944444444441,
+    "duration": 0.44878854166666571,
+    "days": [
+      9
+    ],
+    "timeSpentInDay": [
+      0.44878854166666571
+    ]
+  },
+  {
+    "ID": 891,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 8.0648874305555545,
+    "stop": 8.5091828587962954,
+    "duration": 0.444295428240741,
+    "days": [
+      8
+    ],
+    "timeSpentInDay": [
+      0.444295428240741
+    ]
+  },
+  {
+    "ID": 901,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 18.447518009259259,
+    "stop": 18.883017662037037,
+    "duration": 0.43549965277777858,
+    "days": [
+      18
+    ],
+    "timeSpentInDay": [
+      0.43549965277777858
+    ]
+  },
+  {
+    "ID": 899,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 16.375327060185182,
+    "stop": 16.79635709490741,
+    "duration": 0.42103003472222866,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.42103003472222866
+    ]
+  },
+  {
+    "ID": 900,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 17.419287638888889,
+    "stop": 17.839543159722222,
+    "duration": 0.42025552083333295,
+    "days": [
+      17
+    ],
+    "timeSpentInDay": [
+      0.42025552083333295
+    ]
+  },
+  {
+    "ID": 893,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 10.161936562500001,
+    "stop": 10.557792685185184,
+    "duration": 0.39585612268518311,
+    "days": [
+      10
+    ],
+    "timeSpentInDay": [
+      0.39585612268518311
+    ]
+  },
+  {
+    "ID": 898,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 15.348902719907409,
+    "stop": 15.732655138888889,
+    "duration": 0.38375241898148005,
+    "days": [
+      15
+    ],
+    "timeSpentInDay": [
+      0.38375241898148005
+    ]
+  },
+  {
+    "ID": 894,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 11.209446921296296,
+    "stop": 11.572939675925925,
+    "duration": 0.36349275462962893,
+    "days": [
+      11
+    ],
+    "timeSpentInDay": [
+      0.36349275462962893
+    ]
+  },
+  {
+    "ID": 897,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 14.326321076388888,
+    "stop": 14.677280613425927,
+    "duration": 0.35095953703703842,
+    "days": [
+      14
+    ],
+    "timeSpentInDay": [
+      0.35095953703703842
+    ]
+  },
+  {
+    "ID": 895,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 12.25418064814815,
+    "stop": 12.597186030092592,
+    "duration": 0.34300538194444208,
+    "days": [
+      12
+    ],
+    "timeSpentInDay": [
+      0.34300538194444208
+    ]
+  },
+  {
+    "ID": 883,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 0.0,
+    "stop": 0.33863643518518516,
+    "duration": 0.33863643518518516,
+    "days": [
+      0
+    ],
+    "timeSpentInDay": [
+      0.33863643518518516
+    ]
+  },
+  {
+    "ID": 896,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 13.294166342592591,
+    "stop": 13.631934699074074,
+    "duration": 0.33776835648148307,
+    "days": [
+      13
+    ],
+    "timeSpentInDay": [
+      0.33776835648148307
+    ]
+  },
+  {
+    "ID": 912,
+    "frequency": "Ka Band",
+    "source": "Gateway-EOR",
+    "destination": "LEGS1-WS",
+    "start": 29.798411805555556,
+    "stop": 29.999984791666666,
+    "duration": 0.20157298611110974,
+    "days": [
+      29
+    ],
+    "timeSpentInDay": [
+      0.20157298611110974
+    ]
+  },
+  {
+    "ID": 231,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 19.034386574074073,
+    "stop": 19.067719907407408,
+    "duration": 0.033333333333334991,
+    "days": [
+      19
+    ],
+    "timeSpentInDay": [
+      0.033333333333334991
+    ]
+  },
+  {
+    "ID": 262,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 0.29633101851851851,
+    "stop": 0.32966435185185183,
+    "duration": 0.033333333333333326,
+    "days": [
+      0
+    ],
+    "timeSpentInDay": [
+      0.033333333333333326
+    ]
+  },
+  {
+    "ID": 202,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 1.0381250000000002,
+    "stop": 1.0714583333333334,
+    "duration": 0.033333333333333215,
+    "days": [
+      1
+    ],
+    "timeSpentInDay": [
+      0.033333333333333215
+    ]
+  },
+  {
+    "ID": 211,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 6.5425810185185194,
+    "stop": 6.5759143518518526,
+    "duration": 0.033333333333333215,
+    "days": [
+      6
+    ],
+    "timeSpentInDay": [
+      0.033333333333333215
+    ]
+  },
+  {
+    "ID": 281,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 12.788136574074075,
+    "stop": 12.821469907407407,
+    "duration": 0.033333333333331439,
+    "days": [
+      12
+    ],
+    "timeSpentInDay": [
+      0.033333333333331439
+    ]
+  },
+  {
+    "ID": 290,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 18.292604166666667,
+    "stop": 18.3259375,
+    "duration": 0.033333333333331439,
+    "days": [
+      18
+    ],
+    "timeSpentInDay": [
+      0.033333333333331439
+    ]
+  },
+  {
+    "ID": 220,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 12.047037037037036,
+    "stop": 12.079675925925926,
+    "duration": 0.032638888888889994,
+    "days": [
+      12
+    ],
+    "timeSpentInDay": [
+      0.032638888888889994
+    ]
+  },
+  {
+    "ID": 273,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 7.2843634259259256,
+    "stop": 7.3170023148148147,
+    "duration": 0.032638888888889106,
+    "days": [
+      7
+    ],
+    "timeSpentInDay": [
+      0.032638888888889106
+    ]
+  },
+  {
+    "ID": 239,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 24.538854166666667,
+    "stop": 24.571493055555553,
+    "duration": 0.032638888888886441,
+    "days": [
+      24
+    ],
+    "timeSpentInDay": [
+      0.032638888888886441
+    ]
+  },
+  {
+    "ID": 299,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 23.797060185185188,
+    "stop": 23.829699074074075,
+    "duration": 0.032638888888886441,
+    "days": [
+      23
+    ],
+    "timeSpentInDay": [
+      0.032638888888886441
+    ]
+  },
+  {
+    "ID": 271,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 5.8014814814814812,
+    "stop": 5.8334259259259262,
+    "duration": 0.031944444444445,
+    "days": [
+      5
+    ],
+    "timeSpentInDay": [
+      0.031944444444445
+    ]
+  },
+  {
+    "ID": 301,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 25.281307870370373,
+    "stop": 25.313252314814818,
+    "duration": 0.031944444444445,
+    "days": [
+      25
+    ],
+    "timeSpentInDay": [
+      0.031944444444445
+    ]
+  },
+  {
+    "ID": 308,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 29.301516203703702,
+    "stop": 29.333460648148147,
+    "duration": 0.031944444444445,
+    "days": [
+      29
+    ],
+    "timeSpentInDay": [
+      0.031944444444445
+    ]
+  },
+  {
+    "ID": 229,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 17.551493055555557,
+    "stop": 17.5834375,
+    "duration": 0.031944444444441444,
+    "days": [
+      17
+    ],
+    "timeSpentInDay": [
+      0.031944444444441444
+    ]
+  },
+  {
+    "ID": 222,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 13.531284722222223,
+    "stop": 13.562534722222223,
+    "duration": 0.03125,
+    "days": [
+      13
+    ],
+    "timeSpentInDay": [
+      0.03125
+    ]
+  },
+  {
+    "ID": 264,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 1.7812731481481483,
+    "stop": 1.8125231481481483,
+    "duration": 0.03125,
+    "days": [
+      1
+    ],
+    "timeSpentInDay": [
+      0.03125
+    ]
+  },
+  {
+    "ID": 213,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 8.0274768518518531,
+    "stop": 8.0580324074074081,
+    "duration": 0.030555555555555003,
+    "days": [
+      8
+    ],
+    "timeSpentInDay": [
+      0.030555555555555003
+    ]
+  },
+  {
+    "ID": 237,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 23.056655092592592,
+    "stop": 23.086516203703706,
+    "duration": 0.029861111111113559,
+    "days": [
+      23
+    ],
+    "timeSpentInDay": [
+      0.029861111111113559
+    ]
+  },
+  {
+    "ID": 279,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 11.306631944444446,
+    "stop": 11.336493055555556,
+    "duration": 0.029861111111110006,
+    "days": [
+      11
+    ],
+    "timeSpentInDay": [
+      0.029861111111110006
+    ]
+  },
+  {
+    "ID": 292,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 19.778182870370369,
+    "stop": 19.808043981481479,
+    "duration": 0.029861111111110006,
+    "days": [
+      19
+    ],
+    "timeSpentInDay": [
+      0.029861111111110006
+    ]
+  },
+  {
+    "ID": 216,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 9.9474768518518513,
+    "stop": 9.9759490740740748,
+    "duration": 0.028472222222223564,
+    "days": [
+      9
+    ],
+    "timeSpentInDay": [
+      0.028472222222223564
+    ]
+  },
+  {
+    "ID": 241,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 26.025057870370372,
+    "stop": 26.053530092592595,
+    "duration": 0.028472222222223564,
+    "days": [
+      26
+    ],
+    "timeSpentInDay": [
+      0.028472222222223564
+    ]
+  },
+  {
+    "ID": 204,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 2.5243287037037034,
+    "stop": 2.5528009259259261,
+    "duration": 0.028472222222222676,
+    "days": [
+      2
+    ],
+    "timeSpentInDay": [
+      0.028472222222222676
+    ]
+  },
+  {
+    "ID": 283,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 14.275046296296296,
+    "stop": 14.303518518518517,
+    "duration": 0.028472222222221788,
+    "days": [
+      14
+    ],
+    "timeSpentInDay": [
+      0.028472222222221788
+    ]
+  },
+  {
+    "ID": 304,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 27.20127314814815,
+    "stop": 27.22974537037037,
+    "duration": 0.028472222222220012,
+    "days": [
+      27
+    ],
+    "timeSpentInDay": [
+      0.028472222222220012
+    ]
+  },
+  {
+    "ID": 225,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 15.45167824074074,
+    "stop": 15.479456018518519,
+    "duration": 0.027777777777778567,
+    "days": [
+      15
+    ],
+    "timeSpentInDay": [
+      0.027777777777778567
+    ]
+  },
+  {
+    "ID": 244,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 27.943831018518519,
+    "stop": 27.971608796296298,
+    "duration": 0.027777777777778567,
+    "days": [
+      27
+    ],
+    "timeSpentInDay": [
+      0.027777777777778567
+    ]
+  },
+  {
+    "ID": 267,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 3.7013888888888888,
+    "stop": 3.7291666666666665,
+    "duration": 0.027777777777777679,
+    "days": [
+      3
+    ],
+    "timeSpentInDay": [
+      0.027777777777777679
+    ]
+  },
+  {
+    "ID": 276,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 9.20556712962963,
+    "stop": 9.2333449074074068,
+    "duration": 0.027777777777776791,
+    "days": [
+      9
+    ],
+    "timeSpentInDay": [
+      0.027777777777776791
+    ]
+  },
+  {
+    "ID": 295,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 21.697766203703704,
+    "stop": 21.725543981481479,
+    "duration": 0.027777777777775015,
+    "days": [
+      21
+    ],
+    "timeSpentInDay": [
+      0.027777777777775015
+    ]
+  },
+  {
+    "ID": 207,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 4.4439351851851852,
+    "stop": 4.4710185185185187,
+    "duration": 0.02708333333333357,
+    "days": [
+      4
+    ],
+    "timeSpentInDay": [
+      0.02708333333333357
+    ]
+  },
+  {
+    "ID": 234,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 20.955856481481483,
+    "stop": 20.982939814814817,
+    "duration": 0.02708333333333357,
+    "days": [
+      20
+    ],
+    "timeSpentInDay": [
+      0.02708333333333357
+    ]
+  },
+  {
+    "ID": 286,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 16.194224537037037,
+    "stop": 16.221307870370371,
+    "duration": 0.02708333333333357,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.02708333333333357
+    ]
+  },
+  {
+    "ID": 233,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 20.521874999999998,
+    "stop": 20.54826388888889,
+    "duration": 0.026388888888892126,
+    "days": [
+      20
+    ],
+    "timeSpentInDay": [
+      0.026388888888892126
+    ]
+  },
+  {
+    "ID": 205,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 2.960104166666667,
+    "stop": 2.9864930555555556,
+    "duration": 0.026388888888888573,
+    "days": [
+      2
+    ],
+    "timeSpentInDay": [
+      0.026388888888888573
+    ]
+  },
+  {
+    "ID": 208,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 5.0624652777777781,
+    "stop": 5.0888541666666667,
+    "duration": 0.026388888888888573,
+    "days": [
+      5
+    ],
+    "timeSpentInDay": [
+      0.026388888888888573
+    ]
+  },
+  {
+    "ID": 242,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 26.459976851851852,
+    "stop": 26.486365740740741,
+    "duration": 0.026388888888888573,
+    "days": [
+      26
+    ],
+    "timeSpentInDay": [
+      0.026388888888888573
+    ]
+  },
+  {
+    "ID": 275,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 8.7718634259259272,
+    "stop": 8.7982523148148157,
+    "duration": 0.026388888888888573,
+    "days": [
+      8
+    ],
+    "timeSpentInDay": [
+      0.026388888888888573
+    ]
+  },
+  {
+    "ID": 284,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 14.709699074074074,
+    "stop": 14.736087962962962,
+    "duration": 0.026388888888888573,
+    "days": [
+      14
+    ],
+    "timeSpentInDay": [
+      0.026388888888888573
+    ]
+  },
+  {
+    "ID": 278,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 10.690671296296296,
+    "stop": 10.716365740740741,
+    "duration": 0.025694444444445352,
+    "days": [
+      10
+    ],
+    "timeSpentInDay": [
+      0.025694444444445352
+    ]
+  },
+  {
+    "ID": 236,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 22.440960648148149,
+    "stop": 22.466655092592593,
+    "duration": 0.025694444444443576,
+    "days": [
+      22
+    ],
+    "timeSpentInDay": [
+      0.025694444444443576
+    ]
+  },
+  {
+    "ID": 245,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 28.563194444444445,
+    "stop": 28.588888888888889,
+    "duration": 0.025694444444443576,
+    "days": [
+      28
+    ],
+    "timeSpentInDay": [
+      0.025694444444443576
+    ]
+  },
+  {
+    "ID": 287,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 16.813182870370373,
+    "stop": 16.838877314814816,
+    "duration": 0.025694444444443576,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.025694444444443576
+    ]
+  },
+  {
+    "ID": 214,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 8.4641666666666655,
+    "stop": 8.4891666666666659,
+    "duration": 0.025000000000000355,
+    "days": [
+      8
+    ],
+    "timeSpentInDay": [
+      0.025000000000000355
+    ]
+  },
+  {
+    "ID": 293,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 20.214456018518518,
+    "stop": 20.239456018518517,
+    "duration": 0.024999999999998579,
+    "days": [
+      20
+    ],
+    "timeSpentInDay": [
+      0.024999999999998579
+    ]
+  },
+  {
+    "ID": 303,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 26.768668981481479,
+    "stop": 26.793668981481478,
+    "duration": 0.024999999999998579,
+    "days": [
+      26
+    ],
+    "timeSpentInDay": [
+      0.024999999999998579
+    ]
+  },
+  {
+    "ID": 266,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 3.2686226851851852,
+    "stop": 3.292928240740741,
+    "duration": 0.024305555555555802,
+    "days": [
+      3
+    ],
+    "timeSpentInDay": [
+      0.024305555555555802
+    ]
+  },
+  {
+    "ID": 224,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 15.018645833333332,
+    "stop": 15.042951388888888,
+    "duration": 0.024305555555555358,
+    "days": [
+      15
+    ],
+    "timeSpentInDay": [
+      0.024305555555555358
+    ]
+  },
+  {
+    "ID": 302,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 25.719120370370373,
+    "stop": 25.742731481481481,
+    "duration": 0.023611111111108585,
+    "days": [
+      25
+    ],
+    "timeSpentInDay": [
+      0.023611111111108585
+    ]
+  },
+  {
+    "ID": 223,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 13.969537037037037,
+    "stop": 13.992453703703704,
+    "duration": 0.02291666666666714,
+    "days": [
+      13
+    ],
+    "timeSpentInDay": [
+      0.02291666666666714
+    ]
+  },
+  {
+    "ID": 265,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 2.219259259259259,
+    "stop": 2.2421759259259257,
+    "duration": 0.022916666666666696,
+    "days": [
+      2
+    ],
+    "timeSpentInDay": [
+      0.022916666666666696
+    ]
+  },
+  {
+    "ID": 270,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 5.1884953703703705,
+    "stop": 5.2114120370370367,
+    "duration": 0.022916666666666252,
+    "days": [
+      5
+    ],
+    "timeSpentInDay": [
+      0.022916666666666252
+    ]
+  },
+  {
+    "ID": 307,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 28.688379629629633,
+    "stop": 28.711296296296297,
+    "duration": 0.022916666666663588,
+    "days": [
+      28
+    ],
+    "timeSpentInDay": [
+      0.022916666666663588
+    ]
+  },
+  {
+    "ID": 228,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 16.93878472222222,
+    "stop": 16.961006944444446,
+    "duration": 0.022222222222225696,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.022222222222225696
+    ]
+  },
+  {
+    "ID": 215,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 9.516030092592592,
+    "stop": 9.5382523148148142,
+    "duration": 0.022222222222222143,
+    "days": [
+      9
+    ],
+    "timeSpentInDay": [
+      0.022222222222222143
+    ]
+  },
+  {
+    "ID": 294,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 21.266053240740739,
+    "stop": 21.288275462962961,
+    "duration": 0.022222222222222143,
+    "days": [
+      21
+    ],
+    "timeSpentInDay": [
+      0.022222222222222143
+    ]
+  },
+  {
+    "ID": 274,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 7.723796296296296,
+    "stop": 7.7453240740740741,
+    "duration": 0.021527777777778034,
+    "days": [
+      7
+    ],
+    "timeSpentInDay": [
+      0.021527777777778034
+    ]
+  },
+  {
+    "ID": 217,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 10.569722222222222,
+    "stop": 10.590555555555556,
+    "duration": 0.020833333333333925,
+    "days": [
+      10
+    ],
+    "timeSpentInDay": [
+      0.020833333333333925
+    ]
+  },
+  {
+    "ID": 296,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 22.31974537037037,
+    "stop": 22.340578703703702,
+    "duration": 0.020833333333332149,
+    "days": [
+      22
+    ],
+    "timeSpentInDay": [
+      0.020833333333332149
+    ]
+  },
+  {
+    "ID": 285,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 15.763333333333334,
+    "stop": 15.783472222222223,
+    "duration": 0.020138888888888928,
+    "days": [
+      15
+    ],
+    "timeSpentInDay": [
+      0.020138888888888928
+    ]
+  },
+  {
+    "ID": 243,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 27.513368055555556,
+    "stop": 27.533506944444444,
+    "duration": 0.020138888888887152,
+    "days": [
+      27
+    ],
+    "timeSpentInDay": [
+      0.020138888888887152
+    ]
+  },
+  {
+    "ID": 282,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 13.228831018518518,
+    "stop": 13.248275462962964,
+    "duration": 0.019444444444445708,
+    "days": [
+      13
+    ],
+    "timeSpentInDay": [
+      0.019444444444445708
+    ]
+  },
+  {
+    "ID": 206,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 4.0132986111111109,
+    "stop": 4.0327430555555557,
+    "duration": 0.019444444444444819,
+    "days": [
+      4
+    ],
+    "timeSpentInDay": [
+      0.019444444444444819
+    ]
+  },
+  {
+    "ID": 240,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 24.979097222222222,
+    "stop": 24.997847222222223,
+    "duration": 0.018750000000000711,
+    "days": [
+      24
+    ],
+    "timeSpentInDay": [
+      0.018750000000000711
+    ]
+  },
+  {
+    "ID": 235,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 22.010497685185186,
+    "stop": 22.028553240740738,
+    "duration": 0.018055555555552161,
+    "days": [
+      22
+    ],
+    "timeSpentInDay": [
+      0.018055555555552161
+    ]
+  },
+  {
+    "ID": 219,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 11.437291666666667,
+    "stop": 11.454652777777779,
+    "duration": 0.017361111111112493,
+    "days": [
+      11
+    ],
+    "timeSpentInDay": [
+      0.017361111111112493
+    ]
+  },
+  {
+    "ID": 277,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 10.260451388888889,
+    "stop": 10.2778125,
+    "duration": 0.017361111111110716,
+    "days": [
+      10
+    ],
+    "timeSpentInDay": [
+      0.017361111111110716
+    ]
+  },
+  {
+    "ID": 212,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 6.9839814814814813,
+    "stop": 7.000648148148148,
+    "duration": 0.016666666666666607,
+    "days": [
+      6,
+      7
+    ],
+    "timeSpentInDay": [
+      0.016018518518518654,
+      0.00064814814814795341
+    ]
+  },
+  {
+    "ID": 291,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 18.734236111111112,
+    "stop": 18.750902777777778,
+    "duration": 0.016666666666665719,
+    "days": [
+      18
+    ],
+    "timeSpentInDay": [
+      0.016666666666665719
+    ]
+  },
+  {
+    "ID": 269,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 4.7573379629629633,
+    "stop": 4.7733101851851849,
+    "duration": 0.01597222222222161,
+    "days": [
+      4
+    ],
+    "timeSpentInDay": [
+      0.01597222222222161
+    ]
+  },
+  {
+    "ID": 306,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 28.257430555555555,
+    "stop": 28.273402777777775,
+    "duration": 0.015972222222220722,
+    "days": [
+      28
+    ],
+    "timeSpentInDay": [
+      0.015972222222220722
+    ]
+  },
+  {
+    "ID": 263,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 0.738622685185185,
+    "stop": 0.75390046296296287,
+    "duration": 0.015277777777777835,
+    "days": [
+      0
+    ],
+    "timeSpentInDay": [
+      0.015277777777777835
+    ]
+  },
+  {
+    "ID": 300,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 24.239074074074079,
+    "stop": 24.253657407407413,
+    "duration": 0.014583333333334281,
+    "days": [
+      24
+    ],
+    "timeSpentInDay": [
+      0.014583333333334281
+    ]
+  },
+  {
+    "ID": 218,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 11.004583333333334,
+    "stop": 11.018472222222222,
+    "duration": 0.013888888888887507,
+    "days": [
+      11
+    ],
+    "timeSpentInDay": [
+      0.013888888888887507
+    ]
+  },
+  {
+    "ID": 309,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 29.743020833333333,
+    "stop": 29.756909722222218,
+    "duration": 0.013888888888885731,
+    "days": [
+      29
+    ],
+    "timeSpentInDay": [
+      0.013888888888885731
+    ]
+  },
+  {
+    "ID": 230,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 17.993530092592593,
+    "stop": 18.006724537037037,
+    "duration": 0.013194444444444287,
+    "days": [
+      17,
+      18
+    ],
+    "timeSpentInDay": [
+      0.0064699074074070495,
+      0.006724537037037237
+    ]
+  },
+  {
+    "ID": 246,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 29.001331018518517,
+    "stop": 29.014525462962961,
+    "duration": 0.013194444444444287,
+    "days": [
+      29
+    ],
+    "timeSpentInDay": [
+      0.013194444444444287
+    ]
+  },
+  {
+    "ID": 272,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 6.2433449074074074,
+    "stop": 6.2565393518518517,
+    "duration": 0.013194444444444287,
+    "days": [
+      6
+    ],
+    "timeSpentInDay": [
+      0.013194444444444287
+    ]
+  },
+  {
+    "ID": 288,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 17.251238425925926,
+    "stop": 17.264432870370371,
+    "duration": 0.013194444444444287,
+    "days": [
+      17
+    ],
+    "timeSpentInDay": [
+      0.013194444444444287
+    ]
+  },
+  {
+    "ID": 280,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 11.747569444444444,
+    "stop": 11.760069444444445,
+    "duration": 0.012500000000001066,
+    "days": [
+      11
+    ],
+    "timeSpentInDay": [
+      0.012500000000001066
+    ]
+  },
+  {
+    "ID": 201,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 0.0,
+    "stop": 0.010416666666666666,
+    "duration": 0.010416666666666666,
+    "days": [
+      0
+    ],
+    "timeSpentInDay": [
+      0.010416666666666666
+    ]
+  },
+  {
+    "ID": 247,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 29.439155092592589,
+    "stop": 29.445405092592591,
+    "duration": 0.0062500000000014211,
+    "days": [
+      29
+    ],
+    "timeSpentInDay": [
+      0.0062500000000014211
+    ]
+  },
+  {
+    "ID": 289,
+    "frequency": "S Band",
+    "source": "CubeSat-1",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 17.689560185185186,
+    "stop": 17.694421296296294,
+    "duration": 0.0048611111111078742,
+    "days": [
+      17
+    ],
+    "timeSpentInDay": [
+      0.0048611111111078742
+    ]
+  },
+  {
+    "ID": 352,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 3.966412037037037,
+    "stop": 3.985110752314815,
+    "duration": 0.018698715277778,
+    "days": [
+      3
+    ],
+    "timeSpentInDay": [
+      0.018698715277778
+    ]
+  },
+  {
+    "ID": 386,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 12.965370370370373,
+    "stop": 12.983919317129631,
+    "duration": 0.018548946759258556,
+    "days": [
+      12
+    ],
+    "timeSpentInDay": [
+      0.018548946759258556
+    ]
+  },
+  {
+    "ID": 494,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 4.213946759259259,
+    "stop": 4.2324454050925926,
+    "duration": 0.018498645833333605,
+    "days": [
+      4
+    ],
+    "timeSpentInDay": [
+      0.018498645833333605
+    ]
+  },
+  {
+    "ID": 401,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 16.970046296296296,
+    "stop": 16.988525439814815,
+    "duration": 0.018479143518518981,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.018479143518518981
+    ]
+  },
+  {
+    "ID": 509,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 8.2186689814814819,
+    "stop": 8.2371229398148156,
+    "duration": 0.018453958333333631,
+    "days": [
+      8
+    ],
+    "timeSpentInDay": [
+      0.018453958333333631
+    ]
+  },
+  {
+    "ID": 420,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 21.964317129629631,
+    "stop": 21.982711527777781,
+    "duration": 0.018394398148149804,
+    "days": [
+      21
+    ],
+    "timeSpentInDay": [
+      0.018394398148149804
+    ]
+  },
+  {
+    "ID": 523,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 12.223206018518519,
+    "stop": 12.241594629629629,
+    "duration": 0.018388611111110009,
+    "days": [
+      12
+    ],
+    "timeSpentInDay": [
+      0.018388611111110009
+    ]
+  },
+  {
+    "ID": 350,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 3.4718750000000003,
+    "stop": 3.4902273726851853,
+    "duration": 0.018352372685185081,
+    "days": [
+      3
+    ],
+    "timeSpentInDay": [
+      0.018352372685185081
+    ]
+  },
+  {
+    "ID": 435,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 25.969039351851851,
+    "stop": 25.987376180555557,
+    "duration": 0.018336828703706232,
+    "days": [
+      25
+    ],
+    "timeSpentInDay": [
+      0.018336828703706232
+    ]
+  },
+  {
+    "ID": 541,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 17.217650462962965,
+    "stop": 17.235957418981481,
+    "duration": 0.018306956018516729,
+    "days": [
+      17
+    ],
+    "timeSpentInDay": [
+      0.018306956018516729
+    ]
+  },
+  {
+    "ID": 449,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 29.973564814814818,
+    "stop": 29.991839178240738,
+    "duration": 0.01827436342592037,
+    "days": [
+      29
+    ],
+    "timeSpentInDay": [
+      0.01827436342592037
+    ]
+  },
+  {
+    "ID": 570,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 25.226585648148149,
+    "stop": 25.244852106481485,
+    "duration": 0.018266458333336288,
+    "days": [
+      25
+    ],
+    "timeSpentInDay": [
+      0.018266458333336288
+    ]
+  },
+  {
+    "ID": 555,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 21.222233796296297,
+    "stop": 21.240474039351852,
+    "duration": 0.018240243055554828,
+    "days": [
+      21
+    ],
+    "timeSpentInDay": [
+      0.018240243055554828
+    ]
+  },
+  {
+    "ID": 399,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 16.475324074074074,
+    "stop": 16.493504918981483,
+    "duration": 0.018180844907409011,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.018180844907409011
+    ]
+  },
+  {
+    "ID": 574,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 26.216620370370368,
+    "stop": 26.234777152777777,
+    "duration": 0.018156782407409366,
+    "days": [
+      26
+    ],
+    "timeSpentInDay": [
+      0.018156782407409366
+    ]
+  },
+  {
+    "ID": 447,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 29.478611111111107,
+    "stop": 29.496749814814816,
+    "duration": 0.018138703703709069,
+    "days": [
+      29
+    ],
+    "timeSpentInDay": [
+      0.018138703703709069
+    ]
+  },
+  {
+    "ID": 403,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 17.465196759259261,
+    "stop": 17.483317523148148,
+    "duration": 0.018120763888887836,
+    "days": [
+      17
+    ],
+    "timeSpentInDay": [
+      0.018120763888887836
+    ]
+  },
+  {
+    "ID": 418,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 21.469895833333336,
+    "stop": 21.487952384259259,
+    "duration": 0.018056550925923176,
+    "days": [
+      21
+    ],
+    "timeSpentInDay": [
+      0.018056550925923176
+    ]
+  },
+  {
+    "ID": 526,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 12.765023472222223,
+    "stop": 12.783078703703707,
+    "duration": 0.018055231481483247,
+    "days": [
+      12
+    ],
+    "timeSpentInDay": [
+      0.018055231481483247
+    ]
+  },
+  {
+    "ID": 370,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 8.5130808333333334,
+    "stop": 8.53113425925926,
+    "duration": 0.018053425925925737,
+    "days": [
+      8
+    ],
+    "timeSpentInDay": [
+      0.018053425925925737
+    ]
+  },
+  {
+    "ID": 419,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 21.516426666666664,
+    "stop": 21.534479166666667,
+    "duration": 0.018052500000003135,
+    "days": [
+      21
+    ],
+    "timeSpentInDay": [
+      0.018052500000003135
+    ]
+  },
+  {
+    "ID": 385,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 12.517596134259259,
+    "stop": 12.535648148148148,
+    "duration": 0.018052013888889107,
+    "days": [
+      12
+    ],
+    "timeSpentInDay": [
+      0.018052013888889107
+    ]
+  },
+  {
+    "ID": 493,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 3.7661729861111115,
+    "stop": 3.7842245370370371,
+    "duration": 0.018051550925925586,
+    "days": [
+      3
+    ],
+    "timeSpentInDay": [
+      0.018051550925925586
+    ]
+  },
+  {
+    "ID": 575,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 26.263326331018519,
+    "stop": 26.281377314814815,
+    "duration": 0.018050983796296549,
+    "days": [
+      26
+    ],
+    "timeSpentInDay": [
+      0.018050983796296549
+    ]
+  },
+  {
+    "ID": 510,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 8.265596273148148,
+    "stop": 8.2836458333333329,
+    "duration": 0.018049560185184887,
+    "days": [
+      8
+    ],
+    "timeSpentInDay": [
+      0.018049560185184887
+    ]
+  },
+  {
+    "ID": 402,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 17.017009247685184,
+    "stop": 17.03505787037037,
+    "duration": 0.018048622685185478,
+    "days": [
+      17
+    ],
+    "timeSpentInDay": [
+      0.018048622685185478
+    ]
+  },
+  {
+    "ID": 542,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 17.264454305555557,
+    "stop": 17.2825,
+    "duration": 0.018045694444442262,
+    "days": [
+      17
+    ],
+    "timeSpentInDay": [
+      0.018045694444442262
+    ]
+  },
+  {
+    "ID": 387,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 13.012522743055557,
+    "stop": 13.030567129629629,
+    "duration": 0.018044386574072036,
+    "days": [
+      13
+    ],
+    "timeSpentInDay": [
+      0.018044386574072036
+    ]
+  },
+  {
+    "ID": 553,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 20.72738425925926,
+    "stop": 20.745403854166664,
+    "duration": 0.018019594907404013,
+    "days": [
+      20
+    ],
+    "timeSpentInDay": [
+      0.018019594907404013
+    ]
+  },
+  {
+    "ID": 433,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 25.474386574074074,
+    "stop": 25.492395844907406,
+    "duration": 0.018009270833331925,
+    "days": [
+      25
+    ],
+    "timeSpentInDay": [
+      0.018009270833331925
+    ]
+  },
+  {
+    "ID": 505,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 7.2290625,
+    "stop": 7.24706019675926,
+    "duration": 0.017997696759259441,
+    "days": [
+      7
+    ],
+    "timeSpentInDay": [
+      0.017997696759259441
+    ]
+  },
+  {
+    "ID": 535,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 15.732905324074075,
+    "stop": 15.750902928240741,
+    "duration": 0.017997604166666292,
+    "days": [
+      15
+    ],
+    "timeSpentInDay": [
+      0.017997604166666292
+    ]
+  },
+  {
+    "ID": 539,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 16.72306712962963,
+    "stop": 16.7410353587963,
+    "duration": 0.017968229166669403,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.017968229166669403
+    ]
+  },
+  {
+    "ID": 380,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 11.481006944444445,
+    "stop": 11.498969467592593,
+    "duration": 0.017962523148147724,
+    "days": [
+      11
+    ],
+    "timeSpentInDay": [
+      0.017962523148147724
+    ]
+  },
+  {
+    "ID": 367,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 7.9717361111111105,
+    "stop": 7.9896627314814808,
+    "duration": 0.017926620370370294,
+    "days": [
+      7
+    ],
+    "timeSpentInDay": [
+      0.017926620370370294
+    ]
+  },
+  {
+    "ID": 382,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 11.976134259259261,
+    "stop": 11.994057847222221,
+    "duration": 0.017923587962959786,
+    "days": [
+      11
+    ],
+    "timeSpentInDay": [
+      0.017923587962959786
+    ]
+  },
+  {
+    "ID": 585,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 29.231342592592593,
+    "stop": 29.249214317129628,
+    "duration": 0.017871724537034339,
+    "days": [
+      29
+    ],
+    "timeSpentInDay": [
+      0.017871724537034339
+    ]
+  },
+  {
+    "ID": 490,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 3.2248495370370374,
+    "stop": 3.242707777777778,
+    "duration": 0.017858240740740605,
+    "days": [
+      3
+    ],
+    "timeSpentInDay": [
+      0.017858240740740605
+    ]
+  },
+  {
+    "ID": 519,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 11.23364398148148,
+    "stop": 11.251471805555555,
+    "duration": 0.017827824074075238,
+    "days": [
+      11
+    ],
+    "timeSpentInDay": [
+      0.017827824074075238
+    ]
+  },
+  {
+    "ID": 488,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 2.729837962962963,
+    "stop": 2.7476137500000006,
+    "duration": 0.017775787037037638,
+    "days": [
+      2
+    ],
+    "timeSpentInDay": [
+      0.017775787037037638
+    ]
+  },
+  {
+    "ID": 537,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 16.228182870370372,
+    "stop": 16.245955567129631,
+    "duration": 0.017772696759259077,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.017772696759259077
+    ]
+  },
+  {
+    "ID": 414,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 20.480173611111113,
+    "stop": 20.497856828703707,
+    "duration": 0.017683217592594502,
+    "days": [
+      20
+    ],
+    "timeSpentInDay": [
+      0.017683217592594502
+    ]
+  },
+  {
+    "ID": 568,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 24.732094907407404,
+    "stop": 24.749774525462964,
+    "duration": 0.017679618055559843,
+    "days": [
+      24
+    ],
+    "timeSpentInDay": [
+      0.017679618055559843
+    ]
+  },
+  {
+    "ID": 365,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 7.47693287037037,
+    "stop": 7.4946100578703705,
+    "duration": 0.017677187500000358,
+    "days": [
+      7
+    ],
+    "timeSpentInDay": [
+      0.017677187500000358
+    ]
+  },
+  {
+    "ID": 503,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 6.7343763541666668,
+    "stop": 6.7520442361111108,
+    "duration": 0.017667881944444019,
+    "days": [
+      6
+    ],
+    "timeSpentInDay": [
+      0.017667881944444019
+    ]
+  },
+  {
+    "ID": 429,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 24.484692407407408,
+    "stop": 24.502296053240741,
+    "duration": 0.017603645833332848,
+    "days": [
+      24
+    ],
+    "timeSpentInDay": [
+      0.017603645833332848
+    ]
+  },
+  {
+    "ID": 346,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 2.482523148148148,
+    "stop": 2.5000903587962964,
+    "duration": 0.017567210648148368,
+    "days": [
+      2
+    ],
+    "timeSpentInDay": [
+      0.017567210648148368
+    ]
+  },
+  {
+    "ID": 521,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 11.728969907407409,
+    "stop": 11.746507569444445,
+    "duration": 0.017537662037035773,
+    "days": [
+      11
+    ],
+    "timeSpentInDay": [
+      0.017537662037035773
+    ]
+  },
+  {
+    "ID": 397,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 15.980937499999998,
+    "stop": 15.998412268518519,
+    "duration": 0.0174747685185217,
+    "days": [
+      15
+    ],
+    "timeSpentInDay": [
+      0.0174747685185217
+    ]
+  },
+  {
+    "ID": 412,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 19.985415659722221,
+    "stop": 20.0028741087963,
+    "duration": 0.017458449074077009,
+    "days": [
+      19,
+      20
+    ],
+    "timeSpentInDay": [
+      0.014584340277778551,
+      0.0028741087962984579
+    ]
+  },
+  {
+    "ID": 342,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 0.99947024305555565,
+    "stop": 1.016915474537037,
+    "duration": 0.01744523148148136,
+    "days": [
+      0,
+      1
+    ],
+    "timeSpentInDay": [
+      0.0005297569444443484,
+      0.016915474537037012
+    ]
+  },
+  {
+    "ID": 564,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 23.249144131944448,
+    "stop": 23.26650858796296,
+    "duration": 0.017364456018512442,
+    "days": [
+      23
+    ],
+    "timeSpentInDay": [
+      0.017364456018512442
+    ]
+  },
+  {
+    "ID": 511,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 8.7137615740740753,
+    "stop": 8.731122685185186,
+    "duration": 0.017361111111110716,
+    "days": [
+      8
+    ],
+    "timeSpentInDay": [
+      0.017361111111110716
+    ]
+  },
+  {
+    "ID": 573,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 25.76913194444445,
+    "stop": 25.786493055555557,
+    "duration": 0.017361111111107164,
+    "days": [
+      25
+    ],
+    "timeSpentInDay": [
+      0.017361111111107164
+    ]
+  },
+  {
+    "ID": 560,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 22.258982627314811,
+    "stop": 22.276342592592595,
+    "duration": 0.017359965277783829,
+    "days": [
+      22
+    ],
+    "timeSpentInDay": [
+      0.017359965277783829
+    ]
+  },
+  {
+    "ID": 425,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 23.0016794212963,
+    "stop": 23.019039351851848,
+    "duration": 0.017359930555549852,
+    "days": [
+      23
+    ],
+    "timeSpentInDay": [
+      0.017359930555549852
+    ]
+  },
+  {
+    "ID": 357,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 5.00390292824074,
+    "stop": 5.0212615740740736,
+    "duration": 0.017358645833333242,
+    "days": [
+      5
+    ],
+    "timeSpentInDay": [
+      0.017358645833333242
+    ]
+  },
+  {
+    "ID": 495,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 4.2611725694444447,
+    "stop": 4.2785300925925922,
+    "duration": 0.017357523148147536,
+    "days": [
+      4
+    ],
+    "timeSpentInDay": [
+      0.017357523148147536
+    ]
+  },
+  {
+    "ID": 372,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 9.0081995138888882,
+    "stop": 9.0255555555555542,
+    "duration": 0.017356041666666044,
+    "days": [
+      9
+    ],
+    "timeSpentInDay": [
+      0.017356041666666044
+    ]
+  },
+  {
+    "ID": 528,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 13.260074583333333,
+    "stop": 13.277430555555556,
+    "duration": 0.01735597222222296,
+    "days": [
+      13
+    ],
+    "timeSpentInDay": [
+      0.01735597222222296
+    ]
+  },
+  {
+    "ID": 355,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 4.5087436458333334,
+    "stop": 4.5260995370370365,
+    "duration": 0.017355891203703067,
+    "days": [
+      4
+    ],
+    "timeSpentInDay": [
+      0.017355891203703067
+    ]
+  },
+  {
+    "ID": 546,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 18.2546928125,
+    "stop": 18.27204861111111,
+    "duration": 0.017355798611109918,
+    "days": [
+      18
+    ],
+    "timeSpentInDay": [
+      0.017355798611109918
+    ]
+  },
+  {
+    "ID": 389,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 13.507655821759259,
+    "stop": 13.525011574074073,
+    "duration": 0.017355752314813344,
+    "days": [
+      13
+    ],
+    "timeSpentInDay": [
+      0.017355752314813344
+    ]
+  },
+  {
+    "ID": 579,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 27.253593483796294,
+    "stop": 27.270949074074071,
+    "duration": 0.017355590277777111,
+    "days": [
+      27
+    ],
+    "timeSpentInDay": [
+      0.017355590277777111
+    ]
+  },
+  {
+    "ID": 406,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 18.007112291666669,
+    "stop": 18.024467592592593,
+    "duration": 0.017355300925924411,
+    "days": [
+      18
+    ],
+    "timeSpentInDay": [
+      0.017355300925924411
+    ]
+  },
+  {
+    "ID": 440,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 27.006024351851853,
+    "stop": 27.023379629629627,
+    "duration": 0.017355277777774347,
+    "days": [
+      27
+    ],
+    "timeSpentInDay": [
+      0.017355277777774347
+    ]
+  },
+  {
+    "ID": 408,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 18.502239861111111,
+    "stop": 18.519594907407406,
+    "duration": 0.017355046296295029,
+    "days": [
+      18
+    ],
+    "timeSpentInDay": [
+      0.017355046296295029
+    ]
+  },
+  {
+    "ID": 423,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 22.506568576388887,
+    "stop": 22.523923611111112,
+    "duration": 0.017355034722225327,
+    "days": [
+      22
+    ],
+    "timeSpentInDay": [
+      0.017355034722225327
+    ]
+  },
+  {
+    "ID": 438,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 26.510863622685189,
+    "stop": 26.528217592592593,
+    "duration": 0.017353969907404121,
+    "days": [
+      26
+    ],
+    "timeSpentInDay": [
+      0.017353969907404121
+    ]
+  },
+  {
+    "ID": 391,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 14.002797013888888,
+    "stop": 14.020150462962961,
+    "duration": 0.017353449074073879,
+    "days": [
+      14
+    ],
+    "timeSpentInDay": [
+      0.017353449074073879
+    ]
+  },
+  {
+    "ID": 532,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 14.250297256944442,
+    "stop": 14.267650462962964,
+    "duration": 0.017353206018521306,
+    "days": [
+      14
+    ],
+    "timeSpentInDay": [
+      0.017353206018521306
+    ]
+  },
+  {
+    "ID": 340,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 0.50445237268518517,
+    "stop": 0.52180555555555552,
+    "duration": 0.017353182870370354,
+    "days": [
+      0
+    ],
+    "timeSpentInDay": [
+      0.017353182870370354
+    ]
+  },
+  {
+    "ID": 530,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 13.755239756944446,
+    "stop": 13.772592592592593,
+    "duration": 0.017352835648146936,
+    "days": [
+      13
+    ],
+    "timeSpentInDay": [
+      0.017352835648146936
+    ]
+  },
+  {
+    "ID": 499,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 5.2514327430555552,
+    "stop": 5.2687847222222226,
+    "duration": 0.017351979166667419,
+    "days": [
+      5
+    ],
+    "timeSpentInDay": [
+      0.017351979166667419
+    ]
+  },
+  {
+    "ID": 514,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 9.2557853009259254,
+    "stop": 9.2731365740740745,
+    "duration": 0.017351273148149104,
+    "days": [
+      9
+    ],
+    "timeSpentInDay": [
+      0.017351273148149104
+    ]
+  },
+  {
+    "ID": 480,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 0.25687374999999996,
+    "stop": 0.27422453703703703,
+    "duration": 0.017350787037037074,
+    "days": [
+      0
+    ],
+    "timeSpentInDay": [
+      0.017350787037037074
+    ]
+  },
+  {
+    "ID": 516,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 9.7508670601851843,
+    "stop": 9.7682175925925936,
+    "duration": 0.017350532407409247,
+    "days": [
+      9
+    ],
+    "timeSpentInDay": [
+      0.017350532407409247
+    ]
+  },
+  {
+    "ID": 395,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 15.486132349537037,
+    "stop": 15.503456516203704,
+    "duration": 0.017324166666666585,
+    "days": [
+      15
+    ],
+    "timeSpentInDay": [
+      0.017324166666666585
+    ]
+  },
+  {
+    "ID": 581,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 27.748560150462964,
+    "stop": 27.765794849537034,
+    "duration": 0.017234699074069937,
+    "days": [
+      27
+    ],
+    "timeSpentInDay": [
+      0.017234699074069937
+    ]
+  },
+  {
+    "ID": 378,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 10.986842372685187,
+    "stop": 11.004043599537036,
+    "duration": 0.017201226851849327,
+    "days": [
+      10,
+      11
+    ],
+    "timeSpentInDay": [
+      0.01315762731481307,
+      0.0040435995370362576
+    ]
+  },
+  {
+    "ID": 376,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 9.9983030439814815,
+    "stop": 10.015486886574076,
+    "duration": 0.01718384259259409,
+    "days": [
+      9,
+      10
+    ],
+    "timeSpentInDay": [
+      0.0016969560185184918,
+      0.015486886574075598
+    ]
+  },
+  {
+    "ID": 583,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 28.737148912037039,
+    "stop": 28.754301898148146,
+    "duration": 0.017152986111106827,
+    "days": [
+      28
+    ],
+    "timeSpentInDay": [
+      0.017152986111106827
+    ]
+  },
+  {
+    "ID": 361,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 6.4875456365740733,
+    "stop": 6.504635636574073,
+    "duration": 0.017089999999999606,
+    "days": [
+      6
+    ],
+    "timeSpentInDay": [
+      0.017089999999999606
+    ]
+  },
+  {
+    "ID": 393,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 14.49771141203704,
+    "stop": 14.514783425925925,
+    "duration": 0.017072013888885351,
+    "days": [
+      14
+    ],
+    "timeSpentInDay": [
+      0.017072013888885351
+    ]
+  },
+  {
+    "ID": 344,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 1.9882420601851853,
+    "stop": 2.0052329398148143,
+    "duration": 0.016990879629628974,
+    "days": [
+      1,
+      2
+    ],
+    "timeSpentInDay": [
+      0.011757939814814655,
+      0.0052329398148143191
+    ]
+  },
+  {
+    "ID": 410,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 18.997114085648146,
+    "stop": 19.014087256944443,
+    "duration": 0.016973171296296385,
+    "days": [
+      18,
+      19
+    ],
+    "timeSpentInDay": [
+      0.0028859143518538133,
+      0.014087256944442572
+    ]
+  },
+  {
+    "ID": 550,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 19.738542812499997,
+    "stop": 19.755495717592595,
+    "duration": 0.016952905092598058,
+    "days": [
+      19
+    ],
+    "timeSpentInDay": [
+      0.016952905092598058
+    ]
+  },
+  {
+    "ID": 484,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 1.2468511921296297,
+    "stop": 1.2637867129629632,
+    "duration": 0.016935520833333495,
+    "days": [
+      1
+    ],
+    "timeSpentInDay": [
+      0.016935520833333495
+    ]
+  },
+  {
+    "ID": 534,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 15.239229409722222,
+    "stop": 15.256100960648148,
+    "duration": 0.016871550925925405,
+    "days": [
+      15
+    ],
+    "timeSpentInDay": [
+      0.016871550925925405
+    ]
+  },
+  {
+    "ID": 501,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 5.74624537037037,
+    "stop": 5.7631009259259258,
+    "duration": 0.016855555555555846,
+    "days": [
+      5
+    ],
+    "timeSpentInDay": [
+      0.016855555555555846
+    ]
+  },
+  {
+    "ID": 443,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 27.995901412037039,
+    "stop": 28.012716851851852,
+    "duration": 0.01681543981481326,
+    "days": [
+      27,
+      28
+    ],
+    "timeSpentInDay": [
+      0.00409858796296092,
+      0.01271685185185234
+    ]
+  },
+  {
+    "ID": 518,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 10.739908981481483,
+    "stop": 10.756712094907407,
+    "duration": 0.01680311342592411,
+    "days": [
+      10
+    ],
+    "timeSpentInDay": [
+      0.01680311342592411
+    ]
+  },
+  {
+    "ID": 444,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 28.490202638888888,
+    "stop": 28.506980868055553,
+    "duration": 0.016778229166664715,
+    "days": [
+      28
+    ],
+    "timeSpentInDay": [
+      0.016778229166664715
+    ]
+  },
+  {
+    "ID": 533,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 14.745014849537037,
+    "stop": 14.761751284722221,
+    "duration": 0.016736435185183751,
+    "days": [
+      14
+    ],
+    "timeSpentInDay": [
+      0.016736435185183751
+    ]
+  },
+  {
+    "ID": 428,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 23.990872222222222,
+    "stop": 24.007600798611112,
+    "duration": 0.016728576388889138,
+    "days": [
+      23,
+      24
+    ],
+    "timeSpentInDay": [
+      0.0091277777777776237,
+      0.0076007986111115144
+    ]
+  },
+  {
+    "ID": 485,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 1.7412470486111111,
+    "stop": 1.7579529976851853,
+    "duration": 0.016705949074074189,
+    "days": [
+      1
+    ],
+    "timeSpentInDay": [
+      0.016705949074074189
+    ]
+  },
+  {
+    "ID": 549,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 19.244389791666666,
+    "stop": 19.261087361111112,
+    "duration": 0.016697569444446003,
+    "days": [
+      19
+    ],
+    "timeSpentInDay": [
+      0.016697569444446003
+    ]
+  },
+  {
+    "ID": 565,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 23.74375798611111,
+    "stop": 23.760430625,
+    "duration": 0.016672638888891811,
+    "days": [
+      23
+    ],
+    "timeSpentInDay": [
+      0.016672638888891811
+    ]
+  },
+  {
+    "ID": 576,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 26.710914351851851,
+    "stop": 26.727581018518521,
+    "duration": 0.016666666666669272,
+    "days": [
+      26
+    ],
+    "timeSpentInDay": [
+      0.016666666666669272
+    ]
+  },
+  {
+    "ID": 508,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 7.772256944444444,
+    "stop": 7.78892361111111,
+    "duration": 0.016666666666665719,
+    "days": [
+      7
+    ],
+    "timeSpentInDay": [
+      0.016666666666665719
+    ]
+  },
+  {
+    "ID": 559,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 22.211805555555557,
+    "stop": 22.228472222222223,
+    "duration": 0.016666666666665719,
+    "days": [
+      22
+    ],
+    "timeSpentInDay": [
+      0.016666666666665719
+    ]
+  },
+  {
+    "ID": 360,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 5.993480300925925,
+    "stop": 6.0101466087962967,
+    "duration": 0.01666630787037171,
+    "days": [
+      5,
+      6
+    ],
+    "timeSpentInDay": [
+      0.0065196990740750138,
+      0.010146608796296697
+    ]
+  },
+  {
+    "ID": 377,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 10.492838761574074,
+    "stop": 10.509499907407408,
+    "duration": 0.01666114583333389,
+    "days": [
+      10
+    ],
+    "timeSpentInDay": [
+      0.01666114583333389
+    ]
+  },
+  {
+    "ID": 479,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 0.20905092592592592,
+    "stop": 0.22502314814814817,
+    "duration": 0.015972222222222249,
+    "days": [
+      0
+    ],
+    "timeSpentInDay": [
+      0.015972222222222249
+    ]
+  },
+  {
+    "ID": 588,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 29.776064814814816,
+    "stop": 29.791342592592596,
+    "duration": 0.015277777777779278,
+    "days": [
+      29
+    ],
+    "timeSpentInDay": [
+      0.015277777777779278
+    ]
+  },
+  {
+    "ID": 496,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 4.7088425925925925,
+    "stop": 4.7241203703703709,
+    "duration": 0.01527777777777839,
+    "days": [
+      4
+    ],
+    "timeSpentInDay": [
+      0.01527777777777839
+    ]
+  },
+  {
+    "ID": 545,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 18.206840277777776,
+    "stop": 18.22142361111111,
+    "duration": 0.014583333333334281,
+    "days": [
+      18
+    ],
+    "timeSpentInDay": [
+      0.014583333333334281
+    ]
+  },
+  {
+    "ID": 554,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 20.778043981481485,
+    "stop": 20.792627314814816,
+    "duration": 0.014583333333330728,
+    "days": [
+      20
+    ],
+    "timeSpentInDay": [
+      0.014583333333330728
+    ]
+  },
+  {
+    "ID": 561,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 22.706631944444442,
+    "stop": 22.720520833333335,
+    "duration": 0.013888888888892836,
+    "days": [
+      22
+    ],
+    "timeSpentInDay": [
+      0.013888888888892836
+    ]
+  },
+  {
+    "ID": 339,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 0.4571412037037037,
+    "stop": 0.47103009259259254,
+    "duration": 0.01388888888888884,
+    "days": [
+      0
+    ],
+    "timeSpentInDay": [
+      0.01388888888888884
+    ]
+  },
+  {
+    "ID": 489,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 2.7820601851851854,
+    "stop": 2.7952546296296297,
+    "duration": 0.013194444444444287,
+    "days": [
+      2
+    ],
+    "timeSpentInDay": [
+      0.013194444444444287
+    ]
+  },
+  {
+    "ID": 373,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 9.4560185185185173,
+    "stop": 9.4685185185185183,
+    "duration": 0.012500000000001066,
+    "days": [
+      9
+    ],
+    "timeSpentInDay": [
+      0.012500000000001066
+    ]
+  },
+  {
+    "ID": 569,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 24.786076388888887,
+    "stop": 24.797187499999996,
+    "duration": 0.011111111111109295,
+    "days": [
+      24
+    ],
+    "timeSpentInDay": [
+      0.011111111111109295
+    ]
+  },
+  {
+    "ID": 441,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 27.453761574074075,
+    "stop": 27.46417824074074,
+    "duration": 0.010416666666664298,
+    "days": [
+      27
+    ],
+    "timeSpentInDay": [
+      0.010416666666664298
+    ]
+  },
+  {
+    "ID": 552,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 20.28746527777778,
+    "stop": 20.297881944444445,
+    "duration": 0.010416666666664298,
+    "days": [
+      20
+    ],
+    "timeSpentInDay": [
+      0.010416666666664298
+    ]
+  },
+  {
+    "ID": 358,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 5.4516087962962958,
+    "stop": 5.45994212962963,
+    "duration": 0.008333333333334636,
+    "days": [
+      5
+    ],
+    "timeSpentInDay": [
+      0.008333333333334636
+    ]
+  },
+  {
+    "ID": 504,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 6.790972222222222,
+    "stop": 6.7993055555555557,
+    "duration": 0.0083333333333337478,
+    "days": [
+      6
+    ],
+    "timeSpentInDay": [
+      0.0083333333333337478
+    ]
+  },
+  {
+    "ID": 487,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 2.2916782407407408,
+    "stop": 2.2993171296296295,
+    "duration": 0.0076388888888887507,
+    "days": [
+      2
+    ],
+    "timeSpentInDay": [
+      0.0076388888888887507
+    ]
+  },
+  {
+    "ID": 584,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 28.79584490740741,
+    "stop": 28.800706018518522,
+    "duration": 0.0048611111111114269,
+    "days": [
+      28
+    ],
+    "timeSpentInDay": [
+      0.0048611111111114269
+    ]
+  },
+  {
+    "ID": 483,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 1.2012152777777778,
+    "stop": 1.2046875000000001,
+    "duration": 0.0034722222222223209,
+    "days": [
+      1
+    ],
+    "timeSpentInDay": [
+      0.0034722222222223209
+    ]
+  },
+  {
+    "ID": 426,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 23.450694444444448,
+    "stop": 23.454166666666666,
+    "duration": 0.00347222222221788,
+    "days": [
+      23
+    ],
+    "timeSpentInDay": [
+      0.00347222222221788
+    ]
+  },
+  {
+    "ID": 472,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 24.245486111111109,
+    "stop": 24.248263888888889,
+    "duration": 0.0027777777777799884,
+    "days": [
+      24
+    ],
+    "timeSpentInDay": [
+      0.0027777777777799884
+    ]
+  },
+  {
+    "ID": 317,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 6.9901041666666659,
+    "stop": 6.992881944444445,
+    "duration": 0.0027777777777791,
+    "days": [
+      6
+    ],
+    "timeSpentInDay": [
+      0.0027777777777791
+    ]
+  },
+  {
+    "ID": 452,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 2.2434259259259259,
+    "stop": 2.2462037037037037,
+    "duration": 0.0027777777777777679,
+    "days": [
+      2
+    ],
+    "timeSpentInDay": [
+      0.0027777777777777679
+    ]
+  },
+  {
+    "ID": 455,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 6.2475231481481472,
+    "stop": 6.2503009259259246,
+    "duration": 0.0027777777777773238,
+    "days": [
+      6
+    ],
+    "timeSpentInDay": [
+      0.0027777777777773238
+    ]
+  },
+  {
+    "ID": 327,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 19.498472222222222,
+    "stop": 19.50125,
+    "duration": 0.0027777777777764356,
+    "days": [
+      19
+    ],
+    "timeSpentInDay": [
+      0.0027777777777764356
+    ]
+  },
+  {
+    "ID": 476,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 28.250057870370373,
+    "stop": 28.25283564814815,
+    "duration": 0.0027777777777764356,
+    "days": [
+      28
+    ],
+    "timeSpentInDay": [
+      0.0027777777777764356
+    ]
+  },
+  {
+    "ID": 336,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 28.99229166666667,
+    "stop": 28.995069444444443,
+    "duration": 0.0027777777777728829,
+    "days": [
+      28
+    ],
+    "timeSpentInDay": [
+      0.0027777777777728829
+    ]
+  },
+  {
+    "ID": 458,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 10.252569444444445,
+    "stop": 10.254652777777778,
+    "duration": 0.0020833333333332149,
+    "days": [
+      10
+    ],
+    "timeSpentInDay": [
+      0.0020833333333332149
+    ]
+  },
+  {
+    "ID": 333,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 24.988425925925927,
+    "stop": 24.990509259259259,
+    "duration": 0.0020833333333314386,
+    "days": [
+      24
+    ],
+    "timeSpentInDay": [
+      0.0020833333333314386
+    ]
+  },
+  {
+    "ID": 567,
+    "frequency": "S Band",
+    "source": "CubeSat-2",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 24.297974537037039,
+    "stop": 24.30005787037037,
+    "duration": 0.0020833333333314386,
+    "days": [
+      24
+    ],
+    "timeSpentInDay": [
+      0.0020833333333314386
+    ]
+  },
+  {
+    "ID": 37,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 2.0546311574074076,
+    "stop": 2.4476277546296297,
+    "duration": 0.392996597222222,
+    "days": [
+      2
+    ],
+    "timeSpentInDay": [
+      0.392996597222222
+    ]
+  },
+  {
+    "ID": 92,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 29.555207997685184,
+    "stop": 29.9481862962963,
+    "duration": 0.39297829861111566,
+    "days": [
+      29
+    ],
+    "timeSpentInDay": [
+      0.39297829861111566
+    ]
+  },
+  {
+    "ID": 36,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 1.5532303819444444,
+    "stop": 1.9461877777777781,
+    "duration": 0.39295739583333367,
+    "days": [
+      1
+    ],
+    "timeSpentInDay": [
+      0.39295739583333367
+    ]
+  },
+  {
+    "ID": 184,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 28.803086990740741,
+    "stop": 29.196029768518517,
+    "duration": 0.39294277777777609,
+    "days": [
+      28,
+      29
+    ],
+    "timeSpentInDay": [
+      0.19691300925925859,
+      0.1960297685185175
+    ]
+  },
+  {
+    "ID": 39,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 3.057758287037037,
+    "stop": 3.450456759259259,
+    "duration": 0.392698472222222,
+    "days": [
+      3
+    ],
+    "timeSpentInDay": [
+      0.392698472222222
+    ]
+  },
+  {
+    "ID": 128,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 0.80136067129629629,
+    "stop": 1.1940465277777776,
+    "duration": 0.39268585648148135,
+    "days": [
+      0,
+      1
+    ],
+    "timeSpentInDay": [
+      0.19863932870370371,
+      0.19404652777777764
+    ]
+  },
+  {
+    "ID": 88,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 27.550180717592593,
+    "stop": 27.942515706018515,
+    "duration": 0.3923349884259224,
+    "days": [
+      27
+    ],
+    "timeSpentInDay": [
+      0.3923349884259224
+    ]
+  },
+  {
+    "ID": 86,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 26.548479942129628,
+    "stop": 26.939953773148151,
+    "duration": 0.39147383101852284,
+    "days": [
+      26
+    ],
+    "timeSpentInDay": [
+      0.39147383101852284
+    ]
+  },
+  {
+    "ID": 42,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 4.5630534027777783,
+    "stop": 4.9543420486111112,
+    "duration": 0.39128864583333289,
+    "days": [
+      4
+    ],
+    "timeSpentInDay": [
+      0.39128864583333289
+    ]
+  },
+  {
+    "ID": 178,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 25.797592268518517,
+    "stop": 26.188283576388887,
+    "duration": 0.39069130787036954,
+    "days": [
+      25,
+      26
+    ],
+    "timeSpentInDay": [
+      0.2024077314814825,
+      0.18828357638888704
+    ]
+  },
+  {
+    "ID": 45,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 6.0686135300925921,
+    "stop": 6.4575112152777789,
+    "duration": 0.38889768518518686,
+    "days": [
+      6
+    ],
+    "timeSpentInDay": [
+      0.38889768518518686
+    ]
+  },
+  {
+    "ID": 81,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 24.046885335648145,
+    "stop": 24.435609502314815,
+    "duration": 0.38872416666666965,
+    "days": [
+      24
+    ],
+    "timeSpentInDay": [
+      0.38872416666666965
+    ]
+  },
+  {
+    "ID": 80,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 23.54704962962963,
+    "stop": 23.93523326388889,
+    "duration": 0.38818363425925995,
+    "days": [
+      23
+    ],
+    "timeSpentInDay": [
+      0.38818363425925995
+    ]
+  },
+  {
+    "ID": 140,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 6.8212899652777779,
+    "stop": 7.2087560995370374,
+    "duration": 0.38746613425925958,
+    "days": [
+      6,
+      7
+    ],
+    "timeSpentInDay": [
+      0.17871003472222213,
+      0.20875609953703744
+    ]
+  },
+  {
+    "ID": 172,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 22.797614826388891,
+    "stop": 23.185038622685184,
+    "duration": 0.387423796296293,
+    "days": [
+      22,
+      23
+    ],
+    "timeSpentInDay": [
+      0.20238517361110908,
+      0.1850386226851839
+    ]
+  },
+  {
+    "ID": 76,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 21.549434247685184,
+    "stop": 21.935752060185184,
+    "duration": 0.38631781249999975,
+    "days": [
+      21
+    ],
+    "timeSpentInDay": [
+      0.38631781249999975
+    ]
+  },
+  {
+    "ID": 74,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 20.551695428240741,
+    "stop": 20.937252025462964,
+    "duration": 0.385556597222223,
+    "days": [
+      20
+    ],
+    "timeSpentInDay": [
+      0.385556597222223
+    ]
+  },
+  {
+    "ID": 142,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 7.8245453009259265,
+    "stop": 8.2100207291666667,
+    "duration": 0.38547542824074021,
+    "days": [
+      7,
+      8
+    ],
+    "timeSpentInDay": [
+      0.17545469907407352,
+      0.2100207291666667
+    ]
+  },
+  {
+    "ID": 72,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 19.554653668981484,
+    "stop": 19.9394946875,
+    "duration": 0.38484101851851804,
+    "days": [
+      19
+    ],
+    "timeSpentInDay": [
+      0.38484101851851804
+    ]
+  },
+  {
+    "ID": 164,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 18.807285798611108,
+    "stop": 19.191572083333334,
+    "duration": 0.3842862847222257,
+    "days": [
+      18,
+      19
+    ],
+    "timeSpentInDay": [
+      0.19271420138889184,
+      0.19157208333333386
+    ]
+  },
+  {
+    "ID": 67,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 17.064384803240738,
+    "stop": 17.447169571759257,
+    "duration": 0.38278476851851906,
+    "days": [
+      17
+    ],
+    "timeSpentInDay": [
+      0.38278476851851906
+    ]
+  },
+  {
+    "ID": 159,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 16.317576388888892,
+    "stop": 16.699633333333335,
+    "duration": 0.38205694444444305,
+    "days": [
+      16
+    ],
+    "timeSpentInDay": [
+      0.38205694444444305
+    ]
+  },
+  {
+    "ID": 146,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 9.82916949074074,
+    "stop": 10.211076435185186,
+    "duration": 0.38190694444444517,
+    "days": [
+      9,
+      10
+    ],
+    "timeSpentInDay": [
+      0.17083050925925924,
+      0.21107643518518593
+    ]
+  },
+  {
+    "ID": 64,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 15.570661678240741,
+    "stop": 15.951989525462963,
+    "duration": 0.38132784722222191,
+    "days": [
+      15
+    ],
+    "timeSpentInDay": [
+      0.38132784722222191
+    ]
+  },
+  {
+    "ID": 156,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 14.823497152777778,
+    "stop": 15.204156203703704,
+    "duration": 0.38065905092592622,
+    "days": [
+      14,
+      15
+    ],
+    "timeSpentInDay": [
+      0.17650284722222231,
+      0.20415620370370391
+    ]
+  },
+  {
+    "ID": 148,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 10.830159398148147,
+    "stop": 11.210815092592592,
+    "duration": 0.38065569444444414,
+    "days": [
+      10,
+      11
+    ],
+    "timeSpentInDay": [
+      0.16984060185185257,
+      0.21081509259259157
+    ]
+  },
+  {
+    "ID": 57,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1",
+    "start": 12.079898506944446,
+    "stop": 12.459703298611112,
+    "duration": 0.37980479166666647,
+    "days": [
+      12
+    ],
+    "timeSpentInDay": [
+      0.37980479166666647
+    ]
+  },
+  {
+    "ID": 153,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-2",
+    "start": 13.327913946759258,
+    "stop": 13.707697002314816,
+    "duration": 0.37978305555555814,
+    "days": [
+      13
+    ],
+    "timeSpentInDay": [
+      0.37978305555555814
+    ]
+  },
+  {
+    "ID": 4,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 5.943842592592592,
+    "stop": 5.9565498148148146,
+    "duration": 0.012707222222222647,
+    "days": [
+      5
+    ],
+    "timeSpentInDay": [
+      0.012707222222222647
+    ]
+  },
+  {
+    "ID": 96,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 5.6943055555555553,
+    "stop": 5.7060320949074077,
+    "duration": 0.011726539351852416,
+    "days": [
+      5
+    ],
+    "timeSpentInDay": [
+      0.011726539351852416
+    ]
+  },
+  {
+    "ID": 3,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-1-LowPower",
+    "start": 5.4454513888888885,
+    "stop": 5.4554908449074082,
+    "duration": 0.010039456018519743,
+    "days": [
+      5
+    ],
+    "timeSpentInDay": [
+      0.010039456018519743
+    ]
+  },
+  {
+    "ID": 95,
+    "frequency": "S Band",
+    "source": "CLPS-9",
+    "destination": "LCN-12hourfrozen-2-LowPower",
+    "start": 5.1959143518518518,
+    "stop": 5.20492712962963,
+    "duration": 0.0090127777777784246,
+    "days": [
+      5
+    ],
+    "timeSpentInDay": [
+      0.0090127777777784246
+    ]
+  }
+]
