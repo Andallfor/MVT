@@ -3,25 +3,156 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System;
-
-// theres a lot of variation between for and foreach loops in this code, its bc im still wavering on which one i want to use
+using UnityEngine.UI;
+using B83.MeshTools;
+using Newtonsoft.Json;
 
 public class planetTerrain
 {
-    Dictionary<string, planetTerrainFolderInfo> folderInfos = new Dictionary<string, planetTerrainFolderInfo>();
-    Dictionary<planetTerrainFile, planetTerrainMesh> existingMeshes = new Dictionary<planetTerrainFile, planetTerrainMesh>();
-    List<planetTerrainFolderInfo> sortedResolutions = new List<planetTerrainFolderInfo>();
-    public readonly double radius, heightMulti;
+    private GameObject meshMovementDetector, model;
+    private Material mat;
     public planet parent;
+    private Vector3 lastDetectorPos;
+    private Dictionary<planetTerrainFolderInfo, Dictionary<geographic, planetTerrainMeshCreator>> meshes = new Dictionary<planetTerrainFolderInfo, Dictionary<geographic, planetTerrainMeshCreator>>();
+    private planetTerrainFolderInfo currentRes;
+    private List<planetTerrainFolderInfo> sortedResolutions = new List<planetTerrainFolderInfo>();
+    private Dictionary<string, planetTerrainFolderInfo> folderInfos = new Dictionary<string, planetTerrainFolderInfo>();
+    private HashSet<geographic> currentDesiredMeshes = new HashSet<geographic>();
+    public double radius, heightMulti;
+    private Dictionary<string, Dictionary<string, Dictionary<string, long[]>>> savedPositions = new Dictionary<string, Dictionary<string, Dictionary<string, long[]>>>();
 
-    public planetTerrain(double radius, double heightMulti, planet parent)
-    {
+    public void updateTerrain() {
+        if (!planetFocus.usePlanetFocus) parent.representation.forceHide = false;
+        else {
+            if (!planetFocus.usePoleFocus) _updateTerrain();
+            else unload();
+            parent.representation.forceHide = true;
+        }
+    }
+
+    private async void _updateTerrain() {
+        // check if terrain is allowed to generate
+        // something must have changed
+        Vector3 currentDetectorPos = general.camera.WorldToScreenPoint(meshMovementDetector.transform.position);
+        if (Vector3.Distance(currentDetectorPos, lastDetectorPos) < 0.05) return;
+        lastDetectorPos = currentDetectorPos;
+
+        // determine the resolution at which we want to generate
+        planetTerrainFolderInfo targetRes = findDesiredResolution();
+
+        // determine what meshes we want
+        HashSet<geographic> targetMeshes = findDesiredMeshes(targetRes);
+
+        // figure out what meshes we want to generate
+        HashSet<geographic> current = new HashSet<geographic>(currentDesiredMeshes); // toKil
+        HashSet<geographic> desired = new HashSet<geographic>(targetMeshes); // toGen
+        HashSet<geographic> ignore = new HashSet<geographic>();
+        if (targetRes == currentRes) {
+            ignore = new HashSet<geographic>(current.Intersect(desired).ToList());
+            current.SymmetricExceptWith(ignore);
+            desired.SymmetricExceptWith(ignore);
+        }
+
+        if (desired.Count == 0) return;
+
+        planetTerrainFolderInfo lastP = new planetTerrainFolderInfo(currentRes);
+
+        currentRes = targetRes;
+        currentDesiredMeshes = targetMeshes;
+
+        await drawMeshes(desired);
+
+        // remove current meshes
+        requestKill(lastP, current);
+    }
+
+    private async Task drawMeshes(HashSet<geographic> m) {
+        planetTerrainFolderInfo initalRes = new planetTerrainFolderInfo(currentRes);
+
+        Queue<geographic> queue = new Queue<geographic>(m);
+
+        float batchCount = 5;
+        for (int i = 0; i < (float) m.Count / batchCount; i++) {
+            List<Task> tasks = new List<Task>();
+
+            for (int j = 0; j < batchCount; j++) {
+                if (initalRes.GetHashCode() != currentRes.GetHashCode()) return; // we switched res, so unload everything
+                if (queue.Count == 0) break;
+
+                geographic g = queue.Dequeue();
+                planetTerrainMeshCreator ptmc = meshes[initalRes][g];
+
+                // we no longer want to generate this mesh
+                if (!currentDesiredMeshes.Contains(g)) continue;
+
+                Task t = ptmc.generate(model, mat);
+                if (!(t is null)) tasks.Add(t);
+            }
+
+            await Task.WhenAll(tasks);
+        }
+    }
+
+    public void save(string outputPath, string srcFolder) {
+        planetTerrainFolderInfo p = new planetTerrainFolderInfo(srcFolder);
+        Dictionary<string, Dictionary<string, long[]>> pos = new Dictionary<string, Dictionary<string, long[]>>();
+
+        foreach (Bounds b in p.allBounds) {
+            geographic g = new geographic(b.min.y, b.min.x);
+
+            string predictedFileName = terrainProcessor.fileName(
+                g,
+                p.increment,
+                p.type == terrainFileType.npy ? "npy" : "txt");
+            string predictedPath = Path.Combine(
+                p.folderPath,
+                predictedFileName);
+            
+            if (!File.Exists(predictedPath)) continue;
+
+            planetTerrainFile ptf = new planetTerrainFile(predictedPath, p, p.type);
+            planetTerrainMesh ptm = new planetTerrainMesh(ptf, p, this, false);
+            ptf.generate(ptm);
+            GameObject go = ptm.drawMesh(mat);
+            byte[] data = MeshSerializer.SerializeMesh(
+                go.GetComponent<MeshFilter>().mesh,
+                Path.GetFileNameWithoutExtension(terrainProcessor.terrainName(g, p)),
+                ref pos);
+            
+            File.WriteAllBytes(Path.Combine(outputPath, terrainProcessor.terrainName(g, p)), data);
+        }
+
+        File.WriteAllText(Path.Combine(outputPath, "data.json"), JsonConvert.SerializeObject(pos));
+
+        // require resData.txt in output folder for ptfi
+        File.Copy(Path.Combine(srcFolder, terrainProcessor.folderInfoName), Path.Combine(outputPath, terrainProcessor.folderInfoName), true);
+    }
+
+    public planetTerrain(planet parent, string materialPath, double radius, double heightMulti) {
+        this.parent = parent;
         this.radius = radius;
         this.heightMulti = heightMulti;
-        this.parent = parent;
+
+        meshMovementDetector = GameObject.Instantiate(Resources.Load("Prefabs/default") as GameObject, parent.representation.gameObject.transform);
+        meshMovementDetector.transform.position = new Vector3(1, 1, 1);
+        meshMovementDetector.GetComponent<MeshRenderer>().enabled = false;
+        lastDetectorPos = Vector3.zero;
+
+        model = Resources.Load("Prefabs/PlanetMesh") as GameObject;
+        mat = Resources.Load(materialPath) as Material;
+    }
+
+    private void requestKill(planetTerrainFolderInfo res, HashSet<geographic> kill) {foreach (geographic g in kill) meshes[res][g].kill();}
+    
+    public void unload() {
+        if (currentDesiredMeshes.Count == 0) return;
+        foreach (geographic g in meshes[currentRes].Keys) meshes[currentRes][g].kill();
+        currentDesiredMeshes = new HashSet<geographic>();
+        lastDetectorPos = Vector3.negativeInfinity;
     }
 
     public void generateFolderInfos(string[] folders)
@@ -29,151 +160,208 @@ public class planetTerrain
         foreach (string folder in folders)
         {
             planetTerrainFolderInfo ptfi = new planetTerrainFolderInfo(folder);
+            savedPositions[ptfi.name] = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long[]>>>(
+                File.ReadAllText(Path.Combine(folder, "data.json")));
 
             folderInfos[ptfi.name] = ptfi;
+            meshes[ptfi] = new Dictionary<geographic, planetTerrainMeshCreator>();
+
+            foreach (Bounds b in ptfi.allBounds) {
+                geographic g = new geographic(b.min.y, b.min.x);
+                meshes[ptfi][g] = new planetTerrainMeshCreator(
+                    ptfi,
+                    g,
+                    parent.representation.gameObject.transform,
+                    Path.Combine(folder, terrainProcessor.terrainName(g, ptfi)),
+                    savedPositions[ptfi.name]);
+            }
         }
 
         sortedResolutions = folderInfos.Values.ToList();
         sortedResolutions.Sort((x, y) => x.pointsPerCoord.CompareTo(y.pointsPerCoord));
+
+        currentRes = sortedResolutions[0];
     }
 
-    public async void updateTerrain(bool force = false)
-    {
-        if (finishedRunning == false) return;
-        finishedRunning = false;
-        await _updateTerrain(force);
-        finishedRunning = true;
+    List<double> resolutionPercents = quickSum(5, 3);
+    private static List<double> quickSum(int count, double denom) {
+        List<double> output = new List<double>();
+        double value = 0;
+        for (int i = 1; i <= count; i++) {
+            value += (denom - 1) / (Math.Pow(denom, (double) i));
+            output.Add(value);
+        }
+
+        return output;
     }
 
-    readonly float moveThreshold = 1f, rotateThreshold = 3000, fRotateThreshold = 0.01f;
-    readonly int tickThreshold = 60; // terrain can only update every x ticks
-    position lastPlayerPos, lastRotation;
-    Vector2 lastFRot;
-    int lastTick = -1000;
-    bool finishedRunning = true;
-    // TODO: if the time step is too great, unload terrain and use sphere instead- we dont want to be constantly loading and unloading terrain
-    private async Task _updateTerrain(bool force = false)
-    {
-        double distToPlanet = Vector3.Distance(general.camera.transform.position, this.parent.representation.gameObject.transform.position);
+    private planetTerrainFolderInfo findDesiredResolution() {
+        double minFov = 4;
+        double maxFov = 75;
+        // TODO: get rid of fov
+        double percent = 1.0 - (general.camera.fieldOfView + minFov) / (maxFov + minFov);
+
+        planetTerrainFolderInfo p = null;
+        double closestRes = 100;
+        for (int i = 0; i < resolutionPercents.Count; i++) {
+            double dist = Math.Abs(percent - resolutionPercents[i]);
+            if (dist < closestRes) {
+                closestRes = dist;
+                p = sortedResolutions[i];
+            }
+        }
+
+        return p;
+    }
+
+    private List<Vector2> screenCorners = new List<Vector2>() {
+        new Vector2(0, 0),
+        new Vector2(Screen.width, 0),
+        new Vector2(Screen.width, Screen.height),
+        new Vector2(0, Screen.height)};
+
+    private HashSet<geographic> findDesiredMeshes(planetTerrainFolderInfo p) {
         float planetZ = general.camera.WorldToScreenPoint(this.parent.representation.gameObject.transform.position).z;
 
-        if (distToPlanet > 35) {unloadTerrain(); return;}
-        if (planetOverview.usePlanetOverview) {unloadTerrain(); return;}
-        
-        bool move = position.distance(master.currentPosition, lastPlayerPos) > moveThreshold;
-        bool tick = master.currentTick - lastTick > tickThreshold;
-        position g = parent.geoOnPlanet(geographic.toGeographic(master.currentPosition - parent.pos, parent.radius), 0);
-        bool rot = position.distance(g, lastRotation) > rotateThreshold;
-        bool fRot = Vector2.Distance(lastFRot, planetFocus.rotation) > fRotateThreshold;
-
-        // force bypasses all conditions
-        // tick is necessary for basic conditions
-        // move and rot are basic conditions
-        if (((move || rot || fRot) && tick) || force)
-        {
-            planetTerrainFolderInfo p = sortedResolutions[0];
-
-            List<geographic> desiredMeshes = new List<geographic>();
-            int boundsCount = p.allBounds.Count;
-            for (int i = 0; i < boundsCount; i++)
+        HashSet<geographic> points = new HashSet<geographic>();
+        for (int i = 0; i < p.allBounds.Count; i++) {
+            Bounds b = p.allBounds[i];
+            List<geographic> edges = new List<geographic>() {
+                new geographic(b.min.y, b.min.x), // sw
+                new geographic(b.max.y, b.max.x), // ne
+                new geographic(b.min.y, b.max.x), // se
+                new geographic(b.max.y, b.min.x)}; // nw
+            
+            List<Vector3> screenEdges = new List<Vector3>();
+            
+            geographic avg = new geographic(0.5 * (b.max.y + b.min.y), 0.5 * (b.max.x + b.min.x));
+            bool valid = false;
+            
+            for (int j = 0; j < 4; j++)
             {
-                Bounds b = p.allBounds[i];
-                List<geographic> edges = new List<geographic>() {
-                    new geographic(b.min.y, b.min.x),
-                    new geographic(b.max.y, b.max.x),
-                    new geographic(b.min.y, b.max.x),
-                    new geographic(b.max.y, b.min.x)};
+                // check if visible
+                position geoPos = parent.geoOnPlanet(edges[j], 10) + parent.pos; // IMPORTANT: if terrain disappears at small fovs, increase alt value
+                Vector3 worldPos = (Vector3) ((geoPos - master.currentPosition - master.referenceFrame) / master.scale);
                 
-                for (int j = 0; j < 4; j++)
-                {
-                    /*for some godforsaken reason raycasting just does not seem to fucking work no matter what i try
-                    I have spent a total of 3 hours on this shit, and cannot get it to work so im writing my own detection algorithm instead
-                    I even fucking copy pasted values from FacilityRepresentation.cs *that worked* but here and in other scripts they dont for some fucking reason
-                    I give up, i dont ever want to see this shit again and holy fuck i have no idea why it doesnt work- the raycast visibly passes through the collider
-                    and again, TESTING VALUES THAT WORK results in a failure
-                    I cant even find anything online- everything they said I've already done
-                    its so fucking retarded i want to die*/
+                // check if point is behind the player / hidden by planet
+                Vector3 v = general.camera.WorldToScreenPoint(worldPos);
+                screenEdges.Add(v);
 
-                    Vector3 pos = (Vector3) ((parent.geoOnPlanet(edges[j], -200) + parent.pos - master.currentPosition - master.referenceFrame) / master.scale);
-                    float z = general.camera.WorldToScreenPoint(pos).z;
-                    if (z <= planetZ && z > 0)
-                    {
-                        desiredMeshes.Add(new geographic(b.min.y, b.min.x));
-                        break;
+                // is point within screen bounds
+                if (v.x < 0 || v.y < 0 || v.x > Screen.width || v.y > Screen.height || v.z < 0 || v.z > planetZ) continue;
+
+                valid = true;
+            }
+
+            // check if the player is instead fully within the bounds (and cannot see the corners)
+            if (!valid) {
+                Vector2 min = new Vector2(100000000, 10000000);
+                Vector2 max = new Vector2(-100000000, -10000000);
+                int failureCount = 0;
+                foreach (Vector3 v in screenEdges) {
+                    if (v.z < 0 || v.z > planetZ) failureCount++;
+
+                    if (v.x < min.x) min.x = v.x;
+                    if (v.y < min.y) min.y = v.y;
+                    if (v.x > max.x) max.x = v.x;
+                    if (v.y > max.y) max.y = v.y;
+                }
+
+                if (failureCount != 4) {
+                    for (int j = 0; j < 4; j++) {
+                        // check if any screen corner is within the bounds of the mesh
+                        Vector2 v = screenCorners[j];
+                        if (v.x > min.x && v.y > min.y && v.x < max.x && v.y < max.y) {
+                            valid = true;
+                            break;
+                        }
                     }
                 }
             }
 
-            // if we dont want to generate anything, quit
-            if (desiredMeshes.Count == 0) return;
+            if (valid) points.Add(new geographic(b.min.y, b.min.x));
+        }
 
-            // get rid of all ptfs that are no longer seen
-            int existingMeshesCount = existingMeshes.Count;
-            List<planetTerrainFile> existingCopy = existingMeshes.Keys.ToList();
-            List<geographic> toIgnore = new List<geographic>();
-            for (int i = 0; i < existingMeshesCount; i++)
-            {
-                if (!desiredMeshes.Contains(existingCopy[i].geoPosition))
-                {
-                    existingMeshes[existingCopy[i]].clearMesh();
-                    existingMeshes.Remove(existingCopy[i]);
-                }
-                else toIgnore.Add(existingCopy[i].geoPosition); // these meshes have already been generated so dont regen them
-            }
+        return points;
+    }
+}
 
-            // if we arent going to make any changes, return
-            if (toIgnore.Count == desiredMeshes.Count) return;
+public class planetTerrainMeshCreator {
+    private planetTerrainFolderInfo res;
+    private geographic geo;
+    private GameObject go;
+    private CancellationTokenSource token;
+    private Transform parent;
+    private Dictionary<string, Dictionary<string, long[]>> savedPositions = new Dictionary<string, Dictionary<string, long[]>>();
+    public readonly string name, filePath;
+    public bool currentlyRunning {get; private set;} = false;
+    public bool exists {get; private set;} = false;
 
-            // generate meshes
-            ConcurrentDictionary<planetTerrainFile, planetTerrainMesh> emCopy = new ConcurrentDictionary<planetTerrainFile, planetTerrainMesh>();
-            List<Task> toDraw = new List<Task>();
-            int desiredCount = desiredMeshes.Count;
-            for (int i = 0; i < desiredCount; i++)
-            {
-                if (toIgnore.Contains(desiredMeshes[i])) continue;
+    public planetTerrainMeshCreator(planetTerrainFolderInfo res, geographic geo, Transform parent, string path, Dictionary<string, Dictionary<string, long[]>> pos) {
+        this.res = res;
+        this.geo = geo;
+        this.savedPositions = pos;
+        this.parent = parent;
+        this.filePath = path;
+        this.name = Path.GetFileNameWithoutExtension(filePath);
+        token = new CancellationTokenSource();
 
-                planetTerrainFile ptf = new planetTerrainFile(Path.Combine(
-                    p.folderPath,
-                    terrainProcessor.fileName(desiredMeshes[i], p.increment)), p);
+        if (File.Exists(this.filePath)) exists = true;
+    }
 
-                // thread the generation of ptm because it requires a large amount of mem allocation, assign it afterwards
-                Task t = new Task(() => {
-                    planetTerrainMesh ptm = new planetTerrainMesh(ptf, p, this);
-                    ptf.generate(ptm);
+    public Task generate(GameObject model, Material mat) {
+        if (!exists) return null;
+        if (currentlyRunning) {
+            Debug.LogWarning("Trying to generate mesh that's currently generating.");
+            return null;
+        }
 
-                    emCopy.TryAdd(ptf, ptm);
+        currentlyRunning = true;
+
+        if (go != null) {
+            // we didnt destroy the go which means that its currently hiding
+            go.GetComponent<MeshRenderer>().enabled = true;
+
+            if (token.IsCancellationRequested) token = new CancellationTokenSource();
+            currentlyRunning = false;
+            return null;
+        } else {
+            Task t = Task.Run(async () => {
+                if (token.IsCancellationRequested) return;
+                deserialzedMeshData dmd = await MeshSerializer.quickDeserialize(filePath, savedPositions);
+                if (token.IsCancellationRequested) return;
+
+                UnityMainThreadDispatcher.Instance().Enqueue(() => {
+                    if (token.IsCancellationRequested) return;
+                    go = GameObject.Instantiate(model);
+                    go.name = name;
+                    go.transform.parent = parent;
+                    go.transform.localPosition = Vector3.zero;
+                    go.transform.localEulerAngles = Vector3.zero;
+                    go.GetComponent<MeshRenderer>().material = mat;
+                    go.GetComponent<MeshFilter>().mesh = dmd.generate();
+
+                    // the meshes were saved with a master.scale of 1000, however the current scale may not match
+                    // adjust the scale of the meshes so that it matches master.scale
+                    float diff = 1000f / (float) master.scale;
+                    go.transform.localScale *= diff;
                 });
-                toDraw.Add(t);
-                t.Start();
-            }
-            await Task.WhenAll(toDraw);
+            });
 
-            // dont generate all meshes at once, generate them one a time (to prevent freezing)
-            // cannot thread mesh generation so this seems to be the best option
-            foreach (planetTerrainMesh ptm in emCopy.Values)
-            {
-                ptm.drawMesh();
-                await Task.Delay(5); // TODO: maybe replace with value that is determined by how fast the terrain gens?
-            }
+            if (token.IsCancellationRequested) token = new CancellationTokenSource();
 
-            // copy emCopy over to existingMeshes
-            foreach (KeyValuePair<planetTerrainFile, planetTerrainMesh> kvp in emCopy) existingMeshes[kvp.Key] = kvp.Value;
+            currentlyRunning = false;
 
-            lastPlayerPos = master.currentPosition;
-            lastRotation = g;
-            lastTick = master.currentTick;
-
-            if (existingMeshes.Count > 0) parent.representation.forceHide = true;
-            else parent.representation.forceHide = false;
+            return t;
         }
     }
 
-    public void unloadTerrain()
-    {
-        parent.representation.forceHide = false;
-        parent.representation.setPosition(parent.pos - master.currentPosition - master.referenceFrame);
-        foreach (planetTerrainMesh ptm in existingMeshes.Values) ptm.clearMesh();
-
-        existingMeshes = new Dictionary<planetTerrainFile, planetTerrainMesh>();
+    public void kill() {
+        if (!exists) return;
+        if (go != null) {
+            GameObject.Destroy(go.GetComponent<MeshFilter>().sharedMesh);
+            GameObject.Destroy(go);
+        }
+        token.Cancel();
     }
 }
