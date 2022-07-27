@@ -58,7 +58,7 @@ public class controller : MonoBehaviour
     public void startMainLoop(bool force = false) {
         if (loop != null && force == false) return;
 
-        loop = StartCoroutine(general.internalClock(1440, int.MaxValue, (tick) => {
+        loop = StartCoroutine(general.internalClock(3600, int.MaxValue, (tick) => {
             if (master.pause)
             {
                 master.tickStart(master.time);
@@ -430,11 +430,10 @@ public class controller : MonoBehaviour
                 satellite sat = null;
                 if (dict.ContainsKey("RAAN")) {
                     sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"] / 1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), MoonMu)), srd);
-                    sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
                 } else if (dict.ContainsKey("FilePath")) {
                     sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneMin), srd);
-                    sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
                 }
+                sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
 
                 if (dict["CentralBody"] == "Moon") {
                     satellite.addFamilyNode(moon, sat);
@@ -447,11 +446,11 @@ public class controller : MonoBehaviour
                 if (dict["CentralBody"] == "Moon") 
                 {
                     double start = 0, stop = 0;
-                    if (dict["TimeInterval_start"] is double) start = dict["TimeInterval_start"];
                     if (dict["TimeInterval_start"] is string) start = Double.Parse(dict["TimeInterval_start"], System.Globalization.NumberStyles.Any);
+                    else start = (double) dict["TimeInterval_start"];
 
-                    if (dict["TimeInterval_stop"] is double) start = dict["TimeInterval_start"];
                     if (dict["TimeInterval_stop"] is string) stop = Double.Parse(dict["TimeInterval_stop"], System.Globalization.NumberStyles.Any);
+                    else stop = (double) dict["TimeInterval_stop"];
 
                     List<antennaData> antenna = new List<antennaData>() {new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"])};
                     facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna, new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);

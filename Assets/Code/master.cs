@@ -20,7 +20,7 @@ public static class master
     }
 
     /// <summary> The current time in game. </summary>
-    public readonly static Time time = new Time(2460806.5, true);
+    public readonly static Time time = new Time(2460819.5, true);
 
     /// <summary> Total ticks (times the game has updated) since the game was initialized. </summary>
     public static int currentTick = 0;
