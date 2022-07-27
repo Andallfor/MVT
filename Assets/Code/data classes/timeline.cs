@@ -208,10 +208,10 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
 
         position rot = controller.earth.representation.gameObject.transform.eulerAngles;
         return (pos.rotate(rot.y * degToRad, 0, 0));*/
-        position moon = master.rod[0].find(t);
-        position v = master.rod[1].find(t);
-        return position.J2000(moon, v, pos);
-        //return pos;
+        //position moon = master.rod[0].find(t);
+        //position v = master.rod[1].find(t);
+        //return position.J2000(moon, v, pos);
+        return pos;
     }
 
     public bool exists(Time t) {

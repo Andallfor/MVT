@@ -48,7 +48,7 @@ public class controller : MonoBehaviour
 
         master.markStartOfSimulation();
 
-        linkBudgeting.accessCalls("C:/Users/leozw/Desktop/connections.txt");
+        linkBudgeting.accessCalls("C:/Users/akazemni/connections.txt");
 
         startMainLoop();
 
@@ -386,6 +386,10 @@ public class controller : MonoBehaviour
       representationData rd = new representationData(
           "Prefabs/Planet",
           "Materials/default");
+      
+      representationData lrd = new representationData(
+          "Prefabs/Planet",
+          "Materials/default", new Vector3(0f,22.4f,0f));
 
       representationData srd = new representationData(
           "Prefabs/Satellite",
@@ -406,14 +410,14 @@ public class controller : MonoBehaviour
       double EarthMu = 398600.435436;
 
       earth =       new planet(  "Earth", new planetData(  6371, true, "CSVS/ARTEMIS 3/PLANETS/earth", oneHour, planetType.planet), erd);
-      planet moon = new planet(   "Luna", new planetData(1738.1, false,    "CSVS/ARTEMIS 3/PLANETS/moon", oneMin, planetType.moon),   rd);
-                    new planet("Mercury", new planetData(2439.7, false, "CSVS/ARTEMIS 3/PLANETS/mercury", oneHour, planetType.planet), rd);
-                    new planet(  "Venus", new planetData(6051.8, false,   "CSVS/ARTEMIS 3/PLANETS/venus", oneHour, planetType.planet), rd);
-                    new planet(   "Mars", new planetData(3396.2, false,    "CSVS/ARTEMIS 3/PLANETS/mars", oneHour, planetType.planet), rd);
-                    new planet("Jupiter", new planetData( 71492, false, "CSVS/ARTEMIS 3/PLANETS/jupiter", oneHour, planetType.planet), rd);
-                    new planet( "Saturn", new planetData( 60268, false,  "CSVS/ARTEMIS 3/PLANETS/saturn", oneHour, planetType.planet), rd);
-                    new planet( "Uranus", new planetData( 25559, false,  "CSVS/ARTEMIS 3/PLANETS/uranus", oneHour, planetType.planet), rd);
-                    new planet("Neptune", new planetData( 24764, false, "CSVS/ARTEMIS 3/PLANETS/neptune", oneHour, planetType.planet), rd);
+      planet moon = new planet(   "Luna", new planetData(1738.1, false,    "CSVS/ARTEMIS 3/PLANETS/moon", oneMin, planetType.moon),   lrd);
+                    //new planet("Mercury", new planetData(2439.7, false, "CSVS/ARTEMIS 3/PLANETS/mercury", oneHour, planetType.planet), rd);
+                    //new planet(  "Venus", new planetData(6051.8, false,   "CSVS/ARTEMIS 3/PLANETS/venus", oneHour, planetType.planet), rd);
+                    //new planet(   "Mars", new planetData(3396.2, false,    "CSVS/ARTEMIS 3/PLANETS/mars", oneHour, planetType.planet), rd);
+                    //new planet("Jupiter", new planetData( 71492, false, "CSVS/ARTEMIS 3/PLANETS/jupiter", oneHour, planetType.planet), rd);
+                    //new planet( "Saturn", new planetData( 60268, false,  "CSVS/ARTEMIS 3/PLANETS/saturn", oneHour, planetType.planet), rd);
+                    //new planet( "Uranus", new planetData( 25559, false,  "CSVS/ARTEMIS 3/PLANETS/uranus", oneHour, planetType.planet), rd);
+                    //new planet("Neptune", new planetData( 24764, false, "CSVS/ARTEMIS 3/PLANETS/neptune", oneHour, planetType.planet), rd);
 
       var data = DBReader.getData();
         foreach (KeyValuePair<string, dynamic> x in data["Artemis_III"].satellites) {
@@ -440,7 +444,8 @@ public class controller : MonoBehaviour
                     earthSats.Add(sat);
                 }
             } else if (dict["Type"] == "Facility") {
-                if (dict["CentralBody"] == "Moon") {
+                if (dict["CentralBody"] == "Moon") 
+                {
                     double start = 0, stop = 0;
                     if (dict["TimeInterval_start"] is double) start = dict["TimeInterval_start"];
                     if (dict["TimeInterval_start"] is string) start = Double.Parse(dict["TimeInterval_start"], System.Globalization.NumberStyles.Any);
@@ -451,11 +456,11 @@ public class controller : MonoBehaviour
                     List<antennaData> antenna = new List<antennaData>() {new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"])};
                     facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna, new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);
 
-                    if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, 2460806.5 + start, 2460806.5 + stop));
-                    if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, 2460806.5 + start, 2460806.5 + stop));
+                    if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
+                    if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
                     if (dict["user_provider"] == "user/provider") {
-                        linkBudgeting.users.Add(x.Key, (true, 2460806.5 + start, 2460806.5 + stop));
-                        linkBudgeting.providers.Add(x.Key, (true, 2460806.5 + start, 2460806.5 + stop));
+                        linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
+                        linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
                     }
                 } else {
                     List<antennaData> antenna = new List<antennaData>() {new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Ground_Priority"])};
@@ -478,6 +483,8 @@ public class controller : MonoBehaviour
 
       master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/PLANETS/moon", 0.0006944444));
       master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/SATS/v", 0.0006944444));
+
+      //windows.jsonWindows();
     }
 
 }
