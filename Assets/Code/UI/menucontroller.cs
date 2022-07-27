@@ -38,13 +38,13 @@ public class menucontroller : MonoBehaviour
         Othermenu4.gameObject.SetActive(true);
     }
     void TaskOnClick(){
-        Debug.Log("nav menu button clicked");
+        
         menuToHide1.gameObject.SetActive(true);
         NavMenuButton.gameObject.SetActive(false);
         Othermenuinactive();
     }
     void ESCTaskOnClick(){
-        Debug.Log("escnav menu button clicked");
+        
         menuToHide1.gameObject.SetActive(false);
         NavMenuButton.gameObject.SetActive(true);
         Othermenuactive();
