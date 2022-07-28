@@ -40,13 +40,13 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
 
         if (data.rotate == rotationType.moon)
         {
-            List<(double, position)> rotateBy = position.J2000(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/PLANETS/moon", 0.0006944444).find(master.time), csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/SATS/v", 0.0006944444).find(master.time), new position(1,1,1));
+            /*List<(double, position)> rotateBy = position.J2000(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/PLANETS/moon", 0.0006944444).find(master.time), csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/SATS/v", 0.0006944444).find(master.time), new position(1,1,1));
             float angle = (float) (rotateBy[0].Item1);
             float angle2 = (float) (rotateBy[1].Item1); 
             Vector3 output1 = new Vector3((float) rotateBy[0].Item2.x, (float) rotateBy[0].Item2.y, (float) rotateBy[0].Item2.z);
             Vector3 output2 = new Vector3((float) rotateBy[1].Item2.x, (float) rotateBy[1].Item2.y, (float) rotateBy[1].Item2.z);
             representation.gameObject.transform.Rotate(output1, angle);
-            representation.gameObject.transform.Rotate(output2, angle2);
+            representation.gameObject.transform.Rotate(output2, angle2);*/
         }
         else if (data.rotate == rotationType.earth) rotation = representation.rotate(this.calculateRotation());
 
