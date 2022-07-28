@@ -38,7 +38,17 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
         representation.setPosition(pos - master.currentPosition - master.referenceFrame);
         if (planetOverview.usePlanetOverview) representation.setRadius((master.scale / 2.0) / 4.0);
 
-        if (data.rotate) rotation = representation.rotate(this.calculateRotation());
+        if (data.rotate == rotationType.moon)
+        {
+            List<(double, position)> rotateBy = position.J2000(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/PLANETS/moon", 0.0006944444).find(master.time), csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/SATS/v", 0.0006944444).find(master.time), new position(1,1,1));
+            float angle = (float) (rotateBy[0].Item1);
+            float angle2 = (float) (rotateBy[1].Item1); 
+            Vector3 output1 = new Vector3((float) rotateBy[0].Item2.x, (float) rotateBy[0].Item2.y, (float) rotateBy[0].Item2.z);
+            Vector3 output2 = new Vector3((float) rotateBy[1].Item2.x, (float) rotateBy[1].Item2.y, (float) rotateBy[1].Item2.z);
+            representation.gameObject.transform.Rotate(output1, angle);
+            representation.gameObject.transform.Rotate(output2, angle2);
+        }
+        else if (data.rotate == rotationType.earth) rotation = representation.rotate(this.calculateRotation());
 
         base.updateChildren();
     }
@@ -107,7 +117,7 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
             positions = this.data.positions.requestJsonFile(),
             name = this.name,
             representationData = this.representation.requestJsonFile(),
-            rotate = this.data.rotate,
+            //rotate = this.data.rotate,
             planetType = (int) this.pType,
             bodyData = base.requestJsonFile()
         };
@@ -119,11 +129,11 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
 public class planetData
 {
     public double radius;
-    public bool rotate;
+    public rotationType rotate;
     public readonly planetType pType;
     public Timeline positions;
 
-    public planetData(double radius, bool rotate, string positionPath, double timestep, planetType pType)
+    public planetData(double radius, rotationType rotate, string positionPath, double timestep, planetType pType)
     {
         this.radius = radius;
         this.pType = pType;
@@ -131,7 +141,7 @@ public class planetData
         positions = csvParser.loadPlanetCsv(positionPath, timestep);
     }
 
-    public planetData(double radius, bool rotate, TextAsset positionAsset, double timestep, planetType pType)
+    public planetData(double radius, rotationType rotate, TextAsset positionAsset, double timestep, planetType pType)
     {
         this.radius = radius;
         this.pType = pType;
@@ -139,7 +149,7 @@ public class planetData
         positions = csvParser.loadPlanetCsv(positionAsset, timestep);
     }
 
-    public planetData(double radius, bool rotate, Timeline positions, double timestep, planetType pType)
+    public planetData(double radius, rotationType rotate, Timeline positions, double timestep, planetType pType)
     {
         this.radius = radius;
         this.pType = pType;
@@ -153,4 +163,12 @@ public enum planetType
 {
     planet = 0,
     moon = 1
+}
+
+[Flags]
+public enum rotationType
+{
+    earth = 1,
+    moon = 2,
+    none = 4,
 }
