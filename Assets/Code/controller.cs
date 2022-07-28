@@ -23,7 +23,7 @@ public class controller : MonoBehaviour
 
         SceneManager.sceneLoaded += sceneController.prepareScene;
 
-        master.sun = new planet("Sun", new planetData(695700, false, "CSVS/ARTEMIS 3/PLANETS/sun", 0.0416666665, planetType.planet),
+        master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/ARTEMIS 3/PLANETS/sun", 0.0416666665, planetType.planet),
             new representationData(
                 "Prefabs/Planet",
                 "Materials/default"));
@@ -52,13 +52,13 @@ public class controller : MonoBehaviour
 
         startMainLoop();
 
-        Debug.Log(position.J2000(new position(0, 1, 0), new position(0, 0, -1), new position(0, 1, 0)));
+        //Debug.Log(position.J2000(new position(0, 1, 0), new position(0, 0, -1), new position(0, 1, 0)));
     }
 
     public void startMainLoop(bool force = false) {
         if (loop != null && force == false) return;
 
-        loop = StartCoroutine(general.internalClock(1440, int.MaxValue, (tick) => {
+        loop = StartCoroutine(general.internalClock(3600, int.MaxValue, (tick) => {
             if (master.pause)
             {
                 master.tickStart(master.time);
@@ -296,15 +296,15 @@ public class controller : MonoBehaviour
         double oneMin = 0.0006944444;
         double oneHour = 0.0416666665;
 
-        earth =       new planet(  "Earth", new planetData(  6371, true, "CSVS/OLD/PLANETS/Earth", oneHour, planetType.planet), erd);
-        planet moon = new planet(   "Luna", new planetData(1738.1, false,    "CSVS/OLD/PLANETS/Luna", oneHour, planetType.moon),   rd);
-                      new planet("Mercury", new planetData(2439.7, false, "CSVS/OLD/PLANETS/Mercury", oneHour, planetType.planet), rd);
-                      new planet(  "Venus", new planetData(6051.8, false,   "CSVS/OLD/PLANETS/Venus", oneHour, planetType.planet), rd);
-                      new planet(   "Mars", new planetData(3396.2, false,    "CSVS/OLD/PLANETS/Mars", oneHour, planetType.planet), rd);
-                      new planet("Jupiter", new planetData( 71492, false, "CSVS/OLD/PLANETS/Jupiter", oneHour, planetType.planet), rd);
-                      new planet( "Saturn", new planetData( 60268, false,  "CSVS/OLD/PLANETS/Saturn", oneHour, planetType.planet), rd);
-                      new planet( "Uranus", new planetData( 25559, false,  "CSVS/OLD/PLANETS/Uranus", oneHour, planetType.planet), rd);
-                      new planet("Neptune", new planetData( 24764, false, "CSVS/OLD/PLANETS/Neptune", oneHour, planetType.planet), rd);
+        earth =       new planet(  "Earth", new planetData(  6371, rotationType.earth , "CSVS/OLD/PLANETS/Earth", oneHour, planetType.planet), erd);
+        planet moon = new planet(   "Luna", new planetData(1738.1, rotationType.moon,    "CSVS/OLD/PLANETS/Luna", oneHour, planetType.moon),   rd);
+                      new planet("Mercury", new planetData(2439.7, rotationType.none, "CSVS/OLD/PLANETS/Mercury", oneHour, planetType.planet), rd);
+                      new planet(  "Venus", new planetData(6051.8, rotationType.none,   "CSVS/OLD/PLANETS/Venus", oneHour, planetType.planet), rd);
+                      new planet(   "Mars", new planetData(3396.2, rotationType.none,    "CSVS/OLD/PLANETS/Mars", oneHour, planetType.planet), rd);
+                      new planet("Jupiter", new planetData( 71492, rotationType.none, "CSVS/OLD/PLANETS/Jupiter", oneHour, planetType.planet), rd);
+                      new planet( "Saturn", new planetData( 60268, rotationType.none,  "CSVS/OLD/PLANETS/Saturn", oneHour, planetType.planet), rd);
+                      new planet( "Uranus", new planetData( 25559, rotationType.none,  "CSVS/OLD/PLANETS/Uranus", oneHour, planetType.planet), rd);
+                      new planet("Neptune", new planetData( 24764, rotationType.none, "CSVS/OLD/PLANETS/Neptune", oneHour, planetType.planet), rd);
 
         master.relationshipPlanet.Add(earth, new List<planet>() {moon});
         master.relationshipSatellite.Add(earth, new List<satellite>() {});
@@ -340,8 +340,8 @@ public class controller : MonoBehaviour
 
         double oneHour = 0.0416666665;
 
-        earth = new planet("Earth", new planetData(  6371,  true, "CSVS/MOONBASED/earth", oneHour, planetType.planet), erd);
-        planet moon =        new planet( "Luna", new planetData(1738.1, false,  "CSVS/MOONBASED/moon", oneHour,   planetType.moon),  rd);
+        earth = new planet("Earth", new planetData(  6371,  rotationType.earth, "CSVS/MOONBASED/earth", oneHour, planetType.planet), erd);
+        planet moon =        new planet( "Luna", new planetData(1738.1, rotationType.moon,  "CSVS/MOONBASED/moon", oneHour,   planetType.moon),  rd);
 
         foreach (facilityData fd in csvParser.loadFacilites("CSVS/FACILITIES/stationList")) {
             new facility(fd.name, earth, new facilityData(fd.name, fd.geo, fd.antennas, new Time(2460857.5), new Time(2460859.5)), frd);
@@ -386,10 +386,11 @@ public class controller : MonoBehaviour
       representationData rd = new representationData(
           "Prefabs/Planet",
           "Materials/default");
-      
+
       representationData lrd = new representationData(
           "Prefabs/Planet",
-          "Materials/default", new Vector3(0f,22.4f,0f));
+          "Materials/default",
+          new Vector3(0f,0f,0f));
 
       representationData srd = new representationData(
           "Prefabs/Satellite",
@@ -404,20 +405,20 @@ public class controller : MonoBehaviour
           "Materials/planets/earth/earthEquirectangular");
 
       double oneMin = 0.0006944444;
-      double oneHour = 0.0416666665;
+      double oneHour = 0.0416666667;
 
       double MoonMu = 4902.800066;
       double EarthMu = 398600.435436;
 
-      earth =       new planet(  "Earth", new planetData(  6371, true, "CSVS/ARTEMIS 3/PLANETS/earth", oneHour, planetType.planet), erd);
-      planet moon = new planet(   "Luna", new planetData(1738.1, false,    "CSVS/ARTEMIS 3/PLANETS/moon", oneMin, planetType.moon),   lrd);
-                    //new planet("Mercury", new planetData(2439.7, false, "CSVS/ARTEMIS 3/PLANETS/mercury", oneHour, planetType.planet), rd);
-                    //new planet(  "Venus", new planetData(6051.8, false,   "CSVS/ARTEMIS 3/PLANETS/venus", oneHour, planetType.planet), rd);
-                    //new planet(   "Mars", new planetData(3396.2, false,    "CSVS/ARTEMIS 3/PLANETS/mars", oneHour, planetType.planet), rd);
-                    //new planet("Jupiter", new planetData( 71492, false, "CSVS/ARTEMIS 3/PLANETS/jupiter", oneHour, planetType.planet), rd);
-                    //new planet( "Saturn", new planetData( 60268, false,  "CSVS/ARTEMIS 3/PLANETS/saturn", oneHour, planetType.planet), rd);
-                    //new planet( "Uranus", new planetData( 25559, false,  "CSVS/ARTEMIS 3/PLANETS/uranus", oneHour, planetType.planet), rd);
-                    //new planet("Neptune", new planetData( 24764, false, "CSVS/ARTEMIS 3/PLANETS/neptune", oneHour, planetType.planet), rd);
+      earth =       new planet(  "Earth", new planetData(  6371, rotationType.earth, "CSVS/ARTEMIS 3/PLANETS/earth", oneHour, planetType.planet), erd);
+      planet moon = new planet(   "Luna", new planetData(1738.1, rotationType.moon,    "CSVS/ARTEMIS 3/PLANETS/moon", oneMin, planetType.moon),   lrd);
+                    new planet("Mercury", new planetData(2439.7, rotationType.none, "CSVS/ARTEMIS 3/PLANETS/mercury", oneHour, planetType.planet), rd);
+                    new planet(  "Venus", new planetData(6051.8, rotationType.none,   "CSVS/ARTEMIS 3/PLANETS/venus", oneHour, planetType.planet), rd);
+                    new planet(   "Mars", new planetData(3396.2, rotationType.none,    "CSVS/ARTEMIS 3/PLANETS/mars", oneHour, planetType.planet), rd);
+                    new planet("Jupiter", new planetData( 71492, rotationType.none, "CSVS/ARTEMIS 3/PLANETS/jupiter", oneHour, planetType.planet), rd);
+                    new planet( "Saturn", new planetData( 60268, rotationType.none,  "CSVS/ARTEMIS 3/PLANETS/saturn", oneHour, planetType.planet), rd);
+                    new planet( "Uranus", new planetData( 25559, rotationType.none,  "CSVS/ARTEMIS 3/PLANETS/uranus", oneHour, planetType.planet), rd);
+                    new planet("Neptune", new planetData( 24764, rotationType.none, "CSVS/ARTEMIS 3/PLANETS/neptune", oneHour, planetType.planet), rd);
 
       var data = DBReader.getData();
         foreach (KeyValuePair<string, dynamic> x in data["Artemis_III"].satellites) {
@@ -430,11 +431,10 @@ public class controller : MonoBehaviour
                 satellite sat = null;
                 if (dict.ContainsKey("RAAN")) {
                     sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"] / 1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), MoonMu)), srd);
-                    sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
                 } else if (dict.ContainsKey("FilePath")) {
                     sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneMin), srd);
-                    sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
                 }
+                sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
 
                 if (dict["CentralBody"] == "Moon") {
                     satellite.addFamilyNode(moon, sat);
@@ -444,17 +444,20 @@ public class controller : MonoBehaviour
                     earthSats.Add(sat);
                 }
             } else if (dict["Type"] == "Facility") {
-                if (dict["CentralBody"] == "Moon") 
+                if (dict["CentralBody"] == "Moon")
                 {
                     double start = 0, stop = 0;
-                    if (dict["TimeInterval_start"] is double) start = dict["TimeInterval_start"];
                     if (dict["TimeInterval_start"] is string) start = Double.Parse(dict["TimeInterval_start"], System.Globalization.NumberStyles.Any);
+                    else start = (double) dict["TimeInterval_start"];
 
-                    if (dict["TimeInterval_stop"] is double) start = dict["TimeInterval_start"];
                     if (dict["TimeInterval_stop"] is string) stop = Double.Parse(dict["TimeInterval_stop"], System.Globalization.NumberStyles.Any);
+                    else stop = (double) dict["TimeInterval_stop"];
 
                     List<antennaData> antenna = new List<antennaData>() {new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"])};
                     facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna, new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);
+
+                    //facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna), frd);
+
 
                     if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
                     if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
@@ -481,7 +484,7 @@ public class controller : MonoBehaviour
       master.relationshipSatellite[moon] = moonSats;
       master.relationshipSatellite[earth] = earthSats;
 
-      master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/PLANETS/moon", 0.0006944444));
+      master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/PLANETS/moon", oneMin));
       master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/SATS/v", 0.0006944444));
 
       //windows.jsonWindows();

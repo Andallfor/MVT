@@ -19,16 +19,18 @@ public static class DBReader
         {
             connection.Open();
             List<(string epochDate, string missionName)> tables = new List<(string epochDate, string missionName)>();
-
+            
             using (var command = connection.CreateCommand()) //creates list of tables/missions
             {
-                command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE \"%_details\" ORDER BY name;";using (IDataReader reader = command.ExecuteReader())
+                command.CommandText = "SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE \"%_details\" ORDER BY name;";
+                using (IDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
                         string full = reader["name"].ToString();
                         Regex dateReg = new Regex("[a-zA-Z]+_[0-9]+_[0-9]+", RegexOptions.IgnoreCase);
                         string EpochDate = dateReg.Match(full).ToString();
+                       // Debug.Log($"full: {full}\tReadEpochDate: {EpochDate}");
                         string misName = full.Remove(full.IndexOf(EpochDate)-1);
                         tables.Add((EpochDate, misName));
                     }
@@ -44,7 +46,7 @@ public static class DBReader
                 using (var command = connection.CreateCommand())
                 {
                     string TableName = table.missionName+"_"+table.epochDate;
-                    command.CommandText = $"SELECT * FROM {TableName}";
+                    command.CommandText = $"SELECT * FROM \"{TableName}\"";
                     IDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
@@ -62,13 +64,14 @@ public static class DBReader
                         sats.Add((string)reader["Name"], data);
                     }
                     reader.Close();
-
+                    
                 }
                 missions.Add(table.missionName, (table.epochDate, sats));
             }
 
             foreach(string band in Bands)
             {
+                //Debug.Log($"Band: {band}");
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = $"SELECT * FROM {band}_details";
@@ -76,7 +79,7 @@ public static class DBReader
                     while (reader.Read())
                     {
                         string ID = (string)reader[0];
-                        Regex misReg = new Regex("Artemis_[I,V]+_+(?:High_Demand)?");
+                        Regex misReg = new Regex(".*_");
                         string misName = misReg.Match(ID).ToString().Replace("__", "_");
                         if (misName.EndsWith("_")) misName = misName.Remove(misName.Length-1,1);
                         string satName = ID.Remove(0, misReg.Match(ID).ToString().Length);
@@ -100,4 +103,6 @@ public static class DBReader
         }
         return missions;
     }
-}
+}   
+
+

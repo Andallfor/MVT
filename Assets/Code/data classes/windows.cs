@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using Newtonsoft.Json;
+using System.IO;
 
 public class windows
 {
@@ -25,7 +26,7 @@ public class windows
 		public string source;
 		public string destination;
 		public double rate;
-		public List<finalWindow> windows;
+		public List<double[]> windows;
 	}
 
 	public struct jsonWindowsWrapper
@@ -104,7 +105,11 @@ public class windows
 
 		foreach((double, double) x in toSearch)
 		{
-			if (x.Item2 > minRate && x.Item2 < maxRate) { returnList.Add(i); }
+			if (x.Item2 >= minRate && x.Item2 <= maxRate) 
+			{
+				returnList.Add(i);
+				Debug.Log("find: " + i);
+			}
 			i = i + 1;
 		}
 
@@ -115,7 +120,7 @@ public class windows
 	{
 		List<finalWindow> returnList = new List<finalWindow>();
 
-		for (int x = 0; x < start.Count; x++)
+		for (int x = 0; x < stop.Count; x++)
 		{
 			finalWindow window;
 			window.start = start[x];
@@ -123,7 +128,7 @@ public class windows
 			window.rate = rate[x];
 			returnList.Add(window);
 		}
-		Debug.Log("pass windowsDefiner");
+
 		return returnList;
 	}
 
@@ -134,22 +139,25 @@ public class windows
 		{
 			returnList.Add((time[k], rate[k]));
 		}
-
 		return returnList;
 	}
 
-	public static int minAndAbs(List<double> time, double rate)
+	public static int minAndAbs(List<double> time, double start)
 	{
-		time.Add(double.MaxValue);
+		int returnInt = 0;
 		
 		for (int x = 0; x < time.Count; x++)
 		{
-			double val1 = Math.Abs(time[x] - rate);
-			double val2 = Math.Abs(time[x + 1] - rate);
-			if (val1 < val2) { return x; }
+			if (x + 1 < time.Count)
+			{
+				double val1 = Math.Abs(time[x] - start);
+				double val2 = Math.Abs(time[x + 1] - start);
+				if (val1 < val2) { returnInt = x; }
+			}
+			else { returnInt = time.Count - 1; }
 		}
 
-		return 0;
+		return returnInt;
 	}
 
 	public static List<finalWindow> calculateWindows(List<(double, double)> timeRate, double maxRate, double minRate)
@@ -161,26 +169,42 @@ public class windows
 		List<int> cc = diff(temp_Vals);
 		List<double> start = addTime(temp_Vals, findOperate(cc));
 		List<double> stop = addTime(temp_Vals, cc);
-		List<double> rate = addRate(temp_Vals, findOperate(cc));
+		List<double> rate = addRate(temp_Vals, cc);
 		return windowsDefiner(start, stop, rate);
 	}
 
+	public static List<double[]> format(List<finalWindow> windows, List<double> time, List<double> distance)
+	{
+		List<double[]> returnList = new List<double[]>();
+
+		if (windows.Count > 0)
+		{	 
+			for (int l = 0; l < windows.Count; l++)
+			{
+				int windowStartIndex = minAndAbs(time, windows[l].start); //what time element is close to the start 
+				double delayDistance = distance[windowStartIndex];
+				double[] inner = new double[] {windows[l].start, windows[l].stop, ((delayDistance * 1000) / 299792458)};
+				returnList.Add(inner);
+			}
+		}
+
+		return returnList;
+	}
+
 	// dict type is wrong, waiting on adi to get back to me
-	public static List<finalWindow> generateWindows(dynamic user1Data, dynamic user2Data, string band, List<double> time, List<double> distance)
+	public static List<double[]> generateWindows(double DataRate, double EIRP, double GT, string band, List<double> time, List<double> distance)
 	{
 		int freq = 0;
 		if (band.Contains("KaBand")) { freq = 26; }
 		else if(band.Contains("XBand")) { freq = 8; }
 		else if(band.Contains("SBand")) { freq =2; }
 
-		double DataRate = user1Data[band]["DataRate"];
-
 		List<double> rate = new List<double>();
 
 		for (int k=0; k < time.Count; k++)
 		{
 			double FSPL = 92.45 + 20 * Math.Log10(distance[k]) + 20 * Math.Log10(freq);
-			double cNo = user1Data[band]["EIRP"] - FSPL + user2Data[band]["GT"] + 228.6; // 228.6 is the Boltzmann Constant
+			double cNo = EIRP - FSPL + GT + 228.6; // 228.6 is the Boltzmann Constant
 			double rxEbN0 = cNo - 10 * Math.Log10(DataRate);
 			double linkMargin = rxEbN0 - 4.1; 
 			if(linkMargin >= 3) { rate.Add(DataRate/1000000); }
@@ -189,27 +213,13 @@ public class windows
 
 		List<finalWindow> windows = calculateWindows(time_Rate(time, rate), DataRate/1000000, 0);
 		
-		List<finalWindow> returnList = new List<finalWindow>();
-
-		for (int l = 0; l < windows.Count; l++)
-		{
-			int windowStartIndex = minAndAbs(time, windows[l].start); //what time element is close to the start 
-			double delayDistance = distance[windowStartIndex];
-
-			finalWindow newWindow;
-			newWindow.start = windows[l].start;
-			newWindow.stop = windows[l].stop;
-			newWindow.rate = (delayDistance * 1000) / 299792458;
-			returnList.Add(newWindow);
-		}
-
-		return returnList;
+		return format(windows, time, distance);	
 	}
 
 	public static void jsonWindows()
 	{
 		var data = DBReader.getData();
-		var linkResults = linkBudgeting.dynamicLink();
+		Dictionary<(string, string), (List<double>, List<double>)> linkResults = linkBudgeting.dynamicLink();
 		List<jsonWindowsInner> innerWindowList = new List<jsonWindowsInner>();
 
 		foreach (KeyValuePair <string, (bool, double, double)> provider in linkBudgeting.providers)
@@ -218,47 +228,64 @@ public class windows
 			{
 				List<double> time = linkResults[(user.Key, provider.Key)].Item1;
 				List<double> distance = linkResults[(user.Key, provider.Key)].Item2;
-
-				string[] possibleBands = new string[] {"SBand", "XBand", "KaBand"};
-				foreach(string posband in possibleBands)
+				
+				if (time.Count > 0)
 				{
-
-					var user2Data = data["Artemis_III"].satellites[user.Key];
-					var user1Data = data["Artemis_III"].satellites[provider.Key];
-
-					string _band = "None";
-
-					if (user1Data["CentralBody"] == "Moon" && user2Data["CentralBody"] == "Earth")
+					string[] possibleBands = new string[] {"SBand", "XBand", "KaBand"};
+					foreach(string posband in possibleBands)
 					{
-						_band = posband + "DTE";
-					}
-					else if (user1Data["CentralBody"] == "Moon" && user2Data["CentralBody"] == "Moon")
-					{
-						_band = posband + "Proximity";
-					}
-					else if (user1Data["CentralBody"] == "Earth" && user2Data["CentralBody"] == "Moon")
-					{
-						_band = posband + "DTE";
-					}
 
+						var user1Data = data["Artemis_III"].satellites[user.Key];
+						var user2Data = data["Artemis_III"].satellites[provider.Key];
 
-					if (user1Data.ContainsKey(_band) && user2Data.ContainsKey(_band))
-					{
-						if (user.Key.Contains("LCN") && provider.Key.Contains("CLPS"))
+						string _band = "None";
+
+						if (user1Data["CentralBody"] == "Moon" && user2Data["CentralBody"] == "Earth")
 						{
-							user1Data[_band]["DataRate"] = user2Data[_band]["DataRate"];
+							_band = posband + "DTE";
 						}
-						
-						jsonWindowsInner inner;
-						inner.frequency = posband;
-						inner.source = provider.Key;
-						inner.destination = user.Key;
-						inner.rate = user1Data[_band]["DataRate"]/1000000;
-						inner.windows = generateWindows(user1Data, user2Data, _band, time, distance);
+						else if (user1Data["CentralBody"] == "Moon" && user2Data["CentralBody"] == "Moon")
+						{
+							_band = posband + "Proximity";
+						}
+						else if (user1Data["CentralBody"] == "Earth" && user2Data["CentralBody"] == "Moon")
+						{
+							_band = posband + "DTE";
+						}
 
-						innerWindowList.Add(inner);
+
+						if (user1Data.ContainsKey(_band) && user2Data.ContainsKey(_band))
+						{
+							if(user2Data[_band].ContainsKey("GT"))
+                    	    {
+								if (user1Data[_band].ContainsKey("EIRP"))
+								{
+									double DataRate = 0;
+									double EIRP = user1Data[_band]["EIRP"];
+									double GT = user2Data[_band]["GT"];
+									if (user.Key.Contains("LCN") && provider.Key.Contains("CLPS"))
+									{
+										DataRate = user2Data[_band]["DataRate"];
+									}
+									else
+									{
+										DataRate = user1Data[_band]["DataRate"];
+									}
+
+									jsonWindowsInner inner;
+									inner.frequency = posband;
+									inner.source = provider.Key;
+									inner.destination = user.Key;
+									inner.rate = (double)user1Data[_band]["DataRate"] / 1000000;
+									inner.windows = generateWindows(DataRate, EIRP, GT, _band, time, distance);
+
+									innerWindowList.Add(inner);
+								}
+							}
+						}
 					}
 				}
+				
 			}
 		}
 
@@ -267,7 +294,9 @@ public class windows
 		json.fileGenDate = "26-Jul-2022 6:30:00";
 		json.windows = innerWindowList;
 		
-		string jsonReturn = JsonConvert.SerializeObject(json);
-		Debug.Log(jsonReturn);
+		string jsonReturn = JsonConvert.SerializeObject(json, Formatting.Indented);
+		File.WriteAllText("C:/Users/AKaze/OneDrive/windows.json", jsonReturn);
+		Debug.Log("Finished Writing File");
+
 	}
 }
