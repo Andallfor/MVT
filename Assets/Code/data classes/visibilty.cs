@@ -65,7 +65,7 @@ public static class visibility
     }
 
     /// <summary> This is the main raycast function for our program and it takes in 5 arguments. The final argument if set true will return a list of all the hit objects, but if it is set to false the program will break after the first object is hit </summary>
-    public static link dynamicLinkVisibility(position p1, position p2, Time t, int defaultRadius)
+    public static (bool, double) dynamicLinkVisibility(position p1, position p2, Time t, int defaultRadius)
     {
         bool hit = false;
 
@@ -85,22 +85,8 @@ public static class visibility
         }
         
         
-        if (hit == false)
-        {
-            link dLink;
-            dLink.hit = false;
-            dLink.time = t.julian;
-            dLink.distance = p1p2Distance;
-            return dLink;
-        }
-        else
-        {
-            link dLink;
-            dLink.hit = true;
-            dLink.time = 0;
-            dLink.distance = 0;
-            return dLink;
-        }
+        if (hit == false) { return (false, p1p2Distance); }
+        else { return (true, 0); }
     }
 
 

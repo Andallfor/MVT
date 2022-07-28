@@ -59,9 +59,6 @@ public static class linkBudgeting
 
 	public static Dictionary<(string, string), (List<double>, List<double>)> dynamicLink()
 	{
-		List<double> Time = new List<double>();
-		List<double> distance = new List<double>();
-
 		Dictionary<(string, string), (List<double>, List<double>)> Dictionary = new Dictionary<(string, string), (List<double>, List<double>)>();
 
 		foreach (KeyValuePair<string, (bool t, double start, double end)> provider in providers)
@@ -69,6 +66,8 @@ public static class linkBudgeting
 			foreach (KeyValuePair<string, (bool t, double start, double end)> user in users)
 			{
 				Time time = new Time(2460806.5);
+				List<double> Time = new List<double>();
+				List<double> distance = new List<double>();
 
 				while (time.julian < 2460836.5)
 				{
@@ -94,12 +93,12 @@ public static class linkBudgeting
 
 						if (pp != new position(0, 0, 0) && up != new position(0, 0, 0)) 
 						{
-							visibility.link link = visibility.dynamicLinkVisibility(pp, up, time, 1);
+							(bool, double) link = visibility.dynamicLinkVisibility(pp, up, time, 1);
 
-							if (!link.hit) 
+							if (link.Item1 == false) 
 							{
-								Time.Add(link.time);
-								distance.Add(link.distance);
+								Time.Add(time.julian);
+								distance.Add(link.Item2);
 							}
 						}
 					}
@@ -108,8 +107,6 @@ public static class linkBudgeting
 				}
 
 				Dictionary.Add((user.Key, provider.Key), (Time, distance));
-				Time.Clear();
-				distance.Clear();
 			}
 		}
 		return Dictionary;
