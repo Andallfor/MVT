@@ -37,7 +37,7 @@ public class controller : MonoBehaviour
         //pt = loadTerrain();
         //plt = loadPoles();
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
-        DBReader.getData();
+        //DBReader.getData();
 
         master.pause = false;
         general.camera = Camera.main;

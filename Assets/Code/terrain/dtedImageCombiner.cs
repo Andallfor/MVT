@@ -1,3 +1,4 @@
+/*
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,6 +17,7 @@ Due to the way the sentinel textures are formatted, one area can have multiple t
 However, the sentinel files are not perfectly accurate. The texture provided is a square, implying that either sides should be parallel to each other. But the area covered by the texture (including the blank areas) is not a square. There is a few percent difference between opposite sides, so there will be minor distortation in the resultant texture.
 So, when overlayed on the dted mesh, the texture will be every so slightly off.
 */
+/*
 
 public static class dtedImageCombiner
 {
@@ -216,3 +218,5 @@ public class sentinelFile {
         texture = Image<Rgb24>.Load(di.GetFiles().First(x => x.Name.Contains(".png")).FullName) as Image<Rgb24>;
     }
 }
+
+*/

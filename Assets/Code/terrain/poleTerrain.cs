@@ -4,12 +4,12 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.IO;
-using NumSharp;
+//using NumSharp;
 using System.Threading.Tasks;
 using UnityEditor;
 using System.Diagnostics;
 using B83.MeshTools;
-using Newtonsoft.Json;
+//using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Threading;
 
@@ -44,8 +44,8 @@ public class poleTerrain {
 
     private async void generateScale(int scale) {
         currentlyDrawing = true;
-        savedPositions = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long[]>>>(
-            File.ReadAllText(Path.Combine(scaleKey[scale], "data.json")));
+        //savedPositions = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long[]>>>(
+        //    File.ReadAllText(Path.Combine(scaleKey[scale], "data.json")));
         
         int totalFiles = 0;
         Queue<string> files = new Queue<string>();
@@ -104,7 +104,7 @@ public class poleTerrain {
             ptf.saveMesh(Path.Combine(output, $"{ptf.name}.trn"));
         }
 
-        File.WriteAllText(Path.Combine(output, "data.json"), JsonConvert.SerializeObject(savedPositions));
+        //File.WriteAllText(Path.Combine(output, "data.json"), JsonConvert.SerializeObject(savedPositions));
     }
 
     public void decreaseScale() {
@@ -186,27 +186,27 @@ public class poleTerrainFile {
     public void clear() {GameObject.Destroy(go);}
 
     public void saveMesh(string path) {
-        NDArray data = np.load(filePath);
-        poleTerrainMesh ptm = new poleTerrainMesh(
-            data.shape[1], data.shape[0],
-            new position(pos.x / scale, pos.y / scale, 0), new position(maxSize / scale, maxSize / scale, 1), true,
-            (p) => new Vector2(
-                ((float) p.x * (float) scale) / 40_000f,
-                (40_000f - (float) p.y * (float) scale) / 40_000f
-            ));
-
-        for (int y = 0; y < data.shape[0]; y++) {
-            for (int x = 0; x < data.shape[1]; x++) {
-                ptm.addPoint(x, y, cartToGeo(new position(x * scale, y * scale, 0) + pos), (float) data[y, x]);
-            }
-        }
-
-        // dont question it
-        GameObject go = ptm.drawMesh("Materials/default", "a", null);
-
-        File.WriteAllBytes(path, MeshSerializer.SerializeMesh(go.GetComponent<MeshFilter>().mesh, name, ref poleTerrain.savedPositions));
-
-        GameObject.Destroy(go);
+        //NDArray data = np.load(filePath);
+        //poleTerrainMesh ptm = new poleTerrainMesh(
+        //    data.shape[1], data.shape[0],
+        //    new position(pos.x / scale, pos.y / scale, 0), new position(maxSize / scale, maxSize / scale, 1), true,
+        //    (p) => new Vector2(
+        //        ((float) p.x * (float) scale) / 40_000f,
+        //        (40_000f - (float) p.y * (float) scale) / 40_000f
+        //    ));
+//
+        //for (int y = 0; y < data.shape[0]; y++) {
+        //    for (int x = 0; x < data.shape[1]; x++) {
+        //        ptm.addPoint(x, y, cartToGeo(new position(x * scale, y * scale, 0) + pos), (float) data[y, x]);
+        //    }
+        //}
+//
+        //// dont question it
+        //GameObject go = ptm.drawMesh("Materials/default", "a", null);
+//
+        //File.WriteAllBytes(path, MeshSerializer.SerializeMesh(go.GetComponent<MeshFilter>().mesh, name, ref poleTerrain.savedPositions));
+//
+        //GameObject.Destroy(go);
     }
 
     private geographic cartToGeo(position p) {

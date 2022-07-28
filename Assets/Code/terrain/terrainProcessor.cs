@@ -5,10 +5,10 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using NumSharp;
-using Newtonsoft.Json;
+//using SixLabors.ImageSharp;
+//using SixLabors.ImageSharp.PixelFormats;
+//using NumSharp;
+//using Newtonsoft.Json;
 
 public static class terrainProcessor
 {
@@ -218,6 +218,7 @@ public static class terrainProcessor
         }
     }
 
+    /*
     public static void divideJpeg2000(string folderPath, string outputPath, List<terrainResolution> resolutions, bool copyMax = false) {
         Dictionary<string, int> endingKey = new Dictionary<string, int>() {
             {"json", 0},
@@ -328,12 +329,12 @@ public static class terrainProcessor
         }
 
         Debug.Log("finished");
-    }
+    }*/
 
-    private static void tryToCreateJp2(string key, Dictionary<string, NDArray> dict, int length) {
-        if (dict.ContainsKey(key)) return;
-        else dict[key] = np.full(NODATA_value, (4, length), Type.GetType("double"));
-    }
+    //private static void tryToCreateJp2(string key, Dictionary<string, NDArray> dict, int length) {
+    //    if (dict.ContainsKey(key)) return;
+    //    else dict[key] = np.full(NODATA_value, (4, length), Type.GetType("double"));
+    //}
 
     private static Vector2Int wrap(Vector2Int v, BoundsInt b)
     {

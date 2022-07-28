@@ -9,7 +9,7 @@ using System.Collections.Concurrent;
 using System;
 using UnityEngine.UI;
 using B83.MeshTools;
-using Newtonsoft.Json;
+//using Newtonsoft.Json;
 
 public class planetTerrain
 {
@@ -126,7 +126,7 @@ public class planetTerrain
             File.WriteAllBytes(Path.Combine(outputPath, terrainProcessor.terrainName(g, p)), data);
         }
 
-        File.WriteAllText(Path.Combine(outputPath, "data.json"), JsonConvert.SerializeObject(pos));
+        //File.WriteAllText(Path.Combine(outputPath, "data.json"), JsonConvert.SerializeObject(pos));
 
         // require resData.txt in output folder for ptfi
         File.Copy(Path.Combine(srcFolder, terrainProcessor.folderInfoName), Path.Combine(outputPath, terrainProcessor.folderInfoName), true);
@@ -160,8 +160,8 @@ public class planetTerrain
         foreach (string folder in folders)
         {
             planetTerrainFolderInfo ptfi = new planetTerrainFolderInfo(folder);
-            savedPositions[ptfi.name] = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long[]>>>(
-                File.ReadAllText(Path.Combine(folder, "data.json")));
+            //savedPositions[ptfi.name] = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long[]>>>(
+            //    File.ReadAllText(Path.Combine(folder, "data.json")));
 
             folderInfos[ptfi.name] = ptfi;
             meshes[ptfi] = new Dictionary<geographic, planetTerrainMeshCreator>();
