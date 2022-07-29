@@ -61,50 +61,34 @@
     ],
     "Orion-Transit-O": [
       "DSS-24",
-      "DSS-25",
       "DSS-26",
-      "DSS-33",
       "DSS-34",
       "DSS-36",
-      "DSS-53",
       "DSS-54",
-      "DSS-55",
       "DSS-56"
     ],
     "Orion-NRHO": [
       "DSS-24",
-      "DSS-25",
       "DSS-26",
-      "DSS-33",
       "DSS-34",
       "DSS-36",
-      "DSS-53",
       "DSS-54",
-      "DSS-55",
       "DSS-56"
     ],
     "Orion-Docked": [
       "DSS-24",
-      "DSS-25",
       "DSS-26",
-      "DSS-33",
       "DSS-34",
       "DSS-36",
-      "DSS-53",
       "DSS-54",
-      "DSS-55",
       "DSS-56"
     ],
     "Orion-Tranit-R": [
       "DSS-24",
-      "DSS-25",
       "DSS-26",
-      "DSS-33",
       "DSS-34",
       "DSS-36",
-      "DSS-53",
       "DSS-54",
-      "DSS-55",
       "DSS-56"
     ],
     "Gateway-EOR": [
@@ -128,9 +112,7 @@
       "LCN-12hourfrozen-2-LowPower"
     ],
     "CLPS-9": [
-      "LCN-12hourfrozen-1",
       "LCN-12hourfrozen-1-LowPower",
-      "LCN-12hourfrozen-2",
       "LCN-12hourfrozen-2-LowPower"
     ]
   }

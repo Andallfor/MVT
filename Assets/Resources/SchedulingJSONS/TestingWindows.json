@@ -1,0 +1,14 @@
+{
+    "epochTime":"05-Apr-2025", 
+    "fileGenDate":"19-Jul-2022 08:58:52", 
+    "windows":[
+        {
+            "frequency":"Ka Band", 
+            "source":"CLPS-9", 
+            "destination":"LCN-12hourfrozen-1-LowPower", 
+            "rate":0.01, 
+            "windows":[
+            ]
+        }
+    ]
+}

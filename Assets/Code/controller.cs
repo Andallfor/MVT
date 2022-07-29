@@ -53,13 +53,15 @@ public class controller : MonoBehaviour
         //string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
         //System.IO.File.WriteAllText (@"NewMissionStructure.txt", json);       
         Debug.Log("Generating windows.....");
-        ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", "LunarWindows-RAC2_1_07_19_22.json", date);
+        ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", "TestingWindows.json", date, "PreconWindows");
         Debug.Log("Generating conflict list.....");
         ScheduleStructGenerator.createConflictList(date);
+        //Debug.Log("Regenerating windows");
+        //ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", "LunarWindows-RAC2_1_07_19_22.json", date, "PostconWindows");
         Debug.Log("Doing DFS.....");
         ScheduleStructGenerator.doDFS(date);
-        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PreDFSUsers_{date}.txt Assets/Code/scheduler/{date}/PreDFSUsers_{date}.png");
-        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PostDFSUsers_{date}.txt Assets/Code/scheduler/{date}/PostDFSUsers_{date}.png");
+        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PreDFSUsers.txt Assets/Code/scheduler/{date}/PreDFSUsers_{date}.png");
+        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PostDFSUsers.txt Assets/Code/scheduler/{date}/PostDFSUsers_{date}.png");
 
         //Debug.Log("Testing.....");
         //ScheduleStructGenerator.test();
