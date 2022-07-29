@@ -74,8 +74,6 @@ public class controller : MonoBehaviour
             "heatmap.exe",
             $"{ScheduleStructGenerator.output("PostDFSUsers.txt", date)} {ScheduleStructGenerator.output($"PostDFSUsers_{date}.png", date)}",
             callback: () => Debug.Log("Scheduling finished"));
-        //System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PreDFSUsers.txt Assets/Code/scheduler/{date}/PreDFSUsers_{date}.png");
-        //System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PostDFSUsers.txt Assets/Code/scheduler/{date}/PostDFSUsers_{date}.png");
     }
 
     public void startMainLoop(bool force = false) {
