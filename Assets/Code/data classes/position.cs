@@ -95,8 +95,8 @@ public readonly struct position
     public static List<(double, position)> J2000(position moon1, position velocity1, position sat)
     {
         List<(double, position)> returnList = new List<(double, position)>();
-        position j2000_x = new position(1, 0, 0);
-        position j2000_y = new position(0, 1, 0);
+        position j2000_x = new position(1, 0, 0).swapAxis();
+        position j2000_y = new position(0, 1, 0).swapAxis();
         position Earth_j2000 = new position(0, 0, 0);
 
         position moon = moon1.swapAxis();
