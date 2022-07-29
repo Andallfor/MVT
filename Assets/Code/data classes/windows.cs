@@ -295,7 +295,8 @@ public class windows
 		json.windows = innerWindowList;
 		
 		string jsonReturn = JsonConvert.SerializeObject(json, Formatting.Indented);
-		File.WriteAllText("C:/Users/AKaze/OneDrive/windows.json", jsonReturn);
+		Debug.Log(jsonReturn);
+		File.WriteAllText("C:/Users/akazemni/Desktop/windows.json", jsonReturn);
 		Debug.Log("Finished Writing File");
 
 	}

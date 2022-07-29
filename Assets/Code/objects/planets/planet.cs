@@ -37,12 +37,15 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
 
         representation.setPosition(pos - master.currentPosition - master.referenceFrame);
         if (planetOverview.usePlanetOverview) representation.setRadius((master.scale / 2.0) / 4.0);
-
+    
         if (data.rotate == rotationType.moon)
         {
+            Quaternion newQuaternion = new Quaternion();
+            newQuaternion.Set(0f,0f,0f,1);
+            representation.gameObject.transform.rotation = newQuaternion;
             List<(double, position)> rotateBy = position.J2000(master.rod[0].find(master.time), master.rod[1].find(master.time), new position(1,1,1));
-            float angle = (float) (rotateBy[0].Item1);
-            float angle2 = (float) (rotateBy[1].Item1); 
+            float angle = (float) ((rotateBy[0].Item1) * 180/Math.PI);
+            float angle2 = (float) ((rotateBy[1].Item1) * 180/Math.PI); 
             Vector3 output1 = new Vector3((float) rotateBy[0].Item2.x, (float) rotateBy[0].Item2.y, (float) rotateBy[0].Item2.z);
             Vector3 output2 = new Vector3((float) rotateBy[1].Item2.x, (float) rotateBy[1].Item2.y, (float) rotateBy[1].Item2.z);
             representation.gameObject.transform.Rotate(output1, angle);
@@ -107,7 +110,8 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
         double rotationDirection = 1;
         double rotationDays = rotationDirection * (-noonLatLon.lon + (360 * timeUntilSNoon));
 
-        return new position(rotationDays, sunDeclin, 0);
+        //return new position(rotationDays, sunDeclin, 0);
+        return new position(rotationDays, 0, 0);
     }
 
     public new jsonPlanetStruct requestJsonFile()

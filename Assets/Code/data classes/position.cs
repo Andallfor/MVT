@@ -92,12 +92,15 @@ public readonly struct position
         return p1;
     }
 
-    public static List<(double, position)> J2000(position moon, position velocity, position sat)
+    public static List<(double, position)> J2000(position moon1, position velocity1, position sat)
     {
         List<(double, position)> returnList = new List<(double, position)>();
         position j2000_x = new position(1, 0, 0);
         position j2000_y = new position(0, 1, 0);
         position Earth_j2000 = new position(0, 0, 0);
+
+        position moon = moon1.swapAxis();
+        position velocity = velocity1.swapAxis();
 
         //calculate moonfixed_x in j2000
         position M_x_j2000 = Earth_j2000 - moon;
@@ -121,8 +124,8 @@ public readonly struct position
         position output1 = sat * (Math.Cos(angle2)) + cross(k2,sat) * Math.Sin(angle2) + k2 * (dotProduct(k2,sat)) * (1-Math.Cos(angle2));
         position output2 = output1 * Math.Cos(angle) + cross(k,output1)*Math.Sin(angle)+k*(dotProduct(k,output1))*(1-Math.Cos(angle));
 
-        returnList.Add((angle2, output2));
-        returnList.Add((angle, output1));
+        returnList.Add((angle2, k2));
+        returnList.Add((angle, k));
 
         return returnList;
     }
