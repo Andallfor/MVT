@@ -53,9 +53,12 @@ public abstract class IMesh
 
     public GameObject drawMesh(Material mat, GameObject model, string name, Transform parent) {
         mesh = new Mesh();
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         mesh.vertices = verts;
         mesh.triangles = triangles.ToArray();
         mesh.uv = uvs.ToArray();
+
+        mesh.RecalculateNormals();
 
         go = GameObject.Instantiate(model);
         go.name = name;
@@ -78,6 +81,10 @@ public abstract class IMesh
         this.mesh = new Mesh();
         GameObject.Destroy(go);
     }
+
+    public void hide() {go.GetComponent<MeshRenderer>().enabled = false;}
+
+    public void show() {go.GetComponent<MeshRenderer>().enabled = true;}
 
     public void forceSetPoint(int x, int y, Vector3 v) => this.verts[toIndex(x, y)] = v;
 
