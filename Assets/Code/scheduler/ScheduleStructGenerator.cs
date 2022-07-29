@@ -354,7 +354,7 @@ public static class ScheduleStructGenerator
                 (int, int) con = curBlock.conflicts[i];
                 Window conWin = scenario.windows.Find(i=> i.ID==con.Item1);
                 if (con.Item1==1168)
-                    Debug.Log($"Before: {conStart}->{conStop}");
+                   // Debug.Log($"Before: {conStart}->{conStop}");
                 switch(con.Item2)
                 {
                     case 1:
