@@ -22,48 +22,18 @@ public class controller : MonoBehaviour
 
     void Start()
     {
-        if (sceneController.alreadyStarted) return;
-        sceneController.alreadyStarted = true;
-
-        SceneManager.sceneLoaded += sceneController.prepareScene;
-
         master.sun = new planet("Sun", new planetData(695700, false, "CSVS/ARTEMIS 3/PLANETS/sun", 0.0416666665, planetType.planet),
             new representationData(
                 "Prefabs/Planet",
                 "Materials/default"));
 
-        //onlyEarth();
-        //kepler();
         Artemis3();
-        string date = DateTime.Now.ToString("MM-dd_hhmm");
-        //testing git on reset computer
-        
-        if(!File.Exists(@"Assets\Code\parsing\main.db"))
-        {
-            Debug.Log("Generating main.db");
-            System.Diagnostics.Process.Start(@"Assets\Code\parsing\parser.exe", @"Assets\Code\parsing\ScenarioAssetsSTK_2_w_pivot.xlsx Assets\Code\parsing\main.db").WaitForExit();  
-        }
-        var missionStructure = DBReader.getData();
-        System.IO.Directory.CreateDirectory($"Assets/Code/scheduler/{date}");
-        //string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
-        //System.IO.File.WriteAllText (@"NewMissionStructure.txt", json);       
-        Debug.Log("Generating windows.....");
-        ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", "TestingWindows.json", date, "PreconWindows");
-        Debug.Log("Generating conflict list.....");
-        ScheduleStructGenerator.createConflictList(date);
-        //Debug.Log("Regenerating windows");
-        //ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", "LunarWindows-RAC2_1_07_19_22.json", date, "PostconWindows");
-        Debug.Log("Doing DFS.....");
-        ScheduleStructGenerator.doDFS(date);
-        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PreDFSUsers.txt Assets/Code/scheduler/{date}/PreDFSUsers_{date}.png");
-        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PostDFSUsers.txt Assets/Code/scheduler/{date}/PostDFSUsers_{date}.png");
-
-        //Debug.Log("Testing.....");
 
         pt = loadTerrain();
         plt = loadPoles();
+
+        runScheduling();
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
-        DBReader.getData();
 
         master.pause = false;
         general.camera = Camera.main;
@@ -71,6 +41,41 @@ public class controller : MonoBehaviour
         master.markStartOfSimulation();
         
         startMainLoop();
+    }
+
+    private void runScheduling() {
+        string date = DateTime.Now.ToString("MM-dd_hhmm");
+        //testing git on reset computer
+
+        if (!File.Exists(ScheduleStructGenerator.path("main.db"))) {
+            Debug.Log("Generating main.db");
+            ScheduleStructGenerator.runExe(
+                "parser.exe",
+                $"{ScheduleStructGenerator.path("ScenarioAssetsSTK_2_w_pivot.xlsx")} {ScheduleStructGenerator.path("main.db")}",
+                true);
+        }
+
+        var missionStructure = DBReader.getData();
+        System.IO.Directory.CreateDirectory(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), date));
+        //string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
+        //System.IO.File.WriteAllText (@"NewMissionStructure.txt", json
+        Debug.Log("Generating windows.....");
+        ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", ScheduleStructGenerator.path("LunarWindows-RAC2_1_07_19_22.json"), date, "PreconWindows");
+        Debug.Log("Generating conflict list.....");
+        ScheduleStructGenerator.createConflictList(date);
+        //Debug.Log("Regenerating windows");
+        //ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", "LunarWindows-RAC2_1_07_19_22.json", date, "PostconWindows");
+        Debug.Log("Doing DFS.....");
+        ScheduleStructGenerator.doDFS(date);
+        ScheduleStructGenerator.runExe(
+            "heatmap.exe",
+            $"{ScheduleStructGenerator.output("PreDFSUsers.txt", date)} {ScheduleStructGenerator.output($"PreDFSUsers_{date}.png", date)}");
+        ScheduleStructGenerator.runExe(
+            "heatmap.exe",
+            $"{ScheduleStructGenerator.output("PostDFSUsers.txt", date)} {ScheduleStructGenerator.output($"PostDFSUsers_{date}.png", date)}",
+            callback: () => Debug.Log("Scheduling finished"));
+        //System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PreDFSUsers.txt Assets/Code/scheduler/{date}/PreDFSUsers_{date}.png");
+        //System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PostDFSUsers.txt Assets/Code/scheduler/{date}/PostDFSUsers_{date}.png");
     }
 
     public void startMainLoop(bool force = false) {

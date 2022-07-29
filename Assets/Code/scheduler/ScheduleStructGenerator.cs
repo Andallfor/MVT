@@ -11,7 +11,7 @@ using System.Net;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Mono.Data.Sqlite;
-
+using System.Diagnostics;
 
 public static class ScheduleStructGenerator
 {
@@ -20,14 +20,12 @@ public static class ScheduleStructGenerator
     {
         //Select * from Windows_data where Source="HLS-Surface" and Destination="LCN-12hourfrozen-1-LowPower" and Frequency="Ka Band" order by Start ASC
         scenario.users.Clear();
-        if(File.Exists(@$"Assets/Code/scheduler/{date}/{dbName}_{date}.db"))
-        {
-            File.Delete(@$"Assets/Code/scheduler/{date}/{dbName}_{date}.db");
-        }
+
+        string pathToDB = output($"{dbName}_{date}.db", date);
+        if(File.Exists(pathToDB)) File.Delete(pathToDB);
         bool fileExists = false;
-        SqliteConnection connection = new SqliteConnection($"URI=file:Assets/Code/scheduler/{date}/{dbName}_{date}.db;New=False");
-        if (!fileExists)
-        {
+        SqliteConnection connection = new SqliteConnection($"URI=file:{pathToDB};New=False");
+        if (!fileExists) {
             connection.Open();
             var createCommand = connection.CreateCommand();
             createCommand.CommandText = @"
@@ -45,12 +43,11 @@ public static class ScheduleStructGenerator
                 PRIMARY KEY(""Block_ID""));    
                 ";
             createCommand.ExecuteNonQuery();
-            Debug.Log("Created DB");
+            UnityEngine.Debug.Log("Created DB");
         }
-        string restrictionPath = $"Assets/Code/scheduler/restrictions.json";
+        string restrictionPath = path("restrictions.json");
         JObject restrictionJson = JObject.Parse(File.ReadAllText(restrictionPath));
-        string filePath = $"Assets/Resources/SchedulingJSONS/{JSONPath}";
-        JObject json = JObject.Parse(File.ReadAllText(filePath)); 
+        JObject json = JObject.Parse(File.ReadAllText(JSONPath)); 
         scenario.epochTime = (string) json["epochTime"];
         scenario.fileGenDate = (string) json["fileGenDate"];
         List<Window> windList = new List<Window>();
@@ -216,9 +213,14 @@ public static class ScheduleStructGenerator
             command.ExecuteNonQuery();
             connection.Close();
         }
-        scenario.windows = windList.OrderBy(s => s.Schedule_Priority).ThenBy(s => s.Ground_Priority).ThenBy(s=>s.Freq_Priority).ThenByDescending(s=>s.duration).ToList();
+        scenario.windows = windList
+            .OrderBy(s => s.Schedule_Priority)
+            .ThenBy(s => s.Ground_Priority)
+            .ThenBy(s=>s.Freq_Priority)
+            .ThenByDescending(s=>s.duration).ToList(); // sorry, it bothered me
+
         string debugJson = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
-        System.IO.File.WriteAllText ($"PreDFSUsers.txt", debugJson);
+        System.IO.File.WriteAllText(output("PreDFSUsers.txt", date), debugJson);
         //Debug.Log($@"ID: {scenario.windows[0].ID}\tSource:{scenario.windows[0].source}\tDestination{scenario.windows[0].destination}
         //\tschedPrio: {scenario.windows[0].Schedule_Priority}\tGroundPrio: {scenario.windows[0].Ground_Priority}\tFreq_Prio: {scenario.windows[0].Freq_Priority}\tDuration: {scenario.windows[0].duration}");
         /*foreach (var printWindow in scenario.windows)
@@ -233,7 +235,7 @@ public static class ScheduleStructGenerator
     //s - lowest priority
     public static void createConflictList(string date)
     {
-        SqliteConnection connection = new SqliteConnection($"URI=file:Assets/Code/scheduler/{date}/PreconWindows_{date}.db;New=False");
+        SqliteConnection connection = new SqliteConnection($"URI=file:{output($"PreconWindows_{date}.db", date)};New=False");
         connection.Open();
         var command = connection.CreateCommand();
         command.CommandText = "BEGIN;";
@@ -353,8 +355,8 @@ public static class ScheduleStructGenerator
             {
                 (int, int) con = curBlock.conflicts[i];
                 Window conWin = scenario.windows.Find(i=> i.ID==con.Item1);
-                if (con.Item1==1168)
-                    Debug.Log($"Before: {conStart}->{conStop}");
+                //if (con.Item1==1168)
+                //    Debug.Log($"Before: {conStart}->{conStop}");
                 switch(con.Item2)
                 {
                     case 1:
@@ -391,13 +393,13 @@ public static class ScheduleStructGenerator
         }
         scenario.users.ToList();
         string json = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
-        System.IO.File.WriteAllText (@$"PostDFSUsers.txt", json);
+        System.IO.File.WriteAllText(output("PostDFSUsers.txt", date), json);
 
         List<int> ScheduleIDs = (from x in scenario.schedule select x.ID).ToList();
-        Debug.Log(string.Join(", ", ScheduleIDs));
+        UnityEngine.Debug.Log(string.Join(", ", ScheduleIDs));
         json = JsonConvert.SerializeObject(scenario.schedule, Formatting.Indented);
-        System.IO.File.WriteAllText(@$"Schedule.txt", json);
-        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\json2csv.exe", $"Schedule.txt Assets/Code/scheduler/{date}/ScheduleCSV.csv").WaitForExit();
+        System.IO.File.WriteAllText(output("Schedule.txt", date), json);
+        runExe(path("json2csv.exe"), $"{output("Schedule.txt", date)} {output("ScheduleCSV.csv", date)}", true);
     }
    /* public static void test()
     {
@@ -406,6 +408,24 @@ public static class ScheduleStructGenerator
             Debug.Log($"ID: {con.ID}, Source: {con.source}, Destination: {con.destination}, Start: {con.start}, Stop: {con.stop}");
     }*/
 
+    public static void runExe(string name, string args, bool block = false, Action callback = null) {
+        Process process = new Process();
+        process.StartInfo.CreateNoWindow = true;
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.RedirectStandardOutput = true;
+        process.EnableRaisingEvents = true;
+
+        process.StartInfo.FileName = Path.Combine(Application.streamingAssetsPath, name);
+        process.StartInfo.Arguments = args;
+
+        if (!ReferenceEquals(callback, null)) process.Exited += new EventHandler((sender, e) => callback());
+
+        process.Start();
+        if (block) process.WaitForExit();
+    }
+
+    public static string path(string name) => Path.Combine(Application.streamingAssetsPath, name);
+    public static string output(string name, string date) => Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), $"{date}/{name}");
 }
 
 
