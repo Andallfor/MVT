@@ -38,13 +38,6 @@ glymur.set_option('lib.num_threads', 16)
 
 FOLDER_PATH = "C:/Users/leozw/Downloads/JP2"
 OUTPUT_PATH = "C:/Users/leozw/Desktop/lunar"
-RESOLUTIONS = [
-    (16, 128),
-    (64, 96),
-    (64, 64),
-    (64, 32),
-    (256, 16),
-    (256, 8)]
 
 toProcess = set(join(FOLDER_PATH, f)
                 .removesuffix('.JP2')

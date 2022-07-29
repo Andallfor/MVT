@@ -1,4 +1,4 @@
-/*using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,4 +12,3 @@ public class facilityDebugger : MonoBehaviour
         parent.forceChangeGeo(new geographic((double) lat, (double) lon));
     }
 }
-*/
