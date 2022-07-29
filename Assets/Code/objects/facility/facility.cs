@@ -73,6 +73,10 @@ public class antennaData : IJsonFile<jsonAntennaStruct> {
     public double alt, diameter, centerFreq, gPerT, priority;
     public string name, parent, groundStation, network, freqBand;
     public int payload, maxRate;
+    public double groundPriority;
+    public double serviceLevel;
+    public string servicePeriod;
+    public double schedulePriority;
     public List<scheduling> schedules;
 
     public antennaData(int payload, string groundStation, string antenna, double diameter, string freqBand, double centerFreq, geographic geo, double alt, double gPerT, int maxRate, string network, double priority)
@@ -89,6 +93,25 @@ public class antennaData : IJsonFile<jsonAntennaStruct> {
         this.maxRate = maxRate;
         this.network = network;
         this.priority = priority;
+    }
+
+    public antennaData(string groundStation, string antenna, geographic geo, double groundPriority)
+    {
+
+        this.groundStation = groundStation;
+        this.name = antenna;
+        this.geo = geo;
+        this.groundPriority = groundPriority;
+    }
+
+    public antennaData(string groundStation, string antenna, geographic geo, double schedulePriority, double serviceLevel, string servicePeriod)
+    {
+        this.groundStation = groundStation;
+        this.name = antenna;
+        this.geo = geo;
+        this.schedulePriority = schedulePriority;
+        this.serviceLevel = serviceLevel;
+        this.servicePeriod = servicePeriod;
     }
 
     public jsonAntennaStruct requestJsonFile() {
@@ -109,6 +132,7 @@ public class antennaData : IJsonFile<jsonAntennaStruct> {
         };
     }
 }
+
 
 public class facilityData
 {

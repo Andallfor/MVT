@@ -102,6 +102,8 @@ public static class master
     /// <summary> List of all <see cref="facility"/> currently loaded. </summary>
     public static List<facility> allFacilites = new List<facility>();
 
+    public static List<Timeline> rod = new List<Timeline>();
+
 
     /// <summary> Clear all <see cref="LineRenderer"/> components on <see cref="planet"/>, <see cref="satellite"/>, and <see cref="facility"/>. </summary>
     public static void clearAllLines()
@@ -138,7 +140,7 @@ public static class master
         onReferenceFrameChange(null, EventArgs.Empty);
     }
 
-    private static bool alreadyStarted = false;
+    public static bool alreadyStarted {get; private set;} = false;
     /// <summary> Tell the program that the simulation is about ready to start. Calls <see cref="onFinalSetup"/>. <summary>
     public static void markStartOfSimulation() {
         if (alreadyStarted) return;
