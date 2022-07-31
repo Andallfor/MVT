@@ -5,7 +5,8 @@ using System;
 using System.Linq;
 using UnityEngine.EventSystems;
 using System.IO;
-using UnityEngine.SceneManagement;
+using Newtonsoft.Json;
+using UnityEngine.Networking;
 
 public class controller : MonoBehaviour
 {
@@ -16,31 +17,27 @@ public class controller : MonoBehaviour
     private Coroutine loop;
     private planetTerrain pt;
     private poleTerrain plt;
-    private DBReader db;
 
     void Start()
     {
+        general.main = this;
         master.sun = new planet("Sun", new planetData(695700, false, "CSVS/ARTEMIS 3/PLANETS/sun", 0.0416666665, planetType.planet),
             new representationData(
                 "Prefabs/Planet",
                 "Materials/default"));
 
-        db = new DBReader();
-        StartCoroutine(db.getData("Artemis_III_May_11_2025.json", lateStart));
+        
+        webRequest wr = new webRequest();
+        wr.download("Artemis_III_May_11_2025.json", lateStart);
     }
 
-    private void lateStart() {
-        Artemis4(db.result);
+    private void lateStart(string data) {
+        Artemis4(JsonConvert.DeserializeObject<Dictionary<string, object>[]>(data));
 
-        //pt = loadTerrain();
+        loadTerrain();
         //plt = loadPoles();
 
-        master.pause = false;
-        general.camera = Camera.main;
-
-        master.markStartOfSimulation();
         
-        startMainLoop();
     }
 
     public void startMainLoop(bool force = false) {
@@ -57,7 +54,7 @@ public class controller : MonoBehaviour
                 master.time.addJulianTime(speed);
             }
 
-            //pt.updateTerrain();
+            pt.updateTerrain();
 
             if (!planetOverview.usePlanetOverview) master.requestSchedulingUpdate();
             master.currentTick = tick;
@@ -174,7 +171,7 @@ public class controller : MonoBehaviour
             master.requestScaleUpdate();
             planetFocus.enable(!planetFocus.usePlanetFocus);
             pt.unload();
-            plt.clear();
+            //plt.clear();
             master.clearAllLines();
 
             general.notifyStatusChange();
@@ -191,18 +188,13 @@ public class controller : MonoBehaviour
             foreach (satellite s in master.allSatellites) s.tr.toggle();
         }
     }
-    private planetTerrain loadTerrain() {
-        planetTerrain pt = new planetTerrain(moon, "Materials/planets/moon/moon", 1737.4, 1);
+    private void loadTerrain() {
+        // read folder info here
+        // meshes are saved into resources, so can just load them without having to use unitywebrequest
 
-        string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT/terrain");
-
-        pt.generateFolderInfos(new string[5] {
-            Path.Combine(p, "lunaBinary/1"),
-            Path.Combine(p, "lunaBinary/2"),
-            Path.Combine(p, "lunaBinary/3"),
-            Path.Combine(p, "lunaBinary/4"),
-            Path.Combine(p, "lunaBinary/5")
-        });
+        webRequest wr = new webRequest();
+        wr.download("resInfo.txt", _loadTerrain);
+        
 
         //string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT");
         //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/1", Path.Combine(p, "1"));
@@ -219,8 +211,18 @@ public class controller : MonoBehaviour
         //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/5", 1, 6),
         //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/6", 4, 3),
         //});
+    }
 
-        return pt;
+    private void _loadTerrain(string data) {
+        pt = new planetTerrain(moon, "Materials/planets/moon/moon", 1737.4, 1);
+        pt.generateFolderInfos(data);
+
+        master.pause = false;
+        general.camera = Camera.main;
+
+        master.markStartOfSimulation();
+        
+        startMainLoop();
     }
 
     private poleTerrain loadPoles() {
@@ -254,7 +256,6 @@ public class controller : MonoBehaviour
             "Prefabs/Planet",
             "Materials/planets/moon/moon");
 
-        double oneMin = 0.0006944444;
         double oneHour = 0.0416666665;
 
         earth = new planet("Earth", new planetData(6371, true, "CSVS/ARTEMIS 3/PLANETS/earth", oneHour, planetType.planet), erd);

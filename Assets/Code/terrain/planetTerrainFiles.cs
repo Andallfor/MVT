@@ -116,7 +116,7 @@ public class planetTerrainFolderInfo
 
     public planetTerrainFolderInfo(string folderPath)
     {
-        string[] data = File.ReadAllLines(Path.Combine(folderPath, terrainProcessor.folderInfoName));
+        string[] data = folderPath.Split('\n');
 
         ncols = double.Parse(read(data[0]), System.Globalization.NumberStyles.Any);
         nrows = double.Parse(read(data[1]), System.Globalization.NumberStyles.Any);
