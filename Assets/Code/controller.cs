@@ -35,13 +35,13 @@ public class controller : MonoBehaviour
         Artemis4(JsonConvert.DeserializeObject<Dictionary<string, object>[]>(data));
 
         loadTerrain();
-        //plt = loadPoles();
-
-        
+        plt = loadPoles();
     }
 
     public void startMainLoop(bool force = false) {
         if (loop != null && force == false) return;
+
+        GameObject.FindGameObjectWithTag("ui/load").SetActive(false);
 
         loop = StartCoroutine(general.internalClock(7200, int.MaxValue, (tick) => {
             if (master.pause) {
@@ -124,16 +124,13 @@ public class controller : MonoBehaviour
             if (Input.GetKey("d")) planetFocus.movementOffset += (float) master.scale * 0.75f * general.camera.transform.right * r * t;
             if (Input.GetKey("a")) planetFocus.movementOffset -= (float) master.scale * 0.75f * general.camera.transform.right * r * t;
 
-            if (Input.GetKeyDown("t") && !plt.currentlyDrawing) {
+            if (Input.GetKeyDown("t")) {
                 planetFocus.togglePoleFocus(!planetFocus.usePoleFocus);
-                if (planetFocus.usePoleFocus) plt.genMinScale();
+                if (planetFocus.usePoleFocus) plt.generate();
                 else plt.clear();
             }
 
             if (planetFocus.usePoleFocus) {
-                if (Input.GetKeyDown("=")) plt.increaseScale();
-                if (Input.GetKeyDown("-")) plt.decreaseScale();
-
                 planetFocus.focus.representation.forceHide = true;
             }
 
@@ -227,11 +224,7 @@ public class controller : MonoBehaviour
 
     private poleTerrain loadPoles() {
         string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT/terrain");
-        return new poleTerrain(new Dictionary<int, string>() {
-            {5,  Path.Combine(p, "polesBinary/25m")},
-            {10, Path.Combine(p, "polesBinary/50m")},
-            {20, Path.Combine(p, "polesBinary/100m")}
-        }, moon.representation.gameObject.transform);
+        return new poleTerrain(moon.representation.gameObject.transform);
     }
 
     private void Artemis3()
