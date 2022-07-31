@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 using System.IO;
 using Newtonsoft.Json;
 using UnityEngine.Networking;
+using B83.MeshTools;
 
 public class controller : MonoBehaviour
 {
@@ -25,17 +26,224 @@ public class controller : MonoBehaviour
             new representationData(
                 "Prefabs/Planet",
                 "Materials/default"));
-
         
-        webRequest wr = new webRequest();
-        wr.download("Artemis_III_May_11_2025.json", lateStart);
+        StartCoroutine(_start());
     }
 
-    private void lateStart(string data) {
-        Artemis4(JsonConvert.DeserializeObject<Dictionary<string, object>[]>(data));
+    private int lunaRunCount, lunaFinishCount;
+    private int poleRunCount, poleFinishCount;
+    private IEnumerator _start() {
+        // look i dont want to talk about it ok
+        List<string> lunaFiles = new List<string>() {
+            "terrainMeshes/luna/5.33333333333333_-30x-135.trn",
+            "terrainMeshes/luna/5.33333333333333_-30x-180.trn",
+            "terrainMeshes/luna/5.33333333333333_-30x-45.trn",
+            "terrainMeshes/luna/5.33333333333333_-30x-90.trn",
+            "terrainMeshes/luna/5.33333333333333_-30x0.trn",
+            "terrainMeshes/luna/5.33333333333333_-30x135.trn",
+            "terrainMeshes/luna/5.33333333333333_-30x45.trn",
+            "terrainMeshes/luna/5.33333333333333_-30x90.trn",
+            "terrainMeshes/luna/5.33333333333333_-60x-135.trn",
+            "terrainMeshes/luna/5.33333333333333_-60x-180.trn",
+            "terrainMeshes/luna/5.33333333333333_-60x-45.trn",
+            "terrainMeshes/luna/5.33333333333333_-60x-90.trn",
+            "terrainMeshes/luna/5.33333333333333_-60x0.trn",
+            "terrainMeshes/luna/5.33333333333333_-60x135.trn",
+            "terrainMeshes/luna/5.33333333333333_-60x45.trn",
+            "terrainMeshes/luna/5.33333333333333_-60x90.trn",
+            "terrainMeshes/luna/5.33333333333333_0x-135.trn",
+            "terrainMeshes/luna/5.33333333333333_0x-180.trn",
+            "terrainMeshes/luna/5.33333333333333_0x-45.trn",
+            "terrainMeshes/luna/5.33333333333333_0x-90.trn",
+            "terrainMeshes/luna/5.33333333333333_0x0.trn",
+            "terrainMeshes/luna/5.33333333333333_0x135.trn",
+            "terrainMeshes/luna/5.33333333333333_0x45.trn",
+            "terrainMeshes/luna/5.33333333333333_0x90.trn",
+            "terrainMeshes/luna/5.33333333333333_30x-135.trn",
+            "terrainMeshes/luna/5.33333333333333_30x-180.trn",
+            "terrainMeshes/luna/5.33333333333333_30x-45.trn",
+            "terrainMeshes/luna/5.33333333333333_30x-90.trn",
+            "terrainMeshes/luna/5.33333333333333_30x0.trn",
+            "terrainMeshes/luna/5.33333333333333_30x135.trn",
+            "terrainMeshes/luna/5.33333333333333_30x45.trn",
+            "terrainMeshes/luna/5.33333333333333_30x90.trn"};
 
-        loadTerrain();
-        plt = loadPoles();
+        List<string> poleFiles = new List<string>() {
+            "terrainMeshes/pole/10810x10810_3063x3063.trn",
+            "terrainMeshes/pole/10810x10_3063x3600.trn",
+            "terrainMeshes/pole/10810x13873_3063x3063.trn",
+            "terrainMeshes/pole/10810x16936_3063x3063.trn",
+            "terrainMeshes/pole/10810x19999_3063x3063.trn",
+            "terrainMeshes/pole/10810x23062_3063x3063.trn",
+            "terrainMeshes/pole/10810x26125_3063x3064.trn",
+            "terrainMeshes/pole/10810x29189_3063x3600.trn",
+            "terrainMeshes/pole/10810x32789_3063x3600.trn",
+            "terrainMeshes/pole/10810x3610_3063x3600.trn",
+            "terrainMeshes/pole/10810x36389_3063x3600.trn",
+            "terrainMeshes/pole/10810x7210_3063x3600.trn",
+            "terrainMeshes/pole/10x10810_3600x3063.trn",
+            "terrainMeshes/pole/10x13873_3600x3063.trn",
+            "terrainMeshes/pole/10x16936_3600x3063.trn",
+            "terrainMeshes/pole/10x19999_3600x3063.trn",
+            "terrainMeshes/pole/10x23062_3600x3063.trn",
+            "terrainMeshes/pole/10x26125_3600x3064.trn",
+            "terrainMeshes/pole/13873x10810_3063x3063.trn",
+            "terrainMeshes/pole/13873x10_3063x3600.trn",
+            "terrainMeshes/pole/13873x13873_3063x3063.trn",
+            "terrainMeshes/pole/13873x16936_3063x3063.trn",
+            "terrainMeshes/pole/13873x19999_3063x3063.trn",
+            "terrainMeshes/pole/13873x23062_3063x3063.trn",
+            "terrainMeshes/pole/13873x26125_3063x3064.trn",
+            "terrainMeshes/pole/13873x29189_3063x3600.trn",
+            "terrainMeshes/pole/13873x32789_3063x3600.trn",
+            "terrainMeshes/pole/13873x3610_3063x3600.trn",
+            "terrainMeshes/pole/13873x36389_3063x3600.trn",
+            "terrainMeshes/pole/13873x7210_3063x3600.trn",
+            "terrainMeshes/pole/16936x10810_3063x3063.trn",
+            "terrainMeshes/pole/16936x10_3063x3600.trn",
+            "terrainMeshes/pole/16936x13873_3063x3063.trn",
+            "terrainMeshes/pole/16936x16936_3063x3063.trn",
+            "terrainMeshes/pole/16936x19999_3063x3063.trn",
+            "terrainMeshes/pole/16936x23062_3063x3063.trn",
+            "terrainMeshes/pole/16936x26125_3063x3064.trn",
+            "terrainMeshes/pole/16936x29189_3063x3600.trn",
+            "terrainMeshes/pole/16936x32789_3063x3600.trn",
+            "terrainMeshes/pole/16936x3610_3063x3600.trn",
+            "terrainMeshes/pole/16936x36389_3063x3600.trn",
+            "terrainMeshes/pole/16936x7210_3063x3600.trn",
+            "terrainMeshes/pole/19999x10810_3063x3063.trn",
+            "terrainMeshes/pole/19999x10_3063x3600.trn",
+            "terrainMeshes/pole/19999x13873_3063x3063.trn",
+            "terrainMeshes/pole/19999x16936_3063x3063.trn",
+            "terrainMeshes/pole/19999x19999_3063x3063.trn",
+            "terrainMeshes/pole/19999x23062_3063x3063.trn",
+            "terrainMeshes/pole/19999x26125_3063x3064.trn",
+            "terrainMeshes/pole/19999x29189_3063x3600.trn",
+            "terrainMeshes/pole/19999x32789_3063x3600.trn",
+            "terrainMeshes/pole/19999x3610_3063x3600.trn",
+            "terrainMeshes/pole/19999x36389_3063x3600.trn",
+            "terrainMeshes/pole/19999x7210_3063x3600.trn",
+            "terrainMeshes/pole/23062x10810_3063x3063.trn",
+            "terrainMeshes/pole/23062x10_3063x3600.trn",
+            "terrainMeshes/pole/23062x13873_3063x3063.trn",
+            "terrainMeshes/pole/23062x16936_3063x3063.trn",
+            "terrainMeshes/pole/23062x19999_3063x3063.trn",
+            "terrainMeshes/pole/23062x23062_3063x3063.trn",
+            "terrainMeshes/pole/23062x26125_3063x3064.trn",
+            "terrainMeshes/pole/23062x29189_3063x3600.trn",
+            "terrainMeshes/pole/23062x32789_3063x3600.trn",
+            "terrainMeshes/pole/23062x3610_3063x3600.trn",
+            "terrainMeshes/pole/23062x36389_3063x3600.trn",
+            "terrainMeshes/pole/23062x7210_3063x3600.trn",
+            "terrainMeshes/pole/26125x10810_3064x3063.trn",
+            "terrainMeshes/pole/26125x10_3064x3600.trn",
+            "terrainMeshes/pole/26125x13873_3064x3063.trn",
+            "terrainMeshes/pole/26125x16936_3064x3063.trn",
+            "terrainMeshes/pole/26125x19999_3064x3063.trn",
+            "terrainMeshes/pole/26125x23062_3064x3063.trn",
+            "terrainMeshes/pole/26125x26125_3064x3064.trn",
+            "terrainMeshes/pole/26125x29189_3064x3600.trn",
+            "terrainMeshes/pole/26125x32789_3064x3600.trn",
+            "terrainMeshes/pole/26125x3610_3064x3600.trn",
+            "terrainMeshes/pole/26125x36389_3064x3600.trn",
+            "terrainMeshes/pole/26125x7210_3064x3600.trn",
+            "terrainMeshes/pole/29189x10810_3600x3063.trn",
+            "terrainMeshes/pole/29189x13873_3600x3063.trn",
+            "terrainMeshes/pole/29189x16936_3600x3063.trn",
+            "terrainMeshes/pole/29189x19999_3600x3063.trn",
+            "terrainMeshes/pole/29189x23062_3600x3063.trn",
+            "terrainMeshes/pole/29189x26125_3600x3064.trn",
+            "terrainMeshes/pole/29189x29189_3600x3600.trn",
+            "terrainMeshes/pole/29189x32789_3600x3600.trn",
+            "terrainMeshes/pole/29189x3610_3600x3600.trn",
+            "terrainMeshes/pole/29189x7210_3600x3600.trn",
+            "terrainMeshes/pole/32789x10810_3600x3063.trn",
+            "terrainMeshes/pole/32789x13873_3600x3063.trn",
+            "terrainMeshes/pole/32789x16936_3600x3063.trn",
+            "terrainMeshes/pole/32789x19999_3600x3063.trn",
+            "terrainMeshes/pole/32789x23062_3600x3063.trn",
+            "terrainMeshes/pole/32789x26125_3600x3064.trn",
+            "terrainMeshes/pole/32789x29189_3600x3600.trn",
+            "terrainMeshes/pole/32789x7210_3600x3600.trn",
+            "terrainMeshes/pole/3610x10810_3600x3063.trn",
+            "terrainMeshes/pole/3610x13873_3600x3063.trn",
+            "terrainMeshes/pole/3610x16936_3600x3063.trn",
+            "terrainMeshes/pole/3610x19999_3600x3063.trn",
+            "terrainMeshes/pole/3610x23062_3600x3063.trn",
+            "terrainMeshes/pole/3610x26125_3600x3064.trn",
+            "terrainMeshes/pole/3610x29189_3600x3600.trn",
+            "terrainMeshes/pole/3610x7210_3600x3600.trn",
+            "terrainMeshes/pole/36389x10810_3600x3063.trn",
+            "terrainMeshes/pole/36389x13873_3600x3063.trn",
+            "terrainMeshes/pole/36389x16936_3600x3063.trn",
+            "terrainMeshes/pole/36389x19999_3600x3063.trn",
+            "terrainMeshes/pole/36389x23062_3600x3063.trn",
+            "terrainMeshes/pole/36389x26125_3600x3064.trn",
+            "terrainMeshes/pole/7210x10810_3600x3063.trn",
+            "terrainMeshes/pole/7210x13873_3600x3063.trn",
+            "terrainMeshes/pole/7210x16936_3600x3063.trn",
+            "terrainMeshes/pole/7210x19999_3600x3063.trn",
+            "terrainMeshes/pole/7210x23062_3600x3063.trn",
+            "terrainMeshes/pole/7210x26125_3600x3064.trn",
+            "terrainMeshes/pole/7210x29189_3600x3600.trn",
+            "terrainMeshes/pole/7210x32789_3600x3600.trn",
+            "terrainMeshes/pole/7210x3610_3600x3600.trn",
+            "terrainMeshes/pole/7210x7210_3600x3600.trn",
+        };
+
+        using (UnityWebRequest uwr = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "Artemis_III_May_11_2025.json"))) {
+            yield return uwr.SendWebRequest();
+            Artemis4(JsonConvert.DeserializeObject<Dictionary<string, object>[]>(uwr.downloadHandler.text));
+        }
+
+        using (UnityWebRequest uwr = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "resInfo.txt"))) {
+            yield return uwr.SendWebRequest();
+            pt = new planetTerrain(moon, "Materials/planets/moon/moon", 1737.4, 1);
+            pt.generateFolderInfos(uwr.downloadHandler.text);
+        }
+
+        plt = new poleTerrain(moon.representation.gameObject.transform);
+
+        foreach (string file in lunaFiles) {
+            lunaRunCount++;
+            StartCoroutine(downloadLunaMesh(file));
+        }
+
+        foreach (string file in poleFiles) {
+            poleRunCount++;
+            StartCoroutine(downloadPoleMesh(file));
+        }
+
+        yield return new WaitUntil(() => lunaRunCount == lunaFinishCount && poleRunCount == poleFinishCount);
+
+        master.pause = false;
+        general.camera = Camera.main;
+
+        master.markStartOfSimulation();
+        
+        startMainLoop();
+    }
+
+    private IEnumerator downloadLunaMesh(string file) {
+        using (UnityWebRequest uwr = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, file))) {
+            yield return uwr.SendWebRequest();
+            Mesh m = MeshSerializer.DeserializeMesh(uwr.downloadHandler.data);
+            string[] name = Path.GetFileNameWithoutExtension(file).Split('_').Last().Split('x');
+            geographic g = new geographic(Double.Parse(name[0]), Double.Parse(name[1]));
+
+            pt.registerMesh(g, m);
+        }
+        lunaFinishCount++;
+    }
+
+    private IEnumerator downloadPoleMesh(string file) {
+        using (UnityWebRequest uwr = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, file))) {
+            yield return uwr.SendWebRequest();
+            Mesh m = MeshSerializer.DeserializeMesh(uwr.downloadHandler.data);
+
+            plt.registerMesh(m);
+        }
+        poleFinishCount++;
     }
 
     public void startMainLoop(bool force = false) {
@@ -184,47 +392,6 @@ public class controller : MonoBehaviour
             foreach (planet p in master.allPlanets) p.tr.toggle();
             foreach (satellite s in master.allSatellites) s.tr.toggle();
         }
-    }
-    private void loadTerrain() {
-        // read folder info here
-        // meshes are saved into resources, so can just load them without having to use unitywebrequest
-
-        webRequest wr = new webRequest();
-        wr.download("resInfo.txt", _loadTerrain);
-        
-
-        //string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT");
-        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/1", Path.Combine(p, "1"));
-        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/2", Path.Combine(p, "2"));
-        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/3", Path.Combine(p, "3"));
-        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/4", Path.Combine(p, "4"));
-        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/5", Path.Combine(p, "5"));
-
-        //terrainProcessor.divideJpeg2000("C:/Users/leozw/Desktop/lunar", "C:/Users/leozw/Desktop/preparedLunar", new List<terrainResolution>() {
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/1", 1, 96),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/2", 1, 48),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/3", 1, 24),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/4", 1, 12),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/5", 1, 6),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/6", 4, 3),
-        //});
-    }
-
-    private void _loadTerrain(string data) {
-        pt = new planetTerrain(moon, "Materials/planets/moon/moon", 1737.4, 1);
-        pt.generateFolderInfos(data);
-
-        master.pause = false;
-        general.camera = Camera.main;
-
-        master.markStartOfSimulation();
-        
-        startMainLoop();
-    }
-
-    private poleTerrain loadPoles() {
-        string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT/terrain");
-        return new poleTerrain(moon.representation.gameObject.transform);
     }
 
     private void Artemis3()

@@ -15,11 +15,10 @@ public class poleTerrain {
         this.parent = parent;
         model = Resources.Load("Prefabs/PlanetMesh") as GameObject;
         mat = Resources.Load("Materials/planets/moon/lunarSouthPole") as Material;
+    }
 
-        Mesh[] ms = Resources.LoadAll<Mesh>("terrainMeshes/pole");
-        foreach (Mesh m in ms) {
-            meshes.Add(new poleTerrainFile(m.name, m, parent, model, mat));
-        }
+    public void registerMesh(Mesh m) {
+        meshes.Add(new poleTerrainFile(m.name, m, parent, model, mat));
     }
 
     public void generate() {

@@ -222,32 +222,38 @@ namespace B83.MeshTools
         }
 
 
-        public static deserialzedMeshData DeserializeMesh(byte[] aData)
+        public static Mesh DeserializeMesh(byte[] aData)
         {
             using (var stream = new MemoryStream(aData))
                 return DeserializeMesh(stream);
         }
-        public static deserialzedMeshData DeserializeMesh(MemoryStream aStream)
+        public static Mesh DeserializeMesh(MemoryStream aStream)
         {
             using (var reader = new BinaryReader(aStream))
                 return DeserializeMesh(reader);
         }
-        public static deserialzedMeshData DeserializeMesh(BinaryReader aReader)
+        public static Mesh DeserializeMesh(BinaryReader aReader)
         {
             if (aReader.ReadUInt32() != m_Magic)
                 return null;
-            deserialzedMeshData md = new deserialzedMeshData();
+            Mesh aTarget = new Mesh();
+            aTarget.Clear();
+            aTarget.ClearBlendShapes();
             int count = aReader.ReadInt32();
             if (count > 65534)
-                md.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+                aTarget.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
             int subMeshCount = aReader.ReadInt32();
-            Vector3[] verts = new Vector3[count];
+            Vector3[] vector3Array = new Vector3[count];
+            Vector3[] vector3Array2 = null;
+            Vector3[] vector3Array3 = null;
+            List<Vector4> vector4List = null;
             for (int i = 0; i < count; i++)
-                verts[i] = aReader.ReadVector3();
-            md.vertices = verts;
-            md.subMeshCount = subMeshCount;
+                vector3Array[i] = aReader.ReadVector3();
+            aTarget.vertices = vector3Array;
+            aTarget.subMeshCount = subMeshCount;
+            int subMeshIndex = 0;
             byte componentCount = 0;
-
+ 
             // reading chunks
             var stream = aReader.BaseStream;
             while ((stream.CanSeek && stream.Position < stream.Length) || stream.CanRead)
@@ -258,31 +264,43 @@ namespace B83.MeshTools
                 switch (chunkID)
                 {
                     case EChunkID.Name:
-                        md.name = aReader.ReadString();
+                        aTarget.name = aReader.ReadString();
                         break;
                     case EChunkID.Normals:
-                        Vector3[] normals = new Vector3[count];
                         for (int i = 0; i < count; i++)
-                            normals[i] = aReader.ReadVector3();
-                        md.normals = normals;
+                            vector3Array[i] = aReader.ReadVector3();
+                        aTarget.normals = vector3Array;
                         break;
                     case EChunkID.Tangents:
+                        if (vector4List == null)
+                            vector4List = new List<Vector4>(count);
+                        vector4List.Clear();
+                        for (int i = 0; i < count; i++)
+                            vector4List.Add(aReader.ReadVector4());
+                        aTarget.SetTangents(vector4List);
                         break;
                     case EChunkID.Colors:
+                        var colors = new Color32[count];
+                        for (int i = 0; i < count; i++)
+                            colors[i] = aReader.ReadColor32();
+                        aTarget.colors32 = colors;
                         break;
                     case EChunkID.BoneWeights:
+                        var boneWeights = new BoneWeight[count];
+                        for (int i = 0; i < count; i++)
+                            boneWeights[i] = aReader.ReadBoneWeight();
+                        aTarget.boneWeights = boneWeights;
                         break;
                     case EChunkID.UV0:
                     case EChunkID.UV1:
                     case EChunkID.UV2:
                     case EChunkID.UV3:
-                        List<Vector4> vector4List = new List<Vector4>();
                         int uvChannel = chunkID - EChunkID.UV0;
                         componentCount = aReader.ReadByte();
                         if (vector4List == null)
                             vector4List = new List<Vector4>(count);
                         vector4List.Clear();
-
+ 
                         if (componentCount == 2)
                         {
                             for (int i = 0; i < count; i++)
@@ -298,30 +316,59 @@ namespace B83.MeshTools
                             for (int i = 0; i < count; i++)
                                 vector4List.Add(aReader.ReadVector4());
                         }
-                        md.uvChannel = uvChannel;
-                        md.uvs = vector4List;
+                        aTarget.SetUVs(uvChannel, vector4List);
                         break;
                     case EChunkID.Submesh:
                         var topology = (MeshTopology)aReader.ReadByte();
                         int indexCount = aReader.ReadInt32();
                         var indices = new int[indexCount];
                         componentCount = aReader.ReadByte();
-                        if (componentCount == 2) {
-                            for (int i = 0; i < indexCount; i++) indices[i] = aReader.ReadUInt16();
-                        } else {
-                            for (int i = 0; i < indexCount; i++) indices[i] = aReader.ReadInt32();
+                        if (componentCount == 1)
+                        {
+                            for (int i = 0; i < indexCount; i++)
+                                indices[i] = aReader.ReadByte();
                         }
-                        md.indices = indices;
-                        md.topology = topology;
+                        else if (componentCount == 2)
+                        {
+                            for (int i = 0; i < indexCount; i++)
+                                indices[i] = aReader.ReadUInt16();
+                        }
+                        else if (componentCount == 4)
+                        {
+                            for (int i = 0; i < indexCount; i++)
+                                indices[i] = aReader.ReadInt32();
+                        }
+                        aTarget.SetIndices(indices, topology, subMeshIndex++, false);
                         break;
                     case EChunkID.Bindposes:
+                        int bindposesCount = aReader.ReadInt32();
+                        var bindposes = new Matrix4x4[bindposesCount];
+                        for (int i = 0; i < bindposesCount; i++)
+                            bindposes[i] = aReader.ReadMatrix4x4();
+                        aTarget.bindposes = bindposes;
                         break;
                     case EChunkID.BlendShape:
+                        var blendShapeName = aReader.ReadString();
+                        int frameCount = aReader.ReadInt32();
+                        if (vector3Array2 == null)
+                            vector3Array2 = new Vector3[count];
+                        if (vector3Array3 == null)
+                            vector3Array3 = new Vector3[count];
+                        for (int i = 0; i < frameCount; i++)
+                        {
+                            float weight = aReader.ReadSingle();
+                            for (int n = 0; n < count; n++)
+                            {
+                                vector3Array[n] = aReader.ReadVector3();
+                                vector3Array2[n] = aReader.ReadVector3();
+                                vector3Array3[n] = aReader.ReadVector3();
+                            }
+                            aTarget.AddBlendShapeFrame(blendShapeName, weight, vector3Array, vector3Array2, vector3Array3);
+                        }
                         break;
                 }
             }
-
-            return md;
+            return aTarget;
         }
         public static async Task<deserialzedMeshData> quickDeserialize(string path, Dictionary<string, Dictionary<string, long[]>> pos) {
             string name = Path.GetFileNameWithoutExtension(path);

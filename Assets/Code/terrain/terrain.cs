@@ -47,10 +47,10 @@ public class planetTerrain
 
         currentDesiredMeshes = targetMeshes;
 
-        foreach (geographic g in desired) meshes[g].show();
+        foreach (geographic g in desired) {if (meshes.ContainsKey(g)) meshes[g].show();};
 
         // remove current meshes
-        requestHide(current);
+        foreach (geographic g in current) {if (meshes.ContainsKey(g)) meshes[g].hide();};
     }
 
     public planetTerrain(planet parent, string materialPath, double radius, double heightMulti) {
@@ -67,7 +67,9 @@ public class planetTerrain
         mat = Resources.Load(materialPath) as Material;
     }
 
-    private void requestHide(HashSet<geographic> hide) {foreach (geographic g in hide) meshes[g].hide();}
+    public void registerMesh(geographic g, Mesh m) {
+        meshes[g] = new planetTerrainMeshCreator(parent.representation.gameObject.transform, g.ToString(), m, model, mat);
+    }
     
     public void unload() {
         if (currentDesiredMeshes.Count == 0) return;
@@ -80,14 +82,6 @@ public class planetTerrain
     {
         planetTerrainFolderInfo ptfi = new planetTerrainFolderInfo(data);
         meshes = new Dictionary<geographic, planetTerrainMeshCreator>();
-
-        foreach (Bounds b in ptfi.allBounds) {
-            geographic g = new geographic(b.min.y, b.min.x);
-            meshes[g] = new planetTerrainMeshCreator(
-                parent.representation.gameObject.transform,
-                $"terrainMeshes/luna/{terrainProcessor.terrainName(g, ptfi)}",
-                model, mat);
-        }
 
         currentRes = ptfi;
     }
@@ -168,15 +162,9 @@ public class planetTerrainMeshCreator {
     private GameObject go;
     private MeshRenderer mr;
     public readonly string name;
-    public bool exists {get; private set;} = false;
 
-    public planetTerrainMeshCreator(Transform parent, string path, GameObject model, Material mat) {
-        this.name = path;
-
-        Mesh m = Resources.Load<Mesh>(path);
-
-        if (m == null) return;
-        exists = true;
+    public planetTerrainMeshCreator(Transform parent, string name, Mesh m, GameObject model, Material mat) {
+        this.name = name;
 
         go = GameObject.Instantiate(model);
         go.name = name;
@@ -189,12 +177,10 @@ public class planetTerrainMeshCreator {
     }
 
     public void hide() {
-        if (!exists) return;
         mr.enabled = false;
     }
 
     public void show() {
-        if (!exists) return;
         mr.enabled = true;
     }
 }

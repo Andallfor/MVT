@@ -70,28 +70,3 @@ public static class general
         termination();
     }
 }
-
-public class webRequest
-{
-    public string result;
-
-    public void download(string file, Action<string> callback) {
-        general.main.StartCoroutine(_download(file, callback));
-    }
-
-    private IEnumerator _download(string file, Action<string> callback) {
-        #if UNITY_WEBGL
-        string url = Path.Combine(Application.streamingAssetsPath, file);
-        #elif UNITY_EDITOR    
-        string url = $"http://localhost:65020/StreamingAssets/{file}";
-        #endif
-
-        using (UnityWebRequest uwr = UnityWebRequest.Get(url)) {
-            yield return uwr.SendWebRequest();
-
-            result = uwr.downloadHandler.text;
-        }
-
-        callback(result);
-    }
-}
