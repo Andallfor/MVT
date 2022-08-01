@@ -274,8 +274,8 @@ public class windows
 
 									jsonWindowsInner inner;
 									inner.frequency = posband;
-									inner.source = provider.Key;
-									inner.destination = user.Key;
+									inner.source = user.Key;
+									inner.destination = provider.Key;
 									inner.rate = (double)user1Data[_band]["DataRate"] / 1000000;
 									inner.windows = generateWindows(DataRate, EIRP, GT, _band, time, distance);
 

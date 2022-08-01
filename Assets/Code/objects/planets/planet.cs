@@ -43,13 +43,36 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
             Quaternion newQuaternion = new Quaternion();
             newQuaternion.Set(0f,0f,0f,1);
             representation.gameObject.transform.rotation = newQuaternion;
-            List<(double, position)> rotateBy = position.J2000(master.rod[0].find(master.time), master.rod[1].find(master.time), new position(1,1,1));
+
+            /*List<(double, position)> rotateBy = position.J2000(master.rod[0].find(master.time), master.rod[1].find(master.time), new position(1,1,1));
             float angle = (float) ((rotateBy[0].Item1) * 180/Math.PI);
             float angle2 = (float) ((rotateBy[1].Item1) * 180/Math.PI); 
             Vector3 output1 = new Vector3((float) rotateBy[0].Item2.x, (float) rotateBy[0].Item2.y, (float) rotateBy[0].Item2.z);
             Vector3 output2 = new Vector3((float) rotateBy[1].Item2.x, (float) rotateBy[1].Item2.y, (float) rotateBy[1].Item2.z);
             representation.gameObject.transform.Rotate(output1, angle);
-            representation.gameObject.transform.Rotate(output2, angle2);
+            representation.gameObject.transform.Rotate(output2, angle2*/
+
+            position moon = master.rod[0].find(master.time).swapAxis();
+
+            float yAngle = (float) (Math.Atan2(moon.y,  Math.Sqrt(moon.x * moon.x + moon.z * moon.z)) * 180 / Math.PI + 180);
+            float zAngle = (float) (Math.Atan2(moon.z, moon.x) * 180 / Math.PI);
+            //float zangle = (float) (Math.Asin(moon.y / Math.Sqrt(moon.x * moon.x + moon.z * moon.z)) * 180 / Math.PI); 
+            //float yangle = 0f;
+            float xAngle = 0f;
+
+
+
+            Debug.Log(moon);
+            Debug.Log("zangle: " + zAngle);
+            Debug.Log("yangle: " + yAngle);
+
+            /*representation.gameObject.transform.Rotate(Vector3.forward, zAngle);
+            representation.gameObject.transform.Rotate(Vector3.up, yAngle);
+            representation.gameObject.transform.Rotate(Vector3.right, xAngle);*/
+
+           representation.gameObject.transform.rotation = Quaternion.Euler(1, zAngle, yAngle);
+
+
         }
         else if (data.rotate == rotationType.earth) rotation = representation.rotate(this.calculateRotation());
 

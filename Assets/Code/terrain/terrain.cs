@@ -30,7 +30,7 @@ public class planetTerrain
         else {
             if (!planetFocus.usePoleFocus) _updateTerrain();
             else unload();
-            parent.representation.forceHide = true;
+            //parent.representation.forceHide = true;
         }
     }
 

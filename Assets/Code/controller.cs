@@ -386,11 +386,23 @@ public class controller : MonoBehaviour
         List<antennaData> antenna4 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(0, 90), 1)};
         facility fd4 = new facility("(0, 90)", moon, new facilityData("(0, 90)", new geographic(0, 90), antenna4), frd);
 
+        List<antennaData> antenna7 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(0, 60), 1)};
+        facility fd7 = new facility("(0, 60)", moon, new facilityData("(0, 90)", new geographic(0, 60), antenna7), frd);
+
+        List<antennaData> antenna8 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(0, 30), 1)};
+        facility fd8 = new facility("(0, 30)", moon, new facilityData("(0, 90)", new geographic(0, 30), antenna8), frd);
+
         List<antennaData> antenna5 = new List<antennaData>() {new antennaData("(0, 180)", "(0, 180)", new geographic(0, 180), 1)};
         facility fd5 = new facility("(0, 180)", moon, new facilityData("(0, 180)", new geographic(0, 180), antenna5), frd);
 
         List<antennaData> antenna6 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(0, -90), 1)};
         facility fd6 = new facility("(0, -90)", moon, new facilityData("(0, 90)", new geographic(0, -90), antenna6), frd);
+
+         List<antennaData> antenna9 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(60, 0), 1)};
+        facility fd9 = new facility("(60, 0)", moon, new facilityData("(0, 90)", new geographic(60, 0), antenna9), frd);
+
+        List<antennaData> antenna10 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(30, 0), 1)};
+        facility fd10 = new facility("(30, 0)", moon, new facilityData("(0, 90)", new geographic(30, 0), antenna10), frd);
 
         /*List<antennaData> antenna4 = new List<antennaData>() {new antennaData("(270, 0)", "(270, 0)", new geographic(270, 0), 1)};
         facility fd4 = new facility("(270, 0)", moon, new facilityData("(270, 0)", new geographic(270, 0), antenna4), frd);*/
@@ -404,6 +416,9 @@ public class controller : MonoBehaviour
 
         master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/PLANETS/moon", oneMin));
         master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/SATS/v", 0.0006944444));
+
+        //windows.jsonWindows();
+
     }
     
     private void Artemis3ButAgain() {
