@@ -27,6 +27,7 @@ public class controller : MonoBehaviour
                 "Materials/default"));
 
         Artemis3();
+        //onlyEarth();
 
         pt = loadTerrain();
         plt = loadPoles();
@@ -563,7 +564,7 @@ public class controller : MonoBehaviour
         new facility("South Pole", moon, new facilityData("South Pole", new geographic(-90, 0), 0, new List<antennaData>()), frd);
 
         master.relationshipPlanet.Add(earth, new List<planet>() { moon });
-        master.relationshipSatellite.Add(moon, new List<satellite>() { s1, s2, s3, /*s4, s5,*/ s6, s7/*, s8, s9, s10, s11, s12, s13, s14 */});
+        master.relationshipSatellite.Add(moon, new List<satellite>() { s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14});
         master.relationshipFacility.Add(moon, new List<facility>() {schickard, maginus, apollo, mare_crisium});
 
         /*facility f1 = new facility("HLS-Surface", moon, new facilityData("HLS-Surface", new geographic(-89.45, -137.31), null, new Time((2460806.5 + 13.0)), new Time((2460806.5 + 20.0))), frd);
