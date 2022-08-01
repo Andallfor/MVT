@@ -18,6 +18,8 @@ TagManager:
   - ui/planetOverview/parent
   - planet/trails
   - ui/map/surface
+  - ui/map/trails
+  - ui/map/surface/satellites
   layers:
   - Default
   - TransparentFX

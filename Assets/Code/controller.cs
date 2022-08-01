@@ -554,16 +554,17 @@ public class controller : MonoBehaviour
         satellite.addFamilyNode(moon, s13);
         satellite.addFamilyNode(moon, s14);
 
-        master.relationshipPlanet.Add(earth, new List<planet>() { moon });
-        master.relationshipSatellite.Add(moon, new List<satellite>() { s1, s2, s3, /*s4, s5,*/ s6, s7/*, s8, s9, s10, s11, s12, s13, s14 */});
-
-        new facility("Schickard", moon, new facilityData("Schickard", new geographic(-44.4, -55.1), 0, new List<antennaData>()), frd);
-        new facility("Longomontanus", moon, new facilityData("Longomontanus", new geographic(-49.5, -21.7), 0, new List<antennaData>()), frd);
-        new facility("Maginus", moon, new facilityData("Maginus", new geographic(-50, -6.2), 0, new List<antennaData>()), frd);
-        new facility("Apollo", moon, new facilityData("Apollo", new geographic(-36.1, -151.8), 0, new List<antennaData>()), frd);
-        new facility("Mare Crisium", moon, new facilityData("Mare Crisium", new geographic(17, 59.1), 0, new List<antennaData>()), frd);
+        facility schickard = new facility("Schickard", moon, new facilityData("Schickard", new geographic(-44.4, -55.1), 0, new List<antennaData>()), frd);
+        facility longomontanus = new facility("Longomontanus", moon, new facilityData("Longomontanus", new geographic(-49.5, -21.7), 0, new List<antennaData>()), frd);
+        facility maginus = new facility("Maginus", moon, new facilityData("Maginus", new geographic(-50, -6.2), 0, new List<antennaData>()), frd);
+        facility apollo = new facility("Apollo", moon, new facilityData("Apollo", new geographic(-36.1, -151.8), 0, new List<antennaData>()), frd);
+        facility mare_crisium = new facility("Mare Crisium", moon, new facilityData("Mare Crisium", new geographic(17, 59.1), 0, new List<antennaData>()), frd);
 
         new facility("South Pole", moon, new facilityData("South Pole", new geographic(-90, 0), 0, new List<antennaData>()), frd);
+
+        master.relationshipPlanet.Add(earth, new List<planet>() { moon });
+        master.relationshipSatellite.Add(moon, new List<satellite>() { s1, s2, s3, /*s4, s5,*/ s6, s7/*, s8, s9, s10, s11, s12, s13, s14 */});
+        master.relationshipFacility.Add(moon, new List<facility>() {schickard, maginus, apollo, mare_crisium});
 
         /*facility f1 = new facility("HLS-Surface", moon, new facilityData("HLS-Surface", new geographic(-89.45, -137.31), null, new Time((2460806.5 + 13.0)), new Time((2460806.5 + 20.0))), frd);
         facility f2 = new facility("CLPS9", moon, new facilityData("CLPS9", new geographic(-75.0, 113), new Time(2460806.5), new Time((2460806.5 + 30.0))), frd);
