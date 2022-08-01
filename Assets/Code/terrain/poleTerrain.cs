@@ -78,7 +78,9 @@ public class poleTerrain {
                         go.transform.localPosition = Vector3.zero;
                         go.transform.localEulerAngles = Vector3.zero;
                         go.GetComponent<MeshRenderer>().material = mat;
-                        go.GetComponent<MeshFilter>().mesh = dmd.generate();
+                        Mesh m = dmd.generate();
+                        go.GetComponent<MeshFilter>().mesh = m;
+                        if (controller.useTerrainVisibility) go.GetComponent<MeshCollider>().sharedMesh = m;
 
                         // the meshes were saved with a master.scale of 1000, however the current scale may not match
                         // adjust the scale of the meshes so that it matches master.scale
@@ -197,7 +199,9 @@ public class poleTerrainFile {
 
         for (int y = 0; y < data.shape[0]; y++) {
             for (int x = 0; x < data.shape[1]; x++) {
-                ptm.addPoint(x, y, cartToGeo(new position(x * scale, y * scale, 0) + pos), (float) data[y, x]);
+                float h = (float) data[y, x];
+                if (float.IsNaN(h)) h = 0;
+                ptm.addPoint(x, y, cartToGeo(new position(x * scale, y * scale, 0) + pos), h);
             }
         }
 

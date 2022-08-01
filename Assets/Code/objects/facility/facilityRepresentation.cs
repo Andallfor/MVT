@@ -92,7 +92,7 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
         shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
     }
 
-    public void updatePos(planet parent, bool forceHide = false) {
+    public void updatePos(planet parent, double alt, bool forceHide = false) {
         if (uiMap.useUiMap) return;
 
         if (forceHide) {
@@ -107,7 +107,7 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
             return;
         }
 
-        position p = geo.toCartesian(parent.radius) / (2 * parent.radius);
+        position p = geo.toCartesian(parent.radius + alt) / (2 * parent.radius);
         this.gameObject.transform.localPosition = (Vector3) (p.swapAxis());
 
         foreach (antennaRepresentation ar in antennas) ar.updatePos(parent);

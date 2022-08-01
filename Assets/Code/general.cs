@@ -23,6 +23,8 @@ public static class general
     public static event EventHandler onStatusChange = delegate {};
     public static void notifyStatusChange() {onStatusChange(null, EventArgs.Empty);}
 
+    public static bool blockMainLoop = false;
+
     /// <summary> Parse an array of bytes into a string. </summary>
     public static string parseByteArray(byte[] data) {
         string output = "";

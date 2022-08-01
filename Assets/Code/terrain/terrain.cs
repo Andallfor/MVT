@@ -223,6 +223,8 @@ public class planetTerrain
     private HashSet<geographic> findDesiredMeshes(planetTerrainFolderInfo p) {
         float planetZ = general.camera.WorldToScreenPoint(this.parent.representation.gameObject.transform.position).z;
 
+        if (controller.useTerrainVisibility) Debug.LogWarning("Warning! You are trying to use visiblity with terrain. This forces us to load everything- be careful when increasing resolution!");
+
         HashSet<geographic> points = new HashSet<geographic>();
         for (int i = 0; i < p.allBounds.Count; i++) {
             Bounds b = p.allBounds[i];
@@ -231,6 +233,11 @@ public class planetTerrain
                 new geographic(b.max.y, b.max.x), // ne
                 new geographic(b.min.y, b.max.x), // se
                 new geographic(b.max.y, b.min.x)}; // nw
+
+            if (controller.useTerrainVisibility) {
+                points.Add(new geographic(b.min.y, b.min.x));
+                continue;
+            }
             
             List<Vector3> screenEdges = new List<Vector3>();
             
@@ -339,7 +346,9 @@ public class planetTerrainMeshCreator {
                     go.transform.localPosition = Vector3.zero;
                     go.transform.localEulerAngles = Vector3.zero;
                     go.GetComponent<MeshRenderer>().material = mat;
-                    go.GetComponent<MeshFilter>().mesh = dmd.generate();
+                    Mesh m = dmd.generate();
+                    go.GetComponent<MeshFilter>().mesh = m;
+                    if (controller.useTerrainVisibility) go.GetComponent<MeshCollider>().sharedMesh = m;
 
                     // the meshes were saved with a master.scale of 1000, however the current scale may not match
                     // adjust the scale of the meshes so that it matches master.scale

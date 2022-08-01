@@ -29,7 +29,7 @@ public class facility : IJsonFile<jsonFacilityStruct>
 
     public void updatePosition(object sender, EventArgs args) {
         bool forceHide = !(data.alwaysExist || (master.time > data.start && master.time < data.end));
-        representation.updatePos(parent, forceHide);
+        representation.updatePos(parent, data.alt, forceHide);
     }
 
     public void updateScheduling(object sender, EventArgs args) {representation.drawSchedulingConnections(data.antennas);}
@@ -114,20 +114,24 @@ public class facilityData
 {
     public geographic geo;
     public string name;
+    public double alt;
     public List<antennaData> antennas;
     public Time start {get; private set;}
     public Time end {get; private set;}
     public bool alwaysExist = true;
 
-    public facilityData(string name, geographic geo, List<antennaData> antennas) {
+    // alt is in km
+    public facilityData(string name, geographic geo, double alt, List<antennaData> antennas) {
         this.geo = geo;
         this.name = name;
+        this.alt = alt;
         this.antennas = antennas;
     }
 
-    public facilityData(string name, geographic geo, List<antennaData> antennas, Time start, Time end) {
+    public facilityData(string name, geographic geo, double alt, List<antennaData> antennas, Time start, Time end) {
         this.geo = geo;
         this.name = name;
+        this.alt = alt;
         this.antennas = antennas;
         this.start = start;
         this.end = end;

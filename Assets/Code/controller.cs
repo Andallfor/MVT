@@ -6,8 +6,6 @@ using System.Linq;
 using UnityEngine.EventSystems;
 using System.IO;
 using UnityEngine.SceneManagement;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 
 public class controller : MonoBehaviour
 {
@@ -18,6 +16,7 @@ public class controller : MonoBehaviour
     private Coroutine loop;
     private planetTerrain pt;
     private poleTerrain plt;
+    public static bool useTerrainVisibility = false;
 
 
     void Start()
@@ -35,12 +34,35 @@ public class controller : MonoBehaviour
         //runScheduling();
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
-        master.pause = false;
+        master.pause = true;
         general.camera = Camera.main;
 
         master.markStartOfSimulation();
-        
+
+        //runDynamicLink();
+
         startMainLoop();
+    }
+
+    private void runDynamicLink() {
+        dynamicLinkOptions options = new dynamicLinkOptions();
+        options.callback = (data) => {
+            int c = 0;
+            foreach (var v in data.Values) {
+                c += v.time.Count;
+            }
+            Debug.Log($"Recieved data that contains {data.Count} entries, totaling {c} possible connections");
+
+            useTerrainVisibility = false;
+        };
+        options.debug = true;
+        options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+
+        useTerrainVisibility = true;
+
+        StartCoroutine(visibility.raycastTerrain(
+            new List<object>() {master.allSatellites.Find(x => x.name == "LCN-1"), master.allSatellites.Find(x => x.name == "LCN-2"), master.allSatellites.Find(x => x.name == "LCN-3"), master.allFacilites.Find(x => x.name == "Mare Crisium"), master.allFacilites.Find(x => x.name == "South Pole")}, 
+            new List<object>() {master.allSatellites.Find(x => x.name == "CubeSat-1")}, master.time.julian, master.time.julian + 1, speed, options));
     }
 
     private void runScheduling() {
@@ -80,14 +102,16 @@ public class controller : MonoBehaviour
         if (loop != null && force == false) return;
 
         loop = StartCoroutine(general.internalClock(7200, int.MaxValue, (tick) => {
-            if (master.pause) {
-                master.tickStart(master.time);
-                master.time.addJulianTime(0);
-            } else {
-                Time t = new Time(master.time.julian);
-                t.addJulianTime(speed);
-                master.tickStart(t);
-                master.time.addJulianTime(speed);
+            if (!general.blockMainLoop) {
+                if (master.pause) {
+                    master.tickStart(master.time);
+                    master.time.addJulianTime(0);
+                } else {
+                    Time t = new Time(master.time.julian);
+                    t.addJulianTime(speed);
+                    master.tickStart(t);
+                    master.time.addJulianTime(speed);
+                }
             }
 
             pt.updateTerrain();
@@ -414,7 +438,7 @@ public class controller : MonoBehaviour
         planet moon =        new planet( "Luna", new planetData(1738.1, false,  "CSVS/MOONBASED/moon", oneHour,   planetType.moon),  rd);
 
         foreach (facilityData fd in csvParser.loadFacilites("CSVS/FACILITIES/stationList")) {
-            new facility(fd.name, earth, new facilityData(fd.name, fd.geo, fd.antennas, new Time(2460857.5), new Time(2460859.5)), frd);
+            new facility(fd.name, earth, new facilityData(fd.name, fd.geo, 0, fd.antennas, new Time(2460857.5), new Time(2460859.5)), frd);
         }
 
         master.setReferenceFrame(moon);
@@ -533,16 +557,13 @@ public class controller : MonoBehaviour
         master.relationshipPlanet.Add(earth, new List<planet>() { moon });
         master.relationshipSatellite.Add(moon, new List<satellite>() { s1, s2, s3, /*s4, s5,*/ s6, s7/*, s8, s9, s10, s11, s12, s13, s14 */});
 
-        new facility("Schickard", moon, new facilityData("Schickard", new geographic(-44.4, -55.1), new List<antennaData>()), frd);
-        new facility("Longomontanus", moon, new facilityData("Longomontanus", new geographic(-49.5, -21.7), new List<antennaData>()), frd);
-        new facility("Maginus", moon, new facilityData("Maginus", new geographic(-50, -6.2), new List<antennaData>()), frd);
-        new facility("Apollo", moon, new facilityData("Apollo", new geographic(-36.1, -151.8), new List<antennaData>()), frd);
-        new facility("Mare Crisium", moon, new facilityData("Mare Crisium", new geographic(17, 59.1), new List<antennaData>()), frd);
+        new facility("Schickard", moon, new facilityData("Schickard", new geographic(-44.4, -55.1), 0, new List<antennaData>()), frd);
+        new facility("Longomontanus", moon, new facilityData("Longomontanus", new geographic(-49.5, -21.7), 0, new List<antennaData>()), frd);
+        new facility("Maginus", moon, new facilityData("Maginus", new geographic(-50, -6.2), 0, new List<antennaData>()), frd);
+        new facility("Apollo", moon, new facilityData("Apollo", new geographic(-36.1, -151.8), 0, new List<antennaData>()), frd);
+        new facility("Mare Crisium", moon, new facilityData("Mare Crisium", new geographic(17, 59.1), 0, new List<antennaData>()), frd);
 
-        new facility("0", moon, new facilityData("0", new geographic(-85, 0), new List<antennaData>()), frd);
-        new facility("90", moon, new facilityData("90", new geographic(-85, 90), new List<antennaData>()), frd);
-        new facility("180", moon, new facilityData("180", new geographic(-85, 180), new List<antennaData>()), frd);
-        new facility("-90", moon, new facilityData("-90", new geographic(-85, -90), new List<antennaData>()), frd);
+        new facility("South Pole", moon, new facilityData("South Pole", new geographic(-90, 0), 0, new List<antennaData>()), frd);
 
         /*facility f1 = new facility("HLS-Surface", moon, new facilityData("HLS-Surface", new geographic(-89.45, -137.31), null, new Time((2460806.5 + 13.0)), new Time((2460806.5 + 20.0))), frd);
         facility f2 = new facility("CLPS9", moon, new facilityData("CLPS9", new geographic(-75.0, 113), new Time(2460806.5), new Time((2460806.5 + 30.0))), frd);
@@ -587,11 +608,11 @@ public class controller : MonoBehaviour
                 new planet( "Uranus", new planetData( 25559, false,  "CSVS/PLANETS/Uranus", oneHour, planetType.planet), rd);
                 new planet("Neptune", new planetData( 24764, false, "CSVS/PLANETS/Neptune", oneHour, planetType.planet), rd);
         
-        new facility("Schickard", moon, new facilityData("Schickard", new geographic(-44.4, -55.1), new List<antennaData>()), frd);
-        new facility("Longomontanus", moon, new facilityData("Longomontanus", new geographic(-49.5, -21.7), new List<antennaData>()), frd);
-        new facility("Maginus", moon, new facilityData("Maginus", new geographic(-50, -6.2), new List<antennaData>()), frd);
-        new facility("Apollo", moon, new facilityData("Apollo", new geographic(-36.1, -151.8), new List<antennaData>()), frd);
-        new facility("Mare Crisium", moon, new facilityData("Mare Crisium", new geographic(17, 59.1), new List<antennaData>()), frd);
+        new facility("Schickard", moon, new facilityData("Schickard", new geographic(-44.4, -55.1), 0, new List<antennaData>()), frd);
+        new facility("Longomontanus", moon, new facilityData("Longomontanus", new geographic(-49.5, -21.7), 0, new List<antennaData>()), frd);
+        new facility("Maginus", moon, new facilityData("Maginus", new geographic(-50, -6.2), 0, new List<antennaData>()), frd);
+        new facility("Apollo", moon, new facilityData("Apollo", new geographic(-36.1, -151.8), 0, new List<antennaData>()), frd);
+        new facility("Mare Crisium", moon, new facilityData("Mare Crisium", new geographic(17, 59.1), 0, new List<antennaData>()), frd);
         
         master.setReferenceFrame(moon);
     }

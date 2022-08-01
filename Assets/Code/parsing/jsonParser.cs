@@ -112,6 +112,7 @@ public static class jsonParser
             new facilityData(
                 jfs.name,
                 _dsGeographic(jfs.geo),
+                0,
                 antennas
             ), 
             new representationData(jfs.representation.modelPath, jfs.representation.materialPath));
