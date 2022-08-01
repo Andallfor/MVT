@@ -52,7 +52,7 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
 
         this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(this.canvas.transform, false);
-        shownName.fontSize = 20;
+        shownName.fontSize = 23;
         shownName.text = name;
     }
 

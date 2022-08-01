@@ -58,10 +58,11 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
         lr = gameObject.GetComponent<LineRenderer>();
         lr.positionCount = 2;
         mr = gameObject.GetComponent<MeshRenderer>();
+        mr.enabled = false;
 
         this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(canvas.transform, false);
-        shownName.fontSize = 25;
+        shownName.fontSize = 28;
         shownName.text = name;
         shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
     }
@@ -84,6 +85,7 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
         lr = gameObject.GetComponent<LineRenderer>();
         lr.positionCount = 2;
         mr = gameObject.GetComponent<MeshRenderer>();
+        mr.enabled = false;
 
         this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(canvas.transform, false);

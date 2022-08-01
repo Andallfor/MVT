@@ -13,7 +13,7 @@ public class trailRenderer
     private double orbitalPeriod = 0;
     private Transform transform;
 
-    public const int resolution = 60;
+    public const int resolution = 120;
     public bool enabled {get; private set;} = false;
 
     public trailRenderer(string name, GameObject go, Timeline positions, body b) {
