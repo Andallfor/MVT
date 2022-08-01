@@ -17,6 +17,7 @@ TagManager:
   - ui/planetOverview/moon
   - ui/planetOverview/parent
   - planet/trails
+  - ui/map/surface
   layers:
   - Default
   - TransparentFX

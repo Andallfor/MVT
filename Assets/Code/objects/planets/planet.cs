@@ -55,6 +55,8 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
 
     public position geoOnPlanet(geographic g, double alt) => Quaternion.Euler((Vector3) this.rotation) * (Vector3) g.toCartesian(this.radius + alt).swapAxis();
 
+    public position rotatePoint(position p) => Quaternion.Euler((Vector3) this.rotation) * (Vector3) p;
+
     private position calculateRotation()
     {
         double lon = 0;

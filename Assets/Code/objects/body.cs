@@ -68,4 +68,9 @@ public abstract class body
     }
 
     public override int GetHashCode() => name.GetHashCode();
+    public override bool Equals(object obj)
+    {
+        if (!(obj is body)) return false;
+        return ((body) obj).GetHashCode() == this.GetHashCode();
+    }
 }

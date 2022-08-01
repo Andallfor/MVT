@@ -78,6 +78,8 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
     // updating shown values
     public void setPosition(position pos)
     {
+        if (uiMap.useUiMap) return;
+
         bool endDisable = false;
         if (planetOverview.usePlanetOverview) {
             if (!planetOverview.obeyingPlanets.Exists(x => x.name == name)) {

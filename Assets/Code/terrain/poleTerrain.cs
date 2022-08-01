@@ -210,15 +210,16 @@ public class poleTerrainFile {
     }
 
     private geographic cartToGeo(position p) {
+        p = new position(p.x, 40_000 - p.y, 0);
         // https://www.lpi.usra.edu/lunar/lunar-south-pole-atlas/maps/SPole_80S_LOLA-PSR_v20190515.pdf reference for lat lon
         double maxDist = Math.Sqrt(maxSize * maxSize / 4.0 + maxSize * maxSize / 4.0); // pythag theorem
         double maxKmChange = Math.Sqrt(100.0 * 100.0 + 100.0 * 100.0);
         double latKmChange = (position.distance(p, new position(maxSize / 2.0, maxSize / 2.0, 0)) / maxDist) * maxKmChange;
-        double latGeoChange = -latKmChange / (circumference / 2.0) * 180.0;
+        double latGeoChange = latKmChange / (circumference / 2.0) * 180.0;
 
         double lon = Math.Atan2(p.x - maxSize / 2.0, p.y - maxSize / 2.0) * 180.0 / Math.PI; // (x, y) is intentional -> aligns with lon (plot in desmos)
         
-        return new geographic(90.0 + latGeoChange, lon);
+        return new geographic(-90.0 + latGeoChange, lon);
     }
 }
 

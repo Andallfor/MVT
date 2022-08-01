@@ -34,7 +34,7 @@ public static class planetFocus
         if (use) {
             float newHeight = (float) (focus.radius / master.scale);
             master.scale = 50;
-            master.currentPosition = focus.geoOnPlanet(new geographic(90, 0), 0);
+            master.currentPosition = focus.geoOnPlanet(new geographic(-90, 0), 0);
 
             focus.representation.forceHide = true;
         } else focus.representation.forceDisable = false;
@@ -53,7 +53,7 @@ public static class planetFocus
 
     public static void update() {
         if (usePoleFocus) {
-            master.currentPosition = planetFocus.focus.geoOnPlanet(new geographic(90, 0), 0) + movementOffset;
+            master.currentPosition = planetFocus.focus.geoOnPlanet(new geographic(-90, 0), 0) + movementOffset;
         } else master.currentPosition = movementOffset;
 
         general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, rotation.x);

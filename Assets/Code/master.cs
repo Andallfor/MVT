@@ -154,6 +154,8 @@ public static class master
     /// <summary> Determines relationship between bodies (parent, child, etc) in the form parent, List(child) </summary>
     /// <remarks> Useful as it does not require a postional dependency (as with normal parenting) </remarks>
     public static Dictionary<planet, List<satellite>> relationshipSatellite = new Dictionary<planet, List<satellite>>();
+    /// <summary> Determines relationship between bodies (parent, child, etc) in the form parent, List(child) </summary>
+    public static Dictionary<planet, List<facility>> relationshipFacility = new Dictionary<planet, List<facility>>();
 
     /// <summary> Stores the orbital periods of bodies in julian. </summary>
     /// <remarks> Find a better way to do this. </summary>

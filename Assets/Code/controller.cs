@@ -32,7 +32,7 @@ public class controller : MonoBehaviour
         pt = loadTerrain();
         plt = loadPoles();
 
-        runScheduling();
+        //runScheduling();
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
         master.pause = false;
@@ -112,7 +112,8 @@ public class controller : MonoBehaviour
             }
 
             planetOverview.updateAxes();
-        } else if (planetFocus.usePlanetFocus) {
+        } 
+        else if (planetFocus.usePlanetFocus) {
             if (Input.GetMouseButtonDown(0)) planetFocusMousePosition = Input.mousePosition;
             else if (Input.GetMouseButton(0)) {
                 Vector3 difference = Input.mousePosition - planetFocusMousePosition;
@@ -175,7 +176,11 @@ public class controller : MonoBehaviour
 
             planetFocus.update();
         } 
-        else {
+        else if (uiMap.useUiMap) {
+
+        }
+        else 
+        {
             if (Input.GetMouseButton(1) && !EventSystem.current.IsPointerOverGameObject())
             {
                 Transform c = Camera.main.transform;
@@ -208,6 +213,14 @@ public class controller : MonoBehaviour
             planetFocus.enable(!planetFocus.usePlanetFocus);
             pt.unload();
             plt.clear();
+            master.clearAllLines();
+
+            general.notifyStatusChange();
+        }
+
+        if (Input.GetKeyDown("m")) {
+            master.requestScaleUpdate();
+            uiMap.map.toggle(!uiMap.useUiMap);
             master.clearAllLines();
 
             general.notifyStatusChange();
@@ -518,13 +531,18 @@ public class controller : MonoBehaviour
         satellite.addFamilyNode(moon, s14);
 
         master.relationshipPlanet.Add(earth, new List<planet>() { moon });
-        master.relationshipSatellite.Add(moon, new List<satellite>() { s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14 });
+        master.relationshipSatellite.Add(moon, new List<satellite>() { s1, s2, s3, /*s4, s5,*/ s6, s7/*, s8, s9, s10, s11, s12, s13, s14 */});
 
         new facility("Schickard", moon, new facilityData("Schickard", new geographic(-44.4, -55.1), new List<antennaData>()), frd);
         new facility("Longomontanus", moon, new facilityData("Longomontanus", new geographic(-49.5, -21.7), new List<antennaData>()), frd);
         new facility("Maginus", moon, new facilityData("Maginus", new geographic(-50, -6.2), new List<antennaData>()), frd);
         new facility("Apollo", moon, new facilityData("Apollo", new geographic(-36.1, -151.8), new List<antennaData>()), frd);
         new facility("Mare Crisium", moon, new facilityData("Mare Crisium", new geographic(17, 59.1), new List<antennaData>()), frd);
+
+        new facility("0", moon, new facilityData("0", new geographic(-85, 0), new List<antennaData>()), frd);
+        new facility("90", moon, new facilityData("90", new geographic(-85, 90), new List<antennaData>()), frd);
+        new facility("180", moon, new facilityData("180", new geographic(-85, 180), new List<antennaData>()), frd);
+        new facility("-90", moon, new facilityData("-90", new geographic(-85, -90), new List<antennaData>()), frd);
 
         /*facility f1 = new facility("HLS-Surface", moon, new facilityData("HLS-Surface", new geographic(-89.45, -137.31), null, new Time((2460806.5 + 13.0)), new Time((2460806.5 + 20.0))), frd);
         facility f2 = new facility("CLPS9", moon, new facilityData("CLPS9", new geographic(-75.0, 113), new Time(2460806.5), new Time((2460806.5 + 30.0))), frd);
