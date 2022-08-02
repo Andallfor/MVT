@@ -24,6 +24,8 @@ public static class general
     public static void notifyStatusChange() {onStatusChange(null, EventArgs.Empty);}
 
     public static bool blockMainLoop = false;
+    public static planetTerrain pt;
+    public static poleTerrain plt;
 
     /// <summary> Parse an array of bytes into a string. </summary>
     public static string parseByteArray(byte[] data) {
