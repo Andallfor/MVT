@@ -13,6 +13,7 @@ public class uiNavPanel : MonoBehaviour
     public uiButtonPressDetector w, s, a, d, plus, minus;
 
     private body refFrame;
+    private Transform t;
     private double radius;
 
     public void Awake() {
@@ -38,7 +39,7 @@ public class uiNavPanel : MonoBehaviour
     }
 
     public void changeZoom(int multi) {
-        master.currentPosition += ((position) (general.camera.transform.forward)) * master.scale * 5f * UnityEngine.Time.deltaTime * multi;
+        master.currentPosition += ((position) (t.position - general.camera.transform.position).normalized) * master.scale * 5f * UnityEngine.Time.deltaTime * multi;
     }
 
     public void Update() {
@@ -87,7 +88,6 @@ public class uiNavPanel : MonoBehaviour
     }
 
     public void resetFocus() {
-        Transform t = null;
         if (refFrame is planet) {
             planet p = (planet) refFrame;
             t = p.representation.gameObject.transform;
