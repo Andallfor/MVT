@@ -508,8 +508,8 @@ public class controller : MonoBehaviour
         satellite s2 = new satellite("LCN-2", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 180, 1, 2460628.5283449073, 4902.800066)), srd);
         satellite s3 = new satellite("LCN-3", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 360, 1, 2460628.5283449073, 4902.800066)), srd);
 
-        satellite s4 = new satellite("Moonlight-1", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 0, 1, 2460628.5283449073, 4902.800066)), srd);
-        satellite s5 = new satellite("Moonlight-2", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 180, 1, 2460628.5283449073, 4902.800066)), srd);
+        //satellite s4 = new satellite("Moonlight-1", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 0, 1, 2460628.5283449073, 4902.800066)), srd);
+        //satellite s5 = new satellite("Moonlight-2", new satelliteData(new Timeline(6142.58, 0.6, 51.7, 90, 165, 180, 1, 2460628.5283449073, 4902.800066)), srd);
 
         satellite s6 = new satellite("CubeSat-1", new satelliteData(new Timeline(5000, 0.51, 74.3589, 90, 356.858, 311.274, 1, 2460615.5, 4902.800066)), srd);
         satellite s7 = new satellite("CubeSat-2", new satelliteData(new Timeline(1837.4, 0.000000000000000195, 114.359, 0, 356.858, 360, 1, 2460615.5, 4902.800066)), srd);
@@ -536,8 +536,8 @@ public class controller : MonoBehaviour
         satellite.addFamilyNode(moon, s2);
         satellite.addFamilyNode(moon, s3);
 
-        satellite.addFamilyNode(moon, s4);
-        satellite.addFamilyNode(moon, s5);
+        //satellite.addFamilyNode(moon, s4);
+        //satellite.addFamilyNode(moon, s5);
 
         satellite.addFamilyNode(moon, s6);
         satellite.addFamilyNode(moon, s7);
@@ -552,7 +552,7 @@ public class controller : MonoBehaviour
         satellite.addFamilyNode(moon, s14);
 
         facility schickard = new facility("Schickard", moon, new facilityData("Schickard", new geographic(-44.4, -55.1), 0, new List<antennaData>()), frd);
-        facility longomontanus = new facility("Longomontanus", moon, new facilityData("Longomontanus", new geographic(-49.5, -21.7), 0, new List<antennaData>()), frd);
+        //facility longomontanus = new facility("Longomontanus", moon, new facilityData("Longomontanus", new geographic(-49.5, -21.7), 0, new List<antennaData>()), frd);
         facility maginus = new facility("Maginus", moon, new facilityData("Maginus", new geographic(-50, -6.2), 0, new List<antennaData>()), frd);
         facility apollo = new facility("Apollo", moon, new facilityData("Apollo", new geographic(-36.1, -151.8), 0, new List<antennaData>()), frd);
         facility mare_crisium = new facility("Mare Crisium", moon, new facilityData("Mare Crisium", new geographic(17, 59.1), 0, new List<antennaData>()), frd);
@@ -560,7 +560,7 @@ public class controller : MonoBehaviour
         new facility("South Pole", moon, new facilityData("South Pole", new geographic(-90, 0), 0, new List<antennaData>()), frd);
 
         master.relationshipPlanet.Add(earth, new List<planet>() { moon });
-        master.relationshipSatellite.Add(moon, new List<satellite>() { s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14});
+        master.relationshipSatellite.Add(moon, new List<satellite>() { s1, s2, s3, /*s4, s5,*/ s6, s7, s8, s9, s10, s11, s12, s13, s14});
         master.relationshipFacility.Add(moon, new List<facility>() {schickard, maginus, apollo, mare_crisium});
 
         /*facility f1 = new facility("HLS-Surface", moon, new facilityData("HLS-Surface", new geographic(-89.45, -137.31), null, new Time((2460806.5 + 13.0)), new Time((2460806.5 + 20.0))), frd);
