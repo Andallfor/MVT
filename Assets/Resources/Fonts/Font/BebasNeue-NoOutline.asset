@@ -57,11 +57,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
-  m_Name: BebasNeue-Regular SDF
+  m_Name: BebasNeue-NoOutline
   m_EditorClassIdentifier: 
-  hashCode: -1779042294
+  hashCode: 784842336
   material: {fileID: 5985163509790943768}
-  materialHashCode: 1966849642
+  materialHashCode: -430447424
   m_Version: 1.1.0
   m_SourceFontFileGUID: 02b06e58187fd8e418158923d70b4cec
   m_SourceFontFile_EditorRef: {fileID: 12800000, guid: 02b06e58187fd8e418158923d70b4cec, type: 3}
@@ -2067,7 +2067,7 @@ Material:
     - _FaceColor: {r: 1, g: 1, b: 1, a: 1}
     - _GlowColor: {r: 0, g: 1, b: 0, a: 0.5}
     - _MaskCoord: {r: 0, g: 0, b: 32767, a: 32767}
-    - _OutlineColor: {r: 0.16981131, g: 0.16981131, b: 0.16981131, a: 1}
+    - _OutlineColor: {r: 1, g: 1, b: 1, a: 0}
     - _ReflectFaceColor: {r: 0, g: 0, b: 0, a: 1}
     - _ReflectOutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
