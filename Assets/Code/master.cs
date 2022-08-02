@@ -65,6 +65,8 @@ public static class master
     /// <summary> Event that is called the moment before the main loop is about to start. </summary>
     public static event EventHandler onFinalSetup = delegate {};
 
+    public static event EventHandler onCurrentPositionChange = delegate {};
+
 
     /// <summary> Event that will update the positions of any class derived from <see cref="body"/>. Called when <see cref="requestPositionUpdate"/> is called. </summary>
     public static event EventHandler updatePositions = delegate {};

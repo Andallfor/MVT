@@ -15,7 +15,7 @@ public class uiSettingsPanel : MonoBehaviour
     private Light sceneLighting;
     private Shader unlit, lit;
     private Material moonMat;
-    private double simulationStart, scaleStart;
+    private static double simulationStart, scaleStart;
     public void Awake() {
         simulationStart = master.time.julian;
         scaleStart = master.scale;
@@ -26,7 +26,7 @@ public class uiSettingsPanel : MonoBehaviour
         moonMat = Resources.Load<Material>("Materials/planets/moon/moon");
     }
 
-    public void reset() {
+    public static void reset() {
         master.time.addJulianTime(simulationStart - master.time.julian);
         master.scale = scaleStart;
         master.currentPosition = new position(0, 0, 0);

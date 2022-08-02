@@ -103,8 +103,8 @@ public class trailRenderer
         disable();
     }
 
-    public void toggle() {
-        if (enabled) disable();
+    public void enable(bool value) {
+        if (!value) disable();
         else enable();
     }
 }

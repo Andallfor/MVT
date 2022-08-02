@@ -9,7 +9,6 @@ using UnityEngine.SceneManagement;
 
 public class controller : MonoBehaviour
 {
-    public float playerSpeed = 100f * (float) master.scale;
     public static planet earth, moon;
     public static planet defaultReferenceFrame;
     public static double speed = 0.00005;
@@ -209,20 +208,19 @@ public class controller : MonoBehaviour
         {
             if (Input.GetMouseButton(1) && !EventSystem.current.IsPointerOverGameObject())
             {
-                Transform c = Camera.main.transform;
+                Transform c = general.camera.transform;
                 c.Rotate(0, Input.GetAxis("Mouse X") * 2, 0);
                 c.Rotate(-Input.GetAxis("Mouse Y") * 2, 0, 0);
                 c.localEulerAngles = new Vector3(c.localEulerAngles.x, c.localEulerAngles.y, 0);
             }
 
-            Vector3 forward = Camera.main.transform.forward;
-            Vector3 right = Camera.main.transform.right;
+            Vector3 forward = general.camera.transform.forward;
+            Vector3 right = general.camera.transform.right;
             float t = UnityEngine.Time.deltaTime;
-            if (Input.GetKey("w")) master.currentPosition += forward * playerSpeed * t;
-            if (Input.GetKey("s")) master.currentPosition -= forward * playerSpeed * t;
-            if (Input.GetKey("d")) master.currentPosition += right * playerSpeed * t;
-            if (Input.GetKey("a")) master.currentPosition -= right * playerSpeed * t;
-
+            if (Input.GetKey("w")) master.currentPosition += forward * 5f * (float) master.scale * t;
+            if (Input.GetKey("s")) master.currentPosition -= forward * 5f * (float) master.scale * t;
+            if (Input.GetKey("d")) master.currentPosition += right * 5f * (float) master.scale * t;
+            if (Input.GetKey("a")) master.currentPosition -= right * 5f * (float) master.scale * t;
         }
 
         if (Input.GetKeyDown("q"))
@@ -253,8 +251,11 @@ public class controller : MonoBehaviour
         }
 
         if (Input.GetKeyDown("z")) {
-            foreach (planet p in master.allPlanets) p.tr.toggle();
-            foreach (satellite s in master.allSatellites) s.tr.toggle();
+            foreach (planet p in master.allPlanets) p.tr.enable(!general.showingTrails);
+            foreach (satellite s in master.allSatellites) s.tr.enable(!general.showingTrails);
+
+            general.showingTrails = !general.showingTrails;
+            general.notifyTrailsChange();
         }
     }
     private planetTerrain loadTerrain() {
