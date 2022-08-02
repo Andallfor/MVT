@@ -20,6 +20,10 @@ TagManager:
   - ui/map/surface
   - ui/map/trails
   - ui/map/surface/satellites
+  - ui/bottomBar/settings/month
+  - ui/bottomBar/settings/year
+  - ui/bottomBar/defaultPanel
+  - light
   layers:
   - Default
   - TransparentFX

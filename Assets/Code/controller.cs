@@ -11,11 +11,11 @@ public class controller : MonoBehaviour
 {
     public float playerSpeed = 100f * (float) master.scale;
     public static planet earth, moon;
-    private double speed = 0.00005;
+    public static planet defaultReferenceFrame;
+    public static double speed = 0.00005;
+    public static int tickrate = 7200;
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
     private Coroutine loop;
-    private planetTerrain pt;
-    private poleTerrain plt;
     public static bool useTerrainVisibility = false;
 
 
@@ -27,10 +27,11 @@ public class controller : MonoBehaviour
                 "Materials/default"));
 
         Artemis3();
+        defaultReferenceFrame = moon;
         //onlyEarth();
 
-        pt = loadTerrain();
-        plt = loadPoles();
+        general.pt = loadTerrain();
+        general.plt = loadPoles();
 
         //runScheduling();
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
@@ -102,7 +103,7 @@ public class controller : MonoBehaviour
     public void startMainLoop(bool force = false) {
         if (loop != null && force == false) return;
 
-        loop = StartCoroutine(general.internalClock(7200, int.MaxValue, (tick) => {
+        loop = StartCoroutine(general.internalClock(tickrate, int.MaxValue, (tick) => {
             if (!general.blockMainLoop) {
                 if (master.pause) {
                     master.tickStart(master.time);
@@ -115,7 +116,7 @@ public class controller : MonoBehaviour
                 }
             }
 
-            pt.updateTerrain();
+            general.pt.updateTerrain();
 
             if (!planetOverview.usePlanetOverview) master.requestSchedulingUpdate();
             master.currentTick = tick;
@@ -186,15 +187,15 @@ public class controller : MonoBehaviour
             if (Input.GetKey("d")) planetFocus.movementOffset += (float) master.scale * 0.75f * general.camera.transform.right * r * t;
             if (Input.GetKey("a")) planetFocus.movementOffset -= (float) master.scale * 0.75f * general.camera.transform.right * r * t;
 
-            if (Input.GetKeyDown("t") && !plt.currentlyDrawing) {
+            if (Input.GetKeyDown("t") && !general.plt.currentlyDrawing) {
                 planetFocus.togglePoleFocus(!planetFocus.usePoleFocus);
-                if (planetFocus.usePoleFocus) plt.genMinScale();
-                else plt.clear();
+                if (planetFocus.usePoleFocus) general.plt.genMinScale();
+                else general.plt.clear();
             }
 
             if (planetFocus.usePoleFocus) {
-                if (Input.GetKeyDown("=")) plt.increaseScale();
-                if (Input.GetKeyDown("-")) plt.decreaseScale();
+                if (Input.GetKeyDown("=")) general.plt.increaseScale();
+                if (Input.GetKeyDown("-")) general.plt.decreaseScale();
 
                 planetFocus.focus.representation.forceHide = true;
             }
@@ -236,8 +237,8 @@ public class controller : MonoBehaviour
         if (Input.GetKeyDown("e")) {
             master.requestScaleUpdate();
             planetFocus.enable(!planetFocus.usePlanetFocus);
-            pt.unload();
-            plt.clear();
+            general.pt.unload();
+            general.plt.clear();
             master.clearAllLines();
 
             general.notifyStatusChange();
@@ -250,12 +251,6 @@ public class controller : MonoBehaviour
 
             general.notifyStatusChange();
         }
-
-        if (Input.GetKeyDown("1")) speed = 0.1;
-        if (Input.GetKeyDown("2")) speed = 0.01;
-        if (Input.GetKeyDown("3")) speed = 0.00005;
-
-        if (Input.GetKeyDown("4")) master.time.addJulianTime(2460806.5 - master.time.julian);
 
         if (Input.GetKeyDown("z")) {
             foreach (planet p in master.allPlanets) p.tr.toggle();
