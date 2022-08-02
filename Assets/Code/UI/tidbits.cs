@@ -11,7 +11,7 @@ public class tidbits : MonoBehaviour
 
     void Start()
     {
-        Earth="";
+        Earth="The planet Earth has been a beacon for humanity for thousands of years, and this is the launching point for the Artemis Missions.";
 
         Moon="The moon is a natural satelite of Earth, about 239,000 miles from Earth on avg. Famous for controlling tides, the moon was formed after a collision between Earth and a planet known as Theia.  Humans have explored the moon via the Apollo Era Missions, however this is soon to change with the planned Artemis Missions.";
 
@@ -29,17 +29,17 @@ public class tidbits : MonoBehaviour
 
         Neptune=" ";
 
-        LCNuno="";
+        LCNuno="LCN is part of a constellation of satelites that brings communications capabilities to the moon.";
 
-        LCNduo=" ";
+        LCNduo="LCN is part of a constellation of satelites that brings communications capabilities to the moon.";
 
-        LCNtrio=" ";
+        LCNtrio="LCN is part of a constellation of satelites that brings communications capabilities to the moon.";
 
         Moonlightuno=" ";
 
         Moonlightduo=" ";
 
-        Cubesatuno=" ";
+        Cubesatuno="This cubesat is part of a class of nano-satelites known as a cubesat used to explore space in a smaller and less expensive formfactor.  This particular satelite is testing a potential Artemis orbit.";
 
         Cubesatduo=" ";
 
