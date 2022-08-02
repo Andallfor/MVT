@@ -35,7 +35,7 @@ public class controller : MonoBehaviour
         //runScheduling();
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
-        master.pause = true;
+        master.pause = false;
         general.camera = Camera.main;
 
         master.markStartOfSimulation();
