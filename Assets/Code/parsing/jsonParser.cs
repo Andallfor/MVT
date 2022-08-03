@@ -71,11 +71,13 @@ public static class jsonParser
     // simplify
     private static void _dsPlanet(jsonPlanetStruct jps)
     {
-        new planet(jps.name,
+        /*new planet(jps.name,
+            //new planetData(
+            //    jps.radius, jps.rotate, _dsTimeline(jps.positions), jps.positions.timestep, (planetType) jps.planetType), 
             new planetData(
-                jps.radius, jps.rotate, _dsTimeline(jps.positions), jps.positions.timestep, (planetType) jps.planetType), 
+                jps.radius, _dsTimeline(jps.positions), jps.positions.timestep, (planetType) jps.planetType), 
             new representationData(
-                jps.representationData.modelPath, jps.representationData.materialPath));
+                jps.representationData.modelPath, jps.representationData.materialPath));*/
         
         if (jps.bodyData.parent != "") addToQueue(new jsonQueueStruct(jps.bodyData.parent, jps.name));
         foreach (string c in jps.bodyData.children)

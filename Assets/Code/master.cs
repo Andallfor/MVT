@@ -104,6 +104,10 @@ public static class master
     /// <summary> List of all <see cref="facility"/> currently loaded. </summary>
     public static List<facility> allFacilites = new List<facility>();
 
+    public static List<Timeline> rod = new List<Timeline>();
+
+    public static bool rotatel = false;
+
 
     /// <summary> Clear all <see cref="LineRenderer"/> components on <see cref="planet"/>, <see cref="satellite"/>, and <see cref="facility"/>. </summary>
     public static void clearAllLines()

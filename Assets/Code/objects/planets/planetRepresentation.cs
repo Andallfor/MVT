@@ -22,6 +22,7 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
     public planetRepresentation(string name, double radius, planetType pType, representationData data) {
         gameObject = GameObject.Instantiate(data.model);
         gameObject.GetComponent<MeshRenderer>().material = data.material;
+        gameObject.transform.Rotate(data.rotate.x, data.rotate.y, data.rotate.z);
         gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
         gameObject.name = name;
 

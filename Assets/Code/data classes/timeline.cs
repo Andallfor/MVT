@@ -158,14 +158,8 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
 
         double meanAnom = startingMeanAnom;
 
-        if (master.time.julian == startingEpoch)
-        {
-          meanAnom = startingMeanAnom;
-        }
-        else
-        {
-          meanAnom = startingMeanAnom + 86400.0 * (master.time.julian - startingEpoch) * Math.Sqrt((mu / Math.Pow(semiMajorAxis, 3)));
-        }
+        if (t.julian == startingEpoch) meanAnom = startingMeanAnom;
+        else meanAnom = startingMeanAnom + 86400.0 * (t.julian - startingEpoch) * Math.Sqrt((mu / Math.Pow(semiMajorAxis, 3)));
 
         double EA = meanAnom;
         for (int i = 0; i < 50; i++) EA = meanAnom + eccentricity * Math.Sin(EA);
@@ -209,12 +203,15 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
             ((pos.x * h * eccentricity) / (radius * p)) * Math.Sin(trueAnom) - (h / radius) * (Math.Cos(longOfAscNode) * Math.Sin(argOfPerigee + trueAnom) + Math.Sin(longOfAscNode) * Math.Cos(argOfPerigee + trueAnom) * Math.Cos(inclination)),
             ((pos.y * h * eccentricity) / (radius * p)) * Math.Sin(trueAnom) - (h / radius) * (Math.Sin(longOfAscNode) * Math.Sin(argOfPerigee + trueAnom) - Math.Cos(longOfAscNode) * Math.Cos(argOfPerigee + trueAnom) * Math.Cos(inclination)),
             ((pos.z * h * eccentricity) / (radius * p)) * Math.Sin(trueAnom) + (h / radius) * (Math.Sin(inclination) * Math.Cos(argOfPerigee + trueAnom)));
-
+           
         if (double.IsNaN(pos.x)) return new position(0, 0, 0);
 
         position rot = controller.earth.representation.gameObject.transform.eulerAngles;
         return (pos.rotate(rot.y * degToRad, 0, 0));*/
-        return pos;
+        //position moon = master.rod[0].find(t);
+        //position v = master.rod[1].find(t);
+        //return position.J2000(moon, v, pos);
+        return pos.swapAxis();
     }
 
     public bool exists(Time t) {
@@ -249,7 +246,6 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
         this.orbitalPeriod = 2.0 * Math.PI * Math.Sqrt((semiMajorAxis * semiMajorAxis * semiMajorAxis) / mu);
         this.meanAngularMotion = 86400.0 / (this.orbitalPeriod);
         this.startingEpoch = startEpoch;
-
         this.start = start;
         this.end = end;
         this.alwaysExist = false;
