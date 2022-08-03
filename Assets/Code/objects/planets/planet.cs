@@ -73,9 +73,6 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
 
             float xAngle = (float) (position.dotProductTheta(yAxis, yprime) * 180 / Math.PI);
 
-            Debug.Log("yangle: " + -1 * yAngle1);
-            Debug.Log("yangle check: " + -1 * yAngle2);
-
             representation.gameObject.transform.Rotate(0f, yAngle1, zAngle);
             representation.gameObject.transform.Rotate(new Vector3(1, 0, 0), xAngle);
 

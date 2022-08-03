@@ -40,7 +40,7 @@ public static class linkBudgeting
 							}
 
 							if (pp != new position(0, 0, 0) && up != new position(0, 0, 0)) {
-								if (!visibility.raycast(pp, up, visibility.raycastParameters.planet, time, 1, false).hit) connections.Add(time + ": " + provider.Key + " to " + user.Key);
+								if (!visibility.raycast(pp, up, raycastParameters.planet, time, 1, false).hit) connections.Add(time + ": " + provider.Key + " to " + user.Key);
 							}
 						}
 					}
