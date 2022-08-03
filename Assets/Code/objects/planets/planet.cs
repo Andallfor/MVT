@@ -49,28 +49,72 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
             float angle2 = (float) ((rotateBy[1].Item1) * 180/Math.PI); 
             Vector3 output1 = new Vector3((float) rotateBy[0].Item2.x, (float) rotateBy[0].Item2.y, (float) rotateBy[0].Item2.z);
             Vector3 output2 = new Vector3((float) rotateBy[1].Item2.x, (float) rotateBy[1].Item2.y, (float) rotateBy[1].Item2.z);
-            representation.gameObject.transform.Rotate(output1, angle);
-            representation.gameObject.transform.Rotate(output2, angle2*/
+            representation.gameObject.transform.Rotate(output2, angle2);
+            representation.gameObject.transform.Rotate(output1, angle);*/
+
+            //position k3 = cross(M_x_j2000, velocity);
+            //position M_y_j2000 = cross(k3, M_x_j2000);
 
             position moon = master.rod[0].find(master.time).swapAxis();
+            position velocity = master.rod[1].find(master.time).swapAxis();
+            position unitMoon = new position(moon.x/Math.Sqrt(moon.x * moon.x + moon.y * moon.y + moon.z * moon.z), moon.y/Math.Sqrt(moon.x * moon.x + moon.y * moon.y + moon.z * moon.z), moon.z/Math.Sqrt(moon.x * moon.x + moon.y * moon.y + moon.z * moon.z))*-1;
+            //Debug.Log(Math.Sqrt(unitMoon.x * unitMoon.x + unitMoon.y * unitMoon.y + unitMoon.z * unitMoon.z));
+            float theta2 = (float) (Math.Asin(-1 * unitMoon.z));
+            //float theta1 = (float) Math.Asin(unitMoon.y/Math.Cos(theta2));
+            float theta1 = (float) (Math.Atan2(unitMoon.y, unitMoon.x));
+            float thetaCheck = (float) (Math.Acos(unitMoon.x / Math.Cos(theta2)));
+            float zAngle = (float) (-1 * theta2 * 180 /Math.PI);
+            float yAngle1 = (float) (-1 * theta1 * 180/Math.PI);
+            float yAngle2 = (float) (-1 * thetaCheck * 180/Math.PI);
 
-            float yAngle = (float) (Math.Atan2(moon.y,  Math.Sqrt(moon.x * moon.x + moon.z * moon.z)) * 180 / Math.PI + 180);
-            float zAngle = (float) (Math.Atan2(moon.z, moon.x) * 180 / Math.PI);
+            position yprime = new position(-1 * Math.Sin(theta2) * Math.Cos(theta1), -1 * Math.Sin(theta2) * Math.Sin(theta1), Math.Cos(theta2));
+            position k3 = position.cross(moon, velocity);
+            position yAxis = position.cross(k3, moon);
+
+            float xAngle = (float) (position.dotProductTheta(yAxis, yprime) * 180 / Math.PI);
+
+            Debug.Log("yangle: " + -1 * yAngle1);
+            Debug.Log("yangle check: " + -1 * yAngle2);
+
+            representation.gameObject.transform.Rotate(0f, yAngle1, zAngle);
+            representation.gameObject.transform.Rotate(new Vector3(1, 0, 0), xAngle);
+
+            //representation.gameObject.transform.Rotate(Vector3.forward, (float) (theta1 * 180/ Math.PI));
+            //representation.gameObject.transform.Rotate(Vector3.up, (float) (theta2 * 180/ Math.PI));
+            /*Debug.Log("zangle: " + theta1);
+            Debug.Log("yangle: " + theta2);
+            Debug.Log("Unit Moon Z: " + unitMoon.z);*/
+
+           
+            //Debug.Log("before rotation: " + p);
+            //representation.gameObject.transform.Rotate(representation.gameObject.transform.right, 90);
+            //Debug.Log(master.rod[0].find(master.time).swapAxis());
+
+
+            /*float yAngle = (float) (Math.Atan2(moon.y,  Math.Sqrt(moon.x * moon.x + moon.z * moon.z)) * 180 / Math.PI);
+            //float zAngle = (float) (Math.Atan2(moon.y,  Math.Sqrt(moon.x * moon.x + moon.z * moon.z)) * 180 / Math.PI);
+            
+            float yAngle = (float) (Math.Atan2(moon.z, moon.x) * 180 / Math.PI + 180);
             //float zangle = (float) (Math.Asin(moon.y / Math.Sqrt(moon.x * moon.x + moon.z * moon.z)) * 180 / Math.PI); 
-            //float yangle = 0f;
+            //float yAngle = 0f;
             float xAngle = 0f;
+            //float zAngle = 0f;
 
-
+            /*2460806.8 Vector3(0,340,27.9999981)
+            2460807.8 Vector3(0,334,39)
+            2460808.8 Vector3(0,324,47.9999962)
+            2460809.8 Vector3(-1.70754731e-06,307,58)
 
             Debug.Log(moon);
             Debug.Log("zangle: " + zAngle);
             Debug.Log("yangle: " + yAngle);
 
-            /*representation.gameObject.transform.Rotate(Vector3.forward, zAngle);
-            representation.gameObject.transform.Rotate(Vector3.up, yAngle);
-            representation.gameObject.transform.Rotate(Vector3.right, xAngle);*/
+            representation.gameObject.transform.Rotate(Vector3.up, -yAngle);
+            representation.gameObject.transform.Rotate(Vector3.forward, -zAngle);
+            representation.gameObject.transform.Rotate(Vector3.right, xAngle);
 
-           representation.gameObject.transform.rotation = Quaternion.Euler(1, zAngle, yAngle);
+            /*representation.gameObject.transform.Rotate(0.1f, yAngle, zAngle, Space.World);
+            Debug.Log("x rotation: " + representation.gameObject.transform.rotation.x);*/
 
 
         }

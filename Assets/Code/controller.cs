@@ -355,7 +355,7 @@ public class controller : MonoBehaviour
                         linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
                         linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
                     }
-                } else {
+                } /*else {
                     List<antennaData> antenna = new List<antennaData>() {new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Ground_Priority"])};
                     facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna), frd);
 
@@ -365,7 +365,7 @@ public class controller : MonoBehaviour
                         linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
                         linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
                     }
-                }
+                }*/
             }
         }
 

@@ -121,8 +121,8 @@ public readonly struct position
         double angle2 = dotProductTheta(yprime, j2000_y);
         position k2 = cross(j2000_y, M_y_j2000);
 
-        position output1 = sat * (Math.Cos(angle2)) + cross(k2,sat) * Math.Sin(angle2) + k2 * (dotProduct(k2,sat)) * (1-Math.Cos(angle2));
-        position output2 = output1 * Math.Cos(angle) + cross(k,output1)*Math.Sin(angle)+k*(dotProduct(k,output1))*(1-Math.Cos(angle));
+        /*position output1 = sat * (Math.Cos(angle2)) + cross(k2,sat) * Math.Sin(angle2) + k2 * (dotProduct(k2,sat)) * (1-Math.Cos(angle2));
+        position output2 = output1 * Math.Cos(angle) + cross(k,output1)*Math.Sin(angle)+k*(dotProduct(k,output1))*(1-Math.Cos(angle));*/
 
         returnList.Add((angle2, k2));
         returnList.Add((angle, k));
