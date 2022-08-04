@@ -387,9 +387,9 @@ public class controller : MonoBehaviour
                         linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
                         linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
                     }
-                } /*else {
+                } else {
                     List<antennaData> antenna = new List<antennaData>() {new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Ground_Priority"])};
-                    facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna), frd);
+                    facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), 0, antenna), frd);
 
                     if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
                     if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
@@ -397,16 +397,16 @@ public class controller : MonoBehaviour
                         linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
                         linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
                     }
-                }*/
+                }
             }
         }
 
-        satellite sat1 = new satellite("cubeSat", new satelliteData(new Timeline(1837.1,0, 90, 0, 0, 0, 1, 2460806.5, MoonMu)), srd);
+        /*satellite sat1 = new satellite("cubeSat", new satelliteData(new Timeline(1837.1,0, 90, 0, 0, 0, 1, 2460806.5, MoonMu)), srd);
         satellite.addFamilyNode(moon, sat1);
         sat1.positions.enableExistanceTime(new Time(2460806.5), new Time((2460836.5)));
         moonSats.Add(sat1);
 
-        List<antennaData> antenna1 = new List<antennaData>() {new antennaData("(0,0)", "(0, 0)", new geographic(0, 0), 1)};
+        /*List<antennaData> antenna1 = new List<antennaData>() {new antennaData("(0,0)", "(0, 0)", new geographic(0, 0), 1)};
         facility fd1 = new facility("(0, 0)", moon, new facilityData("(0, 0)", new geographic(0, 0), 0, antenna1), frd);
 
         List<antennaData> antenna2 = new List<antennaData>() {new antennaData("(90, 0)", "(90, 0)", new geographic(90, 0), 1)};
