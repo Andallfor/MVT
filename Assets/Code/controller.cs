@@ -41,22 +41,22 @@ public class controller : MonoBehaviour
         if(!File.Exists(@"Assets\Code\parsing\main.db"))
         {
             Debug.Log("Generating main.db");
-            System.Diagnostics.Process.Start(@"Assets\Code\parsing\parser.exe", @"Assets\Code\parsing\ScenarioAssetsSTK_2_w_pivot.xlsx Assets\Code\parsing\main.db").WaitForExit();  
+            System.Diagnostics.Process.Start(@"Assets\Code\parsing\parser.exe", @"Assets\Code\parsing\ScenarioAssetsSTK_2_w_pivot_FixedTransitStart.xlsx Assets\Code\parsing\main.db").WaitForExit();  
         }
         var missionStructure = DBReader.getData();
         System.IO.Directory.CreateDirectory($"Assets/Code/scheduler/{date}");
         //string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
-        //System.IO.File.WriteAllText (@"NewMissionStructure.txt", json);       
+        //System.IO.File.WriteAllText (@"MissionStructure_0729.txt", json);       
         Debug.Log("Generating windows.....");
-        ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", "TestingWindows.json", date, "PreconWindows");
+        ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", "LunarWindows-RAC2_1_07_26_22.json", date, "PreconWindows");
         Debug.Log("Generating conflict list.....");
         ScheduleStructGenerator.createConflictList(date);
         //Debug.Log("Regenerating windows");
         //ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", "LunarWindows-RAC2_1_07_19_22.json", date, "PostconWindows");
         Debug.Log("Doing DFS.....");
         ScheduleStructGenerator.doDFS(date);
-        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PreDFSUsers.txt Assets/Code/scheduler/{date}/PreDFSUsers_{date}.png");
-        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PostDFSUsers.txt Assets/Code/scheduler/{date}/PostDFSUsers_{date}.png");
+       // System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PreDFSUsers.txt Assets/Code/scheduler/{date}/PreDFSUsers_{date}.png");
+        //System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PostDFSUsers.txt Assets/Code/scheduler/{date}/PostDFSUsers_{date}.png");
 
         //Debug.Log("Testing.....");
 

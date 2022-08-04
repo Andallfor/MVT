@@ -395,7 +395,7 @@
     "numDays": 30,
     "serviceLevel": 0.25,
     "timeIntervalStart": 0.0,
-    "priority": 5.0,
+    "priority": 16.0,
     "timeIntervalStop": 11.0,
     "boxes": {
       "0": 0.25,
@@ -811,11 +811,11 @@
   "Orion-Transit-O": {
     "numDays": 30,
     "serviceLevel": 1.0,
-    "timeIntervalStart": 0.0,
+    "timeIntervalStart": 0.79536578,
     "priority": 7.0,
     "timeIntervalStop": 11.0,
     "boxes": {
-      "0": 1.0,
+      "0": 0.20463421999999998,
       "1": 1.0,
       "2": 1.0,
       "3": 1.0,

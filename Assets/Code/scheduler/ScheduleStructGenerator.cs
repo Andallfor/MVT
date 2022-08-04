@@ -123,7 +123,14 @@ public static class ScheduleStructGenerator
 
                 currentUser.numDays = (int)(30/servicePeriod);
                 currentUser.serviceLevel = service_Level;
+                try{
                 currentUser.priority = (double)missionStructure[misName].Item2[source]["Schedule_Priority"];
+                }
+                catch
+                {
+                    Debug.Log($"Priority error: MisName: {misName}, source: {source}");
+                    Application.Quit(10);
+                }
                 currentUser.timeIntervalStart = (double)missionStructure[misName].Item2[source]["TimeInterval_start"];
                 currentUser.timeIntervalStop = (double)missionStructure[misName].Item2[source]["TimeInterval_stop"];
                 for (double i = 0; i <= currentUser.numDays;i+=servicePeriod)
@@ -166,6 +173,7 @@ public static class ScheduleStructGenerator
                 wind.ID = count;
                 double start = (double)block[0];
                 double stop = (double)block[1];
+                if (start == stop) continue;
                 wind.frequency = (string)window["frequency"];
                 wind.frequency = wind.frequency.Replace("\"", "");
                 wind.Freq_Priority = freqPrio;
@@ -250,7 +258,8 @@ public static class ScheduleStructGenerator
                 (
                     (Start > {block.start} and Start < {block.stop}) OR
                     (Stop > {block.start} AND Stop < {block.stop}) OR
-                    (Start <  {block.start} AND Stop > {block.stop})
+                    (Start <  {block.start} AND Stop > {block.stop}) OR
+                    (Start = {block.start} AND Stop = {block.stop})
                 )
                 AND
                 (
@@ -281,45 +290,19 @@ public static class ScheduleStructGenerator
                 //if(conID == 1713)
                     //Debug.Log($"Before change: {scenario.windows.Find(i => i.ID == conID).start}->{scenario.windows.Find(i => i.ID == conID).stop}");
                 if(block.start < conStart && conStart < block.stop && conStop > block.stop)
-                {
                     conCase = 2;
-                    /*conStart = block.stop;
-                    scenario.windows.Find(i => i.ID == conID).start = conStart;
-                    scenario.windows.Find(i => i.ID == conID).duration = scenario.windows.Find(i => i.ID == conID).stop - block.stop;
-
-                    scenario.windows.Find(i => i.ID == conID).days = Enumerable.Range((int)Math.Floor(conStart), (int)Math.Floor(conStop)-(int)Math.Floor(conStart)+1).ToList();
-                    scenario.windows.Find(i => i.ID == conID).timeSpentInDay = new List<double>();
-                    if (scenario.windows.Find(i => i.ID == conID).days.Count>1)
-                    {
-                        scenario.windows.Find(i => i.ID == conID).timeSpentInDay.Add(1-(conStart-scenario.windows.Find(i => i.ID == conID).days[0]));
-                        foreach (int day in Enumerable.Range(scenario.windows.Find(i => i.ID == conID).days[0], scenario.windows.Find(i => i.ID == conID).days[scenario.windows.Find(i => i.ID == conID).days.Count-1]-1-scenario.windows.Find(i => i.ID == conID).days[0])) scenario.windows.Find(i => i.ID == conID).timeSpentInDay.Add(1);
-                        scenario.windows.Find(i => i.ID == conID).timeSpentInDay.Add(conStop- scenario.windows.Find(i => i.ID == conID).days[ scenario.windows.Find(i => i.ID == conID).days.Count-1]);
-                    }
-                    else  scenario.windows.Find(i => i.ID == conID).timeSpentInDay.Add(conStop-conStart);
-                    //if(conID == 1713)
-                        //Debug.Log($"After changing start: {conStart}->{conStop}");
-                        */
-                }
                 else if(block.start < conStop && conStop < block.stop && conStart < block.start)
-                {
                     conCase = 1;
-                    /*conStop = block.start;
-                    scenario.windows.Find(i => i.ID == conID).stop = conStop;
-                    scenario.windows.Find(i => i.ID == conID).duration = conStop - scenario.windows.Find(i => i.ID == conID).start;
-
-                    scenario.windows.Find(i => i.ID == conID).days = Enumerable.Range((int)Math.Floor(conStart), (int)Math.Floor(conStop)-(int)Math.Floor(conStart)+1).ToList();
-                    scenario.windows.Find(i => i.ID == conID).timeSpentInDay = new List<double>();
-                    if (scenario.windows.Find(i => i.ID == conID).days.Count>1)
-                    {
-                        scenario.windows.Find(i => i.ID == conID).timeSpentInDay.Add(1-(conStart-scenario.windows.Find(i => i.ID == conID).days[0]));
-                        foreach (int day in Enumerable.Range(scenario.windows.Find(i => i.ID == conID).days[0], scenario.windows.Find(i => i.ID == conID).days[scenario.windows.Find(i => i.ID == conID).days.Count-1]-1-scenario.windows.Find(i => i.ID == conID).days[0])) scenario.windows.Find(i => i.ID == conID).timeSpentInDay.Add(1);
-                        scenario.windows.Find(i => i.ID == conID).timeSpentInDay.Add(conStop- scenario.windows.Find(i => i.ID == conID).days[ scenario.windows.Find(i => i.ID == conID).days.Count-1]);
-                    }
-                    else  scenario.windows.Find(i => i.ID == conID).timeSpentInDay.Add(conStop-conStart);
-                    //if(conID == 1713)
-                        //Debug.Log($"After changing stop: {conStart}->{conStop}");
-                    continue;*/
-                }
+                else if(block.start < conStart && conStart < block.stop && block.start < conStop && conStop < block.stop)
+                    conCase = 3;
+                else if (block.start == conStart && conStop < block.stop)
+                    conCase = 3;
+                else if (block.start < conStart && conStop == block.stop)
+                    conCase = 3;
+                else if(conStart < block.start && conStop > block.stop)
+                    conCase = 4;                    
+                else if(conStart == block.start && conStop == block.stop)
+                    conCase = 5;
                 //if(conID == 1713)
                     //Debug.Log($"Didn't change: {conStart}->{conStop}");
                 cons.Add((reader.GetInt32(0), conCase));
@@ -345,59 +328,178 @@ public static class ScheduleStructGenerator
     public static void doDFS(string date)
     {
         List<int> totalConflicts = new List<int>();
-        foreach (var curBlock in scenario.windows)
+        bool savedYet = false;
+        //Debug.Log("Got here 1");
+        for (int c = 0; c < scenario.windows.Count(); c++)
         {
+            Window curBlock = scenario.windows[c];
+            /*if (!savedYet && curBlock.source == "Orion-NRHO")
+            {
+                savedYet = true;
+                scenario.users.ToList();
+                string PreOrionJson = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
+                System.IO.File.WriteAllText (@$"PreOrionJsonUsers.txt", PreOrionJson);
+
+                PreOrionJson = JsonConvert.SerializeObject(scenario.schedule, Formatting.Indented);
+                System.IO.File.WriteAllText(@$"PreOrionSchedule.txt", PreOrionJson);
+                System.Diagnostics.Process.Start(@"Assets\Code\scheduler\json2csv.exe", $"PreOrionSchedule.txt Assets/Code/scheduler/{date}/PreOrionScheduleCSV_{date}.csv").WaitForExit();
+
+                PreOrionJson = JsonConvert.SerializeObject(scenario.windows, Formatting.Indented);
+                System.IO.File.WriteAllText(@$"PreOrionWindows.txt", PreOrionJson);
+                System.Diagnostics.Process.Start(@"Assets\Code\scheduler\json2csv.exe", $"PreOrionWindows.txt Assets/Code/scheduler/{date}/PreOrionWindowsCSV_{date}.csv").WaitForExit();
+
+                Debug.Log($"Total Conflicts: {string.Join(", ", totalConflicts)}");
+            }*/
             if (totalConflicts.Contains(curBlock.ID)) continue;
-            
+           // Debug.Log("Got here 2");
             for ( int i = 0; i < curBlock.conflicts.Count(); i++)
             {
                 (int, int) con = curBlock.conflicts[i];
-                Window conWin = scenario.windows.Find(i=> i.ID==con.Item1);
-                if (con.Item1==1168)
-                    Debug.Log($"Before: {conStart}->{conStop}");
-                switch(con.Item2)
+                if (con.Item1 == 813)
+                {
+                    Debug.Log("ha gotcha");
+                }
+                int conWinIndex = scenario.windows.FindIndex(i=> i.ID==con.Item1);
+                Window conWin = scenario.windows[conWinIndex];
+                List<Window> winsWithConflict = new List<Window>();
+                switch (con.Item2)
                 {
                     case 1:
+                        conWin.stop = Math.Min(curBlock.start, conWin.stop);
+                        conWin.duration = conWin.stop-conWin.start;
+                        conWin.days = Enumerable.Range((int)Math.Floor(conWin.start), (int)Math.Floor(conWin.stop)-(int)Math.Floor(conWin.start)+1).ToList();
+                        conWin.timeSpentInDay = new List<double>();
+                        if (conWin.days.Count>1)
+                        {
+                            conWin.timeSpentInDay.Add(1-(conWin.start-conWin.days[0]));
+                            foreach (int day in Enumerable.Range(conWin.days[0], conWin.days[conWin.days.Count-1]-1-conWin.days[0])) conWin.timeSpentInDay.Add(1);
+                            conWin.timeSpentInDay.Add(conWin.stop-conWin.days[conWin.days.Count-1]);
+                        }
+                        else conWin.timeSpentInDay.Add(conWin.duration);
+                        scenario.windows[conWinIndex] = conWin;
 
+                        winsWithConflict = scenario.windows.FindAll(x => x.conflicts.Any(y => y.Item1 == conWin.ID));
+                        foreach (Window w in winsWithConflict)
+                        {
+                            (bool, int, int) stillCon = stillConflict(w, conWin);
+                            (int, int) theWin;
+                            int winDex = scenario.windows.FindIndex(x => x.ID == w.ID);
+                            int conDex = scenario.windows[winDex].conflicts.FindIndex(y => y.Item1 == conWin.ID);
+                            if (stillCon.Item1)
+                                scenario.windows[winDex].conflicts[conDex] = (stillCon.Item2, stillCon.Item3);
+                            else
+                                scenario.windows[winDex].conflicts.RemoveAt(conDex);
+                        }
                         break;
                     case 2:
+                        conWin.start = Math.Max(curBlock.stop, conWin.start);
+                        conWin.duration = conWin.stop-conWin.start;
+                        conWin.days = Enumerable.Range((int)Math.Floor(conWin.start), (int)Math.Floor(conWin.stop)-(int)Math.Floor(conWin.start)+1).ToList();
+                        conWin.timeSpentInDay = new List<double>();
+                        if (conWin.days.Count>1)
+                        {
+                            conWin.timeSpentInDay.Add(1-(conWin.start-conWin.days[0]));
+                            foreach (int day in Enumerable.Range(conWin.days[0], conWin.days[conWin.days.Count-1]-1-conWin.days[0])) conWin.timeSpentInDay.Add(1);
+                            conWin.timeSpentInDay.Add(conWin.stop-conWin.days[conWin.days.Count-1]);
+                        }
+                        else conWin.timeSpentInDay.Add(conWin.stop-conWin.start);
+                        scenario.windows[conWinIndex] = conWin;
+
+                        winsWithConflict = scenario.windows.FindAll(x => x.conflicts.Any(y => y.Item1 == conWin.ID));
+                        foreach (Window w in winsWithConflict)
+                        {
+                            (bool, int, int) stillCon = stillConflict(w, conWin);
+                            (int, int) theWin;
+                            int winDex = scenario.windows.FindIndex(x => x.ID == w.ID);
+                            int conDex = scenario.windows[winDex].conflicts.FindIndex(y => y.Item1 == conWin.ID);
+                            if (stillCon.Item1)
+                                scenario.windows[winDex].conflicts[conDex] = (stillCon.Item2, stillCon.Item3);
+                            else
+                                scenario.windows[winDex].conflicts.RemoveAt(conDex);
+                        }
                         break;
                     default:
+                        totalConflicts.Add(con.Item1);
                         break;
+
                 }
+                
             }
+           // Debug.Log("Got here 3");
             for (int i = 0; i < curBlock.days.Count;i++)
             {
+               // Debug.Log("Got here 3a");
                 if (scenario.users[curBlock.source].blockedDays.Contains(curBlock.days[i])) continue;
+                try
+                {
                 if (scenario.users[curBlock.source].boxes[curBlock.days[i]] == 0) continue;
-                if (!scenario.schedule.Contains(curBlock)) scenario.schedule.Add(curBlock);
+                }
+                catch{
+                    Debug.Log($"Error with checking 0: source: {curBlock.source}, i: {i}, curBlock.days[i]: {curBlock.days[i]}");
+                }
                 /*if (curBlock.source == "HLS-Docked")
                 {
                     Debug.Log($"Source:{curBlock.source}\tI:{i}\tcurBlock.days[i]:{curBlock.days[i]}\tTimeSpentInDay: {curBlock.timeSpentInDay[i]}\nBox before subtraction: {scenario.users[curBlock.source].boxes[curBlock.days[i]]}");
                 }*/
-                scenario.users[curBlock.source].boxes[curBlock.days[i]] -= curBlock.timeSpentInDay[i];
+                //Debug.Log("Got here 3b");
+                if ( scenario.users[curBlock.source].boxes[curBlock.days[i]] - curBlock.timeSpentInDay[i] < 0)
+                {
+                    //curBlock.stop = curBlock.start+scenario.users[curBlock.source].boxes[curBlock.days[i]];
+                    curBlock.stop = curBlock.days[i] + scenario.users[curBlock.source].boxes[curBlock.days[i]];
+
+
+                    curBlock.duration = curBlock.stop-curBlock.start;
+                    curBlock.days = Enumerable.Range((int)Math.Floor(curBlock.start), (int)Math.Floor(curBlock.stop)-(int)Math.Floor(curBlock.start)+1).ToList();
+                    curBlock.timeSpentInDay = new List<double>();
+                    if (curBlock.days.Count>1)
+                    {
+                        curBlock.timeSpentInDay.Add(1-(curBlock.start-curBlock.days[0]));
+                        foreach (int day in Enumerable.Range(curBlock.days[0], curBlock.days[curBlock.days.Count-1]-1-curBlock.days[0])) curBlock.timeSpentInDay.Add(1);
+                        curBlock.timeSpentInDay.Add(curBlock.stop-curBlock.days[curBlock.days.Count-1]);
+                    }
+                    else curBlock.timeSpentInDay.Add(curBlock.duration);
+                }
+                //Debug.Log("Got here 3c1");
+                try
+                {
+                    scenario.users[curBlock.source].boxes[curBlock.days[i]] -= curBlock.timeSpentInDay[i];
+                }
+                catch
+                {
+                    Debug.Log($"Source: {curBlock.source}, i: {i}");
+                }
+                //Debug.Log("Got here 3c2");
+                if (!scenario.schedule.Contains(curBlock)) scenario.schedule.Add(curBlock);
                 /*if (curBlock.source == "HLS-Docked")
                 {
                     Debug.Log($"Source:{curBlock.source}\tI:{i}\tcurBlock.days[i]:{curBlock.days[i]}\tTimeSpentInDay: {curBlock.timeSpentInDay[i]}\nBox after subtraction: {scenario.users[curBlock.source].boxes[curBlock.days[i]]}");
                 }*/
                 //if (scenario.users[curBlock.source].boxes[curBlock.days[i]] < 0) scenario.users[curBlock.source].boxes[curBlock.days[i]] = 0;
+                //Debug.Log("Got here 3d");
                 if (scenario.users[curBlock.source].boxes[curBlock.days[i]] <= 0)
                 {
                     scenario.users[curBlock.source].blockedDays.Add(curBlock.days[i]);
                 }
             }
 
-
+            scenario.windows[c] = curBlock;
         }
+        //Debug.Log("got here 4");
         scenario.users.ToList();
         string json = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
         System.IO.File.WriteAllText (@$"PostDFSUsers.txt", json);
 
         List<int> ScheduleIDs = (from x in scenario.schedule select x.ID).ToList();
         Debug.Log(string.Join(", ", ScheduleIDs));
+
         json = JsonConvert.SerializeObject(scenario.schedule, Formatting.Indented);
         System.IO.File.WriteAllText(@$"Schedule.txt", json);
-        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\json2csv.exe", $"Schedule.txt Assets/Code/scheduler/{date}/ScheduleCSV.csv").WaitForExit();
+        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\json2csv.exe", $"Schedule.txt Assets/Code/scheduler/{date}/ScheduleCSV_{date}.csv").WaitForExit();
+
+        json = JsonConvert.SerializeObject(scenario.windows, Formatting.Indented);
+        System.IO.File.WriteAllText(@$"FinalWindows.txt", json);
+        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\json2csv.exe", $"FinalWindows.txt Assets/Code/scheduler/{date}/FinalWindowsCSV_{date}.csv").WaitForExit();
+        //Debug.Log("Got here 5");
     }
    /* public static void test()
     {
@@ -405,6 +507,35 @@ public static class ScheduleStructGenerator
         foreach(var con in finded.conflicts)
             Debug.Log($"ID: {con.ID}, Source: {con.source}, Destination: {con.destination}, Start: {con.start}, Stop: {con.stop}");
     }*/
+   private static (bool, int, int) stillConflict(Window og, Window possCon)
+    {
+        (bool, int, int) ret = (false, -1, -1);
+        if ((possCon.start > og.start && possCon.start< og.stop) ||
+            (possCon.stop > og.start  && possCon.stop < og.stop) ||
+            (possCon.start < og.start && possCon.stop > og.stop) ||
+            (possCon.start == og.start&& possCon.stop == og.stop ))
+        {
+            ret.Item1 = true;
+            ret.Item2 = possCon.ID;
+            if (og.start <= possCon.start && possCon.start < og.stop && possCon.stop > og.stop)
+                ret.Item3 = 2;
+            else if (og.start < possCon.stop && possCon.stop <= og.stop && possCon.start < og.start)
+                ret.Item3 = 1;
+            else if (og.start < possCon.start && possCon.start < og.stop && og.start < possCon.stop && possCon.stop < og.stop)
+                ret.Item3 = 3;
+            else if (og.start == possCon.start && possCon.stop < og.stop)
+                ret.Item3 = 3;
+            else if (og.start < possCon.start && possCon.stop == og.stop)
+                ret.Item3 = 3;
+            else if (possCon.start < og.start && possCon.stop > og.stop)
+                ret.Item3 = 4;
+            else if (possCon.start == og.start && possCon.stop == og.stop)
+                ret.Item3 = 5;
+        }
+
+
+        return ret;
+    }
 
 }
 

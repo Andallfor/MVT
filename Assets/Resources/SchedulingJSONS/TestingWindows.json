@@ -4,10 +4,13 @@
     "windows":[
         {
             "frequency":"Ka Band", 
-            "source":"CLPS-9", 
-            "destination":"LCN-12hourfrozen-1-LowPower", 
+            "source":"Gateway-EOR", 
+            "destination":"DSA-3", 
             "rate":0.01, 
             "windows":[
+                [2,8.5,4],
+                [6,17,2],
+                [14,20,3]
             ]
         }
     ]
