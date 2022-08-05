@@ -60,12 +60,13 @@ public static class visibility
 		Dictionary<(string user, string provider), (List<double> time, List<double> dist)> output = new Dictionary<(string user, string provider), (List<double> time, List<double> dist)>();
 		Dictionary<string, Transform> u = new Dictionary<string, Transform>();
 		Dictionary<string, Transform> p = new Dictionary<string, Transform>();
+        Dictionary<string, Func<Time, bool>> existance = new Dictionary<string, Func<Time, bool>>();
 
 		Dictionary<(string user, string provider), LineRenderer> lrs = new Dictionary<(string user, string provider), LineRenderer>();
-		GameObject lrPrefab = Resources.Load("Prefabs/simpleLIne") as GameObject;
+		GameObject lrPrefab = Resources.Load("Prefabs/simpleLine") as GameObject;
 
-		formatObjects(users, ref u);
-		formatObjects(providers, ref p);
+		formatObjects(users, ref u, ref existance);
+		formatObjects(providers, ref p, ref existance);
 
 		foreach (string us in u.Keys) {
 			foreach (var ps in p.Keys) {
@@ -95,6 +96,7 @@ public static class visibility
 			foreach (var ukvp in u) {
 				foreach (var pkvp in p) {
 					if (ukvp.Key == pkvp.Key) continue;
+                    if (!existance[ukvp.Key](master.time) || !existance[pkvp.Key](master.time)) continue;
 					Ray r = new Ray(ukvp.Value.position, pkvp.Value.position - ukvp.Value.position);
 					bool hit = true;
 					if (!Physics.Raycast(r, 1000, LayerMask.GetMask("terrain", "planet"))) {
@@ -135,20 +137,25 @@ public static class visibility
 		currentlyRunningTerrainRaycast = false;
 	}
 
-	private static void formatObjects(List<object> objs, ref Dictionary<string, Transform> dict) {
+	private static void formatObjects(List<object> objs, ref Dictionary<string, Transform> dict, ref Dictionary<string, Func<Time, bool>> dict2) {
 		foreach (object obj in objs) {
 			if (obj is planet) {
 				planet p = (planet) obj;
 				dict[p.name] = p.representation.gameObject.transform;
+                dict2[p.name] = p.positions.exists;
 			}
-			if (obj is satellite) {
+			else if (obj is satellite) {
 				satellite s = (satellite) obj;
 				dict[s.name] = s.representation.gameObject.transform;
+                dict2[s.name] = s.positions.exists;
 			}
-			if (obj is facility) {
+			else if (obj is facility) {
 				facility f = (facility) obj;
 				dict[f.name] = f.representation.gameObject.transform;
-			}
+                dict2[f.name] = f.exists;
+			} else {
+                Debug.LogWarning($"Warning: Unable to find {obj}");
+            }
 		}
 	}
 
