@@ -112,8 +112,7 @@ public class uiMap : MonoBehaviour
     }
 
     private void moveRepresentation(body b) {
-        position p = parent.rotatePoint(b.localPos);
-        geographic g = geographic.toGeographic(p, parent.radius);
+        geographic g = parent.posToLocalGeo(b.localPos);
 
         bodies[b].anchoredPosition = geoToVec(g);
     }
@@ -164,8 +163,7 @@ public class uiMap : MonoBehaviour
         List<Vector2> positions = new List<Vector2>();
         List<Vector2> jumped = new List<Vector2>();
         for (int i = 0; i < 360 + 1; i++) {
-            position p = parent.rotatePoint(b.localPos);
-            geographic g = geographic.toGeographic(p, parent.radius);
+            geographic g = parent.posToLocalGeo(b.localPos);
 
             if (Math.Sign(g.lon) != Math.Sign(lastGeo.lon) && Math.Abs(g.lon) > 150 && Math.Abs(lastGeo.lon) > 150) jump = true;
 

@@ -30,13 +30,13 @@ public static class linkBudgeting
 							if (!provider.Value.t) pp = master.allSatellites.Find(x => x.name == provider.Key).requestPosition(time);
 							else {
 								facility _provider = master.allFacilites.Find(x => x.name == provider.Key);
-								pp = _provider.facParent.geoOnPlanet(_provider.geo, 0) + _provider.facParent.requestPosition(time);	
+								pp = _provider.facParent.rotateLocalGeo(_provider.geo, 0) + _provider.facParent.requestPosition(time);	
 							}
 
 							if (!user.Value.t) up = master.allSatellites.Find(x => x.name == user.Key).requestPosition(time);
 							else {
 								facility _user = master.allFacilites.Find(x => x.name == user.Key);
-								up = _user.facParent.geoOnPlanet(_user.geo, 0) + _user.facParent.pos;
+								up = _user.facParent.rotateLocalGeo(_user.geo, 0) + _user.facParent.pos;
 							}
 
 							if (pp != new position(0, 0, 0) && up != new position(0, 0, 0)) {
@@ -82,13 +82,13 @@ public static class linkBudgeting
 						else 
 						{
 							facility _provider = master.allFacilites.Find(x => x.name == provider.Key);
-							pp = _provider.facParent.geoOnPlanet(_provider.geo, 0) + _provider.facParent.requestPosition(time);	
+							pp = _provider.facParent.rotateLocalGeo(_provider.geo, 0) + _provider.facParent.requestPosition(time);	
 						}
 
 						if (!user.Value.t) up = master.allSatellites.Find(x => x.name == user.Key).requestPosition(time);
 						else {
 							facility _user = master.allFacilites.Find(x => x.name == user.Key);
-							up = _user.facParent.geoOnPlanet(_user.geo, 0) + _user.facParent.pos;
+							up = _user.facParent.rotateLocalGeo(_user.geo, 0) + _user.facParent.pos;
 						}
 
 						if (pp != new position(0, 0, 0) && up != new position(0, 0, 0)) 

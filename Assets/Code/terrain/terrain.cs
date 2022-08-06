@@ -30,7 +30,7 @@ public class planetTerrain
         else {
             if (!planetFocus.usePoleFocus) _updateTerrain();
             else unload();
-            //parent.representation.forceHide = true;
+            parent.representation.forceHide = true;
         }
     }
 
@@ -183,7 +183,7 @@ public class planetTerrain
         currentRes = sortedResolutions[0];
     }
 
-    List<double> resolutionPercents = quickSum(5, 3);
+    List<double> resolutionPercents = quickSum(5, 3.5);
     private static List<double> quickSum(int count, double denom) {
         List<double> output = new List<double>();
         double value = 0;
@@ -245,13 +245,9 @@ public class planetTerrain
             bool valid = false;
             
             for (int j = 0; j < 4; j++)
-            {
-                // check if visible
-                position geoPos = parent.geoOnPlanet(edges[j], 10) + parent.pos; // IMPORTANT: if terrain disappears at small fovs, increase alt value
-                Vector3 worldPos = (Vector3) ((geoPos - master.currentPosition - master.referenceFrame) / master.scale);
-                
+            {   
                 // check if point is behind the player / hidden by planet
-                Vector3 v = general.camera.WorldToScreenPoint(worldPos);
+                Vector3 v = general.camera.WorldToScreenPoint((Vector3) parent.localGeoToWorldPos(edges[j], 0)); // IMPORTANT: if terrain disappears at small fovs, increase alt value
                 screenEdges.Add(v);
 
                 // is point within screen bounds

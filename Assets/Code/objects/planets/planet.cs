@@ -130,9 +130,17 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
         representation.setRadius(data.radius);
     }
 
-    public position geoOnPlanet(geographic g, double alt) => Quaternion.Euler((Vector3) this.rotation) * (Vector3) g.toCartesian(this.radius + alt).swapAxis();
+    public position rotateLocalGeo(geographic g, double alt) => geographic.toGeographic(representation.gameObject.transform.rotation * (Vector3) (g.toCartesian(radius + alt)).swapAxis(), radius).toCartesian(radius + alt).swapAxis();
 
-    public position rotatePoint(position p) => Quaternion.Euler((Vector3) this.rotation) * (Vector3) p;
+    /// <summary> Takes a pos centered on (0,0) and converts it to the respective geographic on the planet, respecting the planets rotation </summary>
+    public geographic posToLocalGeo(position p) {
+        return geographic.toGeographic(((position) (representation.gameObject.transform.rotation * (Vector3) p.swapAxis())), radius);
+    }
+    public Vector3 localGeoToWorldPos(geographic g, double alt) {
+        position c = representation.gameObject.transform.rotation * (Vector3) (g.toCartesian(radius + alt)).swapAxis();
+        geographic gg = geographic.toGeographic(c, radius);
+        return (Vector3) ((gg.toCartesian(radius + alt) + pos - master.currentPosition - master.referenceFrame) / master.scale).swapAxis();
+    }
 
     private position calculateRotation()
     {

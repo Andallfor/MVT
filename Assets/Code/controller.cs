@@ -40,7 +40,7 @@ public class controller : MonoBehaviour
 
         master.markStartOfSimulation();
 
-        runDynamicLink();
+        // /runDynamicLink();
         //linkBudgeting.accessCalls("C:/Users/akazemni/Desktop/connections.txt");
 
         startMainLoop();

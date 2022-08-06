@@ -24,6 +24,8 @@ public class uiSettingsPanel : MonoBehaviour
         unlit = Resources.Load<Shader>("Materials/planets/moon/moonTexture");
         lit = Resources.Load<Shader>("Materials/planets/moon/moonShaded");
         moonMat = Resources.Load<Material>("Materials/planets/moon/moon");
+
+        moonMat.shader = lit;
     }
 
     public static void reset() {
