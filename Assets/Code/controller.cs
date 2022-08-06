@@ -338,6 +338,7 @@ public class controller : MonoBehaviour
 
         double oneMin = 0.0006944444;
         double oneHour = 0.0416666667;
+        double oneSec = 0.00001157;
 
         double MoonMu = 4902.800066;
 
@@ -364,7 +365,14 @@ public class controller : MonoBehaviour
                 if (dict.ContainsKey("RAAN")) {
                     sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"] / 1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), MoonMu)), srd);
                 } else if (dict.ContainsKey("FilePath")) {
-                    sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneMin), srd);
+                    if (x.Key == "HLS-Ascent" | x.Key == "HLS-Descent")
+                    {
+                        sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneSec), srd);
+                    }
+                    else
+                    {
+                        sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneMin), srd);
+                    }
                 }
                 sat.positions.enableExistanceTime(new Time(2460806.5 + dict["TimeInterval_start"]), new Time((2460806.5 + dict["TimeInterval_stop"])));
 
