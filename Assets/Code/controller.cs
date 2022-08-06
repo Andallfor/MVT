@@ -400,35 +400,35 @@ public class controller : MonoBehaviour
             }
         }
 
-        /*List<antennaData> antenna1 = new List<antennaData>() {new antennaData("(0,0)", "(0, 0)", new geographic(0, 0), 1)};
+        List<antennaData> antenna1 = new List<antennaData>() {new antennaData("(0,0)", "(0, 0)", new geographic(0, 0), 1)};
         facility fd1 = new facility("(0, 0)", moon, new facilityData("(0, 0)", new geographic(0, 0), 0, antenna1), frd);
 
-        List<antennaData> antenna2 = new List<antennaData>() {new antennaData("(90, 0)", "(90, 0)", new geographic(90, 0), 1)};
-        facility fd2 = new facility("(90, 0)", moon, new facilityData("(90, 0)", new geographic(90, 0), 0, antenna2), frd);
+        //List<antennaData> antenna2 = new List<antennaData>() {new antennaData("(90, 0)", "(90, 0)", new geographic(90, 0), 1)};
+        //facility fd2 = new facility("(90, 0)", moon, new facilityData("(90, 0)", new geographic(90, 0), 0, antenna2), frd);
 
-        List<antennaData> antenna3 = new List<antennaData>() {new antennaData("(-90, 0)", "(-90, 0)", new geographic(-90, 0), 1)};
-        facility fd3 = new facility("(-90, 0)", moon, new facilityData("(-90, 0)", new geographic(-90, 0), 0, antenna3), frd);
+        //List<antennaData> antenna3 = new List<antennaData>() {new antennaData("(-90, 0)", "(-90, 0)", new geographic(-90, 0), 1)};
+        //facility fd3 = new facility("(-90, 0)", moon, new facilityData("(-90, 0)", new geographic(-90, 0), 0, antenna3), frd);
 
-        List<antennaData> antenna4 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(0, 90), 1)};
-        facility fd4 = new facility("(0, 90)", moon, new facilityData("(0, 90)", new geographic(0, 90), 0, antenna4), frd);
+        //List<antennaData> antenna4 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(0, 90), 1)};
+        //facility fd4 = new facility("(0, 90)", moon, new facilityData("(0, 90)", new geographic(0, 90), 0, antenna4), frd);
 
-        List<antennaData> antenna7 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(0, 60), 1)};
-        facility fd7 = new facility("(0, 60)", moon, new facilityData("(0, 90)", new geographic(0, 60), 0, antenna7), frd);
+        //List<antennaData> antenna7 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(0, 60), 1)};
+        //facility fd7 = new facility("(0, 60)", moon, new facilityData("(0, 90)", new geographic(0, 60), 0, antenna7), frd);
 
-        List<antennaData> antenna8 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(0, 30), 1)};
-        facility fd8 = new facility("(0, 30)", moon, new facilityData("(0, 90)", new geographic(0, 30), 0, antenna8), frd);
+        //List<antennaData> antenna8 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(0, 30), 1)};
+        //facility fd8 = new facility("(0, 30)", moon, new facilityData("(0, 90)", new geographic(0, 30), 0, antenna8), frd);
 
-        List<antennaData> antenna5 = new List<antennaData>() {new antennaData("(0, 180)", "(0, 180)", new geographic(0, 180), 1)};
-        facility fd5 = new facility("(0, 180)", moon, new facilityData("(0, 180)", new geographic(0, 180), 0, antenna5), frd);
+        //List<antennaData> antenna5 = new List<antennaData>() {new antennaData("(0, 180)", "(0, 180)", new geographic(0, 180), 1)};
+        //facility fd5 = new facility("(0, 180)", moon, new facilityData("(0, 180)", new geographic(0, 180), 0, antenna5), frd);
 
-        List<antennaData> antenna6 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(0, -90), 1)};
-        facility fd6 = new facility("(0, -90)", moon, new facilityData("(0, 90)", new geographic(0, -90), 0, antenna6), frd);
+        //List<antennaData> antenna6 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(0, -90), 1)};
+        //facility fd6 = new facility("(0, -90)", moon, new facilityData("(0, 90)", new geographic(0, -90), 0, antenna6), frd);
 
-         List<antennaData> antenna9 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(60, 0), 1)};
-        facility fd9 = new facility("(60, 0)", moon, new facilityData("(0, 90)", new geographic(60, 0), 0, antenna9), frd);
+        // List<antennaData> antenna9 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(60, 0), 1)};
+        //facility fd9 = new facility("(60, 0)", moon, new facilityData("(0, 90)", new geographic(60, 0), 0, antenna9), frd);
 
-        List<antennaData> antenna10 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(30, 0), 1)};
-        facility fd10 = new facility("(30, 0)", moon, new facilityData("(0, 90)", new geographic(30, 0), 0, antenna10), frd);
+        //List<antennaData> antenna10 = new List<antennaData>() {new antennaData("(0, 90)", "(0, 90)", new geographic(30, 0), 1)};
+        //facility fd10 = new facility("(30, 0)", moon, new facilityData("(0, 90)", new geographic(30, 0), 0, antenna10), frd);
 
         /*List<antennaData> antenna4 = new List<antennaData>() {new antennaData("(270, 0)", "(270, 0)", new geographic(270, 0), 1)};
         facility fd4 = new facility("(270, 0)", moon, new facilityData("(270, 0)", new geographic(270, 0), antenna4), frd);*/

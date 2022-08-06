@@ -133,9 +133,7 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
     public position rotateLocalGeo(geographic g, double alt) => geographic.toGeographic(representation.gameObject.transform.rotation * (Vector3) (g.toCartesian(radius + alt)).swapAxis(), radius).toCartesian(radius + alt).swapAxis();
 
     /// <summary> Takes a pos centered on (0,0) and converts it to the respective geographic on the planet, respecting the planets rotation </summary>
-    public geographic posToLocalGeo(position p) {
-        return geographic.toGeographic(((position) (representation.gameObject.transform.rotation * (Vector3) p.swapAxis())), radius);
-    }
+    public geographic posToLocalGeo(position p) => geographic.toGeographic(Quaternion.Inverse(representation.gameObject.transform.rotation) * (Vector3) ((p - pos) / master.scale), radius);
     public Vector3 localGeoToWorldPos(geographic g, double alt) {
         position c = representation.gameObject.transform.rotation * (Vector3) (g.toCartesian(radius + alt)).swapAxis();
         geographic gg = geographic.toGeographic(c, radius);
