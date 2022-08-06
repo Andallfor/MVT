@@ -20,7 +20,9 @@ public static class planetFocus
         if (use) {
             // only if we are focused on a planet
             if (master.requestReferenceFrame() is planet) {
+                // we want planet to take up about 60%
                 focus = (planet) master.requestReferenceFrame();
+                master.scale = focus.radius / (0.6 * -general.defaultCameraPosition.z);
                 master.requestPositionUpdate();
                 general.camera.transform.LookAt(focus.representation.gameObject.transform.position);
             } else usePlanetFocus = false;
