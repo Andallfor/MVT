@@ -21,7 +21,11 @@ public static class general
     /// <summary> Default FOV of camera. </summary>
     public static float defaultCameraFOV = 60;
     public static event EventHandler onStatusChange = delegate {};
-    public static void notifyStatusChange() {onStatusChange(null, EventArgs.Empty); showingTrails = false; notifyTrailsChange();}
+    public static void notifyStatusChange() {
+        onStatusChange(null, EventArgs.Empty); 
+        showingTrails = false;
+        notifyTrailsChange();
+    }
     public static event EventHandler onTrailChange = delegate {};
     public static void notifyTrailsChange() {onTrailChange(null, EventArgs.Empty);}
 

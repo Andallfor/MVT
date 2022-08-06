@@ -43,9 +43,20 @@ public class controller : MonoBehaviour
         // /runDynamicLink();
         //linkBudgeting.accessCalls("C:/Users/akazemni/Desktop/connections.txt");
 
+        initModes();
+
         startMainLoop();
 
         //Debug.Log(position.J2000(new position(0, 1, 0), new position(0, 0, -1), new position(0, 1, 0)));
+    }
+
+    private void initModes() { // i dont wanna hear it
+        planetFocus.enable(true);
+        planetFocus.enable(false);
+        planetOverview.enable(true);
+        planetOverview.enable(false);
+        uiMap.map.toggle(true);
+        uiMap.map.toggle(false);
     }
 
     private void runDynamicLink() {
@@ -229,6 +240,8 @@ public class controller : MonoBehaviour
         if (Input.GetKeyDown("q"))
         {
             master.requestScaleUpdate();
+            planetFocus.enable(false);
+            uiMap.map.toggle(false);
             planetOverview.enable(!planetOverview.usePlanetOverview);
             master.clearAllLines();
 
@@ -237,6 +250,8 @@ public class controller : MonoBehaviour
 
         if (Input.GetKeyDown("e")) {
             master.requestScaleUpdate();
+            uiMap.map.toggle(false);
+            planetOverview.enable(false);
             planetFocus.enable(!planetFocus.usePlanetFocus);
             general.pt.unload();
             general.plt.clear();
@@ -247,6 +262,8 @@ public class controller : MonoBehaviour
 
         if (Input.GetKeyDown("m")) {
             master.requestScaleUpdate();
+            planetFocus.enable(false);
+            planetOverview.enable(false);
             uiMap.map.toggle(!uiMap.useUiMap);
             master.clearAllLines();
 

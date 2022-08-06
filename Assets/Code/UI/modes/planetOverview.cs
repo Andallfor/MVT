@@ -84,7 +84,6 @@ public static class planetOverview
             toggleSat.gameObject.SetActive(false);
             disclaimer.SetActive(true);
 
-
             addDefaultObey();
             drawAxes();
         } else {
@@ -153,12 +152,11 @@ public static class planetOverview
         mr.enabled = true;
     }
 
-    private static void clearAxes()
-    {
+    private static void clearAxes() {
         rotationalOffset = 0;
 
-        foreach (lineController lc in axes.Values) lc.clearLine();
-        foreach (lineController lc in bodies.Values) lc.destroy();
+        foreach (lineController lc in axes.Values) {if (!ReferenceEquals(lc, null)) lc.clearLine();};
+        foreach (lineController lc in bodies.Values) {if (!ReferenceEquals(lc, null)) lc.destroy();};
         bodies = new Dictionary<body, lineController>();
 
         updateAxes(true);
