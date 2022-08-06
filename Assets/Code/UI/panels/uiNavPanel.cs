@@ -105,6 +105,10 @@ public class uiNavPanel : MonoBehaviour
         master.requestPositionUpdate();
 
         general.camera.transform.localEulerAngles = new Vector3(0, 0, 0);
+
+        if (planetOverview.usePlanetOverview) planetOverview.enable(false);
+        if (planetFocus.usePlanetFocus) planetFocus.enable(false);
+        if (uiMap.useUiMap) uiMap.map.toggle(false);
     }
 
     public void focus() {
