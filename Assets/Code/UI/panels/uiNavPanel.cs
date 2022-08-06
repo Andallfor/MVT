@@ -30,12 +30,14 @@ public class uiNavPanel : MonoBehaviour
 
     public void moveY(int multi) {
         Vector3 foward = general.camera.transform.forward;
-        master.currentPosition += foward * 5f * (float) master.scale * UnityEngine.Time.deltaTime * (float) multi;
+        if (planetFocus.usePlanetFocus) planetFocus.movementOffset += (float) master.scale * 0.75f * general.camera.transform.up * planetFocus.zoom / 40f * UnityEngine.Time.deltaTime * (float) multi;
+        else master.currentPosition += foward * 5f * (float) master.scale * UnityEngine.Time.deltaTime * (float) multi;
     }
 
     public void moveX(int multi) {
         Vector3 right = general.camera.transform.right;
-        master.currentPosition += right * 5f * (float) master.scale * UnityEngine.Time.deltaTime * (float) multi;
+        if (planetFocus.usePlanetFocus) planetFocus.movementOffset += (float) master.scale * 0.75f * right * planetFocus.zoom / 40f * UnityEngine.Time.deltaTime * (float) multi;
+        else master.currentPosition += right * 5f * (float) master.scale * UnityEngine.Time.deltaTime * (float) multi;
     }
 
     public void changeZoom(int multi) {
