@@ -132,9 +132,11 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
 
     public position rotateLocalGeo(geographic g, double alt) => geographic.toGeographic(representation.gameObject.transform.rotation * (Vector3) (g.toCartesian(radius + alt)).swapAxis(), radius).toCartesian(radius + alt).swapAxis();
 
-    /// <summary> Takes a pos centered on (0,0) and converts it to the respective geographic on the planet, respecting the planets rotation </summary>
-    public geographic posToLocalGeo(position p) => geographic.toGeographic(Quaternion.Inverse(representation.gameObject.transform.rotation) * (Vector3) ((p - pos) / master.scale), radius);
-    public Vector3 localGeoToWorldPos(geographic g, double alt) {
+    /// <summary> Takes a world pos and converts it to the respective geographic on the planet, respecting the planets rotation </summary>
+    public geographic worldPosToLocalGeo(position p) => geographic.toGeographic(Quaternion.Inverse(representation.gameObject.transform.rotation) * (Vector3) ((p - pos) / master.scale), radius);
+    /// <summary> Takes a pos centered on (0, 0) and converts it to the respective geographic on the planet, respecting the planets rotation </summary>
+    public geographic localPosToLocalGeo(position p) => geographic.toGeographic(Quaternion.Inverse(representation.gameObject.transform.rotation) * (Vector3) (p / master.scale), radius);
+    public Vector3 localGeoToUnityPos(geographic g, double alt) {
         position c = representation.gameObject.transform.rotation * (Vector3) (g.toCartesian(radius + alt)).swapAxis();
         geographic gg = geographic.toGeographic(c, radius);
         return (Vector3) ((gg.toCartesian(radius + alt) + pos - master.currentPosition - master.referenceFrame) / master.scale).swapAxis();

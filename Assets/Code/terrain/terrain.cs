@@ -75,7 +75,7 @@ public class planetTerrain
 
         Queue<geographic> queue = new Queue<geographic>(m);
 
-        float batchCount = 5;
+        float batchCount = 2;
         for (int i = 0; i < (float) m.Count / batchCount; i++) {
             List<Task> tasks = new List<Task>();
 
@@ -94,6 +94,7 @@ public class planetTerrain
             }
 
             await Task.WhenAll(tasks);
+            await Task.Delay(4);
         }
     }
 
@@ -183,7 +184,7 @@ public class planetTerrain
         currentRes = sortedResolutions[0];
     }
 
-    List<double> resolutionPercents = quickSum(5, 3.5);
+    List<double> resolutionPercents = quickSum(5, 2);
     private static List<double> quickSum(int count, double denom) {
         List<double> output = new List<double>();
         double value = 0;
@@ -196,8 +197,8 @@ public class planetTerrain
     }
 
     private planetTerrainFolderInfo findDesiredResolution() {
-        double minFov = 4;
-        double maxFov = 75;
+        double minFov = 7;
+        double maxFov = 90;
         // TODO: get rid of fov
         double percent = 1.0 - (general.camera.fieldOfView + minFov) / (maxFov + minFov);
 
@@ -214,78 +215,89 @@ public class planetTerrain
         return p;
     }
 
-    private List<Vector2> screenCorners = new List<Vector2>() {
-        new Vector2(0, 0),
-        new Vector2(Screen.width, 0),
-        new Vector2(Screen.width, Screen.height),
-        new Vector2(0, Screen.height)};
-
+    private List<Vector2> screenCorners = new List<Vector2>() { new Vector2(0, 0), new Vector2(Screen.width, 0), new Vector2(Screen.width, Screen.height), new Vector2(0, Screen.height) };
+    
+    private Vector2 vec3To2(Vector3 v) => new Vector2(v.x, v.y);
+    private List<Vector2> directions = new List<Vector2>() {new Vector2(0, 1), new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, -1), new Vector2(1, 1), new Vector2(-1, -1), new Vector2(1, -1), new Vector2(-1, 1)};
     private HashSet<geographic> findDesiredMeshes(planetTerrainFolderInfo p) {
         float planetZ = general.camera.WorldToScreenPoint(this.parent.representation.gameObject.transform.position).z;
 
         if (controller.useTerrainVisibility) Debug.LogWarning("Warning! You are trying to use visiblity with terrain. This forces us to load everything- be careful when increasing resolution!");
 
+        // get radius of parent in screen length
+        // draw line from parent screen center to center of screen
+        // find percent of radius screen length to line screen length
+        // get x percent of line screen (starting at parent)
+        // check if point exists, if yes then parent on screen otherwise no
+        // get the geo of said point with code below
+        // flood fill alg to find meshes on screen
+            // dont use below below code for checking if on screen
+            // check if center point is on screen
+            // if not but previous was keep, then end that iter
+            
+            // dont do alg where new queue is adding dynamically, each queue should be added after the current queue is enteirely emptied
+            // should resemble a circle growing otuwards
+
+        Vector2 screenCenter = new Vector2(Screen.width / 2f, Screen.height / 2f);
+        Vector2 parentCenter = vec3To2(general.camera.WorldToScreenPoint(parent.representation.gameObject.transform.position));
+        float screenRadius = Vector2.Distance(parentCenter, parentCenter + new Vector2(0, (float) (parent.radius / master.scale)));
+        float percent = screenRadius / Vector2.Distance(parentCenter, screenCenter);
+        if (float.IsInfinity(percent) || float.IsNaN(percent)) percent = 0;
+        float diffX = (parentCenter.x - screenCenter.x) * percent;
+        float diffY = (parentCenter.y - screenCenter.y) * percent;
+        Vector2 projectedPoint = screenCenter + new Vector2(diffX, diffY);
+
+        List<position> intersections = position.lineSphereInteresection(
+            general.camera.ScreenToWorldPoint(new Vector3(projectedPoint.x, projectedPoint.y, 1)),
+            general.camera.ScreenToWorldPoint(new Vector3(projectedPoint.x, projectedPoint.y, 10)),
+            new position(0, 0, 0),
+            parent.radius / master.scale);
+
+        if (intersections.Count == 0) return new HashSet<geographic>();
+        
+        position preferred = intersections[0];
+        if (intersections.Count == 2) {
+            double dist1 = position.distance(preferred, general.camera.transform.position);
+            double dist2 = position.distance(intersections[1], general.camera.transform.position);
+            if (dist2 < dist1) preferred = intersections[1];
+        }
+
+        geographic fillCenter = parent.localPosToLocalGeo(preferred + master.currentPosition / master.scale);
+        geographic startingMesh = new geographic(
+            fillCenter.lat - fillCenter.lat % p.increment.lat,
+            fillCenter.lon - fillCenter.lon % p.increment.lon);
+        
+        Queue<geographic> toCheck = new Queue<geographic>(new List<geographic>() {startingMesh});
         HashSet<geographic> points = new HashSet<geographic>();
-        for (int i = 0; i < p.allBounds.Count; i++) {
-            Bounds b = p.allBounds[i];
-            List<geographic> edges = new List<geographic>() {
-                new geographic(b.min.y, b.min.x), // sw
-                new geographic(b.max.y, b.max.x), // ne
-                new geographic(b.min.y, b.max.x), // se
-                new geographic(b.max.y, b.min.x)}; // nw
+        bool allOffscreen = false;
+        while (!allOffscreen) {
+            allOffscreen = true;
+            HashSet<geographic> nextFrontier = new HashSet<geographic>();
+            while (toCheck.Count != 0) {
+                geographic g = toCheck.Dequeue();
+                
+                Vector3 v = general.camera.WorldToScreenPoint(parent.localGeoToUnityPos(g + p.increment / 2.0, 10));
+                if (v.z < 0 || v.z > planetZ) continue;
+                float dist = Vector2.Distance(vec3To2(v), screenCenter);
+                float maxAllowedMeshDist = Vector2.Distance(
+                    vec3To2(general.camera.WorldToScreenPoint(parent.localGeoToUnityPos(g, 0))),
+                    vec3To2(general.camera.WorldToScreenPoint(parent.localGeoToUnityPos(g + p.increment, 0)))) + screenCenter.magnitude;
+                if (dist > maxAllowedMeshDist * 1.05f) continue;
+                allOffscreen = false;
 
-            if (controller.useTerrainVisibility) {
-                points.Add(new geographic(b.min.y, b.min.x));
-                continue;
-            }
-            
-            List<Vector3> screenEdges = new List<Vector3>();
-            
-            geographic avg = new geographic(0.5 * (b.max.y + b.min.y), 0.5 * (b.max.x + b.min.x));
-            bool valid = false;
-            
-            for (int j = 0; j < 4; j++)
-            {   
-                // check if point is behind the player / hidden by planet
-                Vector3 v = general.camera.WorldToScreenPoint((Vector3) parent.localGeoToWorldPos(edges[j], 0)); // IMPORTANT: if terrain disappears at small fovs, increase alt value
-                screenEdges.Add(v);
-
-                // is point within screen bounds
-                if (v.x < 0 || v.y < 0 || v.x > Screen.width || v.y > Screen.height || v.z < 0 || v.z > planetZ) continue;
-
-                valid = true;
-            }
-
-            // check if the player is instead fully within the bounds (and cannot see the corners)
-            if (!valid) {
-                Vector2 min = new Vector2(100000000, 10000000);
-                Vector2 max = new Vector2(-100000000, -10000000);
-                int failureCount = 0;
-                foreach (Vector3 v in screenEdges) {
-                    if (v.z < 0 || v.z > planetZ) failureCount++;
-
-                    if (v.x < min.x) min.x = v.x;
-                    if (v.y < min.y) min.y = v.y;
-                    if (v.x > max.x) max.x = v.x;
-                    if (v.y > max.y) max.y = v.y;
-                }
-
-                if (failureCount != 4) {
-                    for (int j = 0; j < 4; j++) {
-                        // check if any screen corner is within the bounds of the mesh
-                        Vector2 v = screenCorners[j];
-                        if (v.x > min.x && v.y > min.y && v.x < max.x && v.y < max.y) {
-                            valid = true;
-                            break;
-                        }
+                foreach (Vector2 dir in directions) {
+                    geographic next = g + new geographic(dir.x * p.increment.lat, dir.y * p.increment.lon);
+                    if (!points.Contains(next) && !nextFrontier.Contains(next)) {
+                        points.Add(next);
+                        nextFrontier.Add(next);
                     }
                 }
             }
 
-            if (valid) points.Add(new geographic(b.min.y, b.min.x));
+            toCheck = new Queue<geographic>(nextFrontier);
         }
 
-        return points;
+        return new HashSet<geographic>(points.Where(x => meshes[p].ContainsKey(x)));
     }
 }
 

@@ -17,7 +17,6 @@ public class controller : MonoBehaviour
     private Coroutine loop;
     public static bool useTerrainVisibility = false;
 
-
     void Start()
     {
         master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/ARTEMIS 3/PLANETS/sun", 0.0416666665, planetType.planet),
@@ -189,7 +188,7 @@ public class controller : MonoBehaviour
                     master.requestPositionUpdate();
                 } else {
                     planetFocus.zoom -= Input.mouseScrollDelta.y * planetFocus.zoom / 10f;
-                    planetFocus.zoom = Mathf.Max(Mathf.Min(planetFocus.zoom, 75), 4f);
+                    planetFocus.zoom = Mathf.Max(Mathf.Min(planetFocus.zoom, 90), 7f);
                 }
             }
 

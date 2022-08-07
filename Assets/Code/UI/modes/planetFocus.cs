@@ -39,7 +39,10 @@ public static class planetFocus
             master.currentPosition = focus.rotateLocalGeo(new geographic(-90, 0), 0);
 
             focus.representation.forceHide = true;
-        } else focus.representation.forceDisable = false;
+        } else {
+            master.scale = focus.radius / (0.6 * -general.defaultCameraPosition.z);
+            focus.representation.forceDisable = false;
+        }
     }
 
     private static void reset() {

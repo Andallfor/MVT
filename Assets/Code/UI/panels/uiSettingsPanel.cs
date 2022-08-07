@@ -78,10 +78,6 @@ public class uiSettingsPanel : MonoBehaviour
     public void setScale() {master.scale = scale.currentValue;}
 
     public void setLighting() {
-        if (intensity.currentValue != 0) moonMat.shader = lit;    
-        else moonMat.shader = unlit;
-
-        if (intensity.currentValue == 0) sceneLighting.intensity = 1;
-        else sceneLighting.intensity = ((float) intensity.currentValue) / 5f;
+        sceneLighting.intensity = ((float) intensity.currentValue) / 5f;
     }
 }

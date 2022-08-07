@@ -58,14 +58,10 @@ public static class planetOverview
         if (use)
         {
             calulcateDefaultMaxDist();
-
-            Camera c = Camera.main;
-            c.transform.position = new Vector3(-15, 7.5f, -15);
-            c.transform.rotation = Quaternion.Euler(20, 45, 0);
-            c.orthographic = true;
-            c.orthographicSize = 5;
-            obeyingSatellites = new List<satellite>();
-            zoomed = false;
+            general.camera.transform.position = new Vector3(-15, 7.5f, -15);
+            general.camera.transform.rotation = Quaternion.Euler(20, 45, 0);
+            general.camera.orthographic = true;
+            general.camera.orthographicSize = 5;
             rotationalOffset = 0;
 
             planetOverviewUI parent = GameObject.FindGameObjectWithTag("ui/planetOverview/parent").GetComponent<planetOverviewUI>();
@@ -79,33 +75,31 @@ public static class planetOverview
             toggleMoon.onValueChanged.AddListener(moonCallback);
             back.onClick.AddListener(backCallback);
 
-            back.gameObject.SetActive(false);
-            toggleMoon.gameObject.SetActive(false);
-            toggleSat.gameObject.SetActive(false);
             disclaimer.SetActive(true);
 
             addDefaultObey();
             drawAxes();
         } else {
-            Camera c = Camera.main;
-            c.transform.position = new Vector3(0, 0, -10);
-            c.transform.rotation = Quaternion.Euler(0, 0, 0);
-            c.orthographic = false;
-            c.fieldOfView = 60;
-            zoomed = false;
+            general.camera.transform.position = new Vector3(0, 0, -10);
+            general.camera.transform.rotation = Quaternion.Euler(0, 0, 0);
+            general.camera.orthographic = false;
+            general.camera.fieldOfView = 60;
             maxDist = 0;
             focus = master.sun;
             obeyingPlanets = new List<planet>();
-            obeyingSatellites = new List<satellite>();
-            clearAxes();
 
-            back.gameObject.SetActive(false);
-            toggleMoon.gameObject.SetActive(false);
-            toggleSat.gameObject.SetActive(false);
             disclaimer.SetActive(false);
+            
+            clearAxes();
 
             foreach (facility f in master.allFacilites) f.representation.setActive(true);
         }
+
+        obeyingSatellites = new List<satellite>();
+        zoomed = false;
+        back.gameObject.SetActive(false);
+        toggleMoon.gameObject.SetActive(false);
+        toggleSat.gameObject.SetActive(false);
 
         rotationalOffset = 0;
         _upo = use;
@@ -132,6 +126,7 @@ public static class planetOverview
         foreach (planet p in obeyingPlanets) createLineController(p);
         foreach (satellite s in obeyingSatellites) createLineController(s);
 
+        lastRotationalOffset = 0;
         updateAxes(true);
     }
 
@@ -153,8 +148,6 @@ public static class planetOverview
     }
 
     private static void clearAxes() {
-        rotationalOffset = 0;
-
         foreach (lineController lc in axes.Values) {if (!ReferenceEquals(lc, null)) lc.clearLine();};
         foreach (lineController lc in bodies.Values) {if (!ReferenceEquals(lc, null)) lc.destroy();};
         bodies = new Dictionary<body, lineController>();
@@ -203,6 +196,7 @@ public static class planetOverview
         if (target == null) return;
 
         if (Input.GetMouseButtonDown(0) && target is planet && focus != target) {
+            rotationalOffset = 0;
             focus = target;
             zoomed = true;
 
@@ -263,29 +257,29 @@ public static class planetOverview
 
     public static void satCallback(bool value) {
         clearAxes();
-        if (!value) obeyingSatellites = new List<satellite>();
-        else {
-            foreach (KeyValuePair<planet, List<satellite>> relation in master.relationshipSatellite) {
-                if (relation.Key == focus) {
-                    obeyingSatellites = relation.Value;
-                    break;
-                }
-            }
+        if (!value) {
+            foreach (satellite s in obeyingSatellites) s.tr.disable();
+            obeyingSatellites = new List<satellite>();
+            general.notifyTrailsChange();
+        } else {
+            obeyingSatellites = master.relationshipSatellite.FirstOrDefault(x => x.Key == focus).Value;
+            if (ReferenceEquals(obeyingSatellites, null)) obeyingSatellites = new List<satellite>();
         }
+
+        general.notifyTrailsChange();
 
         drawAxes();
     }
 
     public static void moonCallback(bool value) {
         clearAxes();
-        if (!value) obeyingPlanets = new List<planet>();
-        else {
-            foreach (KeyValuePair<planet, List<planet>> relation in master.relationshipPlanet) {
-                if (relation.Key == focus) {
-                    obeyingPlanets = relation.Value;
-                    break;
-                }
-            }
+        if (!value) {
+            foreach (planet p in obeyingPlanets) p.tr.disable();
+            obeyingPlanets = new List<planet>();
+            general.notifyTrailsChange();
+        } else {
+            obeyingPlanets = master.relationshipPlanet.FirstOrDefault(x => x.Key == focus).Value;
+            if (ReferenceEquals(obeyingPlanets, null)) obeyingPlanets = new List<planet>();
         }
 
         obeyingPlanets.Add(focus);

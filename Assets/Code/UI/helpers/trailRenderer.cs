@@ -28,19 +28,7 @@ public class trailRenderer
 
         lr.transform.parent = GameObject.FindGameObjectWithTag("planet/trails").transform;
 
-        master.onFinalSetup += findParent;
         general.onStatusChange += disableWrapper;
-    }
-
-    private void findParent(object sender, EventArgs e) {
-        lr.transform.parent = null;
-        // all hail linq
-        if (master.relationshipSatellite.Any(x => x.Value.Exists(y => y.name == name)) ||
-            master.relationshipPlanet.Any(x => x.Value.Exists(y => y.name == name)) &&
-            !planetOverview.usePlanetOverview) {
-            if (b is satellite) lr.transform.parent = master.relationshipSatellite.First(x => x.Value.Exists(y => y.name == name)).Key.representation.gameObject.transform;
-            else if (b is planet) lr.transform.parent = master.relationshipPlanet.First(x => x.Value.Exists(y => y.name == name)).Key.representation.gameObject.transform;
-        } else lr.transform.parent = GameObject.FindGameObjectWithTag("planet/trails").transform;
     }
 
     public void enable() {
@@ -49,7 +37,6 @@ public class trailRenderer
         enabled = true;
 
         lr.positionCount = 0;
-        findParent(null, EventArgs.Empty);
 
         if (orbitalPeriod == 0) Debug.LogWarning($"No orbital period found for {name}");
         else { // we know the orbital period, so draw the orbit

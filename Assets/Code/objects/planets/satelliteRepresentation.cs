@@ -15,6 +15,7 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
     private MeshRenderer mrSelf;
     private string shownNameText;
     private string name;
+    private trailRenderer tr;
     public GameObject gameObject;
 
     public satelliteRepresentation(string name, representationData data) {
@@ -60,21 +61,11 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
     {
         if (uiMap.useUiMap) return;
 
-        if (forceHide) {
-            mrSelf.enabled = false;
-            shownName.text = "";
-            return;
-        }
+        if (forceHide) {hide(); return;}
 
         if (planetOverview.usePlanetOverview) {
-            if (!planetOverview.obeyingSatellites.Exists(x => x.name == name)) {
-                mrSelf.enabled = false;
-                shownName.text = "";
-                return;
-            }
-
+            if (!planetOverview.obeyingSatellites.Exists(x => x.name == name)) {hide(); return;}
             pos = planetOverview.planetOverviewPosition(pos - planetOverview.focus.pos + master.currentPosition + master.referenceFrame);
-            
         }
 
         Vector3 p = new Vector3(
@@ -103,6 +94,11 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
             Vector3 rotatedPoint = uiHelper.vRotate(rot.y, rot.x, rot.z, p);
             uiHelper.drawTextOverObject(shownName, rotatedPoint);
         }
+    }
+
+    private void hide() {
+        mrSelf.enabled = false;
+        shownName.text = "";
     }
 
     public jsonSatelliteRepresentationStruct requestJsonFile()
