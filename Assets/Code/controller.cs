@@ -16,6 +16,9 @@ public class controller : MonoBehaviour
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
     private Coroutine loop;
     public static bool useTerrainVisibility = false;
+    public static controller self;
+
+    private void Awake() {self = this;}
 
     void Start()
     {
@@ -77,6 +80,7 @@ public class controller : MonoBehaviour
             useTerrainVisibility = false;
         };
         options.debug = true;
+        options.blocking = false;
         options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
 
         useTerrainVisibility = true;
@@ -86,34 +90,17 @@ public class controller : MonoBehaviour
 
         foreach (var u in linkBudgeting.users)
         {
-            if (u.Value.Item1)
-            {
-                users.Add(master.allFacilites.Find(x => x.name == u.Key));
-                Debug.Log("user: " + u.Key);
-            }
-            else
-            {
-                users.Add(master.allSatellites.Find(x => x.name == u.Key));
-                Debug.Log("user: " + u.Key);
-            }
+            if (u.Value.Item1) users.Add(master.allFacilites.Find(x => x.name == u.Key));
+            else users.Add(master.allSatellites.Find(x => x.name == u.Key));
         }
 
         foreach (var p in linkBudgeting.providers)
         {
-            if (p.Value.Item1)
-            {
-                providers.Add(master.allFacilites.Find(x => x.name == p.Key));
-                Debug.Log("provider: " + p.Key);
-            }
-            else
-            {
-                providers.Add(master.allSatellites.Find(x => x.name == p.Key));
-                Debug.Log("provider: " + p.Key);
-            }
+            if (p.Value.Item1) providers.Add(master.allFacilites.Find(x => x.name == p.Key));
+            else providers.Add(master.allSatellites.Find(x => x.name == p.Key));
         }
 
-        StartCoroutine(visibility.raycastTerrain(
-            providers, users, master.time.julian, master.time.julian + 30, speed, options));
+        visibility.raycastTerrain(providers, users, master.time.julian, master.time.julian + 1, speed, options);
     }
 
     private void runScheduling() {
@@ -425,6 +412,7 @@ public class controller : MonoBehaviour
                 } else if (dict["CentralBody"] == "Earth") {
                     satellite.addFamilyNode(earth, sat);
                     earthSats.Add(sat);
+                    Debug.Log("worked: " + x.Key);
                 }
             } 
             else if (dict["Type"] == "Facility") {
@@ -439,6 +427,7 @@ public class controller : MonoBehaviour
 
                     List<antennaData> antenna = new List<antennaData>() {new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"])};
                     facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), 0, antenna, new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);
+                    Debug.Log("Facility created");
 
                     if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
                     if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
@@ -456,6 +445,7 @@ public class controller : MonoBehaviour
                         linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
                         linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
                     }
+                    Debug.Log("Facility created");
                 }
             }
         }

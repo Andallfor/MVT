@@ -25,6 +25,7 @@ TagManager:
   - ui/bottomBar/defaultPanel
   - light
   - ui/bodyName
+  - ui/loading
   layers:
   - Default
   - TransparentFX

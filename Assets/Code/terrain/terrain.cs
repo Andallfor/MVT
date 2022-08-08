@@ -222,8 +222,6 @@ public class planetTerrain
     private HashSet<geographic> findDesiredMeshes(planetTerrainFolderInfo p) {
         float planetZ = general.camera.WorldToScreenPoint(this.parent.representation.gameObject.transform.position).z;
 
-        if (controller.useTerrainVisibility) Debug.LogWarning("Warning! You are trying to use visiblity with terrain. This forces us to load everything- be careful when increasing resolution!");
-
         // get radius of parent in screen length
         // draw line from parent screen center to center of screen
         // find percent of radius screen length to line screen length
