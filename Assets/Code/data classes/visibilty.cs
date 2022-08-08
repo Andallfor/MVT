@@ -99,7 +99,7 @@ public static class visibility
                     if (!existance[ukvp.Key](master.time) || !existance[pkvp.Key](master.time)) continue;
 					Ray r = new Ray(ukvp.Value.position, pkvp.Value.position - ukvp.Value.position);
 					bool hit = true;
-					if (!Physics.Raycast(r, 1000, LayerMask.GetMask("terrain", "planet"))) {
+					if (!Physics.Raycast(r, 100000, LayerMask.GetMask("terrain", "planet"))) {
 						var results = output[(ukvp.Key, pkvp.Key)];
 						results.time.Add(master.time.julian);
 						results.dist.Add(Vector3.Distance(ukvp.Value.position, pkvp.Value.position) * master.scale);
@@ -148,12 +148,12 @@ public static class visibility
 				satellite s = (satellite) obj;
 				dict[s.name] = s.representation.gameObject.transform;
                 dict2[s.name] = s.positions.exists;
-			}
+            }
 			else if (obj is facility) {
 				facility f = (facility) obj;
 				dict[f.name] = f.representation.gameObject.transform;
                 dict2[f.name] = f.exists;
-			} else {
+            } else {
                 Debug.LogWarning($"Warning: Unable to find {obj}");
             }
 		}

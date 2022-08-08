@@ -425,6 +425,7 @@ public class controller : MonoBehaviour
                 } else if (dict["CentralBody"] == "Earth") {
                     satellite.addFamilyNode(earth, sat);
                     earthSats.Add(sat);
+                    Debug.Log("worked: " + x.Key);
                 }
             } 
             else if (dict["Type"] == "Facility") {
@@ -439,6 +440,7 @@ public class controller : MonoBehaviour
 
                     List<antennaData> antenna = new List<antennaData>() {new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"])};
                     facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), 0, antenna, new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);
+                    Debug.Log("Facility created");
 
                     if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
                     if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
@@ -456,6 +458,7 @@ public class controller : MonoBehaviour
                         linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
                         linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
                     }
+                    Debug.Log("Facility created");
                 }
             }
         }
