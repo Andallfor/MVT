@@ -28,11 +28,11 @@ public class facility : IJsonFile<jsonFacilityStruct>
     }
 
     public void updatePosition(object sender, EventArgs args) {
-        bool forceHide = exists(master.time);
+        bool forceHide = !exists(master.time);
         representation.updatePos(parent, data.alt, forceHide);
     }
 
-    public bool exists(Time t) => !(data.alwaysExist || (t > data.start &&  t < data.end));
+    public bool exists(Time t) => data.alwaysExist || (t > data.start &&  t < data.end);
 
     public void updateScheduling(object sender, EventArgs args) {representation.drawSchedulingConnections(data.antennas);}
 

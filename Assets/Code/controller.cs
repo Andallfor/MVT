@@ -16,6 +16,9 @@ public class controller : MonoBehaviour
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
     private Coroutine loop;
     public static bool useTerrainVisibility = false;
+    public static controller self;
+
+    private void Awake() {self = this;}
 
     void Start()
     {
@@ -77,6 +80,7 @@ public class controller : MonoBehaviour
             useTerrainVisibility = false;
         };
         options.debug = true;
+        options.blocking = false;
         options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
 
         useTerrainVisibility = true;
@@ -86,34 +90,17 @@ public class controller : MonoBehaviour
 
         foreach (var u in linkBudgeting.users)
         {
-            if (u.Value.Item1)
-            {
-                users.Add(master.allFacilites.Find(x => x.name == u.Key));
-                Debug.Log("user: " + u.Key);
-            }
-            else
-            {
-                users.Add(master.allSatellites.Find(x => x.name == u.Key));
-                Debug.Log("user: " + u.Key);
-            }
+            if (u.Value.Item1) users.Add(master.allFacilites.Find(x => x.name == u.Key));
+            else users.Add(master.allSatellites.Find(x => x.name == u.Key));
         }
 
         foreach (var p in linkBudgeting.providers)
         {
-            if (p.Value.Item1)
-            {
-                providers.Add(master.allFacilites.Find(x => x.name == p.Key));
-                Debug.Log("provider: " + p.Key);
-            }
-            else
-            {
-                providers.Add(master.allSatellites.Find(x => x.name == p.Key));
-                Debug.Log("provider: " + p.Key);
-            }
+            if (p.Value.Item1) providers.Add(master.allFacilites.Find(x => x.name == p.Key));
+            else providers.Add(master.allSatellites.Find(x => x.name == p.Key));
         }
 
-        StartCoroutine(visibility.raycastTerrain(
-            providers, users, master.time.julian, master.time.julian + 30, speed, options));
+        visibility.raycastTerrain(providers, users, master.time.julian, master.time.julian + 1, speed, options);
     }
 
     private void runScheduling() {
