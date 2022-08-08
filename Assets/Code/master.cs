@@ -26,7 +26,10 @@ public static class master
     public static int currentTick = 0;
 
     /// <summary> The players current position, in km. </summary>
-    public static position currentPosition = new position(0, 0, 0);
+    public static position currentPosition {get => _currentPosLast; set {
+        _currentPosLast = value;
+        onCurrentPositionChange(null, EventArgs.Empty);
+    }}
 
     /// <summary> The current position of the reference frame relative to the sun. See also <see cref="requestReferenceFrame"/>. </summary>
     public static position referenceFrame {
@@ -50,7 +53,7 @@ public static class master
 
 
     private static body _referenceFrame;
-    private static position _refFrameLast;
+    private static position _refFrameLast, _currentPosLast = new position(0, 0, 0);
     private static double _scale = 1000;
     public static bool _pause = false;
 
@@ -106,8 +109,6 @@ public static class master
 
     public static List<Timeline> rod = new List<Timeline>();
 
-    public static bool rotatel = false;
-
 
     /// <summary> Clear all <see cref="LineRenderer"/> components on <see cref="planet"/>, <see cref="satellite"/>, and <see cref="facility"/>. </summary>
     public static void clearAllLines()
@@ -141,7 +142,10 @@ public static class master
         currentPosition = new position(0, 0, 0);
         _referenceFrame = b;
 
-        onReferenceFrameChange(null, EventArgs.Empty);
+        general.notifyStatusChange();
+        general.notifyTrailsChange();
+
+        onCurrentPositionChange(null, EventArgs.Empty);
     }
 
     private static bool alreadyStarted = false;
@@ -164,7 +168,7 @@ public static class master
     public static Dictionary<planet, List<facility>> relationshipFacility = new Dictionary<planet, List<facility>>();
 
     /// <summary> Stores the orbital periods of bodies in julian. </summary>
-    /// <remarks> Find a better way to do this. </summary>
+    /// <remarks> Find a better way to do this. </remarks>
     public static Dictionary<string, double> orbitalPeriods = new Dictionary<string, double>() {
         {"Earth", 365.25},
         {"Luna", 27.322},

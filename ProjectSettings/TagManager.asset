@@ -24,6 +24,7 @@ TagManager:
   - ui/bottomBar/settings/year
   - ui/bottomBar/defaultPanel
   - light
+  - ui/bodyName
   layers:
   - Default
   - TransparentFX

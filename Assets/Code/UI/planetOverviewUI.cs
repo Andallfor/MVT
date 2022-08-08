@@ -10,8 +10,10 @@ public class planetOverviewUI : MonoBehaviour
     public GameObject disclaimer;
 
     public float rotationalOffset;
+    public string focus;
 
     public void Update() {
         rotationalOffset = planetOverview.rotationalOffset;
+        focus = planetOverview.focus.name;
     }
 }

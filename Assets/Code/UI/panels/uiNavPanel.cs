@@ -160,7 +160,8 @@ public class uiNavPanel : MonoBehaviour
 
     public void trails() {
         foreach (planet p in master.allPlanets) p.tr.enable(!general.showingTrails);
-        foreach (satellite s in master.allSatellites) s.tr.enable(!general.showingTrails);
+        if (!general.showingTrails) trailRenderer.drawAllSatelliteTrails(master.allSatellites);
+        else foreach (satellite s in master.allSatellites) s.tr.disable();
 
         general.showingTrails = !general.showingTrails;
         general.notifyTrailsChange();

@@ -30,7 +30,7 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
         this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
 
         this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(this.canvas.transform, false);
+        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
         shownName.fontSize = 20;
         shownName.text = name;
 
@@ -52,7 +52,7 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
         this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
 
         this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(this.canvas.transform, false);
+        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
         shownName.fontSize = 23;
         shownName.text = name;
     }
