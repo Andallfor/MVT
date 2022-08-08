@@ -12,7 +12,7 @@ public class trailRenderer
     private double orbitalPeriod = 0;
     private Transform transform, parentTransform;
 
-    public const int resolution = 360;
+    public const int resolution = 180;
     public bool enabled {get; private set;} = false;
 
     public trailRenderer(string name, GameObject go, Timeline positions, body b) {
@@ -28,6 +28,8 @@ public class trailRenderer
 
         general.onStatusChange += disableWrapper;
         master.onFinalSetup += (s, e) => master.onCurrentPositionChange += update;
+        master.onScaleChange += update;
+        master.onReferenceFrameChange += (s, e) => disable();
     }
 
     private void update(object sender, EventArgs e) {
@@ -74,11 +76,7 @@ public class trailRenderer
     public void setPositions(List<Vector3> v) {
         lr.positionCount = v.Count;
         lr.SetPositions(v.ToArray());
-
-        lr.transform.localScale = new Vector3(
-            1f / lr.transform.parent.gameObject.transform.localScale.x,
-            1f / lr.transform.parent.gameObject.transform.localScale.y,
-            1f / lr.transform.parent.gameObject.transform.localScale.z);
+        update(null, EventArgs.Empty);
     }
 
     public void disable() {

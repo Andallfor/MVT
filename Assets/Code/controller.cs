@@ -31,6 +31,13 @@ public class controller : MonoBehaviour
         general.pt = loadTerrain();
         general.plt = loadPoles();
 
+        master.onScaleChange += (s, e) => {
+            if (general.showingTrails) {
+                foreach (planet p in master.allPlanets) p.tr.enable();
+                trailRenderer.drawAllSatelliteTrails(master.allSatellites);
+            }
+        };
+
         //runScheduling();
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 

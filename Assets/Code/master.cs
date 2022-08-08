@@ -139,6 +139,13 @@ public static class master
     /// <remarks><paramref name="b"/> The body to become the reference frame. </remarks>
     public static void setReferenceFrame(body b)
     {
+        if (alreadyStarted) {
+            uiMap.map.toggle(false);
+            planetFocus.enable(false);
+            planetOverview.enable(false);
+            master.clearAllLines();
+        }
+
         currentPosition = new position(0, 0, 0);
         _referenceFrame = b;
 

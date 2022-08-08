@@ -26,15 +26,21 @@ public static class planetFocus
                 master.requestPositionUpdate();
                 general.camera.transform.LookAt(focus.representation.gameObject.transform.position);
             } else usePlanetFocus = false;
+        } else {
+            general.pt.unload();
+            general.plt.clear();
         }
     }
 
     public static void togglePoleFocus(bool use) {
+        if (focus.name != "Luna") {
+            usePoleFocus = false;
+            return;
+        }
         usePoleFocus = use;
         reset();
 
         if (use) {
-            float newHeight = (float) (focus.radius / master.scale);
             master.scale = 50;
             master.currentPosition = focus.rotateLocalGeo(new geographic(-90, 0), 0);
 
@@ -45,7 +51,7 @@ public static class planetFocus
         }
     }
 
-    private static void reset() {
+    public static void reset() {
         general.camera.transform.position = general.defaultCameraPosition;
         general.camera.fieldOfView = general.defaultCameraFOV;
         zoom = general.defaultCameraFOV;

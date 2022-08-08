@@ -36,6 +36,7 @@ public class uiSettingsPanel : MonoBehaviour
         general.camera.fieldOfView = general.defaultCameraFOV;
         general.camera.transform.position = general.defaultCameraPosition;
         general.camera.transform.localEulerAngles = new Vector3(0, 0, 0);
+        controller.speed = 0.00005;
 
         foreach (planet p in master.allPlanets) p.tr.disable();
         foreach (satellite s in master.allSatellites) s.tr.disable();
@@ -50,6 +51,7 @@ public class uiSettingsPanel : MonoBehaviour
         master.requestScaleUpdate();
         master.clearAllLines();
         general.notifyStatusChange();
+        general.notifyTrailsChange();
     }
 
     public void access() {
