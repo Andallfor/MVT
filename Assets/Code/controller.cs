@@ -80,7 +80,7 @@ public class controller : MonoBehaviour
             useTerrainVisibility = false;
         };
         options.debug = true;
-        options.blocking = false;
+        options.blocking = true;
         options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
 
         useTerrainVisibility = true;
@@ -100,7 +100,7 @@ public class controller : MonoBehaviour
             else providers.Add(master.allSatellites.Find(x => x.name == p.Key));
         }
 
-        visibility.raycastTerrain(providers, users, master.time.julian, master.time.julian + 1, speed, options);
+        visibility.raycastTerrain(providers, users, master.time.julian, master.time.julian + 30, speed, options);
     }
 
     private void runScheduling() {

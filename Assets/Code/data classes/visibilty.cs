@@ -60,7 +60,7 @@ public static class visibility
         else controller.self.StartCoroutine(raycastTerrainCoro(users, providers, start, end, increment, options));
 	}
 
-    public static void raycastTerrainBlock(List<object> users, List<object> providers, double start, double end, double increment, dynamicLinkOptions options) {
+    public static async void raycastTerrainBlock(List<object> users, List<object> providers, double start, double end, double increment, dynamicLinkOptions options) {
         general.blockMainLoop = true;
 		currentlyRunningTerrainRaycast = true;
 		// please just use a struct or something
@@ -96,6 +96,14 @@ public static class visibility
 
 		StringBuilder sb = new StringBuilder();
 
+        loadingController.start(new Dictionary<float, string>() {{0, "Generating..."}});
+
+        await Task.Delay(1000);
+
+        int iterations = (int) Math.Ceiling((end - master.time.julian) / increment);
+        int updateCount = iterations / 100;
+        int index = 0;
+
         while (master.time.julian < end) {
             master.time.addJulianTime(increment);
             master.requestPositionUpdate();
@@ -125,7 +133,16 @@ public static class visibility
                     }
                 }
             }
+
+            if (index % updateCount == 0) {
+                await Task.Delay(1);
+                loadingController.addPercent(0.01f);
+            }
+
+            index++;
         }
+
+        loadingController.end();
 
 		master.time.addJulianTime(checkpoint - master.time.julian);
 		master.requestPositionUpdate();
