@@ -46,7 +46,7 @@ public class controller : MonoBehaviour
 
         master.markStartOfSimulation();
 
-        // /runDynamicLink();
+        runDynamicLink();
         //linkBudgeting.accessCalls("C:/Users/akazemni/Desktop/connections.txt");
 
         initModes();
@@ -81,9 +81,39 @@ public class controller : MonoBehaviour
 
         useTerrainVisibility = true;
 
+        List<object> users = new List<object>();
+        List<object> providers = new List<object>();
+
+        foreach (var u in linkBudgeting.users)
+        {
+            if (u.Value.Item1)
+            {
+                users.Add(master.allFacilites.Find(x => x.name == u.Key));
+                Debug.Log("user: " + u.Key);
+            }
+            else
+            {
+                users.Add(master.allSatellites.Find(x => x.name == u.Key));
+                Debug.Log("user: " + u.Key);
+            }
+        }
+
+        foreach (var p in linkBudgeting.providers)
+        {
+            if (p.Value.Item1)
+            {
+                providers.Add(master.allFacilites.Find(x => x.name == p.Key));
+                Debug.Log("provider: " + p.Key);
+            }
+            else
+            {
+                providers.Add(master.allSatellites.Find(x => x.name == p.Key));
+                Debug.Log("provider: " + p.Key);
+            }
+        }
+
         StartCoroutine(visibility.raycastTerrain(
-            new List<object>() {master.allSatellites.Find(x => x.name == "LCN-1"), master.allSatellites.Find(x => x.name == "LCN-2"), master.allSatellites.Find(x => x.name == "LCN-3"), master.allFacilites.Find(x => x.name == "Mare Crisium"), master.allFacilites.Find(x => x.name == "South Pole")}, 
-            new List<object>() {master.allSatellites.Find(x => x.name == "CubeSat-1")}, master.time.julian, master.time.julian + 1, speed, options));
+            providers, users, master.time.julian, master.time.julian + 30, speed, options));
     }
 
     private void runScheduling() {
@@ -365,8 +395,14 @@ public class controller : MonoBehaviour
             var dict = data["Artemis_III"].satellites[x.Key];
 
             if (dict["Type"] == "Satellite") {
-                if (dict["user_provider"] == "user/provider" || dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+                if (x.Key.Contains("LowPower")) continue;
+                if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
                 if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+                if (dict["user_provider"] == "user/provider")
+                {
+                    linkBudgeting.providers.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+                    linkBudgeting.users.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+                }
 
                 satellite sat = null;
                 if (dict.ContainsKey("RAAN")) {
