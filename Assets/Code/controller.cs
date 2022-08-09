@@ -407,6 +407,7 @@ public class controller : MonoBehaviour
             "Prefabs/models/ACE",
             "Prefabs/models/AIM",
             "Prefabs/models/Aura",
+            "Prefabs/models/Cubesat",
             "Prefabs/models/GOES",
             "Prefabs/models/GRACE",
             "Prefabs/models/ICESAT",
@@ -415,12 +416,9 @@ public class controller : MonoBehaviour
             "Prefabs/models/LRO",
             "Prefabs/models/MMS",
             "Prefabs/models/OCO",
-            "Prefabs/models/orion",
             "Prefabs/models/SDO",
             "Prefabs/models/Solar-B",
-            "Prefabs/models/SOYUZ",
             "Prefabs/models/TDRS",
-            "Prefabs/models/THEMIS",
             "Prefabs/models/TRIANA"};
 
         representationData rd = new representationData(
@@ -568,6 +566,8 @@ public class controller : MonoBehaviour
         master.relationshipPlanet[earth] = new List<planet>() {moon};
         master.relationshipSatellite[moon] = moonSats;
         master.relationshipSatellite[earth] = earthSats;
+
+        foreach (satellite s in master.allSatellites) s.representation.setRelationshipParent();
 
         master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/PLANETS/moon", oneMin));
         master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/SATS/v", 0.0006944444));

@@ -8,6 +8,7 @@ using TMPro;
 public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStruct>
 {
     private GameObject canvas, planetParent;
+    private planet parent;
     private TextMeshProUGUI shownName;
     private representationData data;
     public static readonly float minScale = 0.05f;
@@ -38,6 +39,8 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
 
         planetParent = GameObject.FindGameObjectWithTag("planet/parent");
     }
+
+    public void setRelationshipParent() {parent = master.relationshipSatellite.First(x => x.Value.Exists(y => y.name == name)).Key;}
 
     public void regenerate() {
         if (gameObject != null) GameObject.Destroy(gameObject);
@@ -84,6 +87,8 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
             float scale = 0.01f * distance + 0;
             float r = Mathf.Max(Mathf.Min(this.gameObject.transform.localScale.x, planetOverview.usePlanetOverview ? _r : minScale), scale);
             gameObject.transform.localScale = new Vector3(r, r, r);
+
+            if (!(parent is null)) gameObject.transform.LookAt(parent.representation.gameObject.transform.position);
         }
 
         RaycastHit hit;
