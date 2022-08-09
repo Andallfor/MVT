@@ -46,7 +46,6 @@ public class controller : MonoBehaviour
     IEnumerator start()
     {
         yield return StartCoroutine(Artemis3());
-        Debug.Log("finished");
         defaultReferenceFrame = moon;
         //onlyEarth();
 
@@ -365,12 +364,11 @@ public class controller : MonoBehaviour
 
         string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT/terrain");
 
-        pt.generateFolderInfos(new string[5] {
+        pt.generateFolderInfos(new string[4] {
             Path.Combine(p, "lunaBinary/1"),
             Path.Combine(p, "lunaBinary/2"),
             Path.Combine(p, "lunaBinary/3"),
-            Path.Combine(p, "lunaBinary/4"),
-            Path.Combine(p, "lunaBinary/5")
+            Path.Combine(p, "lunaBinary/4")
         });
 
         //string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT");
@@ -566,7 +564,6 @@ public class controller : MonoBehaviour
         master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/SATS/v", 0.0006944444));
 
         loadingController.addPercent(0.1f);
-        Debug.Log("ended");
         yield return null;
     }
 }

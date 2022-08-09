@@ -47,7 +47,7 @@ public static class planetFocus
             focus.representation.forceHide = true;
         } else {
             master.scale = focus.radius / (0.6 * -general.defaultCameraPosition.z);
-            focus.representation.forceDisable = false;
+            //focus.representation.forceDisable = false;
         }
     }
 
