@@ -101,16 +101,12 @@ public class windows
 	public static List<int> find(List<(double, double)> toSearch, double maxRate, double minRate)
 	{
 		List<int> returnList = new List<int>();
-		int i = 0;
-
-		foreach((double, double) x in toSearch)
+		for (int i = 0; i < toSearch.Count; i++)
 		{
-			if (x.Item2 >= minRate && x.Item2 <= maxRate) 
+			if (toSearch[i].Item2 > minRate && toSearch[i].Item2 <= maxRate) 
 			{
 				returnList.Add(i);
-				Debug.Log("find: " + i);
 			}
-			i = i + 1;
 		}
 
 		return returnList;
@@ -137,7 +133,7 @@ public class windows
 		List<(double, double)> returnList = new List<(double, double)>();
 		for(int k = 0; k < time.Count; k++)
 		{
-			returnList.Add((time[k], rate[k]));
+			returnList.Add((time[k]- 2460806.5, rate[k]));
 		}
 		return returnList;
 	}
@@ -162,7 +158,7 @@ public class windows
 
 	public static List<finalWindow> calculateWindows(List<(double, double)> timeRate, double maxRate, double minRate)
 	{
-		if(minRate > maxRate) { maxRate = minRate; }
+		minRate = 0;
 		List<int> c = find(timeRate, maxRate, minRate);
 		List<(double, double)> temp_Vals = add(timeRate, c);
 		temp_Vals.Add((double.MaxValue, double.MaxValue));
@@ -206,7 +202,7 @@ public class windows
 			double FSPL = 92.45 + 20 * Math.Log10(distance[k]) + 20 * Math.Log10(freq);
 			double cNo = EIRP - FSPL + GT + 228.6; // 228.6 is the Boltzmann Constant
 			double rxEbN0 = cNo - 10 * Math.Log10(DataRate);
-			double linkMargin = rxEbN0 - 4.1; 
+			double linkMargin = rxEbN0 - 4.1;
 			if(linkMargin >= 3) { rate.Add(DataRate/1000000); }
 			else { rate.Add(0); }
 		}
@@ -216,16 +212,16 @@ public class windows
 		return format(windows, time, distance);	
 	}
 
-	public static void jsonWindows()
+	public static void jsonWindows(Dictionary<(string, string), (List<double>, List<double>)> linkResults)
 	{
 		var data = DBReader.getData();
-		Dictionary<(string, string), (List<double>, List<double>)> linkResults = linkBudgeting.dynamicLink();
 		List<jsonWindowsInner> innerWindowList = new List<jsonWindowsInner>();
 
 		foreach (KeyValuePair <string, (bool, double, double)> provider in linkBudgeting.providers)
 		{
 			foreach (KeyValuePair <string, (bool, double, double)> user in linkBudgeting.users) 
 			{
+				if (!linkResults.ContainsKey((user.Key, provider.Key))) continue;
 				List<double> time = linkResults[(user.Key, provider.Key)].Item1;
 				List<double> distance = linkResults[(user.Key, provider.Key)].Item2;
 				
@@ -291,12 +287,11 @@ public class windows
 
 		jsonWindowsWrapper json;
 		json.epochTime = "11-May-2025";
-		json.fileGenDate = "26-Jul-2022 6:30:00";
+		json.fileGenDate = DateTime.Now.ToString("MM-dd_hhmm"); ;
 		json.windows = innerWindowList;
 		
 		string jsonReturn = JsonConvert.SerializeObject(json, Formatting.Indented);
-		Debug.Log(jsonReturn);
-		File.WriteAllText("C:/Users/akazemni/Desktop/windows.json", jsonReturn);
+		File.WriteAllText(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "windows.json"), jsonReturn);
 		Debug.Log("Finished Writing File");
 
 	}

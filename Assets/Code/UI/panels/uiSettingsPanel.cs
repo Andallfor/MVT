@@ -55,11 +55,11 @@ public class uiSettingsPanel : MonoBehaviour
     }
 
     public void access() {
-        Debug.Log("Ask how to do this");
+        controller.runDynamicLink();
     }
 
     public void windows() {
-        Debug.Log("Ask how to do this");
+        controller.runWindows();
     }
 
     public void setTime () {

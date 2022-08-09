@@ -54,13 +54,13 @@ public struct link
 public static class visibility
 {
 	public static bool currentlyRunningTerrainRaycast = false;
-	public static void raycastTerrain(List<object> users, List<object> providers, double start, double end, double increment, dynamicLinkOptions options) {
+	public static void raycastTerrain(List<object> users, List<object> providers, double start, double end, double increment, dynamicLinkOptions options, bool report) {
         if (controller.useTerrainVisibility) Debug.LogWarning("Warning! You are trying to use visiblity with terrain. This forces us to load everything- be careful when increasing resolution!");
-        if (options.blocking) raycastTerrainBlock(users, providers, start, end, increment, options);
-        else controller.self.StartCoroutine(raycastTerrainCoro(users, providers, start, end, increment, options));
+        if (options.blocking) raycastTerrainBlock(users, providers, start, end, increment, options, report);
+        else controller.self.StartCoroutine(raycastTerrainCoro(users, providers, start, end, increment, options, report));
 	}
 
-    public static async void raycastTerrainBlock(List<object> users, List<object> providers, double start, double end, double increment, dynamicLinkOptions options) {
+    public static async void raycastTerrainBlock(List<object> users, List<object> providers, double start, double end, double increment, dynamicLinkOptions options, bool report) {
         general.blockMainLoop = true;
 		currentlyRunningTerrainRaycast = true;
 		// please just use a struct or something
@@ -150,8 +150,10 @@ public static class visibility
 		if (options.debug) {
 			foreach (LineRenderer lr in lrs.Values) GameObject.Destroy(lr.gameObject);
 		}
-
-		if (options.outputPath != default(string)) File.WriteAllText(options.outputPath, sb.ToString());
+        if (report)
+        {
+            if (options.outputPath != default(string)) File.WriteAllText(options.outputPath, sb.ToString());
+        }
 
 		if (options.callback != null) options.callback(output);
 
@@ -159,7 +161,7 @@ public static class visibility
 		currentlyRunningTerrainRaycast = false;
     }
 
-    public static IEnumerator raycastTerrainCoro(List<object> users, List<object> providers, double start, double end, double increment, dynamicLinkOptions options) {
+    public static IEnumerator raycastTerrainCoro(List<object> users, List<object> providers, double start, double end, double increment, dynamicLinkOptions options, bool report) {
         general.blockMainLoop = true;
 		currentlyRunningTerrainRaycast = true;
 		// please just use a struct or something
@@ -212,7 +214,8 @@ public static class visibility
 
                         hit = false;
 
-                        if (options.outputPath != default(string)) sb.AppendLine($"{master.time.ToString()}: {ukvp.Key} to {pkvp.Key}");
+                        //if (options.outputPath != default(string)) sb.AppendLine($"{master.time.ToString()}: {ukvp.Key} to {pkvp.Key}");
+                        if (options.outputPath != default(string)) sb.AppendLine($"{master.time.julian}: {ukvp.Key} to {pkvp.Key}");
                     }
 
                     if (options.debug) {
