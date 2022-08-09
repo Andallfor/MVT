@@ -7,6 +7,8 @@ using UnityEngine.EventSystems;
 using System.IO;
 using UnityEngine.SceneManagement;
 
+
+
 public class controller : MonoBehaviour
 {
     public static planet earth, moon;
@@ -19,6 +21,7 @@ public class controller : MonoBehaviour
     public static controller self;
 
     private void Awake() {self = this;}
+    int randomnumber;
 
     void Start()
     {
@@ -49,7 +52,7 @@ public class controller : MonoBehaviour
 
         master.markStartOfSimulation();
 
-        runDynamicLink();
+        //runDynamicLink();
         //linkBudgeting.accessCalls("C:/Users/akazemni/Desktop/connections.txt");
 
         initModes();
@@ -390,14 +393,28 @@ public class controller : MonoBehaviour
                     linkBudgeting.providers.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
                     linkBudgeting.users.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
                 }
+                List<string> satpaths = new List<string>();
+                //satpaths.Add("Prefabs/models/HLS Lander");
+                satpaths.Add("Prefabs/models/AIM");
+                satpaths.Add("Prefabs/models/AURA");
+                
+                
+
 
                 satellite sat = null;
                 if (dict.ContainsKey("RAAN")) {
-                    sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"] / 1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), MoonMu)), srd);
+                    randomnumber=UnityEngine.Random.Range(0,2);
+                    if(x.Key=="HLS-Ascent" | x.Key=="HLS-Descent"){
+                        sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"] / 1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), MoonMu)), new representationData("Prefabs/models/HLS Lander","Materials/default"));
+
+                    }else{
+                        sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"] / 1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), MoonMu)), new representationData(satpaths[randomnumber],"Materials/default"));
+                    }
+                    
                 } else if (dict.ContainsKey("FilePath")) {
                     if (x.Key == "HLS-Ascent" | x.Key == "HLS-Descent")
                     {
-                        sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneSec), srd);
+                        sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneSec),  new representationData("Prefabs/models/HLS Lander","Materials/default"));
                     }
                     else
                     {

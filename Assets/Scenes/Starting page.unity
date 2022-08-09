@@ -619,7 +619,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Dev Information:'
+  m_text: 'Controls:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 4e0db7cfa73fdc54cbf33410846b58ce, type: 2}
   m_sharedMaterial: {fileID: 5985163509790943768, guid: 4e0db7cfa73fdc54cbf33410846b58ce, type: 2}
@@ -1211,7 +1211,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Dev Information:'
+  m_text: 'Scenario Info:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 4e0db7cfa73fdc54cbf33410846b58ce, type: 2}
   m_sharedMaterial: {fileID: 5985163509790943768, guid: 4e0db7cfa73fdc54cbf33410846b58ce, type: 2}
@@ -2541,7 +2541,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0
-  far clip plane: 1000
+  far clip plane: 2000
   field of view: 82
   orthographic: 1
   orthographic size: 500
@@ -4066,6 +4066,8 @@ MonoBehaviour:
   info: {fileID: 1407904904}
   controls: {fileID: 733259254}
   scenario: {fileID: 90254686}
+  Taptime: 0
+  resetTimer: 0.3
 --- !u!222 &3632141634031067694
 CanvasRenderer:
   m_ObjectHideFlags: 0

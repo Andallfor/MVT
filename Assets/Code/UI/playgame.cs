@@ -8,53 +8,73 @@ public class playgame : MonoBehaviour
 {
     // Start is called before the first frame update
     public Canvas info, controls, scenario;
+    public Button Info, Control, Scenario;
+    
+    public int Taptime;
+    public float resetTimer;
+    
+    IEnumerator ResetTapTimes(){
+        yield return new WaitForSeconds(resetTimer);
+        Taptime=0;
+    }
+
     //public Button Info, Control, Scenario;
     void Start(){
-        info.enabled=false;
-        controls.enabled=false;
-        scenario.enabled=false;
-        showbuttons();
         hidebuttons();
+        Info.onClick.AddListener(genclick);
+        Scenario.onClick.AddListener(genclick);
+        Control.onClick.AddListener(genclick);
+
+    }
+    void Update(){
+        
+
+        if(Taptime>=2){
+            Taptime=0;
+            hidebuttons();
+            
+        }
+    }
+    public void genclick(){
+        Taptime++;
     }
     public void test(){
         Debug.Log("clicked");
     }
-    public void showbuttons(){
-        //Info.enabled=true;
-        //Control.enabled=true;
-        //Scenario.enabled=true;
-    }
+    
     public void hidebuttons(){
-        //Info.enabled=false;
-        //Control.enabled=false;
-        //Scenario.enabled=false;
+        info.enabled=false;
+        controls.enabled=false;
+        scenario.enabled=false;
     }
     public void Playgame(){
         SceneManager.LoadScene(1);
     }
     public void showinfo(){
+        
+        hidebuttons();
         info.enabled=true;
-        //hidebuttons();
-        Debug.Log("clicked");
+        
     }
     public void hideinfo(){
         info.enabled=false;
-        showbuttons();
     }
     public void showcontrols(){
-        controls.enabled=true;
+        
         hidebuttons();
+        controls.enabled=true;
     }
     public void hidecontrols(){
         controls.enabled=false;
-        showbuttons();
+        
     }
     public void showscenario(){
-        scenario.enabled=true;
+        
         hidebuttons();
+        scenario.enabled=true;
     }
     public void hidescenario(){
         scenario.enabled=false;
-        showbuttons();
+        
     }
 }
