@@ -157,7 +157,7 @@ public class controller : MonoBehaviour
             else providers.Add(master.allSatellites.Find(x => x.name == p.Key));
         }
 
-        visibility.raycastTerrain(providers, users, master.time.julian, master.time.julian + 15, speed, options, true);
+        visibility.raycastTerrain(providers, users, master.time.julian, master.time.julian + 1, speed, options, true);
     }
 
     private void runScheduling() {
