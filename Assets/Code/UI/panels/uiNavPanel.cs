@@ -25,6 +25,7 @@ public class uiNavPanel : MonoBehaviour
         general.onStatusChange += updateLabels;
         general.onTrailChange += updateLabels;
         master.time.onChange += ((s, e) => {
+            if (general.blockMainLoop) return;
             povPos.text = $"[{refFrame.pos.x.ToString("G2")}, {refFrame.pos.y.ToString("G2")}, {refFrame.pos.z.ToString("G2")}]";
         });
     }
