@@ -21,7 +21,6 @@ public class controller : MonoBehaviour
     public static controller self;
 
     private void Awake() {self = this;}
-    int randomnumber;
 
     private void Start() {
         general.canvas = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<Canvas>();
@@ -404,12 +403,28 @@ public class controller : MonoBehaviour
         List<satellite> moonSats =  new List<satellite>();
         List<satellite> earthSats =  new List<satellite>();
 
+        List<string> modelPathes = new List<string>() {
+            "Prefabs/models/ACE",
+            "Prefabs/models/AIM",
+            "Prefabs/models/Aura",
+            "Prefabs/models/GOES",
+            "Prefabs/models/GRACE",
+            "Prefabs/models/ICESAT",
+            "Prefabs/models/ICON",
+            "Prefabs/models/LDCM",
+            "Prefabs/models/LRO",
+            "Prefabs/models/MMS",
+            "Prefabs/models/OCO",
+            "Prefabs/models/orion",
+            "Prefabs/models/SDO",
+            "Prefabs/models/Solar-B",
+            "Prefabs/models/SOYUZ",
+            "Prefabs/models/TDRS",
+            "Prefabs/models/THEMIS",
+            "Prefabs/models/TRIANA"};
+
         representationData rd = new representationData(
             "Prefabs/Planet",
-            "Materials/default");
-
-        representationData srd = new representationData(
-            "Prefabs/Satellite",
             "Materials/default");
 
         representationData frd = new representationData(
@@ -438,6 +453,10 @@ public class controller : MonoBehaviour
         var data = DBReader.getData();
         float percentIncrease = 0.74f / (float) data["Artemis_III"].satellites.Count;
         foreach (KeyValuePair<string, dynamic> x in data["Artemis_III"].satellites) {
+            representationData srd = null;
+            if (x.Key.ToLower().Contains("hls")) srd = new representationData("Prefabs/models/HLS Lander", "Materials/default");
+            else srd = new representationData(modelPathes[UnityEngine.Random.Range(0, modelPathes.Count)], "Materials/default");
+
             var dict = data["Artemis_III"].satellites[x.Key];
 
             if (dict["Type"] == "Satellite") {
@@ -449,28 +468,18 @@ public class controller : MonoBehaviour
                     linkBudgeting.providers.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
                     linkBudgeting.users.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
                 }
-                List<string> satpaths = new List<string>();
-                //satpaths.Add("Prefabs/models/HLS Lander");
-                satpaths.Add("Prefabs/models/AIM");
-                satpaths.Add("Prefabs/models/AURA");
 
                 satellite sat = null;
                 if (dict.ContainsKey("RAAN")) {
-                    randomnumber=UnityEngine.Random.Range(0,2);
-                    if(x.Key=="HLS-Ascent" | x.Key=="HLS-Descent"){
-                        sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"] / 1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), MoonMu)), new representationData("Prefabs/models/HLS Lander","Materials/default"));
-
-                    }else{
-                        sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"] / 1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), MoonMu)), new representationData(satpaths[randomnumber],"Materials/default"));
+                    if (x.Key == "HLS-Ascent" | x.Key == "HLS-Descent") {
+                        sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"] / 1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), MoonMu)), srd);
+                    } else {
+                        sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"] / 1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), MoonMu)), srd);
                     }
-
                 } else if (dict.ContainsKey("FilePath")) {
-                    if (x.Key == "HLS-Ascent" | x.Key == "HLS-Descent")
-                    {
-                        sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneSec),  new representationData("Prefabs/models/HLS Lander","Materials/default"));
-                    }
-                    else
-                    {
+                    if (x.Key == "HLS-Ascent" | x.Key == "HLS-Descent") {
+                        sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneSec),  srd);
+                    } else {
                         sat = new satellite(x.Key, new satelliteData($"CSVS/ARTEMIS 3/SATS/{x.Key}", oneMin), srd);
                     }
                 }
