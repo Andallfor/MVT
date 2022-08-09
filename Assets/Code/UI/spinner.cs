@@ -2,19 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public class spinner : MonoBehaviour
 {
-    // Start is called before the first frame update
-   
-    void Start()
-    {
-        
-    }
+    public float direction;
 
-    // Update is called once per frame
     void Update()
     {
-        transform.Rotate(new Vector3(0,10,0)*UnityEngine.Time.deltaTime);
+        transform.Rotate(new Vector3(0, 4f, 0) * UnityEngine.Time.deltaTime * direction);
     }
 }

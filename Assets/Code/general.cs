@@ -11,9 +11,9 @@ public static class general
     /// <remarks> Use this instead of <see cref="Camera.main"/> as this is much more efficient. </remarks>
     public static Camera camera;
     /// <summary> The Canvas for the UI. </summary>
-    public static Canvas canvas = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<Canvas>();
+    public static Canvas canvas;
     /// <summary> Reference to the gameObject that holds all the planets. </summary>
-    public static GameObject planetParent = GameObject.FindGameObjectWithTag("planet/parent");
+    public static GameObject planetParent;
 
     /// <summary> Default position of the camera. </summary>
     public static Vector3 defaultCameraPosition = new Vector3(0, 0, -10);

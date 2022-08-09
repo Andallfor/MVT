@@ -23,6 +23,8 @@ public class uiTimeController : MonoBehaviour
 
     void Update()
     {
+        if (!master.finishedInitalizing) return;
+
         float totalTimeChange = 0;
 
         gregorian.text = master.time.date.ToString("M/d/yy HH':'mm 'UTC'");

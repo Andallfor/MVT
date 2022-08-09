@@ -40,7 +40,10 @@ public static class master
     }
 
     /// <summary> The current body that is the reference frame. See also <see cref="referenceFrame"/>. </summary>
-    public static body requestReferenceFrame() => _referenceFrame;
+    public static body requestReferenceFrame() {
+        if (_referenceFrame is null) return master.sun;
+        return _referenceFrame;
+    }
 
     /// <summary> Control whether or not the game is paused. Calls <see cref="onPauseChange"/> when changed. </summary>
     public static bool pause {
@@ -50,6 +53,8 @@ public static class master
             onPauseChange(null, EventArgs.Empty);
         }
     }
+
+    public static bool finishedInitalizing => alreadyStarted;
 
 
     private static body _referenceFrame;
