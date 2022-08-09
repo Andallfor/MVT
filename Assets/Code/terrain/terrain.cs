@@ -184,35 +184,11 @@ public class planetTerrain
         currentRes = sortedResolutions[0];
     }
 
-    List<double> resolutionPercents = quickSum(5, 2);
-    private static List<double> quickSum(int count, double denom) {
-        List<double> output = new List<double>();
-        double value = 0;
-        for (int i = 1; i <= count; i++) {
-            value += (denom - 1) / (Math.Pow(denom, (double) i));
-            output.Add(value);
-        }
-
-        return output;
-    }
-
     private planetTerrainFolderInfo findDesiredResolution() {
-        double minFov = 7;
-        double maxFov = 90;
-        // TODO: get rid of fov
-        double percent = 1.0 - (general.camera.fieldOfView + minFov) / (maxFov + minFov);
-
-        planetTerrainFolderInfo p = null;
-        double closestRes = 100;
-        for (int i = 0; i < resolutionPercents.Count; i++) {
-            double dist = Math.Abs(percent - resolutionPercents[i]);
-            if (dist < closestRes) {
-                closestRes = dist;
-                p = sortedResolutions[i];
-            }
-        }
-
-        return p;
+        if (general.camera.fieldOfView < 17) return sortedResolutions[3];
+        if (general.camera.fieldOfView < 30) return sortedResolutions[2];
+        if (general.camera.fieldOfView < 45) return sortedResolutions[1];
+        return sortedResolutions[0];
     }
 
     private List<Vector2> screenCorners = new List<Vector2>() { new Vector2(0, 0), new Vector2(Screen.width, 0), new Vector2(Screen.width, Screen.height), new Vector2(0, Screen.height) };
