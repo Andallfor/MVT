@@ -90,7 +90,43 @@ public class controller : MonoBehaviour
         uiMap.map.toggle(false);
     }
 
-    private void runDynamicLink() {
+    public static void runWindows()
+    {
+        master.time.addJulianTime((double)2460806.5 - (double)master.time.julian);
+        master.requestPositionUpdate();
+        dynamicLinkOptions options = new dynamicLinkOptions();
+        options.callback = (data) => {
+            windows.jsonWindows(data);
+        };
+        options.debug = true;
+        options.blocking = false;
+        options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+
+        useTerrainVisibility = true;
+
+        List<object> users = new List<object>();
+        List<object> providers = new List<object>();
+
+        foreach (var u in linkBudgeting.users)
+        {
+            if (u.Value.Item1) users.Add(master.allFacilites.Find(x => x.name == u.Key));
+            else users.Add(master.allSatellites.Find(x => x.name == u.Key));
+        }
+
+        foreach (var p in linkBudgeting.providers)
+        {
+            if (p.Value.Item1) providers.Add(master.allFacilites.Find(x => x.name == p.Key));
+            else providers.Add(master.allSatellites.Find(x => x.name == p.Key));
+        }
+
+        visibility.raycastTerrain(users, providers, master.time.julian, master.time.julian + 30, speed, options, false);
+
+
+    }
+
+    public static void runDynamicLink() {
+        master.time.addJulianTime((double)2460806.5 - (double)master.time.julian);
+        master.requestPositionUpdate();
         dynamicLinkOptions options = new dynamicLinkOptions();
         options.callback = (data) => {
             int c = 0;
@@ -122,7 +158,7 @@ public class controller : MonoBehaviour
             else providers.Add(master.allSatellites.Find(x => x.name == p.Key));
         }
 
-        visibility.raycastTerrain(providers, users, master.time.julian, master.time.julian + 30, speed, options);
+        visibility.raycastTerrain(providers, users, master.time.julian, master.time.julian + 15, speed, options, true);
     }
 
     private void runScheduling() {
@@ -196,7 +232,7 @@ public class controller : MonoBehaviour
             }
 
             planetOverview.updateAxes();
-        } 
+        }
         else if (planetFocus.usePlanetFocus) {
             if (Input.GetMouseButtonDown(0)) planetFocusMousePosition = Input.mousePosition;
             else if (Input.GetMouseButton(0)) {
@@ -205,7 +241,7 @@ public class controller : MonoBehaviour
 
                 Vector2 adjustedDifference = new Vector2(-difference.y / Screen.height, difference.x / Screen.width);
                 adjustedDifference *= 100f;
-                
+
                 planetFocus.rotation.x = adjustedDifference.x * planetFocus.zoom / 125f;
                 planetFocus.rotation.y = adjustedDifference.y * planetFocus.zoom / 125f;
                 planetFocus.rotation.z = 0;
@@ -259,11 +295,11 @@ public class controller : MonoBehaviour
             }
 
             planetFocus.update();
-        } 
+        }
         else if (uiMap.useUiMap) {
 
         }
-        else 
+        else
         {
             if (Input.GetMouseButton(1) && !EventSystem.current.IsPointerOverGameObject())
             {
@@ -397,7 +433,7 @@ public class controller : MonoBehaviour
                 new planet( "Saturn", new planetData( 60268,  rotationType.none,  "CSVS/ARTEMIS 3/PLANETS/saturn", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/saturn"));
                 new planet( "Uranus", new planetData( 25559,  rotationType.none,  "CSVS/ARTEMIS 3/PLANETS/uranus", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/uranus"));
                 new planet("Neptune", new planetData( 24764,  rotationType.none, "CSVS/ARTEMIS 3/PLANETS/neptune", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/neptune"));
-        
+
         yield return new WaitForSeconds(0.1f);
         loadingController.addPercent(0.11f);
 
@@ -429,7 +465,7 @@ public class controller : MonoBehaviour
                     }else{
                         sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"] / 1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), MoonMu)), new representationData(satpaths[randomnumber],"Materials/default"));
                     }
-                    
+
                 } else if (dict.ContainsKey("FilePath")) {
                     if (x.Key == "HLS-Ascent" | x.Key == "HLS-Descent")
                     {
@@ -448,9 +484,8 @@ public class controller : MonoBehaviour
                 } else if (dict["CentralBody"] == "Earth") {
                     satellite.addFamilyNode(earth, sat);
                     earthSats.Add(sat);
-                    Debug.Log("worked: " + x.Key);
                 }
-            } 
+            }
             else if (dict["Type"] == "Facility") {
                 if (dict["CentralBody"] == "Moon")
                 {
