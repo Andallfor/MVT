@@ -7,7 +7,7 @@
   </head>
   <body style="text-align: center; background-color: #262526">
     <canvas id="unity-canvas" width=1280 height=720 style="width: 1280px; height: 720px; background: #231F20"></canvas>
-    <script src="Build/8.loader.js"></script>
+    <script src="Build/9.loader.js"></script>
     <script>
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         // Mobile device style: fill the whole browser client area with the game canvas:
@@ -18,9 +18,9 @@
       }
 
       createUnityInstance(document.querySelector("#unity-canvas"), {
-        dataUrl: "Build/8.data",
-        frameworkUrl: "Build/8.framework.js",
-        codeUrl: "Build/8.wasm",
+        dataUrl: "Build/9.data",
+        frameworkUrl: "Build/9.framework.js",
+        codeUrl: "Build/9.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "MVT",
         productName: "Mission Visualization Toolkit",
