@@ -96,45 +96,6 @@ public static class dtedReader {
         .rotate((270.0 + sw.lat) * (Math.PI / 180.0), 0, 0)
         - p)
         .swapAxis();
-
-    public static void toFile(List<dtedInfo> data, geographic min, geographic max, string outputPath) {
-        // assumes all dteds have the same info
-        double interval = 1.0 / 3600.0;
-
-        double resX = Math.Floor((max.lon - min.lon) / interval);
-        double resY = Math.Floor((max.lat - min.lat) / interval);
-
-        StringBuilder sb = new StringBuilder();
-        sb.Append($"Interval:{interval}\nMin:{min.lat},{min.lon}\nMax:{max.lat},{max.lon}\nShape:{resX},{resY}\n");
-
-        // start from top left corner (NW) because that is how the info will be pasted into the file
-        for (double y = resY; y > 0; y--) {
-            for (double x = 0; x < resX; x++) {
-                geographic desiredPoint = min + new geographic(y * interval, x * interval);
-                bool foundPoint = false;
-
-                foreach (dtedInfo di in data) {
-                    // check if the dted contains desiredPoint
-                    if (desiredPoint.lat > di.dd.ne.lat || desiredPoint.lat < di.dd.sw.lat ||
-                        desiredPoint.lon > di.dd.ne.lon || desiredPoint.lon < di.dd.sw.lon) continue;
-                    
-                    foundPoint = true;
-                       
-                    int indexX = (int) Math.Round((desiredPoint.lon - di.dd.sw.lon) / interval);
-                    int indexY = (int) Math.Round((desiredPoint.lat - di.dd.sw.lat) / interval);
-
-                    sb.Append($" {di.points[indexY * 3601 + indexX]}");
-                    
-                    break;
-                }
-
-                if (!foundPoint) sb.Append(" 0");
-            }
-            sb.Append('\n');
-        }
-
-        File.WriteAllText(Path.Combine(outputPath), sb.ToString());
-    }
 }
 
 public class dtedBasedMesh : IMesh {

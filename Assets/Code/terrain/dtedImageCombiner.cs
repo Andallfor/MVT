@@ -72,9 +72,6 @@ public static class dtedImageCombiner
             }    
         }
 
-        File.WriteAllBytes(Path.Combine(outputFolder, $"{facilityName}.png"), texture.EncodeToJPG());
-        File.WriteAllText(Path.Combine(outputFolder, $"{facilityName}.txt"), $"{boundMin.lat}, {boundMin.lon}, {boundMax.lat}, {boundMax.lon}");
-
         return texture;
     }
 
@@ -117,7 +114,6 @@ public static class dtedImageCombiner
             csv.Append('\n');
         }
 
-        File.WriteAllText(outputPath, csv.ToString());
     }
 }
 

@@ -16,7 +16,7 @@
     "user_provider": "user/provider",
     "Schedule_Priority": 18.0,
     "Ground_Priority": 0.1,
-    "SBandDTE": {},
+    "SBandDTE": null,
     "SBandProximity": {
       "DataRate": 100000.0,
       "GT": -9.0,
@@ -27,7 +27,7 @@
       "GT": -16.7,
       "EIRP": 16.0
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 100000.0,
       "GT": 12.0,
@@ -56,7 +56,7 @@
     "user_provider": "user/provider",
     "Schedule_Priority": 20.0,
     "Ground_Priority": 0.2,
-    "SBandDTE": {},
+    "SBandDTE": null,
     "SBandProximity": {
       "DataRate": 100000.0,
       "GT": -9.0,
@@ -67,7 +67,7 @@
       "GT": -16.7,
       "EIRP": 16.0
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 100000.0,
       "GT": 12.0,
@@ -90,14 +90,14 @@
     "Schedule_Priority": 12.5,
     "Service_Level": 1.0,
     "Service_Period": "1 Day",
-    "SBandDTE": {},
-    "SBandProximity": {},
+    "SBandDTE": null,
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 10000000.0,
       "GT": -3.5,
       "EIRP": 31.4
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 50000000.0,
       "GT": 14.4,
@@ -121,16 +121,16 @@
     "Schedule_Priority": 23.0,
     "Service_Level": 0.0625,
     "Service_Period": "1 Day",
-    "SBandDTE": {},
+    "SBandDTE": null,
     "SBandProximity": {
       "DataRate": 10000.0,
       "GT": -31.0,
       "EIRP": 8.7
     },
-    "XBandDTE": {},
-    "XBandProximity": {},
-    "KaBandDTE": {},
-    "KaBandProximity": {}
+    "XBandDTE": null,
+    "XBandProximity": null,
+    "KaBandDTE": null,
+    "KaBandProximity": null
   },
   "HLS-Surface": {
     "Name": "HLS-Surface",
@@ -154,8 +154,8 @@
       "GT": -2.5,
       "EIRP": 41.3
     },
-    "XBandDTE": {},
-    "XBandProximity": {},
+    "XBandDTE": null,
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 100000.0,
       "GT": 15.4,
@@ -184,16 +184,16 @@
     "Schedule_Priority": 14.0,
     "Service_Level": 0.0625,
     "Service_Period": "1 Day",
-    "SBandDTE": {},
+    "SBandDTE": null,
     "SBandProximity": {
       "DataRate": 100000.0,
       "GT": -15.0,
       "EIRP": 1.0
     },
-    "XBandDTE": {},
-    "XBandProximity": {},
-    "KaBandDTE": {},
-    "KaBandProximity": {}
+    "XBandDTE": null,
+    "XBandProximity": null,
+    "KaBandDTE": null,
+    "KaBandProximity": null
   },
   "CubeSat-2": {
     "Name": "CubeSat-2",
@@ -212,16 +212,16 @@
     "Schedule_Priority": 15.0,
     "Service_Level": 0.0625,
     "Service_Period": "1 Day",
-    "SBandDTE": {},
+    "SBandDTE": null,
     "SBandProximity": {
       "DataRate": 100000.0,
       "GT": -15.0,
       "EIRP": 1.0
     },
-    "XBandDTE": {},
-    "XBandProximity": {},
-    "KaBandDTE": {},
-    "KaBandProximity": {}
+    "XBandDTE": null,
+    "XBandProximity": null,
+    "KaBandDTE": null,
+    "KaBandProximity": null
   },
   "HLS-Ascent": {
     "Name": "HLS-Ascent",
@@ -245,8 +245,8 @@
       "GT": -2.5,
       "EIRP": 34.0
     },
-    "XBandDTE": {},
-    "XBandProximity": {},
+    "XBandDTE": null,
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 100000.0,
       "GT": 15.4,
@@ -280,8 +280,8 @@
       "GT": -2.5,
       "EIRP": 34.0
     },
-    "XBandDTE": {},
-    "XBandProximity": {},
+    "XBandDTE": null,
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 100000.0,
       "GT": 15.4,
@@ -315,8 +315,8 @@
       "GT": -2.5,
       "EIRP": 34.0
     },
-    "XBandDTE": {},
-    "XBandProximity": {},
+    "XBandDTE": null,
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 100000.0,
       "GT": 15.4,
@@ -350,8 +350,8 @@
       "GT": -2.5,
       "EIRP": 34.0
     },
-    "XBandDTE": {},
-    "XBandProximity": {},
+    "XBandDTE": null,
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 100000.0,
       "GT": 15.4,
@@ -385,8 +385,8 @@
       "GT": -2.5,
       "EIRP": 34.0
     },
-    "XBandDTE": {},
-    "XBandProximity": {},
+    "XBandDTE": null,
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 100000.0,
       "GT": 15.4,
@@ -415,11 +415,11 @@
       "GT": -21.4,
       "EIRP": 18.8
     },
-    "SBandProximity": {},
-    "XBandDTE": {},
-    "XBandProximity": {},
-    "KaBandDTE": {},
-    "KaBandProximity": {}
+    "SBandProximity": null,
+    "XBandDTE": null,
+    "XBandProximity": null,
+    "KaBandDTE": null,
+    "KaBandProximity": null
   },
   "Orion-NRHO": {
     "Name": "Orion-NRHO",
@@ -438,11 +438,11 @@
       "GT": -21.4,
       "EIRP": 18.8
     },
-    "SBandProximity": {},
-    "XBandDTE": {},
-    "XBandProximity": {},
-    "KaBandDTE": {},
-    "KaBandProximity": {}
+    "SBandProximity": null,
+    "XBandDTE": null,
+    "XBandProximity": null,
+    "KaBandDTE": null,
+    "KaBandProximity": null
   },
   "Orion-Tranit-R": {
     "Name": "Orion-Tranit-R",
@@ -461,11 +461,11 @@
       "GT": -21.4,
       "EIRP": 18.8
     },
-    "SBandProximity": {},
-    "XBandDTE": {},
-    "XBandProximity": {},
-    "KaBandDTE": {},
-    "KaBandProximity": {}
+    "SBandProximity": null,
+    "XBandDTE": null,
+    "XBandProximity": null,
+    "KaBandDTE": null,
+    "KaBandProximity": null
   },
   "Orion-Transit-O": {
     "Name": "Orion-Transit-O",
@@ -484,11 +484,11 @@
       "GT": -21.4,
       "EIRP": 18.8
     },
-    "SBandProximity": {},
-    "XBandDTE": {},
-    "XBandProximity": {},
-    "KaBandDTE": {},
-    "KaBandProximity": {}
+    "SBandProximity": null,
+    "XBandDTE": null,
+    "XBandProximity": null,
+    "KaBandDTE": null,
+    "KaBandProximity": null
   },
   "DSS-14": {
     "Name": "DSS-14",
@@ -503,19 +503,19 @@
       "GT": 40.5,
       "EIRP": 98.7
     },
-    "SBandProximity": {},
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 54.3,
       "EIRP": 109.5
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 58.2,
       "EIRP": 103.8
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "DSS-23": {
     "Name": "DSS-23",
@@ -530,19 +530,19 @@
       "GT": 39.06,
       "EIRP": 98.7
     },
-    "SBandProximity": {},
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 50.12,
       "EIRP": 109.5
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 50.4,
       "EIRP": 103.8
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "DSS-24": {
     "Name": "DSS-24",
@@ -557,19 +557,19 @@
       "GT": 39.1,
       "EIRP": 98.7
     },
-    "SBandProximity": {},
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 50.12,
       "EIRP": 109.5
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 50.4,
       "EIRP": 103.8
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "DSS-25": {
     "Name": "DSS-25",
@@ -584,19 +584,19 @@
       "GT": 39.1,
       "EIRP": 98.7
     },
-    "SBandProximity": {},
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 50.12,
       "EIRP": 109.5
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 50.4,
       "EIRP": 103.8
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "DSS-26": {
     "Name": "DSS-26",
@@ -611,19 +611,19 @@
       "GT": 39.0,
       "EIRP": 98.7
     },
-    "SBandProximity": {},
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 50.12,
       "EIRP": 109.5
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 50.4,
       "EIRP": 103.8
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "DSS-33": {
     "Name": "DSS-33",
@@ -638,19 +638,19 @@
       "GT": 38.97,
       "EIRP": 98.7
     },
-    "SBandProximity": {},
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 49.75,
       "EIRP": 109.5
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 43.89,
       "EIRP": 103.8
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "DSS-34": {
     "Name": "DSS-34",
@@ -665,19 +665,19 @@
       "GT": 38.97,
       "EIRP": 98.7
     },
-    "SBandProximity": {},
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 49.75,
       "EIRP": 109.5
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 43.89,
       "EIRP": 103.8
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "DSS-35": {
     "Name": "DSS-35",
@@ -692,19 +692,19 @@
       "GT": 38.97,
       "EIRP": 98.7
     },
-    "SBandProximity": {},
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 49.75,
       "EIRP": 109.5
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 43.89,
       "EIRP": 103.8
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "DSS-36": {
     "Name": "DSS-36",
@@ -719,19 +719,19 @@
       "GT": 38.97,
       "EIRP": 98.7
     },
-    "SBandProximity": {},
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 49.75,
       "EIRP": 109.5
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 43.89,
       "EIRP": 103.8
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "DSS-53": {
     "Name": "DSS-53",
@@ -746,19 +746,19 @@
       "GT": 38.86,
       "EIRP": 98.7
     },
-    "SBandProximity": {},
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 49.8,
       "EIRP": 109.5
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 44.84,
       "EIRP": 103.8
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "DSS-54": {
     "Name": "DSS-54",
@@ -773,19 +773,19 @@
       "GT": 38.86,
       "EIRP": 98.7
     },
-    "SBandProximity": {},
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 49.8,
       "EIRP": 109.5
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 44.84,
       "EIRP": 103.8
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "DSS-55": {
     "Name": "DSS-55",
@@ -800,19 +800,19 @@
       "GT": 38.86,
       "EIRP": 98.7
     },
-    "SBandProximity": {},
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 49.8,
       "EIRP": 109.5
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 44.84,
       "EIRP": 103.8
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "DSS-56": {
     "Name": "DSS-56",
@@ -827,19 +827,19 @@
       "GT": 38.86,
       "EIRP": 98.7
     },
-    "SBandProximity": {},
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 49.8,
       "EIRP": 109.5
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 44.84,
       "EIRP": 103.8
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "LEGS1-DG": {
     "Name": "LEGS1-DG",
@@ -849,20 +849,20 @@
     "CentralBody": "Earth",
     "user_provider": "provider",
     "Ground_Priority": 3.0,
-    "SBandDTE": {},
-    "SBandProximity": {},
+    "SBandDTE": null,
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 39.0,
       "EIRP": 86.0
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 47.5,
       "EIRP": 89.0
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "LEGS1-MTJ": {
     "Name": "LEGS1-MTJ",
@@ -872,20 +872,20 @@
     "CentralBody": "Earth",
     "user_provider": "provider",
     "Ground_Priority": 2.0,
-    "SBandDTE": {},
-    "SBandProximity": {},
+    "SBandDTE": null,
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 39.0,
       "EIRP": 86.0
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 47.5,
       "EIRP": 89.0
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "LEGS1-WS": {
     "Name": "LEGS1-WS",
@@ -895,30 +895,30 @@
     "CentralBody": "Earth",
     "user_provider": "provider",
     "Ground_Priority": 1.0,
-    "SBandDTE": {},
-    "SBandProximity": {},
+    "SBandDTE": null,
+    "SBandProximity": null,
     "XBandDTE": {
       "DataRate": 0.0,
       "GT": 39.0,
       "EIRP": 86.0
     },
-    "XBandProximity": {},
+    "XBandProximity": null,
     "KaBandDTE": {
       "DataRate": 0.0,
       "GT": 47.5,
       "EIRP": 89.0
     },
-    "KaBandProximity": {}
+    "KaBandProximity": null
   },
   "STP-5(1)": {
     "Name": "STP-5(1)",
     "Type": "Impact",
     "Schedule_Priority": 99.0,
-    "SBandDTE": {},
-    "SBandProximity": {},
-    "XBandDTE": {},
-    "XBandProximity": {},
-    "KaBandDTE": {},
-    "KaBandProximity": {}
+    "SBandDTE": null,
+    "SBandProximity": null,
+    "XBandDTE": null,
+    "XBandProximity": null,
+    "KaBandDTE": null,
+    "KaBandProximity": null
   }
 }

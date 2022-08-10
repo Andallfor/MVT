@@ -28,6 +28,7 @@ public static class master
     /// <summary> The players current position, in km. </summary>
     public static position currentPosition {get => _currentPosLast; set {
         _currentPosLast = value;
+        if (master.finishedInitalizing) master.requestPositionUpdate();
         onCurrentPositionChange(null, EventArgs.Empty);
     }}
 

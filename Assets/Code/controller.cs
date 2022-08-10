@@ -8,6 +8,7 @@ using System.IO;
 using UnityEngine.Networking;
 using B83.MeshTools;
 using Newtonsoft.Json;
+using System.Runtime.InteropServices;
 
 public class controller : MonoBehaviour
 {
@@ -282,7 +283,7 @@ public class controller : MonoBehaviour
         };
         options.debug = true;
         options.blocking = false;
-        options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+        options.outputPath = "data.txt";
 
         useTerrainVisibility = true;
 
@@ -301,7 +302,7 @@ public class controller : MonoBehaviour
             else providers.Add(master.allSatellites.Find(x => x.name == p.Key));
         }
 
-        visibility.raycastTerrain(users, providers, master.time.julian, master.time.julian + 30, speed, options, false);
+        visibility.raycastTerrain(users, providers, master.time.julian, master.time.julian + 5, speed, options, false);
     }
 
     public static void runDynamicLink() {
@@ -319,7 +320,7 @@ public class controller : MonoBehaviour
         };
         options.debug = true;
         options.blocking = true;
-        options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+        options.outputPath = "data.txt";
 
         useTerrainVisibility = true;
 
@@ -527,6 +528,8 @@ public class controller : MonoBehaviour
     {
         List<satellite> moonSats =  new List<satellite>();
         List<satellite> earthSats =  new List<satellite>();
+        List<facility> moonFacilities = new List<facility>();
+        List<facility> earthFacilities = new List<facility>();
 
         List<string> modelPathes = new List<string>() {
             "Prefabs/models/ACE",
@@ -579,21 +582,21 @@ public class controller : MonoBehaviour
 
             string Name = (string) kvp.Key;
             Dictionary<string, object> dict = kvp.Value;
-            if (!dict.ContainsKey("Type") || !dict.ContainsKey("TimeInterval_start") || !dict.ContainsKey("TimeInterval_stop")) continue;
+            if (!dict.ContainsKey("Type")) continue;
             string Type = (string) dict["Type"];
-            string user_provider = (string) dict["user_provider"];
-            string CentralBody = (string) dict["CentralBody"];            
-            double TimeInterval_start = dict["TimeInterval_start"] is string ? Double.Parse((string) dict["TimeInterval_start"], System.Globalization.NumberStyles.Any) : Convert.ToDouble(dict["TimeInterval_start"]);
-            double TimeInterval_stop = dict["TimeInterval_stop"] is string ? Double.Parse((string) dict["TimeInterval_stop"], System.Globalization.NumberStyles.Any) : Convert.ToDouble(dict["TimeInterval_stop"]);
+            string user_provider = (dict.ContainsKey("user_provider")) ? (string) dict["user_provider"] : null;
+            string CentralBody = (dict.ContainsKey("CentralBody")) ? (string) dict["CentralBody"] : null;
 
             dbSatellites[kvp.Key] = kvp.Value;
 
             representationData srd = new representationData("Prefabs/Satellite", "Materials/default");
-            //if (Name.ToLower().Contains("hls")) srd = new representationData("Prefabs/models/HLS Lander", "Materials/default");
-            //else srd = new representationData(modelPathes[UnityEngine.Random.Range(0, modelPathes.Count)], "Materials/default");
+            if (Name.ToLower().Contains("hls")) srd = new representationData("Prefabs/models/HLS Lander", "Materials/default");
+            else srd = new representationData(modelPathes[UnityEngine.Random.Range(0, modelPathes.Count)], "Materials/default");
 
             if (Type == "Satellite")
             {
+                double TimeInterval_start = dict["TimeInterval_start"] is string ? Double.Parse((string) dict["TimeInterval_start"], System.Globalization.NumberStyles.Any) : Convert.ToDouble(dict["TimeInterval_start"]);
+                double TimeInterval_stop = dict["TimeInterval_stop"] is string ? Double.Parse((string) dict["TimeInterval_stop"], System.Globalization.NumberStyles.Any) : Convert.ToDouble(dict["TimeInterval_stop"]);
                 if (user_provider == "user/provider" || user_provider == "user") linkBudgeting.users.Add(Name, (false, 2460806.5 + TimeInterval_start, 2460806.5 + TimeInterval_stop));
                 if (user_provider == "provider") linkBudgeting.providers.Add(Name, (false, 2460806.5 + TimeInterval_start, 2460806.5 + TimeInterval_stop));
 
@@ -621,6 +624,8 @@ public class controller : MonoBehaviour
                     satellite.addFamilyNode(earth, sat);
                     earthSats.Add(sat);
                 }
+
+                windows.dbInfo[Name] = dict;
             }
             else if (Type == "Facility")
             {
@@ -629,6 +634,8 @@ public class controller : MonoBehaviour
 
                 if (CentralBody == "Moon")
                 {
+                    double TimeInterval_start = dict["TimeInterval_start"] is string ? Double.Parse((string) dict["TimeInterval_start"], System.Globalization.NumberStyles.Any) : Convert.ToDouble(dict["TimeInterval_start"]);
+                    double TimeInterval_stop = dict["TimeInterval_stop"] is string ? Double.Parse((string) dict["TimeInterval_stop"], System.Globalization.NumberStyles.Any) : Convert.ToDouble(dict["TimeInterval_stop"]);
                     string Service_Period = (string) dict["Service_Period"];
                     double Schedule_Priority = Convert.ToDouble(dict["Schedule_Priority"]);
                     double Service_Level = Convert.ToDouble(dict["Service_Level"]);
@@ -642,6 +649,8 @@ public class controller : MonoBehaviour
                         linkBudgeting.users.Add(Name, (true, 2460806.5, 2460836.5));
                         linkBudgeting.providers.Add(Name, (true, 2460806.5, 2460836.5));
                     }
+
+                    moonFacilities.Add(fd);
                 }
                 else
                 {
@@ -656,14 +665,22 @@ public class controller : MonoBehaviour
                         linkBudgeting.users.Add(Name, (true, 2460806.5, 2460836.5));
                         linkBudgeting.providers.Add(Name, (true, 2460806.5, 2460836.5));
                     }
+
+                    earthFacilities.Add(fd);
                 }
+
+                windows.dbInfo[Name] = dict;
             }
         }
+
+        planet.addFamilyNode(earth, moon);
 
         master.setReferenceFrame(moon);
         master.relationshipPlanet[earth] = new List<planet>() { moon };
         master.relationshipSatellite[moon] = moonSats;
         master.relationshipSatellite[earth] = earthSats;
+        master.relationshipFacility[moon] = moonFacilities;
+        master.relationshipFacility[earth] = earthFacilities;
 
         master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/PLANETS/moon", oneMin));
         master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/SATS/v", 0.0006944444));

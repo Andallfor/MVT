@@ -3,7 +3,27 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - ui/planetOverview/moon
+  - ui/bodyName
+  - ui/time/slider
+  - ui/bottomBar/defaultPanel
+  - ui/time/display/gregorian
+  - light
+  - planet/parent
+  - ui/time/display
+  - ui/map/surface
+  - ui/canvas
+  - ui/planetOverview/parent
+  - ui/EventSystem
+  - ui/map/trails
+  - ui/map/surface/satellites
+  - planet/trails
+  - ui/time/display/julian
+  - ui/planetOverview/back
+  - ui/bottomBar/settings/month
+  - ui/bottomBar/settings/year
+  - download
   layers:
   - Default
   - TransparentFX

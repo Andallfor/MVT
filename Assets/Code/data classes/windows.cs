@@ -36,7 +36,7 @@ public struct jsonWindowsWrapper
 
 public static class windows
 {
-	public static Dictionary<string, Dictionary<string, object>> dbSatellites = new Dictionary<string, Dictionary<string, object>>();
+	public static Dictionary<string, Dictionary<string, object>> dbInfo = new Dictionary<string, Dictionary<string, object>>();
 
 	public static List<int> findOperate(List<int> index)
 	{
@@ -225,8 +225,8 @@ public static class windows
 				if (time.Count > 0) {
 					string[] possibleBands = new string[] {"SBand", "XBand", "KaBand"};
 					foreach(string posband in possibleBands) {
-						var user1Data = dbSatellites[user.Key];
-						var user2Data = dbSatellites[provider.Key];
+						var user1Data = dbInfo[user.Key];
+						var user2Data = dbInfo[provider.Key];
 
 						string _band = "None";
 						string centralBody1 = (string) user1Data["CentralBody"];
@@ -237,8 +237,10 @@ public static class windows
 						else if (centralBody1 == "Earth" && centralBody2 == "Moon") _band = posband + "DTE";
 
 						if (user1Data.ContainsKey(_band) && user2Data.ContainsKey(_band)) {
-							Dictionary<string, double> band1 = JsonConvert.DeserializeObject<Dictionary<string, double>>((string) user1Data[_band]);
-							Dictionary<string, double> band2 = JsonConvert.DeserializeObject<Dictionary<string, double>>((string) user2Data[_band]);
+							if (user1Data[_band] is null || user2Data[_band] is null) continue;
+
+							Dictionary<string, double> band1 = JsonConvert.DeserializeObject<Dictionary<string, double>>(user1Data[_band].ToString());
+							Dictionary<string, double> band2 = JsonConvert.DeserializeObject<Dictionary<string, double>>(user2Data[_band].ToString());
 							if (band2.ContainsKey("GT")) {
 								if (band1.ContainsKey("EIRP")) {
 									double DataRate = 0;
@@ -269,7 +271,8 @@ public static class windows
 		json.windows = innerWindowList;
 		
 		string jsonReturn = JsonConvert.SerializeObject(json, Formatting.Indented);
-		File.WriteAllText(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "windows.json"), jsonReturn);
+		//GameObject.FindGameObjectWithTag("download").GetComponent<downloaderHelper>().save("windows.json", jsonReturn);
+		downloaderHelper.self.BrowserTextDownload("windows.json", jsonReturn);
 		Debug.Log("Finished Writing File");
 	}
 }
