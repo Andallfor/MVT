@@ -98,7 +98,7 @@ public class controller : MonoBehaviour
             windows.jsonWindows(data);
         };
         options.debug = true;
-        options.blocking = false;
+        options.blocking = true;
         options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
 
         useTerrainVisibility = true;
@@ -363,6 +363,7 @@ public class controller : MonoBehaviour
         planetTerrain pt = new planetTerrain(moon, "Materials/planets/moon/moon", 1737.4, 1);
 
         string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT/terrain");
+        //string p = Path.Combine(Application.dataPath, "terrain");
 
         pt.generateFolderInfos(new string[4] {
             Path.Combine(p, "lunaBinary/1"),
@@ -392,6 +393,7 @@ public class controller : MonoBehaviour
 
     private poleTerrain loadPoles() {
         string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT/terrain");
+        //string p = Path.Combine(Application.dataPath, "terrain");
         return new poleTerrain(new Dictionary<int, string>() {
             {5,  Path.Combine(p, "polesBinary/25m")},
             {10, Path.Combine(p, "polesBinary/50m")},
