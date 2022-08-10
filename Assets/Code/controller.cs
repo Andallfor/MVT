@@ -531,24 +531,6 @@ public class controller : MonoBehaviour
         List<facility> moonFacilities = new List<facility>();
         List<facility> earthFacilities = new List<facility>();
 
-        List<string> modelPathes = new List<string>() {
-            "Prefabs/models/ACE",
-            "Prefabs/models/AIM",
-            "Prefabs/models/Aura",
-            "Prefabs/models/Cubesat",
-            "Prefabs/models/GOES",
-            "Prefabs/models/GRACE",
-            "Prefabs/models/ICESAT",
-            "Prefabs/models/ICON",
-            "Prefabs/models/LDCM",
-            "Prefabs/models/LRO",
-            "Prefabs/models/MMS",
-            "Prefabs/models/OCO",
-            "Prefabs/models/SDO",
-            "Prefabs/models/Solar-B",
-            "Prefabs/models/TDRS",
-            "Prefabs/models/TRIANA"};
-
         representationData frd = new representationData(
             "Prefabs/Facility",
             "Materials/default");
@@ -590,8 +572,6 @@ public class controller : MonoBehaviour
             dbSatellites[kvp.Key] = kvp.Value;
 
             representationData srd = new representationData("Prefabs/Satellite", "Materials/default");
-            if (Name.ToLower().Contains("hls")) srd = new representationData("Prefabs/models/HLS Lander", "Materials/default");
-            else srd = new representationData(modelPathes[UnityEngine.Random.Range(0, modelPathes.Count)], "Materials/default");
 
             if (Type == "Satellite")
             {
