@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | MVT- Electric Boogaloo</title>
+    <title>Unity WebGL Player | Mission Visualization Toolkit</title>
   </head>
-  <body style="text-align: center">
+  <body style="text-align: center; background-color: #262526">
     <canvas id="unity-canvas" width=1280 height=720 style="width: 1280px; height: 720px; background: #231F20"></canvas>
-    <script src="Build/v1.loader.js"></script>
+    <script src="Build/8.loader.js"></script>
     <script>
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         // Mobile device style: fill the whole browser client area with the game canvas:
@@ -18,16 +18,18 @@
       }
 
       createUnityInstance(document.querySelector("#unity-canvas"), {
-        dataUrl: "Build/v1.data",
-        frameworkUrl: "Build/v1.framework.js",
-        codeUrl: "Build/v1.wasm",
+        dataUrl: "Build/8.data",
+        frameworkUrl: "Build/8.framework.js",
+        codeUrl: "Build/8.wasm",
         streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "MVT- Electric Boogaloo",
-        productVersion: "0.1",
+        companyName: "MVT",
+        productName: "Mission Visualization Toolkit",
+        productVersion: "1.0-Peregrine",
         // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
         // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
       });
     </script>
+    <div></div>
+    <a href="https://www.github.com/Andallfor/MVT" style="color:burlywood; font-size:large">www.github.com/Andallfor/MVT</a>
   </body>
 </html>

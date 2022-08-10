@@ -1,0 +1,118 @@
+{
+    "HLS-Descent": [
+      "DSS-24",
+      "DSS-26",
+      "DSS-34",
+      "DSS-36",
+      "DSS-54",
+      "DSS-56",
+      "LCN-12hourfrozen-1-LowPower",
+      "LCN-12hourfrozen-2-LowPower"
+    ],
+    "HLS-Ascent": [
+      "DSS-24",
+      "DSS-26",
+      "DSS-34",
+      "DSS-36",
+      "DSS-54",
+      "DSS-56",
+      "LCN-12hourfrozen-1-LowPower",
+      "LCN-12hourfrozen-2-LowPower"
+    ],
+    "HLS-NRHO": [
+      "DSS-24",
+      "DSS-26",
+      "DSS-34",
+      "DSS-36",
+      "DSS-54",
+      "DSS-56",
+      "LCN-12hourfrozen-1-LowPower",
+      "LCN-12hourfrozen-2-LowPower"
+    ],
+    "HLS-Surface": [
+      "DSS-24",
+      "DSS-26",
+      "DSS-34",
+      "DSS-36",
+      "DSS-54",
+      "DSS-56",
+      "LCN-12hourfrozen-1-LowPower",
+      "LCN-12hourfrozen-2-LowPower"
+    ],
+    "HLS-Disposal": [
+      "DSS-24",
+      "DSS-26",
+      "DSS-34",
+      "DSS-36",
+      "DSS-54",
+      "DSS-56",
+      "LCN-12hourfrozen-1-LowPower",
+      "LCN-12hourfrozen-2-LowPower"
+    ],
+    "HLS-Docked": [
+      "DSS-24",
+      "DSS-26",
+      "DSS-34",
+      "DSS-36",
+      "DSS-54",
+      "DSS-56",
+      "LCN-12hourfrozen-1-LowPower",
+      "LCN-12hourfrozen-2-LowPower"
+    ],
+    "Orion-Transit-O": [
+      "DSS-24",
+      "DSS-26",
+      "DSS-34",
+      "DSS-36",
+      "DSS-54",
+      "DSS-56"
+    ],
+    "Orion-NRHO": [
+      "DSS-24",
+      "DSS-26",
+      "DSS-34",
+      "DSS-36",
+      "DSS-54",
+      "DSS-56"
+    ],
+    "Orion-Docked": [
+      "DSS-24",
+      "DSS-26",
+      "DSS-34",
+      "DSS-36",
+      "DSS-54",
+      "DSS-56"
+    ],
+    "Orion-Tranit-R": [
+      "DSS-24",
+      "DSS-26",
+      "DSS-34",
+      "DSS-36",
+      "DSS-54",
+      "DSS-56"
+    ],
+    "Gateway-EOR": [
+      "LEGS1-DG",
+      "LEGS1-MTJ",
+      "LEGS1-WS",
+      "DSA-3",
+      "DSA-2",
+      "DSA-1"
+    ],
+    "CubeSat-1": [
+      "LCN-12hourfrozen-1",
+      "LCN-12hourfrozen-1-LowPower",
+      "LCN-12hourfrozen-2",
+      "LCN-12hourfrozen-2-LowPower"
+    ],
+    "CubeSat-2": [
+      "LCN-12hourfrozen-1",
+      "LCN-12hourfrozen-1-LowPower",
+      "LCN-12hourfrozen-2",
+      "LCN-12hourfrozen-2-LowPower"
+    ],
+    "CLPS-9": [
+      "LCN-12hourfrozen-1-LowPower",
+      "LCN-12hourfrozen-2-LowPower"
+    ]
+  }
