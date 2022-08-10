@@ -14,8 +14,13 @@ public class uiInfoPanel : MonoBehaviour
 
     public void Awake() {
         master.onFinalSetup += ((sender, e) => {
-            foreach (planet p in master.allPlanets) bodyOptions.Add(new TMP_Dropdown.OptionData(p.name));
-            foreach (satellite s in master.allSatellites) bodyOptions.Add(new TMP_Dropdown.OptionData(s.name));
+            List<string> names = new List<string>();
+            foreach (planet p in master.allPlanets) names.Add(p.name);
+            foreach (satellite s in master.allSatellites) names.Add(s.name);
+
+            names.Sort();
+
+            foreach (string name in names) bodyOptions.Add(new TMP_Dropdown.OptionData(name));
 
             dropdown.options = bodyOptions;
 

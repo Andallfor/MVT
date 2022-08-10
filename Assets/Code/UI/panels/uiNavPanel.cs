@@ -74,16 +74,38 @@ public class uiNavPanel : MonoBehaviour
         userPos.text = $"[{Math.Round(master.currentPosition.x, 2)}, {Math.Round(master.currentPosition.y, 2)}, {Math.Round(master.currentPosition.z, 2)}]";
     }
 
-    public void generatePossibleReferenceFrames() {
+    public void generatePossibleReferenceFrames(bool all = false) {
         referenceFrameSelector.options = new List<TMP_Dropdown.OptionData>();
         List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
         foreach (planet p in master.allPlanets) {
             if (!p.positions.exists(master.time)) continue;
-            options.Add(new TMP_Dropdown.OptionData(p.name));
+
+            if (!all && (p.pType == planetType.moon) && !(p == master.requestReferenceFrame())) {
+                planet check = master.relationshipPlanet.ToList().FirstOrDefault(x => x.Value.Contains(p)).Key;
+                if (check == master.requestReferenceFrame()) {
+                    options.Add(new TMP_Dropdown.OptionData(p.name));
+                    continue;
+                }
+
+                if (master.requestReferenceFrame() is satellite) {
+                    satellite s = (satellite) master.requestReferenceFrame();
+                    if (master.relationshipSatellite.ContainsKey(p) && master.relationshipSatellite[p].Exists(x => x.name == s.name)) options.Add(new TMP_Dropdown.OptionData(p.name));
+                }
+            } else options.Add(new TMP_Dropdown.OptionData(p.name));
         }
         foreach (satellite s in master.allSatellites) {
             if (!s.positions.exists(master.time)) continue;
-            options.Add(new TMP_Dropdown.OptionData(s.name));
+            if (!all && !(s == master.requestReferenceFrame())) {
+                if (s.representation.parent == master.requestReferenceFrame()) {
+                    options.Add(new TMP_Dropdown.OptionData(s.name));
+                    continue;
+                }
+
+                if (master.requestReferenceFrame() is satellite) {
+                    planet p = ((satellite) (master.requestReferenceFrame())).representation.parent;
+                    if (master.relationshipSatellite[p].Exists(x => x.name == s.name)) options.Add(new TMP_Dropdown.OptionData(s.name));
+                }
+            } else options.Add(new TMP_Dropdown.OptionData(s.name));
         }
 
         referenceFrameSelector.options = options;

@@ -1790,6 +1790,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1290343720}
     m_Modifications:
+    - target: {fileID: 5125481815038442949, guid: c8cf56f0532883a459e658c48e0b3261, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125481815038442949, guid: c8cf56f0532883a459e658c48e0b3261, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125481815038442949, guid: c8cf56f0532883a459e658c48e0b3261, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5125481815044032346, guid: c8cf56f0532883a459e658c48e0b3261, type: 3}
       propertyPath: m_TargetGraphic
       value: 
@@ -1885,6 +1897,34 @@ PrefabInstance:
     - target: {fileID: 5125481815044032421, guid: c8cf56f0532883a459e658c48e0b3261, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125481815366164394, guid: c8cf56f0532883a459e658c48e0b3261, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125481816202899766, guid: c8cf56f0532883a459e658c48e0b3261, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125481816202899766, guid: c8cf56f0532883a459e658c48e0b3261, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125481816784037923, guid: c8cf56f0532883a459e658c48e0b3261, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125481816909196973, guid: c8cf56f0532883a459e658c48e0b3261, type: 3}
+      propertyPath: m_margin.w
+      value: -4.4542103
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125481816909196973, guid: c8cf56f0532883a459e658c48e0b3261, type: 3}
+      propertyPath: m_margin.y
+      value: -6.160084
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125481816909196973, guid: c8cf56f0532883a459e658c48e0b3261, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c8cf56f0532883a459e658c48e0b3261, type: 3}

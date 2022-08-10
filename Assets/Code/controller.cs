@@ -404,23 +404,13 @@ public class controller : MonoBehaviour
         List<satellite> moonSats =  new List<satellite>();
         List<satellite> earthSats =  new List<satellite>();
 
-        List<string> modelPathes = new List<string>() {
-            "Prefabs/models/ACE",
-            "Prefabs/models/AIM",
-            "Prefabs/models/Aura",
-            "Prefabs/models/Cubesat",
-            "Prefabs/models/GOES",
-            "Prefabs/models/GRACE",
-            "Prefabs/models/ICESAT",
-            "Prefabs/models/ICON",
-            "Prefabs/models/LDCM",
-            "Prefabs/models/LRO",
-            "Prefabs/models/MMS",
-            "Prefabs/models/OCO",
-            "Prefabs/models/SDO",
-            "Prefabs/models/Solar-B",
-            "Prefabs/models/TDRS",
-            "Prefabs/models/TRIANA"};
+        Dictionary<string, string> realmodelPathes = new Dictionary<string, string>() {
+            {"LRO", "Prefabs/models/LRO" },
+            {"CubeSat", "Prefabs/models/Cubesat"},
+            {"Orion", "Prefabs/models/OrionFull"},
+            {"HLS", "Prefabs/models/HLS Lander"},
+            {"Gateway", "Prefabs/models/OCO" }
+        };
 
         representationData rd = new representationData(
             "Prefabs/Planet",
@@ -474,9 +464,6 @@ public class controller : MonoBehaviour
         var data = DBReader.getData();
         float percentIncrease = 0.74f / (float) data["Artemis_III"].satellites.Count;
         foreach (KeyValuePair<string, dynamic> x in data["Artemis_III"].satellites) {
-            representationData srd = null;
-            if (x.Key.ToLower().Contains("hls")) srd = new representationData("Prefabs/models/HLS Lander", "Materials/default");
-            else srd = new representationData(modelPathes[UnityEngine.Random.Range(0, modelPathes.Count)], "Materials/default");
 
             var dict = data["Artemis_III"].satellites[x.Key];
 
@@ -488,6 +475,14 @@ public class controller : MonoBehaviour
                 {
                     linkBudgeting.providers.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
                     linkBudgeting.users.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+                }
+
+                representationData srd = new representationData("Prefabs/models/Solar-B", "Materials/default");
+                foreach (var kvp in realmodelPathes) {
+                    if (x.Key.ToLower().Contains(kvp.Key.ToLower())) {
+                        srd = new representationData(kvp.Value, "Materials/default");
+                        break;
+                    }
                 }
 
                 satellite sat = null;
@@ -565,6 +560,8 @@ public class controller : MonoBehaviour
 
         planet.addFamilyNode(neptune, Triton);
         planet.addFamilyNode(neptune, Proteus);
+
+        planet.addFamilyNode(earth, moon);
 
         master.setReferenceFrame(moon);
         master.relationshipPlanet[neptune] = new List<planet>() { Triton, Proteus };

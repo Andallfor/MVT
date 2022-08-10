@@ -8,7 +8,7 @@ using TMPro;
 public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStruct>
 {
     private GameObject canvas, planetParent;
-    private planet parent;
+    public planet parent;
     private TextMeshProUGUI shownName;
     private representationData data;
     public static readonly float minScale = 0.05f;
