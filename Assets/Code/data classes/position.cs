@@ -76,9 +76,48 @@ public readonly struct position
         return theta;
     }
 
-    public static double dotProduct(position vector1, position vector2)
-    {
-        return vector2.x * vector1.x + vector2.y * vector1.y + vector2.z * vector1.z;
+    public static double dotProduct(position vector1, position vector2) => vector2.x * vector1.x + vector2.y * vector1.y + vector2.z * vector1.z;
+
+    // https://stackoverflow.com/questions/5883169/intersection-between-a-line-and-a-sphere
+    public static List<position> lineSphereInteresection(position linePoint1, position linePoint2, position circleCenter, double radius) {
+        double cx = circleCenter.x;
+        double cy = circleCenter.y;
+        double cz = circleCenter.z;
+
+        double px = linePoint1.x;
+        double py = linePoint1.y;
+        double pz = linePoint1.z;
+
+        double vx = linePoint2.x - px;
+        double vy = linePoint2.y - py;
+        double vz = linePoint2.z - pz;
+
+        double A = vx * vx + vy * vy + vz * vz;
+        double B = 2.0 * (px * vx + py * vy + pz * vz - vx * cx - vy * cy - vz * cz);
+        double C = px * px - 2 * px * cx + cx * cx + py * py - 2 * py * cy + cy * cy +
+                   pz * pz - 2 * pz * cz + cz * cz - radius * radius;
+
+        // discriminant
+        double D = B * B - 4 * A * C;
+
+        if ( D < 0 ) return new List<position>();
+
+        double t1 = ( -B - Math.Sqrt ( D ) ) / ( 2.0 * A );
+
+        position solution1 = new position(linePoint1.x * ( 1 - t1 ) + t1 * linePoint2.x,
+                                          linePoint1.y * ( 1 - t1 ) + t1 * linePoint2.y,
+                                          linePoint1.z * ( 1 - t1 ) + t1 * linePoint2.z );
+        if ( D == 0 ) return new List<position>() {solution1};
+
+        double t2 = ( -B + Math.Sqrt( D ) ) / ( 2.0 * A );
+        position solution2 = new position(linePoint1.x * ( 1 - t2 ) + t2 * linePoint2.x,
+                                          linePoint1.y * ( 1 - t2 ) + t2 * linePoint2.y,
+                                          linePoint1.z * ( 1 - t2 ) + t2 * linePoint2.z );
+
+        // prefer a solution that's on the line segment itself
+
+        if ( Math.Abs( t1 - 0.5 ) < Math.Abs( t2 - 0.5 ) ) return new List<position>() {solution1, solution2};
+        return new List<position>() {solution2, solution1};
     }
 
     public static double norm(position p)
@@ -92,12 +131,15 @@ public readonly struct position
         return p1;
     }
 
-    public static List<(double, position)> J2000(position moon, position velocity, position sat)
+    public static List<(double, position)> J2000(position moon1, position velocity1, position sat)
     {
         List<(double, position)> returnList = new List<(double, position)>();
-        position j2000_x = new position(1, 0, 0);
-        position j2000_y = new position(0, 1, 0);
+        position j2000_x = new position(1, 0, 0).swapAxis();
+        position j2000_y = new position(0, 1, 0).swapAxis();
         position Earth_j2000 = new position(0, 0, 0);
+
+        position moon = moon1.swapAxis();
+        position velocity = velocity1.swapAxis();
 
         //calculate moonfixed_x in j2000
         position M_x_j2000 = Earth_j2000 - moon;
@@ -118,11 +160,8 @@ public readonly struct position
         double angle2 = dotProductTheta(yprime, j2000_y);
         position k2 = cross(j2000_y, M_y_j2000);
 
-        position output1 = sat * (Math.Cos(angle2)) + cross(k2,sat) * Math.Sin(angle2) + k2 * (dotProduct(k2,sat)) * (1-Math.Cos(angle2));
-        position output2 = output1 * Math.Cos(angle) + cross(k,output1)*Math.Sin(angle)+k*(dotProduct(k,output1))*(1-Math.Cos(angle));
-
-        returnList.Add((angle2, output2));
-        returnList.Add((angle, output1));
+        returnList.Add((angle2, k2));
+        returnList.Add((angle, k));
 
         return returnList;
     }

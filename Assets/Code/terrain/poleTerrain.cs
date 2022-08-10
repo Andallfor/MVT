@@ -43,6 +43,8 @@ public class poleTerrainFile {
         go.GetComponent<MeshRenderer>().material = mat;
         go.GetComponent<MeshFilter>().sharedMesh = m;
         mr = go.GetComponent<MeshRenderer>();
+
+        mr.enabled = false;
     }
 
     public void show() {

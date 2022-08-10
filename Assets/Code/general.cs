@@ -13,9 +13,9 @@ public static class general
     /// <remarks> Use this instead of <see cref="Camera.main"/> as this is much more efficient. </remarks>
     public static Camera camera;
     /// <summary> The Canvas for the UI. </summary>
-    public static Canvas canvas = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<Canvas>();
+    public static Canvas canvas;
     /// <summary> Reference to the gameObject that holds all the planets. </summary>
-    public static GameObject planetParent = GameObject.FindGameObjectWithTag("planet/parent");
+    public static GameObject planetParent;
 
     /// <summary> Default position of the camera. </summary>
     public static Vector3 defaultCameraPosition = new Vector3(0, 0, -10);
@@ -23,8 +23,18 @@ public static class general
     /// <summary> Default FOV of camera. </summary>
     public static float defaultCameraFOV = 60;
     public static event EventHandler onStatusChange = delegate {};
-    public static void notifyStatusChange() {onStatusChange(null, EventArgs.Empty);}
-    public static controller main;
+    public static void notifyStatusChange() {
+        onStatusChange(null, EventArgs.Empty); 
+        showingTrails = false;
+        notifyTrailsChange();
+    }
+    public static event EventHandler onTrailChange = delegate {};
+    public static void notifyTrailsChange() {onTrailChange(null, EventArgs.Empty);}
+
+    public static bool blockMainLoop = false;
+    public static planetTerrain pt;
+    public static poleTerrain plt;
+    public static bool showingTrails = false;
 
     /// <summary> Parse an array of bytes into a string. </summary>
     public static string parseByteArray(byte[] data) {

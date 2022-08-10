@@ -1,5 +1,9 @@
 fileFormatVersion: 2
-guid: 1d67186755758ca44be7b5fe973db05c
+<<<<<<<< HEAD:Assets/JsonDotNet.meta
+guid: 895839ba54c8012429c3a4feb207ddd1
+========
+guid: d1e8683b26fa2b04ebfb8db34229edb6
+>>>>>>>> main:Assets/Code/parsing/scheduler.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}

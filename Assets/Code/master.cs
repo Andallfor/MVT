@@ -26,7 +26,10 @@ public static class master
     public static int currentTick = 0;
 
     /// <summary> The players current position, in km. </summary>
-    public static position currentPosition = new position(0, 0, 0);
+    public static position currentPosition {get => _currentPosLast; set {
+        _currentPosLast = value;
+        onCurrentPositionChange(null, EventArgs.Empty);
+    }}
 
     /// <summary> The current position of the reference frame relative to the sun. See also <see cref="requestReferenceFrame"/>. </summary>
     public static position referenceFrame {
@@ -37,7 +40,10 @@ public static class master
     }
 
     /// <summary> The current body that is the reference frame. See also <see cref="referenceFrame"/>. </summary>
-    public static body requestReferenceFrame() => _referenceFrame;
+    public static body requestReferenceFrame() {
+        if (_referenceFrame is null) return master.sun;
+        return _referenceFrame;
+    }
 
     /// <summary> Control whether or not the game is paused. Calls <see cref="onPauseChange"/> when changed. </summary>
     public static bool pause {
@@ -48,9 +54,11 @@ public static class master
         }
     }
 
+    public static bool finishedInitalizing => alreadyStarted;
+
 
     private static body _referenceFrame;
-    private static position _refFrameLast;
+    private static position _refFrameLast, _currentPosLast = new position(0, 0, 0);
     private static double _scale = 1000;
     public static bool _pause = false;
 
@@ -64,6 +72,8 @@ public static class master
     public static event EventHandler onReferenceFrameChange = delegate {};
     /// <summary> Event that is called the moment before the main loop is about to start. </summary>
     public static event EventHandler onFinalSetup = delegate {};
+
+    public static event EventHandler onCurrentPositionChange = delegate {};
 
 
     /// <summary> Event that will update the positions of any class derived from <see cref="body"/>. Called when <see cref="requestPositionUpdate"/> is called. </summary>
@@ -134,10 +144,20 @@ public static class master
     /// <remarks><paramref name="b"/> The body to become the reference frame. </remarks>
     public static void setReferenceFrame(body b)
     {
+        if (alreadyStarted) {
+            uiMap.map.toggle(false);
+            planetFocus.enable(false);
+            planetOverview.enable(false);
+            master.clearAllLines();
+        }
+
         currentPosition = new position(0, 0, 0);
         _referenceFrame = b;
 
-        onReferenceFrameChange(null, EventArgs.Empty);
+        general.notifyStatusChange();
+        general.notifyTrailsChange();
+
+        onCurrentPositionChange(null, EventArgs.Empty);
     }
 
     public static bool alreadyStarted {get; private set;} = false;
@@ -156,9 +176,11 @@ public static class master
     /// <summary> Determines relationship between bodies (parent, child, etc) in the form parent, List(child) </summary>
     /// <remarks> Useful as it does not require a postional dependency (as with normal parenting) </remarks>
     public static Dictionary<planet, List<satellite>> relationshipSatellite = new Dictionary<planet, List<satellite>>();
+    /// <summary> Determines relationship between bodies (parent, child, etc) in the form parent, List(child) </summary>
+    public static Dictionary<planet, List<facility>> relationshipFacility = new Dictionary<planet, List<facility>>();
 
     /// <summary> Stores the orbital periods of bodies in julian. </summary>
-    /// <remarks> Find a better way to do this. </summary>
+    /// <remarks> Find a better way to do this. </remarks>
     public static Dictionary<string, double> orbitalPeriods = new Dictionary<string, double>() {
         {"Earth", 365.25},
         {"Luna", 27.322},

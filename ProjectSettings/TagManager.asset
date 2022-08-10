@@ -3,21 +3,7 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags:
-  - ui/time/display
-  - ui/canvas
-  - planet/parent
-  - ui/time/display/julian
-  - ui/time/display/gregorian
-  - ui/time/slider
-  - ui/EventSystem
-  - facilityFocus/parent
-  - ui/planetOverview/back
-  - ui/planetOverview/sat
-  - ui/planetOverview/moon
-  - ui/planetOverview/parent
-  - planet/trails
-  - ui/load
+  tags: []
   layers:
   - Default
   - TransparentFX
@@ -25,7 +11,7 @@ TagManager:
   - 
   - Water
   - UI
-  - planet
+  - 
   - 
   - 
   - 

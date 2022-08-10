@@ -37,8 +37,32 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
 
         representation.setPosition(pos - master.currentPosition - master.referenceFrame);
         if (planetOverview.usePlanetOverview) representation.setRadius((master.scale / 2.0) / 4.0);
+    
+        if (data.rotate == rotationType.moon)
+        {
+            Quaternion newQuaternion = new Quaternion();
+            newQuaternion.Set(0f,0f,0f,1);
+            representation.gameObject.transform.rotation = newQuaternion;
+            position moon = master.rod[0].find(master.time).swapAxis();
+            position velocity = master.rod[1].find(master.time).swapAxis();
+            position unitMoon = new position(moon.x/Math.Sqrt(moon.x * moon.x + moon.y * moon.y + moon.z * moon.z), moon.y/Math.Sqrt(moon.x * moon.x + moon.y * moon.y + moon.z * moon.z), moon.z/Math.Sqrt(moon.x * moon.x + moon.y * moon.y + moon.z * moon.z))*-1;
+            float theta2 = (float) (Math.Asin(-1 * unitMoon.z));
+            float theta1 = (float) (Math.Atan2(unitMoon.y, unitMoon.x));
+            float thetaCheck = (float) (Math.Acos(unitMoon.x / Math.Cos(theta2)));
+            float zAngle = (float) (-1 * theta2 * 180 /Math.PI);
+            float yAngle1 = (float) (-1 * theta1 * 180/Math.PI);
+            float yAngle2 = (float) (-1 * thetaCheck * 180/Math.PI);
 
-        if (data.rotate) rotation = representation.rotate(this.calculateRotation());
+            position yprime = new position(-1 * Math.Sin(theta2) * Math.Cos(theta1), -1 * Math.Sin(theta2) * Math.Sin(theta1), Math.Cos(theta2));
+            position k3 = position.cross(moon, velocity);
+            position yAxis = position.cross(k3, moon);
+
+            float xAngle = (float) (position.dotProductTheta(yAxis, yprime) * 180 / Math.PI);
+
+            representation.gameObject.transform.Rotate(0f, yAngle1, zAngle);
+            representation.gameObject.transform.Rotate(new Vector3(1, 0, 0), xAngle);
+        }
+        else if (data.rotate == rotationType.earth) rotation = representation.rotate(this.calculateRotation());
 
         base.updateChildren();
     }
@@ -53,7 +77,17 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
         representation.setRadius(data.radius);
     }
 
-    public position geoOnPlanet(geographic g, double alt) => Quaternion.Euler((Vector3) this.rotation) * (Vector3) g.toCartesian(this.radius + alt).swapAxis();
+    public position rotateLocalGeo(geographic g, double alt) => geographic.toGeographic(representation.gameObject.transform.rotation * (Vector3) (g.toCartesian(radius + alt)).swapAxis(), radius).toCartesian(radius + alt).swapAxis();
+
+    /// <summary> Takes a world pos and converts it to the respective geographic on the planet, respecting the planets rotation </summary>
+    public geographic worldPosToLocalGeo(position p) => geographic.toGeographic(Quaternion.Inverse(representation.gameObject.transform.rotation) * (Vector3) ((p - pos) / master.scale), radius);
+    /// <summary> Takes a pos centered on (0, 0) and converts it to the respective geographic on the planet, respecting the planets rotation </summary>
+    public geographic localPosToLocalGeo(position p) => geographic.toGeographic(Quaternion.Inverse(representation.gameObject.transform.rotation) * (Vector3) (p / master.scale), radius);
+    public Vector3 localGeoToUnityPos(geographic g, double alt) {
+        position c = representation.gameObject.transform.rotation * (Vector3) (g.toCartesian(radius + alt)).swapAxis();
+        geographic gg = geographic.toGeographic(c, radius);
+        return (Vector3) ((gg.toCartesian(radius + alt) + pos - master.currentPosition - master.referenceFrame) / master.scale).swapAxis();
+    }
 
     private position calculateRotation()
     {
@@ -97,7 +131,8 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
         double rotationDirection = 1;
         double rotationDays = rotationDirection * (-noonLatLon.lon + (360 * timeUntilSNoon));
 
-        return new position(rotationDays, sunDeclin, 0);
+        //return new position(rotationDays, sunDeclin, 0);
+        return new position(rotationDays, 0, 0);
     }
 
     public new jsonPlanetStruct requestJsonFile()
@@ -107,7 +142,7 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
             positions = this.data.positions.requestJsonFile(),
             name = this.name,
             representationData = this.representation.requestJsonFile(),
-            rotate = this.data.rotate,
+            //rotate = this.data.rotate,
             planetType = (int) this.pType,
             bodyData = base.requestJsonFile()
         };
@@ -119,11 +154,11 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
 public class planetData
 {
     public double radius;
-    public bool rotate;
+    public rotationType rotate;
     public readonly planetType pType;
     public Timeline positions;
 
-    public planetData(double radius, bool rotate, string positionPath, double timestep, planetType pType)
+    public planetData(double radius, rotationType rotate, string positionPath, double timestep, planetType pType)
     {
         this.radius = radius;
         this.pType = pType;
@@ -131,7 +166,7 @@ public class planetData
         positions = csvParser.loadPlanetCsv(positionPath, timestep);
     }
 
-    public planetData(double radius, bool rotate, TextAsset positionAsset, double timestep, planetType pType)
+    public planetData(double radius, rotationType rotate, TextAsset positionAsset, double timestep, planetType pType)
     {
         this.radius = radius;
         this.pType = pType;
@@ -139,7 +174,7 @@ public class planetData
         positions = csvParser.loadPlanetCsv(positionAsset, timestep);
     }
 
-    public planetData(double radius, bool rotate, Timeline positions, double timestep, planetType pType)
+    public planetData(double radius, rotationType rotate, Timeline positions, double timestep, planetType pType)
     {
         this.radius = radius;
         this.pType = pType;
@@ -153,4 +188,12 @@ public enum planetType
 {
     planet = 0,
     moon = 1
+}
+
+[Flags]
+public enum rotationType
+{
+    earth = 1,
+    moon = 2,
+    none = 4,
 }

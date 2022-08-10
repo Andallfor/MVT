@@ -72,9 +72,11 @@ public static class jsonParser
     // simplify
     private static void _dsPlanet(jsonPlanetStruct jps)
     {
-        new planet(jps.name,
+        /*new planet(jps.name,
+            //new planetData(
+            //    jps.radius, jps.rotate, _dsTimeline(jps.positions), jps.positions.timestep, (planetType) jps.planetType), 
             new planetData(
-                jps.radius, jps.rotate, _dsTimeline(jps.positions), jps.positions.timestep, (planetType) jps.planetType), 
+                jps.radius, _dsTimeline(jps.positions), jps.positions.timestep, (planetType) jps.planetType), 
             new representationData(
                 jps.representationData.modelPath, jps.representationData.materialPath));
         
@@ -113,6 +115,7 @@ public static class jsonParser
             new facilityData(
                 jfs.name,
                 _dsGeographic(jfs.geo),
+                0,
                 antennas
             ), 
             new representationData(jfs.representation.modelPath, jfs.representation.materialPath));

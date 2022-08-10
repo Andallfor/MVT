@@ -8,6 +8,7 @@ using TMPro;
 public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStruct>
 {
     private GameObject canvas, planetParent;
+    private planet parent;
     private TextMeshProUGUI shownName;
     private representationData data;
     public static readonly float minScale = 0.05f;
@@ -15,6 +16,7 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
     private MeshRenderer mrSelf;
     private string shownNameText;
     private string name;
+    private trailRenderer tr;
     public GameObject gameObject;
 
     public satelliteRepresentation(string name, representationData data) {
@@ -29,7 +31,7 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
         this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
 
         this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(this.canvas.transform, false);
+        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
         shownName.fontSize = 20;
         shownName.text = name;
 
@@ -37,6 +39,8 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
 
         planetParent = GameObject.FindGameObjectWithTag("planet/parent");
     }
+
+    public void setRelationshipParent() {parent = master.relationshipSatellite.First(x => x.Value.Exists(y => y.name == name)).Key;}
 
     public void regenerate() {
         if (gameObject != null) GameObject.Destroy(gameObject);
@@ -51,28 +55,20 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
         this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
 
         this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(this.canvas.transform, false);
-        shownName.fontSize = 20;
+        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
+        shownName.fontSize = 23;
         shownName.text = name;
     }
 
     public void setPosition(position pos, bool forceHide = false)
     {
-        if (forceHide) {
-            mrSelf.enabled = false;
-            shownName.text = "";
-            return;
-        }
+        if (uiMap.useUiMap) return;
+
+        if (forceHide) {hide(); return;}
 
         if (planetOverview.usePlanetOverview) {
-            if (!planetOverview.obeyingSatellites.Exists(x => x.name == name)) {
-                mrSelf.enabled = false;
-                shownName.text = "";
-                return;
-            }
-
+            if (!planetOverview.obeyingSatellites.Exists(x => x.name == name)) {hide(); return;}
             pos = planetOverview.planetOverviewPosition(pos - planetOverview.focus.pos + master.currentPosition + master.referenceFrame);
-            
         }
 
         Vector3 p = new Vector3(
@@ -91,6 +87,8 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
             float scale = 0.01f * distance + 0;
             float r = Mathf.Max(Mathf.Min(this.gameObject.transform.localScale.x, planetOverview.usePlanetOverview ? _r : minScale), scale);
             gameObject.transform.localScale = new Vector3(r, r, r);
+
+            if (!(parent is null)) gameObject.transform.LookAt(parent.representation.gameObject.transform.position);
         }
 
         RaycastHit hit;
@@ -101,6 +99,11 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
             Vector3 rotatedPoint = uiHelper.vRotate(rot.y, rot.x, rot.z, p);
             uiHelper.drawTextOverObject(shownName, rotatedPoint);
         }
+    }
+
+    private void hide() {
+        mrSelf.enabled = false;
+        shownName.text = "";
     }
 
     public jsonSatelliteRepresentationStruct requestJsonFile()

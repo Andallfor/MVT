@@ -58,10 +58,11 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
         lr = gameObject.GetComponent<LineRenderer>();
         lr.positionCount = 2;
         mr = gameObject.GetComponent<MeshRenderer>();
+        mr.enabled = false;
 
         this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(canvas.transform, false);
-        shownName.fontSize = 25;
+        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
+        shownName.fontSize = 28;
         shownName.text = name;
         shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
     }
@@ -84,28 +85,25 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
         lr = gameObject.GetComponent<LineRenderer>();
         lr.positionCount = 2;
         mr = gameObject.GetComponent<MeshRenderer>();
+        mr.enabled = false;
 
         this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(canvas.transform, false);
+        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
         shownName.fontSize = 25;
         shownName.text = name;
         shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
     }
 
-    public void updatePos(planet parent, bool forceHide = false) {
-        if (forceHide) {
+    public void updatePos(planet parent, double alt, bool forceHide = false) {
+        if (uiMap.useUiMap) return;
+
+        if (forceHide || planetOverview.usePlanetOverview || position.distance(parent.pos, master.referenceFrame + master.currentPosition) > master.scale * 1000.0) {
             gameObject.SetActive(false);
             shownName.text = "";
             return;
         }
 
-        if (planetOverview.usePlanetOverview) {
-            gameObject.SetActive(false);
-            shownName.text = "";
-            return;
-        }
-
-        position p = geo.toCartesian(parent.radius) / (2 * parent.radius);
+        position p = geo.toCartesian(parent.radius + alt) / (2 * parent.radius);
         this.gameObject.transform.localPosition = (Vector3) (p.swapAxis());
 
         foreach (antennaRepresentation ar in antennas) ar.updatePos(parent);

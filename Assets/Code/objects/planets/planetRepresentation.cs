@@ -22,6 +22,7 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
     public planetRepresentation(string name, double radius, planetType pType, representationData data) {
         gameObject = GameObject.Instantiate(data.model);
         gameObject.GetComponent<MeshRenderer>().material = data.material;
+        gameObject.transform.Rotate(data.rotate.x, data.rotate.y, data.rotate.z);
         gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
         gameObject.name = name;
 
@@ -36,7 +37,7 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
         this.name = name;
 
         this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(this.canvas.transform, false);
+        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
         shownName.fontSize = 25;
         shownName.text = name;
         shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold | FontStyles.Italic;
@@ -60,7 +61,7 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
         this.hitbox = gameObject.GetComponent<Collider>();
 
         this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(this.canvas.transform, false);
+        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
         shownName.fontSize = 25;
         shownName.text = name;
         shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold | FontStyles.Italic;
@@ -78,6 +79,8 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
     // updating shown values
     public void setPosition(position pos)
     {
+        if (uiMap.useUiMap) return;
+
         bool endDisable = false;
         if (planetOverview.usePlanetOverview) {
             if (!planetOverview.obeyingPlanets.Exists(x => x.name == name)) {

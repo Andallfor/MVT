@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/StreamingAssets/terrainMeshes/luna.meta
+guid: dd939bdc18682c3409c05bf15f54cbc2
+========
+guid: 007f91d9d6560f24c833f4a8ea5b3bd7
+>>>>>>>> main:Assets/Code/UI/modes.meta
+folderAsset: yes
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -23,7 +23,7 @@ public class uiTimeController : MonoBehaviour
 
     void Update()
     {
-        if (!master.alreadyStarted) return;
+        if (!master.finishedInitalizing) return;
 
         float totalTimeChange = 0;
 

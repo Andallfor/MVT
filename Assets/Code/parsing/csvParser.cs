@@ -104,7 +104,7 @@ public static class csvParser
             KeyValuePair<geographic, string> f = facilityLocations.ToList().OrderBy(x => antenna.geo.distAs2DVector(x.Key)).First();
 
             if (facilities.ContainsKey(f.Key)) facilities[f.Key].antennas.Add(antenna);
-            else facilities[f.Key] = new facilityData(f.Value, f.Key, new List<antennaData>() {antenna});
+            else facilities[f.Key] = new facilityData(f.Value, f.Key, 0, new List<antennaData>() {antenna});
 
             antenna.parent = f.Value;
         }
