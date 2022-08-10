@@ -25,6 +25,11 @@ public static class general
         onStatusChange(null, EventArgs.Empty); 
         showingTrails = false;
         notifyTrailsChange();
+
+        if (master.finishedInitalizing) {
+            master.requestScaleUpdate();
+            master.requestPositionUpdate();
+        }
     }
     public static event EventHandler onTrailChange = delegate {};
     public static void notifyTrailsChange() {onTrailChange(null, EventArgs.Empty);}
