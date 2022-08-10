@@ -10,9 +10,9 @@ public static class tidbits
         {"Earth", "The planet Earth has been a beacon for humanity for thousands of years, and this is the launching point for the Artemis Missions."},
         {"Mars", "It is theorized that many billions of years ago Mars had an atmosphere, a warmer climate and water on its surface. While Mars does not have any discovered biological life, it is full of robotic life."},
         {"Jupiter", "Twice the size of any other planet in the Solar System, Jupiter is a gas giant with a cold atmosphere of hydrogen and helium. Larger than the earth, the Great Red Spot swirls on its surface, a raging storm of ammonia and water clouds."},
-        {"Saturn", "Saturn, famous for its dazzling rings of ice and rock, is a gas giant mostly consiting of hydrogen and helium. We humans have left our footprint on Saturn as two tons of mass was contributed to the planet by the Casini Spacecraft."},
-        {"Uranus", "Looking up at the night sky through a telescope William Herschel spotted Uranus, another gas giant. Uranus rotates on its side, a 90 degree tilt from what was perviously expected, and his rings."},
-        {"Neptune", "First discovered by mathematical calulations, the farthest planet in our Solar System (sorry Pluto) is Neptune. Because of its massive distance from the sun, Neptune is a dark and cold planet battered by supersonice winds on its surface."},
+        {"Saturn", "Saturn, famous for its dazzling rings of ice and rock, is a gas giant mostly consiting of hydrogen and helium. We humans have left our footprint on Saturn as two tons of mass was contributed to the planet by the Cassini Spacecraft."},
+        {"Uranus", "Looking up at the night sky through a telescope William Herschel spotted Uranus, another gas giant. Uranus rotates on its side, a 90 degree tilt from what was perviously expected, and has rings."},
+        {"Neptune", "First discovered by mathematical calulations, the farthest planet in our Solar System (sorry Pluto) is Neptune, a ice giant. Because of its massive distance from the sun, Neptune is a dark and cold planet battered by supersonice winds on its surface."},
 
 
         {"Luna", "The moon is a natural satelite of Earth, about 239,000 miles from Earth on avg. Famous for controlling tides, the moon was formed after a collision between Earth and a planet known as Theia.  Humans have explored the moon via the Apollo Era Missions, however this is soon to change with the planned Artemis Missions."},

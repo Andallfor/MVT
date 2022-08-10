@@ -198,6 +198,16 @@ public static class master
         {"Moonlight-2", 0.50000030159},
         {"CubeSat-1", 0.3671969293},
         {"CubeSat-2", 0.08179930284},
-        {"Io", 1.74880219028}
+        {"Io", 1.74880219028},
+        {"Deimos", 1.263},
+        {"Phobos", 0.319},
+        {"Miranda", 1.413},
+        {"Ariel", 2.520},
+        {"Umbriel", 4.144 },
+        {"Titania", 8.706},
+        {"Oberon", 13.463},
+        {"Proteus", 1.122315},
+        {"Triton", 5.876994},
+        {"Charon", 6.3872}
     };
 }
