@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | Mission Visualization Toolkit</title>
   </head>
-  <body style="text-align: center; background-color: #262526">
+  <body style="text-align: center">
     <canvas id="unity-canvas" width=1280 height=720 style="width: 1280px; height: 720px; background: #231F20"></canvas>
     <script src="Build/peregrine.loader.js"></script>
     <script>
@@ -18,9 +18,9 @@
       }
 
       createUnityInstance(document.querySelector("#unity-canvas"), {
-        dataUrl: "Build/peregrine.data",
-        frameworkUrl: "Build/peregrine.framework.js",
-        codeUrl: "Build/peregrine.wasm",
+        dataUrl: "Build/peregrine.data.unityweb",
+        frameworkUrl: "Build/peregrine.framework.js.unityweb",
+        codeUrl: "Build/peregrine.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "MVT",
         productName: "Mission Visualization Toolkit",
@@ -29,7 +29,5 @@
         // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
       });
     </script>
-    <div></div>
-    <a href="https://www.github.com/Andallfor/MVT" style="color:burlywood; font-size:large">www.github.com/Andallfor/MVT</a>
   </body>
 </html>
