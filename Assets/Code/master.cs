@@ -199,7 +199,6 @@ public static class master
         {"Moonlight-2", 0.50000030159},
         {"CubeSat-1", 0.3671969293},
         {"CubeSat-2", 0.08179930284},
-        {"Io", 1.74880219028},
         {"Deimos", 1.263},
         {"Phobos", 0.319},
         {"Miranda", 1.413},
@@ -209,6 +208,16 @@ public static class master
         {"Oberon", 13.463},
         {"Proteus", 1.122315},
         {"Triton", 5.876994},
-        {"Charon", 6.3872}
+        {"Charon", 6.3872},
+        {"Io", 1.77},
+        {"Europa", 3.55},
+        {"Ganymede", 7.155},
+        {"Callisto", 16.691},
+        {"Titan", 15.945421 },
+        {"Hyperion", 21.28 },
+        {"Iapetus", 79.33 },
+        {"Mimas", 0.9424218  },
+        {"Enceladus", 1.370218},
+        {"Tethys", 1.888 }
     };
 }

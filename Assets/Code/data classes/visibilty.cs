@@ -120,8 +120,6 @@ public static class visibility
                         results.dist.Add(Vector3.Distance(ukvp.Value.position, pkvp.Value.position) * master.scale);
 
                         hit = false;
-
-                        if (options.outputPath != default(string)) sb.AppendLine($"{master.time.ToString()}: {ukvp.Key} to {pkvp.Key}");
                     }
 
                     if (options.debug) {

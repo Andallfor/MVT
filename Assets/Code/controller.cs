@@ -127,14 +127,28 @@ public class controller : MonoBehaviour
         master.time.addJulianTime((double)2460806.5 - (double)master.time.julian);
         master.requestPositionUpdate();
         dynamicLinkOptions options = new dynamicLinkOptions();
-        options.callback = (data) => {
-            int c = 0;
-            foreach (var v in data.Values) {
-                c += v.time.Count;
-            }
-            Debug.Log($"Recieved data that contains {data.Count} entries, totaling {c} possible connections");
+        options.callback = (data) =>
+        {
+            System.IO.Directory.CreateDirectory(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "Access Call Results"));
 
-            useTerrainVisibility = false;
+            foreach (KeyValuePair<string, (bool t, double start, double end)> provider in linkBudgeting.providers)
+            {
+                foreach (KeyValuePair<string, (bool t, double start, double end)> user in linkBudgeting.users)
+                {
+
+                    List<double> time = data[(provider.Key, user.Key)].Item1;
+                    List<double> distance = data[(provider.Key, user.Key)].Item2;
+                    List<string> final = new List<string>();
+
+                    if (time.Count == 0) continue;
+                    for (int x = 0; x < time.Count; x++)
+                    {
+                        final.Add("Time:" + time[x] + " Distance: " + distance[x]);
+                    }
+
+                    System.IO.File.WriteAllLines(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads)) + "/Access Call Results/" + provider.Key + " to " + user.Key, final);
+                }
+            }
         };
         options.debug = true;
         options.blocking = true;
@@ -157,7 +171,7 @@ public class controller : MonoBehaviour
             else providers.Add(master.allSatellites.Find(x => x.name == p.Key));
         }
 
-        visibility.raycastTerrain(providers, users, master.time.julian, master.time.julian + 1, speed, options, true);
+        visibility.raycastTerrain(providers, users, master.time.julian, master.time.julian + 30, speed, options, false);
     }
 
     private void runScheduling() {
@@ -414,6 +428,30 @@ public class controller : MonoBehaviour
             {"Gateway", "Prefabs/models/OCO" }
         };
 
+        /*Dictionary<string, sting> realmodelPathes = new Dictionary<string, string>() {
+            {"LRO", "Prefabs/models/LRO" },
+            {"CubeSat", "Prefabs/models/Cubesat"},
+            {"Orion", "Prefabs/models/OrionFull"},
+            {"HLS", "Prefabs/models/HLS Lander"},
+            {"Gateway", "Prefabs/models/OCO" }
+        };
+        all else default to solar-b
+
+            "Prefabs/models/AIM",
+            "Prefabs/models/Aura",
+            "Prefabs/models/GOES",
+            "Prefabs/models/GRACE",
+            "Prefabs/models/ICESAT",
+            "Prefabs/models/ICON",
+            "Prefabs/models/LDCM",
+            "Prefabs/models/MMS",
+            "Prefabs/models/OCO",
+            "Prefabs/models/SDO",
+            "Prefabs/models/Solar-B",
+            "Prefabs/models/TDRS",
+            "Prefabs/models/TRIANA"};*/
+
+
         representationData rd = new representationData(
             "Prefabs/Planet",
             "Materials/default");
@@ -427,38 +465,50 @@ public class controller : MonoBehaviour
         double oneSec = 0.00001157;
 
         double MoonMu = 4902.800066;
-        double MarsMu = 42828.374329453691;
+        double MarsMu = 4.2828375815756095E+04;
         double UranusMu = 5.7939556417959081E+06;
         double NeptuneMu = 6.8351025518691950E+06;
         double SunMu = 1.3271244091061847E+11;
+        double JupMu = 1.2668973461247002E+08;
+        double SatMu = 3.7940184296380058E+07;
 
         earth = new planet(  "Earth", new planetData(  6371, rotationType.earth,   "CSVS/ARTEMIS 3/PLANETS/earth", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/earth/earthEquirectangular"));
         moon =  new planet(   "Luna", new planetData(1738.1,  rotationType.moon,    "CSVS/ARTEMIS 3/PLANETS/moon",  oneMin,   planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/moon/moon"));
                 new planet("Mercury", new planetData(2439.7,  rotationType.none, "CSVS/ARTEMIS 3/PLANETS/mercury", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/mercury"));
                 new planet(  "Venus", new planetData(6051.8,  rotationType.none,   "CSVS/ARTEMIS 3/PLANETS/venus", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/venus"));
 
-        planet pluto = new planet("Pluto", new planetData(1188.3, rotationType.none, new Timeline(5.946851918231975E+09, 2.503377465169019E-01, 2.347223218001061E+01, 1.844505615088283E+02, 4.441083109363277E+01, 5.036690090541509E+01, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), SunMu), 1, planetType.planet), rd);
-        planet charon = new planet("Charon", new planetData(603.6, rotationType.none, new Timeline(1.959426743163140E+04, 1.295552542515501E-04, 9.623268195064630E+01, 1.463964186819785E+02, 2.230282305685080E+02, 1.592839892403547E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), 9.7559000499039507E+02), 1, planetType.moon), rd);
+        planet pluto = new planet("Pluto", new planetData(1188.3, rotationType.none, new Timeline(5.946851918231975E+09, 2.503377465169019E-01, 2.347223218001061E+01, 1.844505615088283E+02, 4.441083109363277E+01, 5.036690090541509E+01, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), SunMu), 1, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/pluto"));
+        planet charon = new planet("Charon", new planetData(603.6, rotationType.none, new Timeline(1.959426743163140E+04, 1.295552542515501E-04, 9.623268195064630E+01, 1.463964186819785E+02, 2.230282305685080E+02, 1.592839892403547E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), 9.7559000499039507E+02), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/pluto/charon"));
 
-        planet mars = new planet(   "Mars", new planetData(3396.2,  rotationType.none,    "CSVS/ARTEMIS 3/PLANETS/mars", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/mars"));
-        planet deimos = new planet("Deimos", new planetData(6.9, rotationType.none, new Timeline(23458.30390813599, .0002726910605830189, 35.79938778535510, 55.27788721744909, 43.79206416682662, 273.3530785661887, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), MarsMu), 1, planetType.moon), rd);
-        planet phobos = new planet("Phobos", new planetData(13.1, rotationType.none, new Timeline(9.378107274617230E+03, .01482801627796802, 37.07104032249755, 95.57238417397109, 49.41987952430639, 154.7567569863700, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), MarsMu), 1, planetType.moon), rd);
+        planet mars = new planet(   "Mars", new planetData(3389.92,  rotationType.none,    "CSVS/ARTEMIS 3/PLANETS/mars", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/mars"));
+        planet deimos = new planet("Deimos", new planetData(6.9, rotationType.none, new Timeline(23458.30390813599, 2.130593815196214E-04, 2.458935818421859E+01, 3.539530138717170E+02, 7.976620457709659E+01, 2.361661169839224E+02, 1, Time.strDateToJulian("2022 May 11 00:00:00.0000"), MarsMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/deimos"));
+        planet phobos = new planet("Phobos", new planetData(13.1, rotationType.none, new Timeline(9.378107274617230E+03, 3.639882214816549E-01, 1.011880520567134E+02, 1.315971874726009E+02, 9.280370816213794E+01, 2.712109828748827E+02, 1, Time.strDateToJulian("2022 May 11 00:00:00.0000"), MarsMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/phobos"));
         
         //semiMajorAxis, eccentricity, inclination, argOfPerigee, longOfAscNode, meanAnom, mass, startingEpoch, mu)
         planet jupiter = new planet("Jupiter", new planetData( 71492,  rotationType.none, "CSVS/ARTEMIS 3/PLANETS/jupiter", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/jupiter"));
-        
+        planet europa = new planet("Europa", new planetData(1560.8, rotationType.none, new Timeline(6.712324897297744E+05, 9.756905445059905E-03, 2.558300580281146E+01, 3.130131294888411E+02, 3.570102271715173E+02, 3.771874902292626E+01, 1, Time.strDateToJulian("2022 May 11 00:00:00.0000"), JupMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/deimos"));
+        planet io = new planet("Io", new planetData(1821.49, rotationType.none, new Timeline(4.220430357408057E+05, 4.821098954882220E-03, 2.548577417307722E+01, 3.848739106075252E+01, 3.581155318564605E+0, 3.543937511177574E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), JupMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/phobos"));
+        planet ganymede = new planet("Ganymede", new planetData(2631.2, rotationType.none, new Timeline(1.070738103475128E+06, 2.517784289295191E-03, 2.563701513408245E+01, 3.167666466728974E-01, 3.581006093585235E+02, 3.796286236463462E+01, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), JupMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/deimos"));
+        planet callisto = new planet("Callisto", new planetData(2410.3, rotationType.none, new Timeline(1.883803333437284E+06, 7.596813727389104E-03, 2.524194247789023E+01, 1.371302989181364E+01, 3.581925397030662E+02, 4.758217360835086E+01, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), JupMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/phobos"));
+
         planet saturn = new planet( "Saturn", new planetData( 60268,  rotationType.none,  "CSVS/ARTEMIS 3/PLANETS/saturn", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/saturn"));
-        
+        planet titan = new planet("Titan", new planetData(2575.5, rotationType.none, new Timeline(1.221912832749956E+06, 2.875883966971324E-02, 6.347680885407659E+00, 2.206736537274180E+02, 1.271359206097018E+02, 8.699496231782938E+01, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), SatMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/phobos"));
+        planet hyperion = new planet("Hyperion", new planetData(2575.5, rotationType.none, new Timeline(1.221912832749956E+06, 1.042783332287711E-01, 5.759125870436669E+00, 1.417386351404256E+02, 1.238025423593874E+02, 2.491657442861929E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), SatMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/phobos"));
+        planet iapetus = new planet("Iapetus", new planetData(734.5, rotationType.none, new Timeline(3.563644468397091E+06, 2.857578350158145E-02, 1.519294491839505E+01, 3.271589910409460E+02, 4.720769743987517E+01, 1.134990096632687E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), SatMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/phobos"));
+        planet mimas = new planet("Mimas", new planetData(198.8, rotationType.none, new Timeline(1.860003958447655E+05, 1.717384069676054E-02, 6.818744491935989E+00, 6.867092361875247E+01, 1.172616091651329E+02, 1.840503936823107E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), SatMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/phobos"));
+        planet enceladus = new planet("Enceladus", new planetData(252.3, rotationType.none, new Timeline(2.384066089079195E+05, 3.081798856844249E-03, 6.461966878473253E+00, 6.476454936102776E+01, 1.306192136869088E+02, 1.690374658351706E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), SatMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/phobos"));
+        planet tethys = new planet("Tethys", new planetData(536.3, rotationType.none, new Timeline(2.949749029184564E+05, 8.960832414480428E-04, 5.780841108691875E+00, 1.948155842927517E+02, 1.225571840273833E+02, 3.523350802488472E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), SatMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/phobos"));
+
         planet uranus = new planet( "Uranus", new planetData( 25559,  rotationType.none,  "CSVS/ARTEMIS 3/PLANETS/uranus", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/uranus"));
-        planet Miranda = new planet("Miranda", new planetData(234, rotationType.none, new Timeline(1.298785496440501E+05, 1.462399811917616E-03, 7.752457010942014E+01, 4.647842701042226E+01, 1.637233061394332E+02, 1.964047613631384E+01, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), UranusMu), 1, planetType.moon), rd);
-        planet Ariel = new planet("Ariel", new planetData(13.1, rotationType.none, new Timeline(1.909441966549205E+05, 2.715880741572296E-04, 7.480435400375895E+01, 2.006987238262219E+02, 1.673459380967358E+02, 2.348289370284962E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), UranusMu), 1, planetType.moon), rd);
-        planet Umbriel = new planet("Umbriel", new planetData(584.7, rotationType.none, new Timeline(2.659991846819316E+05, 3.143845888778475E-03, 7.481041730848607E+01, 6.308114262333238E+01, 1.673669802140787E+02, 1.242312590984253E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), UranusMu), 1, planetType.moon), rd);
-        planet Titania = new planet("Titania", new planetData(788.9, rotationType.none, new Timeline(4.362772370020116E+05, 2.035055161547300E-03, 7.487106697860010E+01, 2.344449913034235E+02, 1.673029998988725E+02, 3.433031265687955E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), UranusMu), 1, planetType.moon), rd);
-        planet Oberon = new planet("Oberon", new planetData(761.4, rotationType.none, new Timeline(5.834837422883826E+05, 7.754003500727179E-04, 7.500713668028843E+01, 2.158441350078671E+02, 1.673937473690337E+02, 1.044032711436084E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), UranusMu), 1, planetType.moon), rd);
+        planet Miranda = new planet("Miranda", new planetData(234, rotationType.none, new Timeline(1.298785496440501E+05, 1.462399811917616E-03, 7.752457010942014E+01, 4.647842701042226E+01, 1.637233061394332E+02, 1.964047613631384E+01, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), UranusMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/uranus/miranda"));
+        planet Ariel = new planet("Ariel", new planetData(13.1, rotationType.none, new Timeline(1.909441966549205E+05, 2.715880741572296E-04, 7.480435400375895E+01, 2.006987238262219E+02, 1.673459380967358E+02, 2.348289370284962E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), UranusMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/uranus/ariel"));
+        planet Umbriel = new planet("Umbriel", new planetData(584.7, rotationType.none, new Timeline(2.659991846819316E+05, 3.143845888778475E-03, 7.481041730848607E+01, 6.308114262333238E+01, 1.673669802140787E+02, 1.242312590984253E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), UranusMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/uranus/umbriel"));
+        planet Titania = new planet("Titania", new planetData(788.9, rotationType.none, new Timeline(4.362772370020116E+05, 2.035055161547300E-03, 7.487106697860010E+01, 2.344449913034235E+02, 1.673029998988725E+02, 3.433031265687955E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), UranusMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/uranus/titana"));
+        planet Oberon = new planet("Oberon", new planetData(761.4, rotationType.none, new Timeline(5.834837422883826E+05, 7.754003500727179E-04, 7.500713668028843E+01, 2.158441350078671E+02, 1.673937473690337E+02, 1.044032711436084E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), UranusMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/uranus/oberon"));
 
         planet neptune = new planet("Neptune", new planetData( 24764,  rotationType.none, "CSVS/ARTEMIS 3/PLANETS/neptune", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/neptune"));
-        planet Proteus = new planet("Proteus", new planetData(208, rotationType.none, new Timeline(1.176751084140828E+05, 6.698630624651811E-04, 4.759369671202530E+01, 3.565033778835370E+02, 2.962923214096653E+01, 3.283481977496181E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), NeptuneMu), 1, planetType.moon), rd);
-        planet Triton = new planet("Triton", new planetData(1352.6, rotationType.none, new Timeline(3.547667476641174E+05, 1.412643162056324E-05, 1.106056038830452E+02, 4.917714675888436, 2.140211313394768E+02, 3.248133065059064E+01, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), NeptuneMu), 1, planetType.moon), rd);
+        planet Proteus = new planet("Proteus", new planetData(208, rotationType.none, new Timeline(1.176751084140828E+05, 6.698630624651811E-04, 4.759369671202530E+01, 3.565033778835370E+02, 2.962923214096653E+01, 3.283481977496181E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), NeptuneMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/neptune/proteus"));
+        planet Triton = new planet("Triton", new planetData(1352.6, rotationType.none, new Timeline(3.547667476641174E+05, 1.412643162056324E-05, 1.106056038830452E+02, 4.917714675888436, 2.140211313394768E+02, 3.248133065059064E+01, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), NeptuneMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/neptune/triton"));
         
         yield return new WaitForSeconds(0.1f);
         loadingController.addPercent(0.11f);
@@ -547,12 +597,34 @@ public class controller : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
 
+        representationData sdrd = new representationData("Prefabs/models/Cubesat", "Materials/default");
+        satellite s1 = new satellite("LRO" , new satelliteData(new Timeline(1.830311669462445E+03, 5.563299732641667E-03, 6.287160669332728E+01, 3.117131857299572E+02, 1.736144041385683E+02, 3.029852347030018E+02, 1, Time.strDateToJulian("2022 Oct 31 00:00:00.0000"), MoonMu)), sdrd);
+        satellite.addFamilyNode(moon, s1);
+        moonSats.Add(s1);
+        satellite s2 = new satellite("MAVEN", new satelliteData(new Timeline(5.736328831395154E+03, 3.757983132436339E-01, 9.409525895127517E+01, 3.116978006182828E+02, 3.495978086657416E+02, 1.663479285527612E+02, 1, Time.strDateToJulian("2022 May 11 00:00:00.0000"), MarsMu)), sdrd);
+        satellite.addFamilyNode(mars, s2);
+        satellite s3 = new satellite("Mars Express", new satelliteData(new Timeline(8.814763859932871E+03, 5.778208721851736E-01, 8.239745770670901E+01, 3.332233703011546E+02, 1.814088356109900E+02, 6.518950359049940E+01, 1, Time.strDateToJulian("2022 May 11 00:00:00.0000"), MarsMu)), sdrd);
+        satellite.addFamilyNode(mars, s3);
+        satellite s4 = new satellite("Mars Orbiter Mission", new satelliteData(new Timeline(3.976530777818711E+04, 8.972508960261729E-01, 1.325774832084018E+02, 1.724246041330142E+02, 2.883266576204198E+02, 2.929292608939092E+02, 1, Time.strDateToJulian("2022 May 11 00:00:00.0000"), MarsMu)), sdrd);
+        satellite.addFamilyNode(mars, s4);
+
         planet.addFamilyNode(pluto, charon);
         planet.addFamilyNode(master.sun, pluto);
 
         planet.addFamilyNode(mars, deimos);
         planet.addFamilyNode(mars, phobos);
 
+        planet.addFamilyNode(jupiter, europa);
+        planet.addFamilyNode(jupiter, io);
+        planet.addFamilyNode(jupiter, ganymede);
+        planet.addFamilyNode(jupiter, callisto);
+
+        planet.addFamilyNode(saturn, titan);
+        planet.addFamilyNode(saturn, tethys);
+        planet.addFamilyNode(saturn, iapetus);
+        planet.addFamilyNode(saturn, hyperion);
+        planet.addFamilyNode(saturn, enceladus);
+        planet.addFamilyNode(saturn, mimas);
 
         planet.addFamilyNode(uranus, Ariel);
         planet.addFamilyNode(uranus, Miranda);
@@ -567,13 +639,15 @@ public class controller : MonoBehaviour
 
         master.setReferenceFrame(moon);
         master.relationshipPlanet[neptune] = new List<planet>() { Triton, Proteus };
+        master.relationshipPlanet[saturn] = new List<planet>() { titan, tethys, iapetus, hyperion, enceladus, mimas };
         master.relationshipPlanet[uranus] = new List<planet>() { Ariel, Miranda, Umbriel, Titania, Oberon };
         master.relationshipPlanet[mars] = new List<planet>() { deimos, phobos };
+        master.relationshipPlanet[jupiter] = new List<planet>() { io, europa, ganymede, callisto };
         master.relationshipPlanet[earth] = new List<planet>() {moon};
         master.relationshipPlanet[pluto] = new List<planet>() { charon };
         master.relationshipSatellite[moon] = moonSats;
         master.relationshipSatellite[earth] = earthSats;
-
+        master.relationshipSatellite[mars] = new List<satellite>() { s2,s3,s4};
         foreach (satellite s in master.allSatellites) s.representation.setRelationshipParent();
 
         master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/PLANETS/moon", oneMin));

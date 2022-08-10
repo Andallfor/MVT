@@ -33,13 +33,13 @@ public class uiInfoPanel : MonoBehaviour
     public void mvt() {
         dropdown.gameObject.SetActive(false);
         headerText.text = "About: Mission Visualization Toolkit (MVT)";
-        bodyText.text = "We do stuff (I think). Thanks!";
+        bodyText.text = "Missions Visualization Toolkit (MVT) is a lightweight web tool and application version of the Systems Toolkit (STK) expediting the testing of various “What-If” or hypothetical Lunar network scenarios, specifically the NASA Requirements Analysis Cycle (RAC) studies, impacting Artemis missions 3, 4, 5, and 8. ";
     }
 
     public void scenario() {
         dropdown.gameObject.SetActive(false);
         headerText.text = "About: Artemis Missions";
-        bodyText.text = "Not sure honestly. Didn't we already do this in the 1970s?";
+        bodyText.text = "The Artemis Missions are America's attempt at putting people nack on the moon, as well landing the first woman on the moon. They will all land near the lunar south pole where there is ice and experiments will be conducted.";
     }
 
     public void viewpoint() {select(master.requestReferenceFrame().name);}
