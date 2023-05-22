@@ -59,7 +59,7 @@ public static class planetOverview
         {
             calulcateDefaultMaxDist();
             general.camera.transform.position = new Vector3(-15, 7.5f, -15);
-            general.camera.transform.rotation = Quaternion.Euler(20, 45, 0);
+            general.camera.transform.LookAt(Vector3.zero);
             general.camera.orthographic = true;
             general.camera.orthographicSize = 5;
             rotationalOffset = 0;
@@ -169,6 +169,13 @@ public static class planetOverview
             kvp.Value.drawLine(new List<Vector3>() {start, end}, kvp.Value.color);
             kvp.Value.rotateAround(general.planetParent.transform.rotation.eulerAngles.y * Mathf.Deg2Rad, 0, 0, Vector3.zero);
 
+            kvp.Value.setWidth(0.05f * general.camera.orthographicSize * 0.2f);
+            kvp.Value.gameObject.transform.localScale = new Vector3(
+                0.25f * general.camera.orthographicSize * 0.2f,
+                0.001f * general.camera.orthographicSize * 0.2f,
+                0.25f * general.camera.orthographicSize * 0.2f
+            );
+
             kvp.Value.gameObject.transform.position = kvp.Value.requestPosition(1);
         }
 
@@ -179,7 +186,10 @@ public static class planetOverview
             lastRotationalOffset = rotationalOffset;
 
             // rotate axes
-            foreach (lineController lc in axes.Values) lc.rotateAround(rotationalDifference, 0, 0, Vector3.zero);
+            foreach (lineController lc in axes.Values) {
+                lc.rotateAround(rotationalDifference, 0, 0, Vector3.zero);
+                lc.setWidth(0.05f * general.camera.orthographicSize * 0.2f);
+            }
 
             // rotate planets
             general.planetParent.transform.rotation = Quaternion.Euler(0, rotationalOffset * Mathf.Rad2Deg, 0);

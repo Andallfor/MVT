@@ -32,6 +32,11 @@ public class lineController : MonoBehaviour
         lr.endColor = c;
     }
 
+    public void setWidth(float w) {
+        lr.startWidth = w;
+        lr.endWidth = w;
+    }
+
     public void addCaption(int pos, string text, int size)
     {
         GameObject go = GameObject.Instantiate(Resources.Load("Prefabs/text") as GameObject);

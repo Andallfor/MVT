@@ -133,7 +133,7 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
     }
     public void setRadius(double radius)
     {
-        _r = ((float) Math.Max((radius * 2) / master.scale, 0.05));
+        _r = ((float) Math.Max((radius * 2) / master.scale, 0.0005));
         gameObject.transform.localScale = new Vector3(_r, _r, _r);
     }
 }

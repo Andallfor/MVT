@@ -94,11 +94,22 @@ public class TimelinePosition : ITimeline
     public position find(Time t)
     {
         if (data.ContainsKey(t.julian)) return data[t.julian];
-        if (t.julian < first) return data[index[0]];
-        if (t.julian > last) return data[index[index.Count - 1]];
+        if (t.julian <= first) return data[index[0]];
+        if (t.julian >= last) return data[index[index.Count - 1]];
 
-        int timeIndex = this.index.BinarySearch(t.julian, tlc);
-        double closestTime = index[timeIndex];
+        double closestTime;
+        int timeIndex;
+        try {
+            timeIndex = this.index.BinarySearch(t.julian, tlc);
+            closestTime = index[timeIndex];
+        } catch {
+            timeIndex = this.index.BinarySearch(t.julian, tlc);
+            Debug.Log(t.julian);
+            Debug.Log(timeIndex);
+            Debug.Log(index.Count);
+            closestTime = index[timeIndex];
+        }
+        
 
         double difference = t.julian - closestTime;
         double percent = Math.Abs(difference) / (timestep);

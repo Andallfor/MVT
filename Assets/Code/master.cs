@@ -20,7 +20,8 @@ public static class master
     }
 
     /// <summary> The current time in game. </summary>
-    public readonly static Time time = new Time(2460806.5, true);
+    //public readonly static Time time = new Time(2460806.5, true);
+    public readonly static Time time = new Time(new DateTime(2025, 12, 12), true);
 
     /// <summary> Total ticks (times the game has updated) since the game was initialized. </summary>
     public static int currentTick = 0;
@@ -218,6 +219,10 @@ public static class master
         {"Iapetus", 79.33 },
         {"Mimas", 0.9424218  },
         {"Enceladus", 1.370218},
-        {"Tethys", 1.888 }
+        {"Tethys", 1.888 },
+        {"Voyager 1", 62},
+        {"Voyager 2", 62},
+        {"SOLO", 62},
+        {"PSP", 62}
     };
 }

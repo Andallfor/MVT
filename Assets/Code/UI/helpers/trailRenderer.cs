@@ -105,7 +105,7 @@ public class trailRenderer
             output[s] = new List<Vector3>();
         }
 
-        double totalTime = 1;
+        double totalTime = 90; // TODO: dont use thisd
         double increment = totalTime / (double) resolution;
         double checkpoint = master.time.julian;
 
