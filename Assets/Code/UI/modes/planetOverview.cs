@@ -12,12 +12,13 @@ public static class planetOverview
     public static double maxDist = 0;
     public static float rotationalOffset = 0;
     private static float lastRotationalOffset = 0;
+    public static float displayScale = 12;
     public static planet focus = master.sun;
     public static List<planet> obeyingPlanets = new List<planet>();
     public static List<satellite> obeyingSatellites = new List<satellite>();
     public static bool zoomed {get; private set;} = false;
     private static Button back;
-    private static Toggle toggleSat, toggleMoon;
+    private static Toggle toggleSat, toggleMoon, toggleLines;
     private static GameObject disclaimer;
 
     private static Dictionary<string, lineController> axes = new Dictionary<string, lineController>() {
@@ -37,18 +38,18 @@ public static class planetOverview
         {"+z", new Vector3(0, 4, 0)},
         {"-z", new Vector3(0, -4, 0)}};
     private static Dictionary<string, Color> colors = new Dictionary<string, Color>() {
-        {"+x", Color.red},
-        {"-x", Color.red},
-        {"+y", Color.green},
-        {"-y", Color.green},
-        {"+z", Color.blue},
-        {"-z", Color.blue}};
+        {"+x", new Color(1, 0, 0, 0.25f)},
+        {"-x", new Color(1, 0, 0, 0.25f)},
+        {"+y", new Color(0, 1, 0, 0.25f)},
+        {"-y", new Color(0, 1, 0, 0.25f)},
+        {"+z", new Color(0, 0, 1, 0.25f)},
+        {"-z", new Color(0, 0, 1, 0.25f)}};
 
     private static void calulcateDefaultMaxDist() {
         foreach (planet p in master.allPlanets) {
             if (p.pType != planetType.planet) continue;
             
-            double dist = p.pos.length();
+            double dist = p.requestPosition(master.time).length();
             if (maxDist < dist) maxDist = dist;
         }
     }
@@ -69,16 +70,20 @@ public static class planetOverview
             back = parent.back;
             toggleSat = parent.toggleSat;
             toggleMoon = parent.toggleMoon;
+            toggleLines = parent.toggleLine;
             disclaimer = parent.disclaimer;
 
             toggleSat.onValueChanged.AddListener(satCallback);
             toggleMoon.onValueChanged.AddListener(moonCallback);
+            toggleLines.onValueChanged.AddListener(lineCallback);
             back.onClick.AddListener(backCallback);
 
             disclaimer.SetActive(true);
 
             addDefaultObey();
             drawAxes();
+
+            toggleLines.gameObject.SetActive(true);
         } else {
             general.camera.transform.position = new Vector3(0, 0, -10);
             general.camera.transform.rotation = Quaternion.Euler(0, 0, 0);
@@ -93,6 +98,8 @@ public static class planetOverview
             clearAxes();
 
             foreach (facility f in master.allFacilites) f.representation.setActive(true);
+
+            toggleLines.gameObject.SetActive(false);
         }
 
         obeyingSatellites = new List<satellite>();
@@ -166,7 +173,12 @@ public static class planetOverview
             Vector3 start = (Vector3) (planetOverviewPosition(kvp.Key.pos - focus.pos) / master.scale);
             Vector3 end = new Vector3(start.x, 0, start.z);
 
-            kvp.Value.drawLine(new List<Vector3>() {start, end}, kvp.Value.color);
+            List<Vector3> p = null;
+            if (kvp.Key is planet && ((planet) kvp.Key).name == "Luna") p = new List<Vector3>() {end, start, start * 100f, start, Vector3.zero};
+            else p = new List<Vector3>() {end, start};
+
+            if (toggleLines.isOn) p.Add(Vector3.zero);
+            kvp.Value.drawLine(p, kvp.Value.color);
             kvp.Value.rotateAround(general.planetParent.transform.rotation.eulerAngles.y * Mathf.Deg2Rad, 0, 0, Vector3.zero);
 
             kvp.Value.setWidth(0.05f * general.camera.orthographicSize * 0.2f);
@@ -244,9 +256,9 @@ public static class planetOverview
         position p = pos.normalize();
         double ratio = pos.length() / ((planetOverview.maxDist + 1) * 1.1);
 
-        double adjustedRatio = 0.25 * Math.Log(ratio + 0.01, 10) + 0.5;
+        double adjustedRatio = 0.25 * Math.Log(ratio + 0.01, controller._logBase) + 0.5;
 
-        return p.swapAxis() * adjustedRatio * master.scale * 12.0;
+        return p.swapAxis() * adjustedRatio * master.scale * displayScale;
     }
 
     public static void backCallback() {
@@ -295,6 +307,10 @@ public static class planetOverview
         obeyingPlanets.Add(focus);
 
         drawAxes();
+    }
+
+    public static void lineCallback(bool value) {
+        updateAxes(true);
     }
 
     public static void addDefaultObey() {

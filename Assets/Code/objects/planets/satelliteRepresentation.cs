@@ -115,7 +115,7 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
 
     public void setRadius(double radius)
     {
-        _r = ((float) Math.Max((radius * 2) / master.scale, 0.05));
+        _r = ((float) Math.Max((radius * 2) / master.scale, 0.00001));
         gameObject.transform.localScale = new Vector3(_r, _r, _r);
     }
 }

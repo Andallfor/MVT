@@ -115,6 +115,15 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
         // position the name of the planet so that it is over the displayed position
         // rotate point since this is the localPosition point, and does not account for possible
         // rotations of its parent
+        // if we are in planet overview, position text to the side
+        if (planetOverview.usePlanetOverview) {
+            shownName.alignment = TextAlignmentOptions.Left;
+            shownName.rectTransform.pivot = new Vector2(-0.05f, 0.5f);
+        } else {
+            shownName.alignment = TextAlignmentOptions.Center;
+            shownName.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        }
+
         Vector3 rot = planetParent.transform.rotation.eulerAngles * Mathf.Deg2Rad;
         Vector3 rotatedPoint = uiHelper.vRotate(rot.y, rot.x, rot.z, p);
         uiHelper.drawTextOverObject(shownName, rotatedPoint);
@@ -133,7 +142,7 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
     }
     public void setRadius(double radius)
     {
-        _r = ((float) Math.Max((radius * 2) / master.scale, 0.0005));
+        _r = ((float) Math.Max((radius * 2) / master.scale, 0.00001));
         gameObject.transform.localScale = new Vector3(_r, _r, _r);
     }
 }

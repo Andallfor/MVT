@@ -12,7 +12,7 @@ public class trailRenderer
     private double orbitalPeriod = 0;
     private Transform transform, parentTransform;
 
-    public const int resolution = 180;
+    public const int resolution = 720;
     public bool enabled {get; private set;} = false;
 
     public trailRenderer(string name, GameObject go, Timeline positions, body b) {
@@ -25,6 +25,8 @@ public class trailRenderer
         lr.gameObject.name = $"{name} trail";
 
         lr.transform.parent = GameObject.FindGameObjectWithTag("planet/trails").transform;
+        lr.startWidth = 0.015f;
+        lr.endWidth = 0.015f;
 
         general.onStatusChange += disableWrapper;
         master.onFinalSetup += (s, e) => master.onCurrentPositionChange += update;
@@ -105,7 +107,7 @@ public class trailRenderer
             output[s] = new List<Vector3>();
         }
 
-        double totalTime = 90; // TODO: dont use thisd
+        double totalTime = 1; // TODO: dont use this
         double increment = totalTime / (double) resolution;
         double checkpoint = master.time.julian;
 

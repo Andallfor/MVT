@@ -21,6 +21,9 @@ public class controller : MonoBehaviour
     public static bool useTerrainVisibility = false;
     public static controller self;
 
+    public float logBase = 35;
+    public static float _logBase;
+
     private void Awake() {self = this;}
 
     private void Start() {
@@ -30,7 +33,7 @@ public class controller : MonoBehaviour
         general.camera = Camera.main;
 
         //master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/ARTEMIS 3/PLANETS/sun", 0.0416666665, planetType.planet),
-        master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/JPL/PLANETS/sun", 0.0416666665, planetType.planet),
+        master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/JPL/sep2027/PLANETS/sun", 0.0416666665, planetType.planet),
             new representationData(
                 "Prefabs/Planet",
                 "Materials/planets/sun"));
@@ -236,6 +239,7 @@ public class controller : MonoBehaviour
 
     public void Update()
     {
+        _logBase = logBase;
         if (planetOverview.usePlanetOverview)
         {
             if (Input.GetKey("d")) planetOverview.rotationalOffset -= 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
@@ -243,7 +247,7 @@ public class controller : MonoBehaviour
 
             if (Input.mouseScrollDelta.y != 0) {
                 general.camera.orthographicSize -= Input.mouseScrollDelta.y * UnityEngine.Time.deltaTime * 100f * general.camera.orthographicSize;
-                general.camera.orthographicSize = Math.Max(0.1f, Math.Min(20, general.camera.orthographicSize));
+                general.camera.orthographicSize = Math.Max(0.01f, Math.Min(20, general.camera.orthographicSize));
                 planetOverview.updateAxes(true); // force update for changing zoom
             } else planetOverview.updateAxes();
 
@@ -257,12 +261,18 @@ public class controller : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.RightArrow)) {
                 general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, 90f - general.camera.transform.eulerAngles.x);
+                planetOverview.rotationalOffset = -45f * Mathf.Deg2Rad;
+                planetOverview.displayScale = 13.65f;
+                //general.camera.transform.eulerAngles = new Vector3(general.camera.transform.rotation.x, general.camera.transform.rotation.y, -90);
             }
 
             if (Input.GetKeyDown(KeyCode.LeftArrow)) {
                 general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, -general.camera.transform.eulerAngles.x);
                 planetOverview.rotationalOffset = Mathf.Deg2Rad * 90f * (float) (planetOverview.rotationalOffset * Mathf.Rad2Deg / 90);
             }
+
+            if (Input.GetKey("w")) planetOverview.displayScale += 5f * UnityEngine.Time.deltaTime;
+            if (Input.GetKey("s")) planetOverview.displayScale -= 5f * UnityEngine.Time.deltaTime;
         }
         else if (planetFocus.usePlanetFocus) {
             if (Input.GetMouseButtonDown(0)) planetFocusMousePosition = Input.mousePosition;
@@ -454,15 +464,19 @@ public class controller : MonoBehaviour
         double JupMu = 1.2668973461247002E+08;
         double SatMu = 3.7940184296380058E+07;
 
-        earth = new planet(  "Earth", new planetData(  6371, rotationType.earth,   "CSVS/JPL/PLANETS/earth", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/earth/earthEquirectangular"));
-        moon =  new planet(   "Luna", new planetData(1738.1,  rotationType.moon,    "CSVS/JPL/PLANETS/moon",  oneHour,   planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/moon/moon"));
-        new planet("Mercury", new planetData(2439.7,  rotationType.none, "CSVS/JPL/PLANETS/mercury", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/mercury"));
-        new planet(  "Venus", new planetData(6051.8,  rotationType.none,   "CSVS/JPL/PLANETS/venus", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/venus"));
-        planet jupiter = new planet("Jupiter", new planetData( 71492,  rotationType.none, "CSVS/JPL/PLANETS/jupiter", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/jupiter"));
-        new planet( "Saturn", new planetData( 60268,  rotationType.none,  "CSVS/JPL/PLANETS/saturn", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/saturn"));
-        new planet( "Uranus", new planetData( 25559,  rotationType.none,  "CSVS/JPL/PLANETS/uranus", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/uranus"));
-        new planet("Neptune", new planetData( 24764,  rotationType.none, "CSVS/JPL/PLANETS/neptune", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/neptune"));
-        planet mars = new planet(   "Mars", new planetData(3389.92,  rotationType.none,    "CSVS/JPL/PLANETS/mars", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/mars"));
+        string header = "dec2025";
+        //string header = "jul2026";
+        //string header = "sep2027";
+
+        earth = new planet(  "Earth", new planetData(  6371, rotationType.none,   $"CSVS/JPL/{header}/PLANETS/earth", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/earth/earthEquirectangular"));
+        moon =  new planet(   "Luna", new planetData(1738.1,  rotationType.moon,    $"CSVS/JPL/{header}/PLANETS/Luna",  oneHour,   planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/moon/moon"));
+        planet mercury = new planet("Mercury", new planetData(2439.7,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/mercury", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/mercury"));
+        planet venus = new planet(  "Venus", new planetData(6051.8,  rotationType.none,   $"CSVS/JPL/{header}/PLANETS/venus", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/venus"));
+        planet jupiter = new planet("Jupiter", new planetData( 71492,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/jupiter", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/jupiter"));
+        planet saturn = new planet( "Saturn", new planetData( 60268,  rotationType.none,  $"CSVS/JPL/{header}/PLANETS/saturn", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/saturn"));
+        planet uranus = new planet( "Uranus", new planetData( 25559,  rotationType.none,  $"CSVS/JPL/{header}/PLANETS/uranus", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/uranus"));
+        planet neptune = new planet("Neptune", new planetData( 24764,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/neptune", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/neptune"));
+        planet mars = new planet(   "Mars", new planetData(3389.92,  rotationType.none,    $"CSVS/JPL/{header}/PLANETS/mars", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/mars"));
 
         planet.addFamilyNode(earth, moon);
 
@@ -473,18 +487,23 @@ public class controller : MonoBehaviour
         master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/PLANETS/moon", oneMin));
         master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/SATS/v", 0.0006944444));
 
-        //satellite stpSat5 = new satellite("STP Sat 5", new satelliteData("CSVS/JPL/SATS/STPSat 5", oneMin), rd);
-        planet solarProbe = new planet("PSP", new planetData(1000, rotationType.none, "CSVS/JPL/SATS/Parker Solar Probe", oneHour, planetType.planet), rd);
-        planet solo = new planet("SOLO", new planetData(1000, rotationType.none, "CSVS/JPL/SATS/SOLO", oneHour, planetType.planet), rd);
-        planet v1 = new planet("Voyager 1", new planetData(1000, rotationType.none, "CSVS/JPL/SATS/Voyager 1", oneHour, planetType.planet), rd);
-        planet v2 = new planet("Voyager 2", new planetData(1000, rotationType.none, "CSVS/JPL/SATS/Voyager 2", oneHour, planetType.planet), rd);
+        //satellite stpSat5 = new satellite("STP Sat 5", new satelliteData($"CSVS/JPL/{header}/SATS/STPSat_5", oneMin), rd);
+        planet solarProbe = new planet("PSP", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/ParkerSolarProbe", oneHour, planetType.planet), rd);
+        planet solo = new planet("SOLO", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/SOLO", oneHour, planetType.planet), rd);
+        planet v1 = new planet("Voyager 1", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Voyager1", oneHour, planetType.planet), rd);
+        planet v2 = new planet("Voyager 2", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Voyager2", oneHour, planetType.planet), rd);
+        //planet lucy = new planet("Lucy", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Lucy", oneHour, planetType.planet), rd);
 
         //body.addFamilyNode(master.sun, v1);
         //body.addFamilyNode(master.sun, v2);
         body.addFamilyNode(master.sun, solo);
         body.addFamilyNode(master.sun, solarProbe);
+        //body.addFamilyNode(master.sun, lucy);
+        //body.addFamilyNode(earth, stpSat5);
+        body.addFamilyNode(earth, moon);
 
-        master.relationshipPlanet[earth] = new List<planet>() {solo};
+        master.relationshipPlanet[earth] = new List<planet>() {solo, moon, mercury, venus, jupiter, saturn, uranus, neptune, mars, master.sun, solarProbe, v1, v2};
+        //master.relationshipSatellite[earth] = new List<satellite>() {stpSat5};
 
         //master.orbitalPeriods["Voyager 1"] = 62;
         //master.orbitalPeriods["Voyager 2"] = 62;
@@ -496,6 +515,9 @@ public class controller : MonoBehaviour
         //master.relationshipSatellite[earth] = new List<satellite>() {stpSat5};
 
         loadingController.addPercent(1);
+
+        //master.time.addJulianTime(new Time(new DateTime(2026, 7, 12)).julian - master.time.julian);
+        //master.time.addJulianTime(new Time(new DateTime(2027, 9, 1)).julian - master.time.julian);
     }
 
     private IEnumerator Artemis3()

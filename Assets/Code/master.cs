@@ -223,6 +223,8 @@ public static class master
         {"Voyager 1", 62},
         {"Voyager 2", 62},
         {"SOLO", 62},
-        {"PSP", 62}
+        {"PSP", 62},
+        {"Lucy", 62},
+        {"STP Sat 5", 0.001}
     };
 }
