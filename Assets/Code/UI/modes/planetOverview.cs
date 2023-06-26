@@ -94,7 +94,7 @@ public static class planetOverview
             obeyingPlanets = new List<planet>();
 
             disclaimer.SetActive(false);
-            
+
             clearAxes();
 
             foreach (facility f in master.allFacilites) f.representation.setActive(true);
