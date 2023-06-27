@@ -164,7 +164,7 @@ public static class ScheduleStructGenerator
             }
             if (!(scenario.users[source].allowedProviders.Contains(destination)))
             {
-                //Debug.Log($"Window kicked out because {source} is not allowed to talk to {destination}");
+                Debug.Log($"Window kicked out because {source} is not allowed to talk to {destination}");
                 continue;
             }
             foreach (var block in window["windows"])
