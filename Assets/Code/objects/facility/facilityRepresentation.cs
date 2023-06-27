@@ -97,7 +97,7 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
     public void updatePos(planet parent, double alt, bool forceHide = false) {
         if (uiMap.useUiMap) return;
 
-        if (forceHide || planetOverview.usePlanetOverview || position.distance(parent.pos, master.referenceFrame + master.currentPosition) > master.scale * 1000.0) {
+        if (forceHide || planetOverview.instance.active || position.distance(parent.pos, master.referenceFrame + master.currentPosition) > master.scale * 1000.0) {
             gameObject.SetActive(false);
             shownName.text = "";
             return;

@@ -41,9 +41,7 @@ public class uiSettingsPanel : MonoBehaviour
         foreach (planet p in master.allPlanets) p.tr.disable();
         foreach (satellite s in master.allSatellites) s.tr.disable();
 
-        if (planetOverview.usePlanetOverview) planetOverview.enable(false);
-        if (planetFocus.usePlanetFocus) planetFocus.enable(false);
-        if (uiMap.useUiMap) uiMap.map.toggle(false);
+        modeController.disableAll();
 
         general.pt.unload();
         general.plt.clear();

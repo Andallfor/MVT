@@ -26,9 +26,9 @@ public class planetTerrain
     private Dictionary<string, Dictionary<string, Dictionary<string, long[]>>> savedPositions = new Dictionary<string, Dictionary<string, Dictionary<string, long[]>>>();
 
     public void updateTerrain() {
-        if (!planetFocus.usePlanetFocus) parent.representation.forceHide = false;
+        if (!planetFocus.instance.active) parent.representation.forceHide = false;
         else {
-            if (!planetFocus.usePoleFocus) _updateTerrain();
+            if (!planetFocus.instance.usePoleFocus) _updateTerrain();
             else unload();
             //parent.representation.forceHide = true;
         }

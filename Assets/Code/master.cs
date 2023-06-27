@@ -56,7 +56,7 @@ public static class master
         }
     }
 
-    public static bool finishedInitalizing => alreadyStarted;
+    public static bool finishedInitializing => alreadyStarted;
 
 
     private static body _referenceFrame;
@@ -81,7 +81,7 @@ public static class master
     /// <summary> Event that will update the positions of any class derived from <see cref="body"/>. Called when <see cref="requestPositionUpdate"/> is called. </summary>
     public static event EventHandler updatePositions = delegate {};
 
-    /// <summary> Event that will update the scheduling for all facilites and their connecting satellites. Called when <see cref="requestSchedulingUpdate"/> is called. </summary>
+    /// <summary> Event that will update the scheduling for all Facilities and their connecting satellites. Called when <see cref="requestSchedulingUpdate"/> is called. </summary>
     public static event EventHandler updateScheduling = delegate {};
 
     /// <summary> Event that will update the planet/system loading queue（see <see cref="jsonParser.updateQueue"/>). Called when <see cref="requestJsonQueueUpdate"/> is called. </summary>
@@ -112,7 +112,7 @@ public static class master
     public static List<satellite> allSatellites = new List<satellite>();
 
     /// <summary> List of all <see cref="facility"/> currently loaded. </summary>
-    public static List<facility> allFacilites = new List<facility>();
+    public static List<facility> allFacilities = new List<facility>();
 
     public static List<Timeline> rod = new List<Timeline>();
 
@@ -128,7 +128,7 @@ public static class master
             if (p.representation.gameObject.TryGetComponent<TrailRenderer>(out tr)) tr.Clear();
         }
 
-        foreach (facility f in allFacilites)
+        foreach (facility f in allFacilities)
         {
             LineRenderer lr = null;
             if (f.representation.gameObject.TryGetComponent<LineRenderer>(out lr)) lr.positionCount = 0;
@@ -147,9 +147,7 @@ public static class master
     public static void setReferenceFrame(body b)
     {
         if (alreadyStarted) {
-            uiMap.map.toggle(false);
-            planetFocus.enable(false);
-            planetOverview.enable(false);
+            modeController.disableAll();
             master.clearAllLines();
         }
 

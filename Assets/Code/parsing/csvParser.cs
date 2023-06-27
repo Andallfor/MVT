@@ -74,7 +74,7 @@ public static class csvParser
     }
 
     /// <summary> Ignores antenna that has the same name </summary>
-    public static List<facilityData> loadFacilites(string path)
+    public static List<facilityData> loadFacilities(string path)
     {
         Regex splitter = new Regex("," + "(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
         TextAsset data = Resources.Load(path) as TextAsset;
@@ -131,7 +131,7 @@ public static class csvParser
             schedulingTime time = new schedulingTime(parseDateTime(s[1]).julian, parseDateTime(s[2]).julian);
 
             satellite connection = master.allSatellites.Find(x => x.name == satName);
-            facility connector = master.allFacilites.Find(x => x.containsAntenna(facName));
+            facility connector = master.allFacilities.Find(x => x.containsAntenna(facName));
             if (ReferenceEquals(connection, null) || ReferenceEquals(connector, null)) continue;
 
             // handling all cases of if a facility has already been added or not
@@ -154,7 +154,7 @@ public static class csvParser
 
         // send schedules to facilities
         foreach (KeyValuePair<string, List<scheduling>> kvp in dict) {
-            foreach (facility f in master.allFacilites) {
+            foreach (facility f in master.allFacilities) {
                 if (f.containsAntenna(kvp.Key)) {
                     f.registerScheduling(kvp.Key, kvp.Value);
                 }

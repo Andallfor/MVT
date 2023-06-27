@@ -17,7 +17,7 @@ public class facilityFocusController : MonoBehaviour
         // load the representations for each object
         foreach (planet p in master.allPlanets) facilityFocus.representations[p.name] = tryAddingBody(p);
         foreach (satellite s in master.allSatellites) facilityFocus.representations[s.name] = tryAddingBody(s);
-        foreach (facility f in master.allFacilites) {
+        foreach (facility f in master.allFacilities) {
             foreach (antennaData ad in f.data.antennas) {
                 if (ad.geo.distAs2DVector(facilityFocus.sw) > 2) continue;
                 facilityFocus.representations[ad.name] = new facilityFocusRepresentation(

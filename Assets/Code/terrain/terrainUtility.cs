@@ -18,14 +18,14 @@ public class terrainUtility
     public bool canRun() {
         bool change = false;
 
-        if (planetFocus.usePlanetFocus) {
+        if (planetFocus.instance.active) {
             bool fov = lastFov != general.camera.fieldOfView;
             bool cmove = lastCamPos != general.camera.transform.position;
-            bool fRot = lastFRot != planetFocus.rotation;
+            bool fRot = lastFRot != planetFocus.instance.rotation;
             bool move = master.currentPosition != lastPlayerPos;
 
             if (fov || cmove || fRot || move) change = true;
-        } else if (!planetOverview.usePlanetOverview) {
+        } else if (!planetOverview.instance.active) {
             bool move = master.currentPosition != lastPlayerPos;
 
             if (move) change = true;
@@ -43,7 +43,7 @@ public class terrainUtility
         }
 
         lastPlayerPos = master.currentPosition;
-        lastFRot = planetFocus.rotation;
+        lastFRot = planetFocus.instance.rotation;
         lastCamPos = general.camera.transform.position;
         lastFov = general.camera.fieldOfView;
 

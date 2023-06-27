@@ -81,14 +81,15 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
         if (uiMap.useUiMap) return;
 
         bool endDisable = false;
-        if (planetOverview.usePlanetOverview) {
-            if (!planetOverview.obeyingPlanets.Exists(x => x.name == name)) {
+        if (planetOverview.instance.active) {
+            if (!planetOverview.instance.obeyingPlanets.Exists(x => x.name == name)) {
                 shownName.text = "";
                 mrSelf.enabled = false;
                 return;
             }
 
-            pos = planetOverview.planetOverviewPosition(pos - planetOverview.focus.pos + master.currentPosition + master.referenceFrame);
+            if (name == planetOverview.instance.focus.name) pos = Vector3.zero;
+            else pos = planetOverview.instance.planetOverviewPosition(pos - planetOverview.instance.focus.pos + master.currentPosition + master.referenceFrame);
         }
 
         // scale position
@@ -115,7 +116,7 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
         // rotate point since this is the localPosition point, and does not account for possible
         // rotations of its parent
         // if we are in planet overview, position text to the side
-        if (planetOverview.usePlanetOverview) {
+        if (planetOverview.instance.active) {
             shownName.alignment = TextAlignmentOptions.Left;
             shownName.rectTransform.pivot = new Vector2(-0.05f, 0.5f);
         } else {

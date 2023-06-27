@@ -25,37 +25,37 @@ public class uiNavPanel : MonoBehaviour
         general.onStatusChange += updateLabels;
         general.onTrailChange += updateLabels;
         master.time.onChange += ((s, e) => {
-            if (general.blockMainLoop || !master.finishedInitalizing) return;
+            if (general.blockMainLoop || !master.finishedInitializing) return;
             povPos.text = $"[{refFrame.pos.x.ToString("G2")}, {refFrame.pos.y.ToString("G2")}, {refFrame.pos.z.ToString("G2")}]";
         });
     }
 
     public void moveY(int multi) {
         Vector3 foward = general.camera.transform.forward;
-        if (planetFocus.usePlanetFocus) planetFocus.movementOffset += (float) master.scale * 0.75f * general.camera.transform.up * planetFocus.zoom / 40f * UnityEngine.Time.deltaTime * (float) multi;
+        if (planetFocus.instance.active) planetFocus.instance.movementOffset += (float) master.scale * 0.75f * general.camera.transform.up * planetFocus.instance.zoom / 40f * UnityEngine.Time.deltaTime * (float) multi;
         else master.currentPosition += foward * 5f * (float) master.scale * UnityEngine.Time.deltaTime * (float) multi;
     }
 
     public void moveX(int multi) {
         Vector3 right = general.camera.transform.right;
-        if (planetFocus.usePlanetFocus) planetFocus.movementOffset += (float) master.scale * 0.75f * right * planetFocus.zoom / 40f * UnityEngine.Time.deltaTime * (float) multi;
-        else if (planetOverview.usePlanetOverview) planetOverview.rotationalOffset += 90f * (float) multi * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
+        if (planetFocus.instance.active) planetFocus.instance.movementOffset += (float) master.scale * 0.75f * right * planetFocus.instance.zoom / 40f * UnityEngine.Time.deltaTime * (float) multi;
+        else if (planetOverview.instance.active) planetOverview.instance.rotationalOffset += 90f * (float) multi * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
         else master.currentPosition += right * 5f * (float) master.scale * UnityEngine.Time.deltaTime * (float) multi;
     }
 
     public void changeZoom(int multi) {
-        if (planetOverview.usePlanetOverview) {
+        if (planetOverview.instance.active) {
             general.camera.orthographicSize -= (float) multi * UnityEngine.Time.deltaTime * 2.5f;
             general.camera.orthographicSize = Math.Max(2, Math.Min(20, general.camera.orthographicSize));
-        } else if (planetFocus.usePlanetFocus) {
-            if (planetFocus.usePoleFocus) {
+        } else if (planetFocus.instance.active) {
+            if (planetFocus.instance.usePoleFocus) {
                 float change = (float) (master.scale) * multi * UnityEngine.Time.deltaTime;
                 master.scale -= change;
-                planetFocus.update();
+                planetFocus.instance.update();
                 master.requestPositionUpdate();
             } else {
-                planetFocus.zoom -= multi * planetFocus.zoom * UnityEngine.Time.deltaTime;
-                planetFocus.zoom = Mathf.Max(Mathf.Min(planetFocus.zoom, 90), 7f);
+                planetFocus.instance.zoom -= multi * planetFocus.instance.zoom * UnityEngine.Time.deltaTime;
+                planetFocus.instance.zoom = Mathf.Max(Mathf.Min(planetFocus.instance.zoom, 90), 7f);
             }
         } else master.currentPosition += ((position) (t.position - general.camera.transform.position).normalized) * master.scale * 5f * UnityEngine.Time.deltaTime * multi;
     }
@@ -143,18 +143,18 @@ public class uiNavPanel : MonoBehaviour
     }
 
     public void resetFocus() {
-        if (planetOverview.usePlanetOverview) general.camera.orthographicSize = 5;
-        else if (planetFocus.usePlanetFocus) {
-            planetFocus.reset();
-            if (planetFocus.usePoleFocus) {
+        if (planetOverview.instance.active) general.camera.orthographicSize = 5;
+        else if (planetFocus.instance.active) {
+            planetFocus.instance.reset();
+            if (planetFocus.instance.usePoleFocus) {
                 master.scale = 50;
-                master.currentPosition = planetFocus.focus.rotateLocalGeo(new geographic(-90, 0), 0);
-                planetFocus.focus.representation.forceHide = true;
+                master.currentPosition = planetFocus.instance.focus.rotateLocalGeo(new geographic(-90, 0), 0);
+                planetFocus.instance.focus.representation.forceHide = true;
             }
             else {
-                master.scale = planetFocus.focus.radius / (0.6 * -general.defaultCameraPosition.z);
+                master.scale = planetFocus.instance.focus.radius / (0.6 * -general.defaultCameraPosition.z);
                 master.requestPositionUpdate();
-                general.camera.transform.LookAt(planetFocus.focus.representation.gameObject.transform.position);
+                general.camera.transform.LookAt(planetFocus.instance.focus.representation.gameObject.transform.position);
             }
         } else {
             if (refFrame is planet) {
@@ -173,9 +173,7 @@ public class uiNavPanel : MonoBehaviour
 
             general.camera.transform.localEulerAngles = new Vector3(0, 0, 0);
 
-            if (planetOverview.usePlanetOverview) planetOverview.enable(false);
-            if (planetFocus.usePlanetFocus) planetFocus.enable(false);
-            if (uiMap.useUiMap) uiMap.map.toggle(false);
+            modeController.disableAll();
 
             if (general.showingTrails) {
                 foreach (planet p in master.allPlanets) p.tr.enable();
@@ -186,10 +184,8 @@ public class uiNavPanel : MonoBehaviour
 
     public void focus() {
         if (refFrame is planet) {
-            planetOverview.enable(false);
-            uiMap.map.toggle(false);
             master.requestScaleUpdate();
-            planetFocus.enable(!planetFocus.usePlanetFocus);
+            modeController.toggle(planetFocus.instance);
             general.pt.unload();
             general.plt.clear();
             master.clearAllLines();
@@ -209,7 +205,7 @@ public class uiNavPanel : MonoBehaviour
         planetFocusButton.interactable = true;
         uiMapButton.interactable = true;
 
-        if (planetFocus.usePlanetFocus) focusPlanet.text = "Unfocus Planet";
+        if (planetFocus.instance.active) focusPlanet.text = "Unfocus Planet";
         else focusPlanet.text = "Focus Planet";
 
         if (uiMap.useUiMap) {
@@ -224,7 +220,7 @@ public class uiNavPanel : MonoBehaviour
         }
         else surfaceView.text = "2D Surface View";
 
-        if (planetOverview.usePlanetOverview) {
+        if (planetOverview.instance.active) {
             overview.text = "Hide Overview";
             w.button.interactable = false;
             s.button.interactable = false;
@@ -242,10 +238,8 @@ public class uiNavPanel : MonoBehaviour
 
     public void surface() {
         if (refFrame is planet) {
-            planetOverview.enable(false);
-            planetFocus.enable(false);
             master.requestScaleUpdate();
-            uiMap.map.toggle(!uiMap.useUiMap);
+            modeController.toggle(uiMap.instance);
             master.clearAllLines();
 
             general.notifyStatusChange();
@@ -253,10 +247,8 @@ public class uiNavPanel : MonoBehaviour
     }
 
     public void pOverview() {
-        uiMap.map.toggle(false);
-        planetFocus.enable(false);
         master.requestScaleUpdate();
-        planetOverview.enable(!planetOverview.usePlanetOverview);
+        modeController.toggle(planetOverview.instance);
         master.clearAllLines();
 
         general.notifyStatusChange();

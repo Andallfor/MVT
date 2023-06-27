@@ -30,7 +30,7 @@ public class satellite : body, IJsonFile<jsonSatelliteStruct>
         if (!ReferenceEquals(parent, null)) pos += parent.pos;
 
         representation.setPosition(pos - master.currentPosition - master.referenceFrame, !data.positions.exists(master.time));
-        if (planetOverview.usePlanetOverview) representation.setRadius(general.camera.orthographicSize * 0.2f * (master.scale / 2.0) / 4.0);
+        if (planetOverview.instance.active) representation.setRadius(general.camera.orthographicSize * 0.2f * (master.scale / 2.0) / 4.0);
 
         base.updateChildren();
     }

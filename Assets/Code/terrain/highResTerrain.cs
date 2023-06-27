@@ -6,18 +6,18 @@ using System.IO;
 using System;
 
 public static class highResTerrain {
-    public static List<nearbyFacilites> neededAreas() {
-        List<nearbyFacilites> nfs = new List<nearbyFacilites>();
-        foreach (facilityData fd in csvParser.loadFacilites("CSVS/FACILITIES/stationList")) {
+    public static List<nearbyFacilities> neededAreas() {
+        List<nearbyFacilities> nfs = new List<nearbyFacilities>();
+        foreach (facilityData fd in csvParser.loadFacilities("CSVS/FACILITIES/stationList")) {
             bool foundValidParent = false;
-            foreach (nearbyFacilites nf in nfs) {
+            foreach (nearbyFacilities nf in nfs) {
                 if (nf.tryJoin(fd)) {
                     foundValidParent = true;
                     break;
                 }
             }
 
-            if (!foundValidParent) nfs.Add(new nearbyFacilites(fd));
+            if (!foundValidParent) nfs.Add(new nearbyFacilities(fd));
         }
 
         return nfs;
@@ -67,13 +67,13 @@ public static class highResTerrain {
     }
 }
 
-public class nearbyFacilites {
+public class nearbyFacilities {
     private const double threshold = 0.2, radius = 0.5;
     public List<facilityData> facilities = new List<facilityData>();
     /// <summary> NE, SE, SW, NW </summary>
     public List<geographic> corners = new List<geographic>();
 
-    public nearbyFacilites(facilityData f) {
+    public nearbyFacilities(facilityData f) {
         this.facilities = new List<facilityData>() {f};
         generateBounds();
     }

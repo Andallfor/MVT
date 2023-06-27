@@ -26,7 +26,7 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
         tr = new trailRenderer(name, representation.gameObject, positions, this);
     }
 
-    // INITALIZATION
+    // INITIALIZATION
     private protected override void loadPhysicalData(representationData rData) {representation = new planetRepresentation(name, radius, pType, rData);}
 
     // EVENTS
@@ -36,7 +36,7 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
         if (!ReferenceEquals(parent, null)) pos += parent.pos;
 
         representation.setPosition(pos - master.currentPosition - master.referenceFrame);
-        if (planetOverview.usePlanetOverview) representation.setRadius(general.camera.orthographicSize * 0.2f * (master.scale / 2.0) / 4.0);
+        if (planetOverview.instance.active) representation.setRadius(general.camera.orthographicSize * 0.2f * (master.scale / 2.0) / 4.0);
     
         if (data.rotate == rotationType.moon)
         {

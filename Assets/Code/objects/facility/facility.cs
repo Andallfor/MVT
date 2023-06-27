@@ -23,7 +23,7 @@ public class facility : IJsonFile<jsonFacilityStruct>
         loadPhysicalData(rData);
         registerForEvents();
 
-        master.allFacilites.Add(this);
+        master.allFacilities.Add(this);
         master.requestJsonQueueUpdate();
     }
 

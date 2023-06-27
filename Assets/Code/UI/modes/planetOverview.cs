@@ -5,39 +5,34 @@ using System.Linq;
 using System;
 using UnityEngine.UI;
 
-public static class planetOverview
-{
-    public static bool usePlanetOverview {get {return _upo;}}
-    private static bool _upo = false;
-    public static double maxDist = 0;
-    public static float rotationalOffset = 0;
-    private static float lastRotationalOffset = 0;
-    public static float displayScale = 12;
-    public static planet focus = master.sun;
-    public static List<planet> obeyingPlanets = new List<planet>();
-    public static List<satellite> obeyingSatellites = new List<satellite>();
-    public static bool zoomed {get; private set;} = false;
-    private static Button back;
-    private static Toggle toggleSat, toggleMoon, toggleLines;
-    private static GameObject disclaimer;
+public sealed class planetOverview : IMode {
+    public float rotationalOffset = 0, displayScale = 12;
+    private float lastRotationalOffset = 0;
+    private double maxDist = 0;
+    public planet focus = master.sun;
+    public List<planet> obeyingPlanets = new List<planet>();
+    public List<satellite> obeyingSatellites = new List<satellite>();
+    private Button back;
+    private Toggle toggleSat, toggleMoon, toggleLines;
+    private GameObject disclaimer;
 
-    private static Dictionary<string, lineController> axes = new Dictionary<string, lineController>() {
+    private Dictionary<string, lineController> axes = new Dictionary<string, lineController>() {
         {"+x", null},
         {"-x", null},
         {"+y", null},
         {"-y", null},
         {"+z", null},
         {"-z", null}};
-    private static Dictionary<body, lineController> bodies = new Dictionary<body, lineController>();
+    private Dictionary<body, lineController> bodies = new Dictionary<body, lineController>();
 
-    private static Dictionary<string, Vector3> directions = new Dictionary<string, Vector3>() {
+    private Dictionary<string, Vector3> directions = new Dictionary<string, Vector3>() {
         {"+x", new Vector3(8, 0, 0)},
         {"-x", new Vector3(-8, 0, 0)},
         {"+y", new Vector3(0, 0, 8)},
         {"-y", new Vector3(0, 0, -8)},
         {"+z", new Vector3(0, 4, 0)},
         {"-z", new Vector3(0, -4, 0)}};
-    private static Dictionary<string, Color> colors = new Dictionary<string, Color>() {
+    private Dictionary<string, Color> colors = new Dictionary<string, Color>() {
         {"+x", new Color(1, 0, 0, 0.25f)},
         {"-x", new Color(1, 0, 0, 0.25f)},
         {"+y", new Color(0, 1, 0, 0.25f)},
@@ -45,7 +40,7 @@ public static class planetOverview
         {"+z", new Color(0, 0, 1, 0.25f)},
         {"-z", new Color(0, 0, 1, 0.25f)}};
 
-    private static void calulcateDefaultMaxDist() {
+    private void calculateDefaultMaxDist() {
         foreach (planet p in master.allPlanets) {
             if (p.pType != planetType.planet) continue;
             
@@ -54,65 +49,63 @@ public static class planetOverview
         }
     }
 
-    public static void enable(bool use)
-    {
-        if (use)
-        {
-            calulcateDefaultMaxDist();
-            general.camera.transform.position = new Vector3(-15, 7.5f, -15);
-            general.camera.transform.LookAt(Vector3.zero);
-            general.camera.orthographic = true;
-            general.camera.orthographicSize = 5;
-            rotationalOffset = 0;
+    protected override IModeParameters modePara => new planetOverviewParameters();
 
-            planetOverviewUI parent = GameObject.FindGameObjectWithTag("ui/planetOverview/parent").GetComponent<planetOverviewUI>();
+    protected override void enable() {
+        calculateDefaultMaxDist();
+        general.camera.transform.LookAt(Vector3.zero);
+        rotationalOffset = 0;
 
-            back = parent.back;
-            toggleSat = parent.toggleSat;
-            toggleMoon = parent.toggleMoon;
-            toggleLines = parent.toggleLine;
-            disclaimer = parent.disclaimer;
+        planetOverviewUI parent = GameObject.FindGameObjectWithTag("ui/planetOverview/parent").GetComponent<planetOverviewUI>();
 
-            toggleSat.onValueChanged.AddListener(satCallback);
-            toggleMoon.onValueChanged.AddListener(moonCallback);
-            toggleLines.onValueChanged.AddListener(lineCallback);
-            back.onClick.AddListener(backCallback);
+        back = parent.back;
+        toggleSat = parent.toggleSat;
+        toggleMoon = parent.toggleMoon;
+        toggleLines = parent.toggleLine;
+        disclaimer = parent.disclaimer;
 
-            disclaimer.SetActive(true);
+        toggleSat.onValueChanged.AddListener(satCallback);
+        toggleMoon.onValueChanged.AddListener(moonCallback);
+        toggleLines.onValueChanged.AddListener(lineCallback);
+        back.onClick.AddListener(backCallback);
 
-            addDefaultObey();
-            drawAxes();
+        disclaimer.SetActive(true);
 
-            toggleLines.gameObject.SetActive(true);
-        } else {
-            general.camera.transform.position = new Vector3(0, 0, -10);
-            general.camera.transform.rotation = Quaternion.Euler(0, 0, 0);
-            general.camera.orthographic = false;
-            general.camera.fieldOfView = 60;
-            maxDist = 0;
-            focus = master.sun;
-            obeyingPlanets = new List<planet>();
+        addDefaultObey();
+        drawAxes();
 
-            disclaimer.SetActive(false);
+        toggleLines.gameObject.SetActive(true);
+    }
 
-            clearAxes();
+    protected override void disable() {
+        modeParameters.load(new defaultParameters());
+        maxDist = 0;
+        focus = master.sun;
+        obeyingPlanets = new List<planet>();
 
-            foreach (facility f in master.allFacilites) f.representation.setActive(true);
+        disclaimer.SetActive(false);
 
-            toggleLines.gameObject.SetActive(false);
-        }
+        clearAxes();
 
+        foreach (facility f in master.allFacilities) f.representation.setActive(true);
+
+        toggleLines.gameObject.SetActive(false);
+    }
+
+    protected override void callback() {
         obeyingSatellites = new List<satellite>();
-        zoomed = false;
         back.gameObject.SetActive(false);
         toggleMoon.gameObject.SetActive(false);
         toggleSat.gameObject.SetActive(false);
 
         rotationalOffset = 0;
-        _upo = use;
     }
 
-    private static void drawAxes()
+    private planetOverview() {}
+    private static readonly Lazy<planetOverview> lazy = new Lazy<planetOverview>(() => new planetOverview());
+    public static planetOverview instance => lazy.Value;
+
+    private void drawAxes()
     {
         List<string> keys = axes.Keys.ToList();
 
@@ -137,7 +130,7 @@ public static class planetOverview
         updateAxes(true);
     }
 
-    private static void createLineController(body b) {
+    private void createLineController(body b) {
         lineController lc = null;
         if (!bodies.ContainsKey(b))
         {
@@ -154,7 +147,7 @@ public static class planetOverview
         mr.enabled = true;
     }
 
-    private static void clearAxes() {
+    private void clearAxes() {
         foreach (lineController lc in axes.Values) {if (!ReferenceEquals(lc, null)) lc.clearLine();};
         foreach (lineController lc in bodies.Values) {if (!ReferenceEquals(lc, null)) lc.destroy();};
         bodies = new Dictionary<body, lineController>();
@@ -162,7 +155,7 @@ public static class planetOverview
         updateAxes(true);
     }
 
-    public static void updateAxes(bool force = false)
+    public void updateAxes(bool force = false)
     {
         // update planetary lines in accordance to the new planets positions
         foreach (KeyValuePair<body, lineController> kvp in bodies) {
@@ -220,7 +213,6 @@ public static class planetOverview
         if (Input.GetMouseButtonDown(0) && target is planet && focus != target) {
             rotationalOffset = 0;
             focus = target;
-            zoomed = true;
 
             back.gameObject.SetActive(true);
             toggleMoon.gameObject.SetActive(true);
@@ -250,21 +242,20 @@ public static class planetOverview
         }
     }
 
-    public static position planetOverviewPosition(position pos)
+    public position planetOverviewPosition(position pos)
     {
         if (pos == new position(0, 0, 0)) return new position(0, 0, 0);
         position p = pos.normalize();
-        double ratio = pos.length() / ((planetOverview.maxDist + 1) * 1.1);
+        double ratio = pos.length() / ((maxDist + 1) * 1.1);
 
         double adjustedRatio = 0.25 * Math.Log(ratio + 0.01, controller._logBase) + 0.5;
 
         return p.swapAxis() * adjustedRatio * master.scale * displayScale;
     }
 
-    public static void backCallback() {
-        calulcateDefaultMaxDist();
+    private void backCallback() {
+        calculateDefaultMaxDist();
         clearAxes();
-        zoomed = false;
         focus = master.sun;
         back.gameObject.SetActive(false);
         toggleMoon.gameObject.SetActive(false);
@@ -277,7 +268,7 @@ public static class planetOverview
         general.notifyStatusChange();
     }
 
-    public static void satCallback(bool value) {
+    private void satCallback(bool value) {
         clearAxes();
         if (!value) {
             foreach (satellite s in obeyingSatellites) s.tr.disable();
@@ -293,7 +284,7 @@ public static class planetOverview
         drawAxes();
     }
 
-    public static void moonCallback(bool value) {
+    private void moonCallback(bool value) {
         clearAxes();
         if (!value) {
             foreach (planet p in obeyingPlanets) p.tr.disable();
@@ -309,11 +300,11 @@ public static class planetOverview
         drawAxes();
     }
 
-    public static void lineCallback(bool value) {
+    private void lineCallback(bool value) {
         updateAxes(true);
     }
 
-    public static void addDefaultObey() {
+    private void addDefaultObey() {
         obeyingSatellites = new List<satellite>();
         obeyingPlanets = new List<planet>();
         foreach (planet p in master.allPlanets) {

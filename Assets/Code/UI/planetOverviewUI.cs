@@ -13,7 +13,7 @@ public class planetOverviewUI : MonoBehaviour
     public string focus;
 
     public void Update() {
-        rotationalOffset = planetOverview.rotationalOffset;
-        focus = planetOverview.focus.name;
+        rotationalOffset = planetOverview.instance.rotationalOffset;
+        focus = planetOverview.instance.focus.name;
     }
 }

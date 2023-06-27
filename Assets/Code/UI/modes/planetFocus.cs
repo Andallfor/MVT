@@ -3,36 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public static class planetFocus
-{
-    public static bool usePlanetFocus {get; private set;}
-    public static Vector3 rotation;
-    public static float zoom = general.defaultCameraFOV;
-    public static bool usePoleFocus {get; private set;} = false;
+public sealed class planetFocus : IMode {
+    public Vector3 rotation;
+    public float zoom = general.defaultCameraFOV;
+    public bool usePoleFocus {get; private set;} = false;
 
-    public static planet focus {get; private set;}
-    public static position movementOffset;
+    public planet focus {get; private set;}
+    public position movementOffset;
 
-    public static void enable(bool use) {
-        usePlanetFocus = use;
-        usePoleFocus = false;
+    protected override IModeParameters modePara => new planetFocusParameters();
+
+    protected override void enable() {
         reset();
-        if (use) {
-            // only if we are focused on a planet
-            if (master.requestReferenceFrame() is planet) {
-                // we want planet to take up about 60%
-                focus = (planet) master.requestReferenceFrame();
-                master.scale = focus.radius / (0.6 * -general.defaultCameraPosition.z);
-                master.requestPositionUpdate();
-                general.camera.transform.LookAt(focus.representation.gameObject.transform.position);
-            } else usePlanetFocus = false;
-        } else {
-            general.pt.unload();
-            general.plt.clear();
-        }
+        if (master.requestReferenceFrame() is planet) {
+            // we want planet to take up about 60%
+            focus = (planet) master.requestReferenceFrame();
+            master.scale = focus.radius / (0.6 * -general.defaultCameraPosition.z);
+            master.requestPositionUpdate();
+            general.camera.transform.LookAt(focus.representation.gameObject.transform.position);
+        } else active = false;
     }
 
-    public static void togglePoleFocus(bool use) {
+    protected override void disable() {
+        general.pt.unload();
+        general.plt.clear();
+    }
+
+    protected override void callback() {
+        usePoleFocus = false;
+    }
+
+    public void togglePoleFocus(bool use) {
         if (focus.name != "Luna") {
             usePoleFocus = false;
             return;
@@ -51,21 +52,16 @@ public static class planetFocus
         }
     }
 
-    public static void reset() {
-        general.camera.transform.position = general.defaultCameraPosition;
-        general.camera.fieldOfView = general.defaultCameraFOV;
+    public void reset() {
+        modeParameters.load(new planetFocusParameters());
         zoom = general.defaultCameraFOV;
-        general.camera.transform.rotation = Quaternion.Euler(0, 0, 0);
-        master.currentPosition = new position(0, 0, 0);
-        master.scale = 1000;
         rotation = Vector3.zero;
         movementOffset = new position(0, 0, 0);
     }
 
-    public static void update() {
-        if (usePoleFocus) {
-            master.currentPosition = planetFocus.focus.rotateLocalGeo(new geographic(-90, 0), 0) + movementOffset;
-        } else master.currentPosition = movementOffset;
+    public void update() {
+        if (usePoleFocus) master.currentPosition = focus.rotateLocalGeo(new geographic(-90, 0), 0) + movementOffset;
+        else master.currentPosition = movementOffset;
 
         general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, rotation.x);
         general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.up, rotation.y);
@@ -74,4 +70,8 @@ public static class planetFocus
 
         general.camera.fieldOfView = zoom;
     }
+
+    private planetFocus() {}
+    private static readonly Lazy<planetFocus> lazy = new Lazy<planetFocus>(() => new planetFocus());
+    public static planetFocus instance => lazy.Value;
 }

@@ -66,9 +66,9 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
 
         if (forceHide) {hide(); return;}
 
-        if (planetOverview.usePlanetOverview) {
-            if (!planetOverview.obeyingSatellites.Exists(x => x.name == name)) {hide(); return;}
-            pos = planetOverview.planetOverviewPosition(pos - planetOverview.focus.pos + master.currentPosition + master.referenceFrame);
+        if (planetOverview.instance.active) {
+            if (!planetOverview.instance.obeyingSatellites.Exists(x => x.name == name)) {hide(); return;}
+            pos = planetOverview.instance.planetOverviewPosition(pos - planetOverview.instance.focus.pos + master.currentPosition + master.referenceFrame);
         }
 
         Vector3 p = new Vector3(
@@ -85,7 +85,7 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
 
             float distance = Vector3.Distance(Vector3.zero, this.gameObject.transform.position);
             float scale = 0.01f * distance + 0;
-            float r = Mathf.Max(Mathf.Min(this.gameObject.transform.localScale.x, planetOverview.usePlanetOverview ? _r : minScale), scale);
+            float r = Mathf.Max(Mathf.Min(this.gameObject.transform.localScale.x, planetOverview.instance.active ? _r : minScale), scale);
             gameObject.transform.localScale = new Vector3(r, r, r);
 
             if (!(parent is null)) gameObject.transform.LookAt(parent.representation.gameObject.transform.position);

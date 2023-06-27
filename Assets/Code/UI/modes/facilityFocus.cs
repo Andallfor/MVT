@@ -18,8 +18,8 @@ public static class facilityFocus
         facilityFocus.facilityName = facilityName;
 
         if (use) {
-            // unload all facilites (done in facilityRepresentation.cs)
-            parent = master.allFacilites.First(x => x.name == facilityName).facParent;
+            // unload all Facilities (done in facilityRepresentation.cs)
+            parent = master.allFacilities.First(x => x.name == facilityName).facParent;
 
             SceneManager.LoadScene("facilityFocus", LoadSceneMode.Single);
         } else {

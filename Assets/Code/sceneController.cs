@@ -22,11 +22,11 @@ public static class sceneController
 
         foreach (planet p in master.allPlanets) p.representation.regenerate();
         foreach (satellite s in master.allSatellites) s.representation.regenerate();
-        foreach (facility f in master.allFacilites) f.representation.regenerate();
+        foreach (facility f in master.allFacilities) f.representation.regenerate();
 
         general.camera.gameObject.GetComponent<controller>().startMainLoop();
 
-        planetFocus.enable(false);
+        planetFocus.instance.toggle(false);
     }
 
     private static void prepareFacilityFocus() {

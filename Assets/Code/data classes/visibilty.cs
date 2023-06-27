@@ -369,7 +369,7 @@ public static class visibility
 
         if ((flags & raycastParameters.facility) == raycastParameters.facility)
         {
-            foreach (facility f in master.allFacilites)
+            foreach (facility f in master.allFacilities)
             {
                 double alt = 0;
                 position fac = f.facParent.rotateLocalGeo(f.geo, alt) + f.facParent.requestPosition(t);
@@ -464,7 +464,7 @@ public static class visibility
 
         if ((flags & raycastParameters.facility) == raycastParameters.facility)
         {
-            foreach (facility f in master.allFacilites)
+            foreach (facility f in master.allFacilities)
             {
                 double alt = 0;
                 position fac = f.facParent.rotateLocalGeo(f.geo, alt) + f.facParent.requestPosition(t);

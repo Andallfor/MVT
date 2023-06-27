@@ -73,24 +73,21 @@ public class controller : MonoBehaviour
         //runDynamicLink();
         //linkBudgeting.accessCalls("C:/Users/akazemni/Desktop/connections.txt");
 
-        initModes();
-
         master.markStartOfSimulation();
 
         loadingController.addPercent(0.26f);
+
+        modeController.registerMode(planetOverview.instance);
+        modeController.registerMode(planetFocus.instance);
+        modeController.registerMode(uiMap.instance);
+        modeController.initialize();
+
+        modeController.disableAll();
+
         startMainLoop();
 
         //Debug.Log(position.J2000(new position(0, 1, 0), new position(0, 0, -1), new position(0, 1, 0)));
         facility f1 = new facility("1", earth, new facilityData("1", new geographic(-33.60579, -78.88177), 10, new List<antennaData>()), new representationData("facility", "defaultMat"));
-    }
-
-    private void initModes() { // i dont wanna hear it
-        planetFocus.enable(true);
-        planetFocus.enable(false);
-        planetOverview.enable(true);
-        planetOverview.enable(false);
-        uiMap.map.toggle(true);
-        uiMap.map.toggle(false);
     }
 
     public static void runWindows()
@@ -112,13 +109,13 @@ public class controller : MonoBehaviour
 
         foreach (var u in linkBudgeting.users)
         {
-            if (u.Value.Item1) users.Add(master.allFacilites.Find(x => x.name == u.Key));
+            if (u.Value.Item1) users.Add(master.allFacilities.Find(x => x.name == u.Key));
             else users.Add(master.allSatellites.Find(x => x.name == u.Key));
         }
 
         foreach (var p in linkBudgeting.providers)
         {
-            if (p.Value.Item1) providers.Add(master.allFacilites.Find(x => x.name == p.Key));
+            if (p.Value.Item1) providers.Add(master.allFacilities.Find(x => x.name == p.Key));
             else providers.Add(master.allSatellites.Find(x => x.name == p.Key));
         }
 
@@ -165,13 +162,13 @@ public class controller : MonoBehaviour
 
         foreach (var u in linkBudgeting.users)
         {
-            if (u.Value.Item1) users.Add(master.allFacilites.Find(x => x.name == u.Key));
+            if (u.Value.Item1) users.Add(master.allFacilities.Find(x => x.name == u.Key));
             else users.Add(master.allSatellites.Find(x => x.name == u.Key));
         }
 
         foreach (var p in linkBudgeting.providers)
         {
-            if (p.Value.Item1) providers.Add(master.allFacilites.Find(x => x.name == p.Key));
+            if (p.Value.Item1) providers.Add(master.allFacilities.Find(x => x.name == p.Key));
             else providers.Add(master.allSatellites.Find(x => x.name == p.Key));
         }
 
@@ -229,7 +226,7 @@ public class controller : MonoBehaviour
 
             general.pt.updateTerrain();
 
-            if (!planetOverview.usePlanetOverview) master.requestSchedulingUpdate();
+            if (!planetOverview.instance.active) master.requestSchedulingUpdate();
             master.currentTick = tick;
 
             master.markTickFinished();
@@ -239,16 +236,17 @@ public class controller : MonoBehaviour
     public void Update()
     {
         _logBase = logBase;
-        if (planetOverview.usePlanetOverview)
-        {
-            if (Input.GetKey("d")) planetOverview.rotationalOffset -= 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
-            if (Input.GetKey("a")) planetOverview.rotationalOffset += 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
+        if (planetOverview.instance.active) {
+            planetOverview po = planetOverview.instance;
+
+            if (Input.GetKey("d")) po.rotationalOffset -= 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
+            if (Input.GetKey("a")) po.rotationalOffset += 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
 
             if (Input.mouseScrollDelta.y != 0) {
                 general.camera.orthographicSize -= Input.mouseScrollDelta.y * UnityEngine.Time.deltaTime * 100f * general.camera.orthographicSize;
                 general.camera.orthographicSize = Math.Max(0.01f, Math.Min(20, general.camera.orthographicSize));
-                planetOverview.updateAxes(true); // force update for changing zoom
-            } else planetOverview.updateAxes();
+                po.updateAxes(true); // force update for changing zoom
+            } else po.updateAxes();
 
             if (Input.GetKey(KeyCode.UpArrow)) {
                 general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, 20f * UnityEngine.Time.deltaTime);            
@@ -260,20 +258,19 @@ public class controller : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.RightArrow)) {
                 general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, 90f - general.camera.transform.eulerAngles.x);
-                planetOverview.rotationalOffset = -45f * Mathf.Deg2Rad;
-                planetOverview.displayScale = 13.65f;
-                //general.camera.transform.eulerAngles = new Vector3(general.camera.transform.rotation.x, general.camera.transform.rotation.y, -90);
+                po.rotationalOffset = -45f * Mathf.Deg2Rad;
+                po.displayScale = 13.65f;
             }
 
             if (Input.GetKeyDown(KeyCode.LeftArrow)) {
                 general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, -general.camera.transform.eulerAngles.x);
-                planetOverview.rotationalOffset = Mathf.Deg2Rad * 90f * (float) (planetOverview.rotationalOffset * Mathf.Rad2Deg / 90);
+                po.rotationalOffset = Mathf.Deg2Rad * 90f * (float) (po.rotationalOffset * Mathf.Rad2Deg / 90);
             }
 
-            if (Input.GetKey("w")) planetOverview.displayScale += 5f * UnityEngine.Time.deltaTime;
-            if (Input.GetKey("s")) planetOverview.displayScale -= 5f * UnityEngine.Time.deltaTime;
+            if (Input.GetKey("w")) po.displayScale += 5f * UnityEngine.Time.deltaTime;
+            if (Input.GetKey("s")) po.displayScale -= 5f * UnityEngine.Time.deltaTime;
         }
-        else if (planetFocus.usePlanetFocus) {
+        else if (planetFocus.instance.active) {
             if (Input.GetMouseButtonDown(0)) planetFocusMousePosition = Input.mousePosition;
             else if (Input.GetMouseButton(0)) {
                 Vector3 difference = Input.mousePosition - planetFocusMousePosition;
@@ -282,9 +279,9 @@ public class controller : MonoBehaviour
                 Vector2 adjustedDifference = new Vector2(-difference.y / Screen.height, difference.x / Screen.width);
                 adjustedDifference *= 100f;
 
-                planetFocus.rotation.x = adjustedDifference.x * planetFocus.zoom / 125f;
-                planetFocus.rotation.y = adjustedDifference.y * planetFocus.zoom / 125f;
-                planetFocus.rotation.z = 0;
+                planetFocus.instance.rotation.x = adjustedDifference.x * planetFocus.instance.zoom / 125f;
+                planetFocus.instance.rotation.y = adjustedDifference.y * planetFocus.instance.zoom / 125f;
+                planetFocus.instance.rotation.z = 0;
             }
 
             if (Input.GetMouseButtonDown(1)) planetFocusMousePosition1 = Input.mousePosition;
@@ -293,9 +290,9 @@ public class controller : MonoBehaviour
                 planetFocusMousePosition1 = Input.mousePosition;
 
                 float adjustedDifference = (difference.x / Screen.width) * 100;
-                planetFocus.rotation.x = 0;
-                planetFocus.rotation.y = 0;
-                planetFocus.rotation.z = adjustedDifference;
+                planetFocus.instance.rotation.x = 0;
+                planetFocus.instance.rotation.y = 0;
+                planetFocus.instance.rotation.z = adjustedDifference;
             }
 
             if (Input.mouseScrollDelta.y != 0) {
@@ -303,41 +300,41 @@ public class controller : MonoBehaviour
                 // i know you probably have questions about y tf the code below here exists
                 // well too bad
                 // if u want to fix it go ahead, otherwise its staying here
-                if (planetFocus.usePoleFocus) {
+                if (planetFocus.instance.usePoleFocus) {
                     float change = (float) (0.1 * master.scale) * Mathf.Sign(Input.mouseScrollDelta.y);
                     master.scale -= change;
-                    planetFocus.update();
+                    planetFocus.instance.update();
                     master.requestPositionUpdate();
                 } else {
-                    planetFocus.zoom -= Input.mouseScrollDelta.y * planetFocus.zoom / 10f;
-                    planetFocus.zoom = Mathf.Max(Mathf.Min(planetFocus.zoom, 90), 0.1f);
+                    planetFocus.instance.zoom -= Input.mouseScrollDelta.y * planetFocus.instance.zoom / 10f;
+                    planetFocus.instance.zoom = Mathf.Max(Mathf.Min(planetFocus.instance.zoom, 90), 0.1f);
                 }
             }
 
             float t = UnityEngine.Time.deltaTime;
-            float r = planetFocus.zoom / 40f;
-            if (Input.GetKey("w")) planetFocus.movementOffset += (float) master.scale * 0.75f * general.camera.transform.up * r * t;
-            if (Input.GetKey("s")) planetFocus.movementOffset -= (float) master.scale * 0.75f * general.camera.transform.up * r * t;
-            if (Input.GetKey("d")) planetFocus.movementOffset += (float) master.scale * 0.75f * general.camera.transform.right * r * t;
-            if (Input.GetKey("a")) planetFocus.movementOffset -= (float) master.scale * 0.75f * general.camera.transform.right * r * t;
+            float r = planetFocus.instance.zoom / 40f;
+            if (Input.GetKey("w")) planetFocus.instance.movementOffset += (float) master.scale * 0.75f * general.camera.transform.up * r * t;
+            if (Input.GetKey("s")) planetFocus.instance.movementOffset -= (float) master.scale * 0.75f * general.camera.transform.up * r * t;
+            if (Input.GetKey("d")) planetFocus.instance.movementOffset += (float) master.scale * 0.75f * general.camera.transform.right * r * t;
+            if (Input.GetKey("a")) planetFocus.instance.movementOffset -= (float) master.scale * 0.75f * general.camera.transform.right * r * t;
 
             if (Input.GetKeyDown("t") && !general.plt.currentlyDrawing) {
-                planetFocus.togglePoleFocus(!planetFocus.usePoleFocus);
-                if (planetFocus.usePoleFocus) general.plt.genMinScale();
+                planetFocus.instance.togglePoleFocus(!planetFocus.instance.usePoleFocus);
+                if (planetFocus.instance.usePoleFocus) general.plt.genMinScale();
                 else general.plt.clear();
             }
 
-            if (planetFocus.usePoleFocus) {
+            if (planetFocus.instance.usePoleFocus) {
                 if (Input.GetKeyDown("=")) general.plt.increaseScale();
                 if (Input.GetKeyDown("-")) general.plt.decreaseScale();
 
-                planetFocus.focus.representation.forceHide = true;
+                planetFocus.instance.focus.representation.forceHide = true;
             }
 
-            planetFocus.update();
+            planetFocus.instance.update();
         }
         else if (uiMap.useUiMap) {
-
+            uiMap.instance.update();
         }
         else
         {
@@ -361,9 +358,7 @@ public class controller : MonoBehaviour
         if (Input.GetKeyDown("q"))
         {
             master.requestScaleUpdate();
-            planetFocus.enable(false);
-            uiMap.map.toggle(false);
-            planetOverview.enable(!planetOverview.usePlanetOverview);
+            modeController.toggle(planetOverview.instance);
             master.clearAllLines();
 
             general.notifyStatusChange();
@@ -371,9 +366,7 @@ public class controller : MonoBehaviour
 
         if (Input.GetKeyDown("e")) {
             master.requestScaleUpdate();
-            uiMap.map.toggle(false);
-            planetOverview.enable(false);
-            planetFocus.enable(!planetFocus.usePlanetFocus);
+            modeController.toggle(planetFocus.instance);
             general.pt.unload();
             general.plt.clear();
             master.clearAllLines();
@@ -383,9 +376,7 @@ public class controller : MonoBehaviour
 
         if (Input.GetKeyDown("m")) {
             master.requestScaleUpdate();
-            planetFocus.enable(false);
-            planetOverview.enable(false);
-            uiMap.map.toggle(!uiMap.useUiMap);
+            modeController.toggle(uiMap.instance);
             master.clearAllLines();
 
             general.notifyStatusChange();
@@ -407,6 +398,7 @@ public class controller : MonoBehaviour
 
             geographic g = new geographic(-34.087083333312, -79.055416666690);
             List<position> toCheck = new List<position>();
+            List<Vector2Int> toCheckGrid = new List<Vector2Int>();
 
             double inc = 0.000833333333;
             for (int row = 6; row < 1357 + 6; row++) {
@@ -416,7 +408,10 @@ public class controller : MonoBehaviour
                     change += g;
                     double alt = double.Parse(line[col]) / 1000.0;
 
-                    if (alt != 0) toCheck.Add(new position(change.lon, change.lat, alt));
+                    if (alt != 0) {
+                        toCheck.Add(new position(change.lon, change.lat, alt));
+                        toCheckGrid.Add(new Vector2Int(col, row - 6));
+                    }
                     mesh.addPoint(col, row - 6, change.toCartesian(6371 + alt).swapAxis() / master.scale);
                 }
             }
@@ -454,7 +449,10 @@ public class controller : MonoBehaviour
 
             StringBuilder sb = new StringBuilder();
 
-            foreach (position p in toCheck) {
+            for (int i = 0; i < toCheck.Count; i++) {
+                position p = toCheck[i];
+                Vector2Int v = toCheckGrid[i];
+
                 int valid = 0;
                 geographic start = new geographic(p.y, p.x);
                 Vector3 v1 = earth.localGeoToUnityPos(start, p.z + 10.0 / 1000.0);
@@ -466,8 +464,7 @@ public class controller : MonoBehaviour
 
                     if (!Physics.Raycast(v1, v2 - v1, (float) position.distance(v1, v2))) valid++;
                 }
-
-                sb.Append(start.ToString() + ": " + valid + "\n");
+                sb.Append($"{v.x} {v.y} {p.z} {valid}\n");
             }
 
             File.WriteAllText("C:/Users/leozw/Desktop/data.txt", sb.ToString());

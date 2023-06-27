@@ -26,7 +26,7 @@ public static class general
         showingTrails = false;
         notifyTrailsChange();
 
-        if (master.finishedInitalizing) {
+        if (master.finishedInitializing) {
             master.requestScaleUpdate();
             master.requestPositionUpdate();
         }

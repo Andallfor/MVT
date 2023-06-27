@@ -12,7 +12,7 @@ public class trailRenderer
     private double orbitalPeriod = 0;
     private Transform transform, parentTransform;
 
-    public const int resolution = 720;
+    public const int resolution = 180;
     public bool enabled {get; private set;} = false;
 
     public trailRenderer(string name, GameObject go, Timeline positions, body b) {
@@ -35,7 +35,7 @@ public class trailRenderer
     }
 
     private void update(object sender, EventArgs e) {
-        if (planetOverview.usePlanetOverview) return;
+        if (planetOverview.instance.active) return;
         body bb = master.requestReferenceFrame();
         GameObject go = null;
         if (bb is planet) go = ((planet) bb).representation.gameObject;
@@ -51,8 +51,8 @@ public class trailRenderer
 
         if (orbitalPeriod == 0) Debug.LogWarning($"No orbital period found for {name}");
         else { // we know the orbital period, so draw the orbit
-            if (planetOverview.usePlanetOverview && planetOverview.focus.name == name) return;
-            if (!planetOverview.usePlanetOverview && master.requestReferenceFrame().name == name) return;
+            if (planetOverview.instance.active && planetOverview.instance.focus.name == name) return;
+            if (!planetOverview.instance.active && master.requestReferenceFrame().name == name) return;
 
             double checkpoint = master.time.julian;
             master.time.addJulianTime(-orbitalPeriod * 0.5);
@@ -61,7 +61,7 @@ public class trailRenderer
             List<Vector3> positions = new List<Vector3>();
             for (int i = 0; i < resolution + 1; i++) {
                 position pos = b.pos;
-                if (planetOverview.usePlanetOverview) pos = planetOverview.planetOverviewPosition(pos - planetOverview.focus.pos);
+                if (planetOverview.instance.active) pos = planetOverview.instance.planetOverviewPosition(pos - planetOverview.instance.focus.pos);
                 else pos -= master.requestReferenceFrame().pos;
                 pos /= master.scale;
 
@@ -119,7 +119,7 @@ public class trailRenderer
                 if (!s.positions.exists(master.time)) continue;
 
                 position p = s.pos;
-                if (planetOverview.usePlanetOverview) p = planetOverview.planetOverviewPosition(p - planetOverview.focus.pos);
+                if (planetOverview.instance.active) p = planetOverview.instance.planetOverviewPosition(p - planetOverview.instance.focus.pos);
                 else p -= refPos;
 
                 p /= master.scale;

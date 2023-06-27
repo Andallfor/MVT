@@ -43,7 +43,7 @@ public static class jsonParser
 
         foreach (planet p in master.allPlanets) {if (p.name != master.sun.name) jss.planets.Add(p.requestJsonFile());}
         foreach (satellite s in master.allSatellites) jss.satellites.Add(s.requestJsonFile());
-        foreach (facility f in master.allFacilites) jss.facilities.Add(f.requestJsonFile());
+        foreach (facility f in master.allFacilities) jss.facilities.Add(f.requestJsonFile());
 
         return writeFile(path, JsonConvert.SerializeObject(jss), "system" + DateTime.Now.ToFileTime(), ".syt");
     }
@@ -193,11 +193,11 @@ public static class jsonParser
                 pc = master.allPlanets.Exists(x => x.name == jqs.child);
                 sp = master.allSatellites.Exists(x => x.name == jqs.parent);
                 sc = master.allSatellites.Exists(x => x.name == jqs.child);
-                fc = master.allFacilites.Exists(x => x.name == jqs.child);
+                fc = master.allFacilities.Exists(x => x.name == jqs.child);
 
                 if (pp && pc) body.addFamilyNode(master.allPlanets.First(x => x.name == jqs.parent), master.allPlanets.First(x => x.name == jqs.child));
                 else if (pp && sc) body.addFamilyNode(master.allPlanets.First(x => x.name == jqs.parent), master.allSatellites.First(x => x.name == jqs.child));
-                else if (pp && fc) master.allFacilites.First(x => x.name == jqs.child).setParent(master.allPlanets.First(x => x.name == jqs.parent));
+                else if (pp && fc) master.allFacilities.First(x => x.name == jqs.child).setParent(master.allPlanets.First(x => x.name == jqs.parent));
                 else if (sp && pc) body.addFamilyNode(master.allSatellites.First(x => x.name == jqs.parent), master.allPlanets.First(x => x.name == jqs.child));
                 else if (sp && sc) body.addFamilyNode(master.allSatellites.First(x => x.name == jqs.parent), master.allSatellites.First(x => x.name == jqs.child));
                 else if (noChanges)
