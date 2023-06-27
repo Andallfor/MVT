@@ -78,7 +78,8 @@ public static class modeController {
     }
 
     public static void toggle(IMode target) {
+        bool state = target.active;
         foreach (IMode m in modes) m.toggle(false);
-        target.toggle();
+        target.toggle(!state);
     }
 }

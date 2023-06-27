@@ -435,7 +435,7 @@ public class controller : MonoBehaviour
                 new geographic(19, -141.42),
                 new geographic(17, -143.3),
                 new geographic(12.9, -146.8),
-                new geographic(8, -15.1),
+                new geographic(8, -151),
                 new geographic(3, -154.5),
                 new geographic(0, -156.5),
                 new geographic(-3, -158.6),
@@ -462,7 +462,10 @@ public class controller : MonoBehaviour
                     //int c = position.lineSphereInteresection(v1, v2, earth.representation.gameObject.transform.position, earth.representation.gameObject.transform.localScale.x).Count;
                     //if (c != 0) continue;
 
-                    if (!Physics.Raycast(v1, v2 - v1, (float) position.distance(v1, v2))) valid++;
+                    if (!Physics.Raycast(v1, v2 - v1, (float) position.distance(v1, v2))) {
+                        valid++;
+                        if (v == new Vector2Int(217, 777)) Debug.DrawLine(v1, v2, Color.green, 1000000000);
+                    } else if (v == new Vector2Int(217, 777)) Debug.DrawLine(v1, v2, Color.red, 1000000000);
                 }
                 sb.Append($"{v.x} {v.y} {p.z} {valid}\n");
             }
