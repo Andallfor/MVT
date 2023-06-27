@@ -22,7 +22,6 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
     public planetRepresentation(string name, double radius, planetType pType, representationData data) {
         gameObject = GameObject.Instantiate(data.model);
         gameObject.GetComponent<MeshRenderer>().material = data.material;
-        gameObject.transform.Rotate(data.rotate.x, data.rotate.y, data.rotate.z);
         gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
         gameObject.name = name;
 
@@ -36,7 +35,7 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
         this.hitbox = gameObject.GetComponent<Collider>();
         this.name = name;
 
-        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
+        this.shownName = resLoader.createPrefab("bodyName").GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
         shownName.fontSize = 25;
         shownName.text = name;
@@ -60,7 +59,7 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
         this.mrSelf = gameObject.GetComponent<MeshRenderer>();
         this.hitbox = gameObject.GetComponent<Collider>();
 
-        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
+        this.shownName = resLoader.createPrefab("bodyName").GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
         shownName.fontSize = 25;
         shownName.text = name;

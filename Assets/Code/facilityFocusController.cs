@@ -127,7 +127,7 @@ public class facilityFocusRepresentation {
     }
 
     private void init() {
-        representation = GameObject.Instantiate(Resources.Load("Prefabs/default") as GameObject);
+        representation = resLoader.load<GameObject>("defaultPrefab");
         representation.name = name;
         representation.transform.parent = GameObject.FindGameObjectWithTag("facilityFocus/parent").transform;
 
@@ -135,7 +135,7 @@ public class facilityFocusRepresentation {
 
         GameObject canvas = GameObject.FindGameObjectWithTag("ui/canvas");
 
-        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
+        this.shownName = resLoader.createPrefab("bodyName").GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(canvas.transform, false);
         shownName.fontSize = 25;
         shownName.text = name;

@@ -1,0 +1,36 @@
+# these are comments, will be ignored by parser
+# (make sure the # is the first character in the line, otherwise it will not be detected)
+# this file is used to organize all paths in the resource folder from a central location
+# so if changing the path of an object, you dont have to also change the path of every single script that references it
+# and instead can just change this file
+# format is name: path
+#############
+# materials #
+#############
+defaultMat: Materials/default
+earthMat: Materials/planets/earth/earth
+earthTex: Materials/planets/earth/earthEquirectangular
+moonUnlit: Materials/planets/moon/moonTexture
+moonLit: Materials/planets/moon/moonShaded
+moonTex: Materials/planets/moon/moon
+venusTex: Materials/planets/venus
+jupiterTex: Materials/planets/jupiter
+mercuryTex: Materials/planets/mercury
+saturnTex: Materials/planets/saturn
+uranusTex: Materials/planets/uranus
+neptuneTex: Materials/planets/neptune
+marsTex: Materials/planets/mars
+sunTex: Materials/planets/sun
+#############
+#  prefabs  #
+#############
+planetMesh: Prefabs/PlanetMesh
+defaultPrefab: Prefabs/default
+bodyName: Prefabs/bodyName
+line: Prefabs/simpleLine
+antenna: Prefabs/antenna
+text: Prefabs/text
+planetOverviewLine: Prefabs/planetOverviewLine
+uiLine: Prefabs/uilr
+facility: Prefabs/Facility
+planet: Prefabs/Planet

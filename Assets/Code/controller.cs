@@ -30,11 +30,11 @@ public class controller : MonoBehaviour
         uiHelper.canvas = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<Canvas>();
         general.camera = Camera.main;
 
+        resLoader.initialize();
+
         //master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/ARTEMIS 3/PLANETS/sun", 0.0416666665, planetType.planet),
         master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/JPL/sep2027/PLANETS/sun", 0.0416666665, planetType.planet),
-            new representationData(
-                "Prefabs/Planet",
-                "Materials/planets/sun"));
+            new representationData("planet", "sunTex"));
 
         loadingController.start(new Dictionary<float, string>() {
             {0, "Generating Planets"},
@@ -81,7 +81,7 @@ public class controller : MonoBehaviour
         startMainLoop();
 
         //Debug.Log(position.J2000(new position(0, 1, 0), new position(0, 0, -1), new position(0, 1, 0)));
-        facility f1 = new facility("1", earth, new facilityData("1", new geographic(-33.60579, -78.88177), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
+        facility f1 = new facility("1", earth, new facilityData("1", new geographic(-33.60579, -78.88177), 10, new List<antennaData>()), new representationData("facility", "defaultMat"));
     }
 
     private void initModes() { // i dont wanna hear it
@@ -421,11 +421,11 @@ public class controller : MonoBehaviour
                 }
             }
 
-            Material m = new Material(Resources.Load<Material>("Materials/default"));
+            Material m = new Material(resLoader.load<Material>("defaultMat"));
             planet earth = master.allPlanets.First(x=>x.name=="Earth");
-            //mesh.drawAll(m, Resources.Load("Prefabs/PlanetMesh") as GameObject, new string[0], earth.representation.gameObject.transform);
-            (mesh.draw(new Vector2Int(0, 750), m, Resources.Load("Prefabs/PlanetMesh") as GameObject, "", earth.representation.gameObject.transform)).AddComponent<MeshCollider>();
-            (mesh.draw(new Vector2Int(250, 750), m, Resources.Load("Prefabs/PlanetMesh") as GameObject, "", earth.representation.gameObject.transform)).AddComponent<MeshCollider>();
+            //mesh.drawAll(m, resLoader.load<GameObject>("planetMesh"), new string[0], earth.representation.gameObject.transform);
+            (mesh.draw(new Vector2Int(0, 750), m, resLoader.load<GameObject>("planetMesh"), "", earth.representation.gameObject.transform)).AddComponent<MeshCollider>();
+            (mesh.draw(new Vector2Int(250, 750), m, resLoader.load<GameObject>("planetMesh"), "", earth.representation.gameObject.transform)).AddComponent<MeshCollider>();
 
             //facility f1 = new facility("north", earth, new facilityData("north", new geographic(-33.60579, -78.88177), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
             //facility f2 = new facility("south", earth, new facilityData("south", new geographic(-33.65108, -78.86861), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
@@ -516,13 +516,9 @@ public class controller : MonoBehaviour
     }
 
     private IEnumerator JPL() {
-        representationData rd = new representationData(
-            "Prefabs/Planet",
-            "Materials/default");
+        representationData rd = new representationData("planet", "defaultMat");
 
-        representationData frd = new representationData(
-            "Prefabs/Facility",
-            "Materials/default");
+        representationData frd = new representationData("facility", "defaultMat");
 
         double oneMin = 0.0006944444;
         double oneHour = 0.0416666667;
@@ -540,15 +536,15 @@ public class controller : MonoBehaviour
         //string header = "jul2026";
         //string header = "sep2027";
 
-        earth = new planet(  "Earth", new planetData(  6371, rotationType.none,   $"CSVS/JPL/{header}/PLANETS/earth", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/earth/earthEquirectangular"));
-        moon =  new planet(   "Luna", new planetData(1738.1,  rotationType.moon,    $"CSVS/JPL/{header}/PLANETS/Luna",  oneHour,   planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/moon/moon"));
-        planet mercury = new planet("Mercury", new planetData(2439.7,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/mercury", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/mercury"));
-        planet venus = new planet(  "Venus", new planetData(6051.8,  rotationType.none,   $"CSVS/JPL/{header}/PLANETS/venus", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/venus"));
-        planet jupiter = new planet("Jupiter", new planetData( 71492,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/jupiter", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/jupiter"));
-        planet saturn = new planet( "Saturn", new planetData( 60268,  rotationType.none,  $"CSVS/JPL/{header}/PLANETS/saturn", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/saturn"));
-        planet uranus = new planet( "Uranus", new planetData( 25559,  rotationType.none,  $"CSVS/JPL/{header}/PLANETS/uranus", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/uranus"));
-        planet neptune = new planet("Neptune", new planetData( 24764,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/neptune", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/neptune"));
-        planet mars = new planet(   "Mars", new planetData(3389.92,  rotationType.none,    $"CSVS/JPL/{header}/PLANETS/mars", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/mars"));
+        earth = new planet(  "Earth", new planetData(  6371, rotationType.none,   $"CSVS/JPL/{header}/PLANETS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
+        moon =  new planet(   "Luna", new planetData(1738.1,  rotationType.moon,    $"CSVS/JPL/{header}/PLANETS/Luna",  oneHour,   planetType.moon), new representationData("planet", "moonTex"));
+        planet mercury = new planet("Mercury", new planetData(2439.7,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/mercury", oneHour, planetType.planet), new representationData("planet", "mercuryTex"));
+        planet venus = new planet(  "Venus", new planetData(6051.8,  rotationType.none,   $"CSVS/JPL/{header}/PLANETS/venus", oneHour, planetType.planet), new representationData("planet", "venusTex"));
+        planet jupiter = new planet("Jupiter", new planetData( 71492,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/jupiter", oneHour, planetType.planet), new representationData("planet", "jupiterTex"));
+        planet saturn = new planet( "Saturn", new planetData( 60268,  rotationType.none,  $"CSVS/JPL/{header}/PLANETS/saturn", oneHour, planetType.planet), new representationData("planet", "saturnTex"));
+        planet uranus = new planet( "Uranus", new planetData( 25559,  rotationType.none,  $"CSVS/JPL/{header}/PLANETS/uranus", oneHour, planetType.planet), new representationData("planet", "uranusTex"));
+        planet neptune = new planet("Neptune", new planetData( 24764,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/neptune", oneHour, planetType.planet), new representationData("planet", "neptuneTex"));
+        planet mars = new planet(   "Mars", new planetData(3389.92,  rotationType.none,    $"CSVS/JPL/{header}/PLANETS/mars", oneHour, planetType.planet), new representationData("planet", "marsTex"));
 
         planet.addFamilyNode(earth, moon);
 
