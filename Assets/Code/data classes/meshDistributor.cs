@@ -66,10 +66,14 @@ public class meshDistributor<T> where T : IMesh, new()
 
     public void drawAll(Material mat, GameObject model, string[] name, Transform parent) {
         int i = 0;
-        foreach (T t in map.Values) {
-            if (name.Length == 0) t.drawMesh(mat, model, $"{i}", parent);
-            else t.drawMesh(mat, model, name[i], parent);
+        foreach (KeyValuePair<Vector2Int, T> kvp in map) {
+            if (name.Length == 0) kvp.Value.drawMesh(mat, model, $"{kvp.Key.ToString()}", parent);
+            else kvp.Value.drawMesh(mat, model, name[i], parent);
             i++;
         }
+    }
+
+    public GameObject draw(Vector2Int index, Material mat, GameObject model, string name, Transform parent) {
+        return map[index].drawMesh(mat, model, name, parent);
     }
 }

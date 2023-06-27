@@ -232,6 +232,8 @@ public class poleTerrainMesh : IMesh {
         base.init(width, height, ll, max, reverse, customUV: customUV);
     }
 
+    public poleTerrainMesh() {}
+
     // y is ignored
     public override Vector3 addPoint(int x, int y, geographic g, double h) {
         Vector3 v = (Vector3) (g.toCartesian(1737.4 + h / 1000.0).swapAxis() / master.scale);

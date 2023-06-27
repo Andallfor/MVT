@@ -5,9 +5,7 @@ using System;
 using System.Linq;
 using UnityEngine.EventSystems;
 using System.IO;
-using UnityEngine.SceneManagement;
-
-
+using System.Text;
 
 public class controller : MonoBehaviour
 {
@@ -83,6 +81,7 @@ public class controller : MonoBehaviour
         startMainLoop();
 
         //Debug.Log(position.J2000(new position(0, 1, 0), new position(0, 0, -1), new position(0, 1, 0)));
+        facility f1 = new facility("1", earth, new facilityData("1", new geographic(-33.60579, -78.88177), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
     }
 
     private void initModes() { // i dont wanna hear it
@@ -311,7 +310,7 @@ public class controller : MonoBehaviour
                     master.requestPositionUpdate();
                 } else {
                     planetFocus.zoom -= Input.mouseScrollDelta.y * planetFocus.zoom / 10f;
-                    planetFocus.zoom = Mathf.Max(Mathf.Min(planetFocus.zoom, 90), 7f);
+                    planetFocus.zoom = Mathf.Max(Mathf.Min(planetFocus.zoom, 90), 0.1f);
                 }
             }
 
@@ -399,6 +398,79 @@ public class controller : MonoBehaviour
 
             general.showingTrails = !general.showingTrails;
             general.notifyTrailsChange();
+        }
+    
+        if (Input.GetKeyDown("p")) {
+            string[] data = File.ReadAllLines("C:/Users/leozw/Downloads/rasters_SRTMGL3(1)/output_SRTMGL3.asc");
+
+            meshDistributor<poleTerrainMesh> mesh = new meshDistributor<poleTerrainMesh>(new Vector2Int(1371, 1357), Vector2Int.zero, Vector2Int.zero, reverse: true);
+
+            geographic g = new geographic(-34.087083333312, -79.055416666690);
+            List<position> toCheck = new List<position>();
+
+            double inc = 0.000833333333;
+            for (int row = 6; row < 1357 + 6; row++) {
+                string[] line = data[row].Split(new string[] {" "}, System.StringSplitOptions.RemoveEmptyEntries);
+                for (int col = 0; col < 1371; col++) {
+                    geographic change = new geographic(inc * (double) (1357 - (row - 6)), inc * (double) col);
+                    change += g;
+                    double alt = double.Parse(line[col]) / 1000.0;
+
+                    if (alt != 0) toCheck.Add(new position(change.lon, change.lat, alt));
+                    mesh.addPoint(col, row - 6, change.toCartesian(6371 + alt).swapAxis() / master.scale);
+                }
+            }
+
+            Material m = new Material(Resources.Load<Material>("Materials/default"));
+            planet earth = master.allPlanets.First(x=>x.name=="Earth");
+            //mesh.drawAll(m, Resources.Load("Prefabs/PlanetMesh") as GameObject, new string[0], earth.representation.gameObject.transform);
+            (mesh.draw(new Vector2Int(0, 750), m, Resources.Load("Prefabs/PlanetMesh") as GameObject, "", earth.representation.gameObject.transform)).AddComponent<MeshCollider>();
+            (mesh.draw(new Vector2Int(250, 750), m, Resources.Load("Prefabs/PlanetMesh") as GameObject, "", earth.representation.gameObject.transform)).AddComponent<MeshCollider>();
+
+            //facility f1 = new facility("north", earth, new facilityData("north", new geographic(-33.60579, -78.88177), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
+            //facility f2 = new facility("south", earth, new facilityData("south", new geographic(-33.65108, -78.86861), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
+            //Vector3 v1 = earth.localGeoToUnityPos(f1.geo, 10 / 1000.0);
+            //Vector3 v2 = earth.localGeoToUnityPos(f2.geo, 10 / 1000.0);
+            //Ray r = new Ray(v1, v2 - v1);
+            //Debug.Log(Physics.Raycast(r, (float) position.distance(v1, v2)));
+            //Debug.DrawLine(v1, v2, Color.red, 10000000);
+
+            geographic[] points = new geographic[13] {
+                new geographic(21, -140),
+                new geographic(19, -141.42),
+                new geographic(17, -143.3),
+                new geographic(12.9, -146.8),
+                new geographic(8, -15.1),
+                new geographic(3, -154.5),
+                new geographic(0, -156.5),
+                new geographic(-3, -158.6),
+                new geographic(-6, -160.5),
+                new geographic(-10, -163.1),
+                new geographic(-14, -165.8),
+                new geographic(-17, -167.8),
+                new geographic(-20, -169.8)};
+            
+            double targetAlt = 1_500_000;
+
+            StringBuilder sb = new StringBuilder();
+
+            foreach (position p in toCheck) {
+                int valid = 0;
+                geographic start = new geographic(p.y, p.x);
+                Vector3 v1 = earth.localGeoToUnityPos(start, p.z + 10.0 / 1000.0);
+                foreach (geographic target in points) {
+                    Vector3 v2 = earth.localGeoToUnityPos(target, targetAlt);
+
+                    //int c = position.lineSphereInteresection(v1, v2, earth.representation.gameObject.transform.position, earth.representation.gameObject.transform.localScale.x).Count;
+                    //if (c != 0) continue;
+
+                    if (!Physics.Raycast(v1, v2 - v1, (float) position.distance(v1, v2))) valid++;
+                }
+
+                sb.Append(start.ToString() + ": " + valid + "\n");
+            }
+
+            File.WriteAllText("C:/Users/leozw/Desktop/data.txt", sb.ToString());
         }
     }
     private planetTerrain loadTerrain() {
