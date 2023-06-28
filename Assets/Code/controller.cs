@@ -49,7 +49,7 @@ public class controller : MonoBehaviour
     {
         //yield return StartCoroutine(Artemis3());
         yield return StartCoroutine(JPL());
-        defaultReferenceFrame = moon;
+        defaultReferenceFrame = earth;
         //onlyEarth();
 
         yield return new WaitForSeconds(0.1f);
@@ -66,7 +66,7 @@ public class controller : MonoBehaviour
         //runScheduling();
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
-        master.setReferenceFrame(master.allPlanets.First(x => x.name == "Luna"));
+        master.setReferenceFrame(master.allPlanets.First(x => x.name == "Earth"));
         master.pause = false;
         general.camera = Camera.main;
 
@@ -87,20 +87,22 @@ public class controller : MonoBehaviour
         startMainLoop();
 
         //Debug.Log(position.J2000(new position(0, 1, 0), new position(0, 0, -1), new position(0, 1, 0)));
-        facility f1 = new facility("1", earth, new facilityData("1", new geographic(-33.60579, -78.88177), 10, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        //facility f1 = new facility("1", earth, new facilityData("1", new geographic(-33.60579, -78.88177), 10, new List<antennaData>()), new representationData("facility", "defaultMat"));
     }
 
     public static void runWindows()
     {
-        master.time.addJulianTime((double)2460806.5 - (double)master.time.julian);
+        master.time.addJulianTime((double)2461021.5 - (double)master.time.julian);
         master.requestPositionUpdate();
         dynamicLinkOptions options = new dynamicLinkOptions();
         options.callback = (data) => {
+            //windows.jsonWindows(data);
             windows.jsonWindows(data);
         };
         options.debug = true;
         options.blocking = true;
-        options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+        //options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+
 
         useTerrainVisibility = true;
 
@@ -120,6 +122,41 @@ public class controller : MonoBehaviour
         }
 
         visibility.raycastTerrain(users, providers, master.time.julian, master.time.julian + 30, speed, options, false);
+
+
+    }
+
+    public static void runWindowsNoRate()
+    {
+        master.time.addJulianTime((double)2461021.5 - (double)master.time.julian);
+        master.requestPositionUpdate();
+        dynamicLinkOptions options = new dynamicLinkOptions();
+        options.callback = (data) => {
+            WNRs.jsonWindows(data);
+        };
+        options.debug = true;
+        options.blocking = true;
+        //options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+        options.outputPath = "/Users/arya/Downloads/data.txt";
+
+        useTerrainVisibility = true;
+
+        List<object> users = new List<object>();
+        List<object> providers = new List<object>();
+
+        foreach (var u in linkBudgeting.users)
+        {
+            if (u.Value.Item1) users.Add(master.allFacilities.Find(x => x.name == u.Key));
+            else users.Add(master.allSatellites.Find(x => x.name == u.Key));
+        }
+
+        foreach (var p in linkBudgeting.providers)
+        {
+            if (p.Value.Item1) providers.Add(master.allFacilities.Find(x => x.name == p.Key));
+            else providers.Add(master.allSatellites.Find(x => x.name == p.Key));
+        }
+
+        visibility.raycastTerrain(users, providers, master.time.julian, master.time.julian + 30, .0000116*15, options, false);
 
 
     }
@@ -153,7 +190,8 @@ public class controller : MonoBehaviour
         };
         options.debug = true;
         options.blocking = true;
-        options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+        //options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+        options.outputPath = "/Users/arya/Downloads/data.txt";
 
         useTerrainVisibility = true;
 
@@ -249,7 +287,7 @@ public class controller : MonoBehaviour
             } else po.updateAxes();
 
             if (Input.GetKey(KeyCode.UpArrow)) {
-                general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, 20f * UnityEngine.Time.deltaTime);            
+                general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, 20f * UnityEngine.Time.deltaTime);
             }
 
             if (Input.GetKey(KeyCode.DownArrow)) {
@@ -390,9 +428,9 @@ public class controller : MonoBehaviour
             general.showingTrails = !general.showingTrails;
             general.notifyTrailsChange();
         }
-    
+
         if (Input.GetKeyDown("p")) {
-            string[] data = File.ReadAllLines("C:/Users/leozw/Downloads/rasters_SRTMGL3(1)/output_SRTMGL3.asc");
+            string[] data = File.ReadAllLines("Assets/Code/terrain/output_SRTMGL3.asc");
 
             meshDistributor<poleTerrainMesh> mesh = new meshDistributor<poleTerrainMesh>(new Vector2Int(1371, 1357), Vector2Int.zero, Vector2Int.zero, reverse: true);
 
@@ -444,7 +482,7 @@ public class controller : MonoBehaviour
                 new geographic(-14, -165.8),
                 new geographic(-17, -167.8),
                 new geographic(-20, -169.8)};
-            
+
             double targetAlt = 1_500_000;
 
             StringBuilder sb = new StringBuilder();
@@ -470,7 +508,7 @@ public class controller : MonoBehaviour
                 sb.Append($"{v.x} {v.y} {p.z} {valid}\n");
             }
 
-            File.WriteAllText("C:/Users/leozw/Desktop/data.txt", sb.ToString());
+            File.WriteAllText("data.txt", sb.ToString());
         }
     }
     private planetTerrain loadTerrain() {
@@ -531,6 +569,7 @@ public class controller : MonoBehaviour
         double SunMu = 1.3271244091061847E+11;
         double JupMu = 1.2668973461247002E+08;
         double SatMu = 3.7940184296380058E+07;
+        double EarthMu = 398600.4418;
 
         string header = "dec2025";
         //string header = "jul2026";
@@ -556,21 +595,29 @@ public class controller : MonoBehaviour
         master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/SATS/v", 0.0006944444));
 
         //satellite stpSat5 = new satellite("STP Sat 5", new satelliteData($"CSVS/JPL/{header}/SATS/STPSat_5", oneMin), rd);
-        planet solarProbe = new planet("PSP", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/ParkerSolarProbe", oneHour, planetType.planet), rd);
-        planet solo = new planet("SOLO", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/SOLO", oneHour, planetType.planet), rd);
-        planet v1 = new planet("Voyager 1", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Voyager1", oneHour, planetType.planet), rd);
-        planet v2 = new planet("Voyager 2", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Voyager2", oneHour, planetType.planet), rd);
+        //planet solarProbe = new planet("PSP", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/ParkerSolarProbe", oneHour, planetType.planet), rd);
+        //planet solo = new planet("SOLO", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/SOLO", oneHour, planetType.planet), rd);
+        //planet v1 = new planet("Voyager 1", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Voyager1", oneHour, planetType.planet), rd);
+        //planet v2 = new planet("Voyager 2", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Voyager2", oneHour, planetType.planet), rd);
         //planet lucy = new planet("Lucy", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Lucy", oneHour, planetType.planet), rd);
+
+        facility svalbard = new facility("Svalbard", earth, new facilityData("Svalbard", new geographic(77.875, 20.9752), 0, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        facility ASF = new facility("ASF", earth, new facilityData("ASF", new geographic(64.8401, 147.72), 0, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        satellite sat1 = new satellite("Sat1", new satelliteData(new Timeline(6371+900, 0, 98, 0, 0, 0, 0, 2461021.5, EarthMu)), rd);
 
         //body.addFamilyNode(master.sun, v1);
         //body.addFamilyNode(master.sun, v2);
-        body.addFamilyNode(master.sun, solo);
-        body.addFamilyNode(master.sun, solarProbe);
+        //body.addFamilyNode(master.sun, solo);
+        //body.addFamilyNode(master.sun, solarProbe);
         //body.addFamilyNode(master.sun, lucy);
         //body.addFamilyNode(earth, stpSat5);
+        body.addFamilyNode(earth, sat1);
         body.addFamilyNode(earth, moon);
 
-        master.relationshipPlanet[earth] = new List<planet>() {solo, moon, mercury, venus, jupiter, saturn, uranus, neptune, mars, master.sun, solarProbe, v1, v2};
+        master.relationshipPlanet[earth] = new List<planet>() {moon, mercury, venus, jupiter, saturn, uranus, neptune, mars, master.sun};
+
+
+        //master.relationshipPlanet[earth] = new List<planet>() {solo, moon, mercury, venus, jupiter, saturn, uranus, neptune, mars, master.sun, solarProbe, v1, v2};
         //master.relationshipSatellite[earth] = new List<satellite>() {stpSat5};
 
         //master.orbitalPeriods["Voyager 1"] = 62;
@@ -581,9 +628,16 @@ public class controller : MonoBehaviour
         //body.addFamilyNode(earth, stpSat5);
 
         //master.relationshipSatellite[earth] = new List<satellite>() {stpSat5};
+        master.relationshipSatellite[earth] = new List<satellite>() {sat1};
+
+        linkBudgeting.users.Add("Sat1", (false, 2461021.5, 2461051.5));
+        linkBudgeting.providers.Add("ASF", (true, 2461021.5, 2461051.5));
+        linkBudgeting.providers.Add("Svalbard", (true, 2461021.5, 2461051.5));
+
 
         loadingController.addPercent(1);
 
+        runWindowsNoRate();
         //master.time.addJulianTime(new Time(new DateTime(2026, 7, 12)).julian - master.time.julian);
         //master.time.addJulianTime(new Time(new DateTime(2027, 9, 1)).julian - master.time.julian);
     }
@@ -656,7 +710,7 @@ public class controller : MonoBehaviour
         planet mars = new planet(   "Mars", new planetData(3389.92,  rotationType.none,    "CSVS/ARTEMIS 3/PLANETS/mars", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/mars"));
         planet deimos = new planet("Deimos", new planetData(6.9, rotationType.none, new Timeline(23458.30390813599, 2.130593815196214E-04, 2.458935818421859E+01, 3.539530138717170E+02, 7.976620457709659E+01, 2.361661169839224E+02, 1, Time.strDateToJulian("2022 May 11 00:00:00.0000"), MarsMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/deimos"));
         planet phobos = new planet("Phobos", new planetData(13.1, rotationType.none, new Timeline(9.378107274617230E+03, 3.639882214816549E-01, 1.011880520567134E+02, 1.315971874726009E+02, 9.280370816213794E+01, 2.712109828748827E+02, 1, Time.strDateToJulian("2022 May 11 00:00:00.0000"), MarsMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/phobos"));
-        
+
         //semiMajorAxis, eccentricity, inclination, argOfPerigee, longOfAscNode, meanAnom, mass, startingEpoch, mu)
         planet jupiter = new planet("Jupiter", new planetData( 71492,  rotationType.none, "CSVS/ARTEMIS 3/PLANETS/jupiter", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/jupiter"));
         planet europa = new planet("Europa", new planetData(1560.8, rotationType.none, new Timeline(6.712324897297744E+05, 9.756905445059905E-03, 2.558300580281146E+01, 3.130131294888411E+02, 3.570102271715173E+02, 3.771874902292626E+01, 1, Time.strDateToJulian("2022 May 11 00:00:00.0000"), JupMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/deimos"));
@@ -682,7 +736,7 @@ public class controller : MonoBehaviour
         planet neptune = new planet("Neptune", new planetData( 24764,  rotationType.none, "CSVS/ARTEMIS 3/PLANETS/neptune", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/neptune"));
         planet Proteus = new planet("Proteus", new planetData(208, rotationType.none, new Timeline(1.176751084140828E+05, 6.698630624651811E-04, 4.759369671202530E+01, 3.565033778835370E+02, 2.962923214096653E+01, 3.283481977496181E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), NeptuneMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/neptune/proteus"));
         planet Triton = new planet("Triton", new planetData(1352.6, rotationType.none, new Timeline(3.547667476641174E+05, 1.412643162056324E-05, 1.106056038830452E+02, 4.917714675888436, 2.140211313394768E+02, 3.248133065059064E+01, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), NeptuneMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/neptune/triton"));
-        
+
         yield return new WaitForSeconds(0.1f);
         loadingController.addPercent(0.11f);
 

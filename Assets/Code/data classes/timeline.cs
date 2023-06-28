@@ -109,7 +109,7 @@ public class TimelinePosition : ITimeline
             Debug.Log(index.Count);
             closestTime = index[timeIndex];
         }
-        
+
 
         double difference = t.julian - closestTime;
         double percent = Math.Abs(difference) / (timestep);
@@ -214,7 +214,7 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
             ((pos.x * h * eccentricity) / (radius * p)) * Math.Sin(trueAnom) - (h / radius) * (Math.Cos(longOfAscNode) * Math.Sin(argOfPerigee + trueAnom) + Math.Sin(longOfAscNode) * Math.Cos(argOfPerigee + trueAnom) * Math.Cos(inclination)),
             ((pos.y * h * eccentricity) / (radius * p)) * Math.Sin(trueAnom) - (h / radius) * (Math.Sin(longOfAscNode) * Math.Sin(argOfPerigee + trueAnom) - Math.Cos(longOfAscNode) * Math.Cos(argOfPerigee + trueAnom) * Math.Cos(inclination)),
             ((pos.z * h * eccentricity) / (radius * p)) * Math.Sin(trueAnom) + (h / radius) * (Math.Sin(inclination) * Math.Cos(argOfPerigee + trueAnom)));
-           
+
         if (double.IsNaN(pos.x)) return new position(0, 0, 0);
 
         position rot = controller.earth.representation.gameObject.transform.eulerAngles;
@@ -222,7 +222,7 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
         //position moon = master.rod[0].find(t);
         //position v = master.rod[1].find(t);
         //return position.J2000(moon, v, pos);
-        return pos;
+        return pos.swapAxis();
     }
 
     public bool exists(Time t) {
