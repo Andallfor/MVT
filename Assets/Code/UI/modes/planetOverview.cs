@@ -51,7 +51,7 @@ public sealed class planetOverview : IMode {
 
     protected override IModeParameters modePara => new planetOverviewParameters();
 
-    protected override void enable() {
+    protected override bool enable() {
         calculateDefaultMaxDist();
         general.camera.transform.LookAt(Vector3.zero);
         rotationalOffset = 0;
@@ -75,9 +75,11 @@ public sealed class planetOverview : IMode {
         drawAxes();
 
         toggleLines.gameObject.SetActive(true);
+
+        return true;
     }
 
-    protected override void disable() {
+    protected override bool disable() {
         modeParameters.load(new defaultParameters());
         maxDist = 0;
         focus = master.sun;
@@ -88,8 +90,9 @@ public sealed class planetOverview : IMode {
         clearAxes();
 
         foreach (facility f in master.allFacilities) f.representation.setActive(true);
-
         toggleLines.gameObject.SetActive(false);
+
+        return true;
     }
 
     protected override void callback() {

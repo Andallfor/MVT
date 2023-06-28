@@ -78,7 +78,7 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
     // updating shown values
     public void setPosition(position pos)
     {
-        if (uiMap.useUiMap) return;
+        if (uiMap.instance.active) return;
 
         bool endDisable = false;
         if (planetOverview.instance.active) {
@@ -98,18 +98,20 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
             (float) (pos.y / master.scale),
             (float) (pos.z / master.scale));
 
-        if (Vector3.Distance(p, Vector3.zero) > 1000f) endDisable = false; // hide if too far away
+        if (Vector3.Distance(p, Vector3.zero) - radius / master.scale > 1000f) endDisable = false; // hide if too far away
         else {
             endDisable = true;
             gameObject.transform.localPosition = p;
 
-            if (shownName.text == "") shownName.text = shownNameText;
+            if (master.requestReferenceFrame().name != name) {
+                if (shownName.text == "") shownName.text = shownNameText;
+            } else shownName.text = "";
 
             // scale far away planets so they can be seen better
-            float distance = Vector3.Distance(Vector3.zero, gameObject.transform.position);
-            float scale = 0.01f * distance;
-            float r = Mathf.Max(Mathf.Min(gameObject.transform.localScale.x, _r), scale);
-            gameObject.transform.localScale = new Vector3(r, r, r);
+            //float distance = Vector3.Distance(Vector3.zero, gameObject.transform.position);
+            //float scale = 0.01f * distance;
+            //float r = Mathf.Max(Mathf.Min(gameObject.transform.localScale.x, _r), scale);
+            //gameObject.transform.localScale = new Vector3(r, r, r);
         }
 
         // position the name of the planet so that it is over the displayed position

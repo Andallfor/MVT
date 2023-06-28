@@ -95,7 +95,7 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
     }
 
     public void updatePos(planet parent, double alt, bool forceHide = false) {
-        if (uiMap.useUiMap) return;
+        if (uiMap.instance.active) return;
 
         if (forceHide || planetOverview.instance.active || position.distance(parent.pos, master.referenceFrame + master.currentPosition) > master.scale * 1000.0) {
             gameObject.SetActive(false);
@@ -130,6 +130,10 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
         }
     }
 
+    public void setNameFont(TMP_FontAsset font) {
+        shownName.font = font;
+    }
+
     public jsonFacilityRepresentationStruct requestJsonFile()
     {
         return new jsonFacilityRepresentationStruct() {
@@ -158,5 +162,10 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
                 planetFocusHidden = false;
             }
         }
+    }
+
+    public void destroy() {
+        GameObject.Destroy(shownName.gameObject);
+        GameObject.Destroy(gameObject);
     }
 }

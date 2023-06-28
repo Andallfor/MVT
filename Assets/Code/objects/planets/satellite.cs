@@ -9,8 +9,9 @@ public class satellite : body, IJsonFile<jsonSatelliteStruct>
     private satelliteData data;
     public trailRenderer tr;
 
-    public satellite(string name, satelliteData data, representationData rData)
-    {
+    public satellite(string name, satelliteData data, representationData rData) {
+        if (master.allSatellites.Exists(x => x.name == name)) Debug.LogWarning("Duplicate satellite detected");
+
         base.name = name;
         base.positions = data.positions;
         this.data = data;

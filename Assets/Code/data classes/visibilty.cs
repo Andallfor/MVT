@@ -372,7 +372,7 @@ public static class visibility
             foreach (facility f in master.allFacilities)
             {
                 double alt = 0;
-                position fac = f.facParent.rotateLocalGeo(f.geo, alt) + f.facParent.requestPosition(t);
+                position fac = f.parent.rotateLocalGeo(f.geo, alt) + f.parent.requestPosition(t);
                 if (position.distance(p1, fac) < p1p2Distance)
                 {
                     double distanceFromObj = raycastMath(p1, p2, fac);
@@ -467,7 +467,7 @@ public static class visibility
             foreach (facility f in master.allFacilities)
             {
                 double alt = 0;
-                position fac = f.facParent.rotateLocalGeo(f.geo, alt) + f.facParent.requestPosition(t);
+                position fac = f.parent.rotateLocalGeo(f.geo, alt) + f.parent.requestPosition(t);
                 if (position.distance(p1, fac) > p1p2Distance)
                 {
                     double distanceFromObj = raycastMath(p1, p2, fac);

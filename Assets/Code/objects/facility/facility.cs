@@ -10,12 +10,13 @@ public class facility : IJsonFile<jsonFacilityStruct>
     public facilityRepresentation representation {get; private set;}
     public facilityData data;
 
-    private planet parent;
+    public planet parent {get; private set;}
 
     public geographic geo {get {return data.geo;}}
-    public planet facParent {get {return parent;}}
 
     public facility(string name, planet parent, facilityData data, representationData rData) {
+        if (master.allFacilities.Exists(x => x.name == name)) Debug.LogWarning("Duplicate facility detected");
+
         this.name = name;
         this.data = data;
         this.parent = parent;
@@ -67,7 +68,15 @@ public class facility : IJsonFile<jsonFacilityStruct>
         this.representation.gameObject.transform.localScale = new Vector3(r, r, r);
     }
 
+    public void destroy() {
+        representation.destroy();
+        parent.onPositionUpdate -= updatePosition;
+        master.updateScheduling -= updateScheduling;
+    }
+
     public bool containsAntenna(string name) => this.data.antennas.Exists(x => x.name == name);
+
+    public override int GetHashCode() => name.GetHashCode();
 }
 
 public class antennaData : IJsonFile<jsonAntennaStruct> {

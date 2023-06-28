@@ -161,13 +161,20 @@ public static class master
     }
 
     private static bool alreadyStarted = false;
-    /// <summary> Tell the program that the simulation is about ready to start. Calls <see cref="onFinalSetup"/>. <summary>
+    /// <summary> Tell the program that the simulation is about ready to start. Calls <see cref="onFinalSetup"/>. </summary>
     public static void markStartOfSimulation() {
         if (alreadyStarted) return;
         alreadyStarted = true;
 
         onFinalSetup(null, EventArgs.Empty);
     }
+
+    /// <summary> Remove a facility from the scene </summary>
+    public static void removeFacility(facility f) {
+        master.allFacilities.Remove(f);
+        f.destroy();
+    }
+
 
     // TODO: find a better implementation of this
     /// <summary> Determines relationship between bodies (parent, child, etc) in the form parent, List(child) </summary>

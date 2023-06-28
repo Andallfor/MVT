@@ -13,7 +13,7 @@ public sealed class planetFocus : IMode {
 
     protected override IModeParameters modePara => new planetFocusParameters();
 
-    protected override void enable() {
+    protected override bool enable() {
         reset();
         if (master.requestReferenceFrame() is planet) {
             // we want planet to take up about 60%
@@ -21,12 +21,15 @@ public sealed class planetFocus : IMode {
             master.scale = focus.radius / (0.6 * -general.defaultCameraPosition.z);
             master.requestPositionUpdate();
             general.camera.transform.LookAt(focus.representation.gameObject.transform.position);
-        } else active = false;
+        } else return false;
+        return true;
     }
 
-    protected override void disable() {
+    protected override bool disable() {
         general.pt.unload();
         general.plt.clear();
+
+        return true;
     }
 
     protected override void callback() {

@@ -7,8 +7,7 @@ using System;
 using System.Linq;
 
 public sealed class uiMap : IMode {
-    public static bool useUiMap = false;
-    public static planet parent;
+    public planet parent;
     private double lastTime;
     private Texture texture;
     private GameObject surface, uilrPrefab, transformParent, satelliteParent;
@@ -48,8 +47,8 @@ public sealed class uiMap : IMode {
         base._initialize();
     }
 
-    protected override void enable() {
-        if (!(master.requestReferenceFrame() is planet)) disable();
+    protected override bool enable() {
+        if (!(master.requestReferenceFrame() is planet)) return false;
         parent = master.requestReferenceFrame() as planet;
 
         surface.GetComponent<RawImage>().enabled = true;
@@ -89,9 +88,11 @@ public sealed class uiMap : IMode {
         }
 
         foreach (var kvp in bodies) moveRepresentation(kvp.Key);
+
+        return true;
     }
 
-    protected override void disable() {
+    protected override bool disable() {
         surface.GetComponent<RawImage>().enabled = false;
         foreach (RectTransform rt in bodies.Values) GameObject.Destroy(rt.gameObject);
         foreach (RectTransform rt in Facilities) GameObject.Destroy(rt.gameObject);
@@ -100,6 +101,8 @@ public sealed class uiMap : IMode {
         bodies = new Dictionary<body, RectTransform>();
         Facilities = new List<RectTransform>();
         trailsGo = new List<GameObject>();
+
+        return true;
     }
 
     private void generateTrails(List<satellite> ss, List<int> r) {
@@ -166,7 +169,7 @@ public sealed class uiMap : IMode {
     }
 
     public void update() {
-        if (!useUiMap) return;
+        if (!instance.active) return;
         if (lastTime == master.time.julian) return;
         lastTime = master.time.julian;
 

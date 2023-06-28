@@ -11,10 +11,13 @@ public abstract class IMode {
 
         if (active) {
             modeParameters.load(modePara);
-            enable();
+            if (!enable()) {
+                modeParameters.load(new defaultParameters());
+                return;
+            }
         }
         else {
-            disable();
+            if (!disable()) return;
             modeParameters.load(new defaultParameters());
         }
 
@@ -42,8 +45,8 @@ public abstract class IMode {
         toggle(false, true);
     }
 
-    protected abstract void enable();
-    protected abstract void disable();
+    protected abstract bool enable();
+    protected abstract bool disable();
 }
 
 public static class modeController {
@@ -78,8 +81,13 @@ public static class modeController {
     }
 
     public static void toggle(IMode target) {
+        master.requestScaleUpdate();
+        
         bool state = target.active;
         foreach (IMode m in modes) m.toggle(false);
         target.toggle(!state);
+
+        master.clearAllLines();
+        general.notifyStatusChange();
     }
 }

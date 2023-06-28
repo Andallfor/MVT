@@ -14,7 +14,7 @@ public class controller : MonoBehaviour
     public static planet defaultReferenceFrame;
     public static double speed = 0.00005;
     public static int tickrate = 7200;
-    private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
+    private Vector3 planetFocusMousePosition, planetFocusMousePosition1, facilityFocusMousePosition, facilityFocusMousePosition1;
     private Coroutine loop;
     public static bool useTerrainVisibility = false;
     public static controller self;
@@ -80,6 +80,7 @@ public class controller : MonoBehaviour
         modeController.registerMode(planetOverview.instance);
         modeController.registerMode(planetFocus.instance);
         modeController.registerMode(uiMap.instance);
+        modeController.registerMode(facilityFocus.instance);
         modeController.initialize();
 
         modeController.disableAll();
@@ -333,8 +334,42 @@ public class controller : MonoBehaviour
 
             planetFocus.instance.update();
         }
-        else if (uiMap.useUiMap) {
+        else if (uiMap.instance.active) {
             uiMap.instance.update();
+        }
+        else if (facilityFocus.instance.active) {
+            // code copied pasted from planetFocus
+            // TODO: centralize this type of movement code
+            if (Input.GetMouseButtonDown(0)) facilityFocusMousePosition = Input.mousePosition;
+            else if (Input.GetMouseButton(0)) {
+                Vector3 difference = Input.mousePosition - facilityFocusMousePosition;
+                facilityFocusMousePosition = Input.mousePosition;
+
+                Vector2 adjustedDifference = new Vector2(-difference.y / Screen.height, difference.x / Screen.width);
+                adjustedDifference *= 100f;
+
+                facilityFocus.instance.rotation.x = adjustedDifference.x * facilityFocus.instance.zoom / 125f;
+                facilityFocus.instance.rotation.y = adjustedDifference.y * facilityFocus.instance.zoom / 125f;
+                facilityFocus.instance.rotation.z = 0;
+            }
+
+            if (Input.GetMouseButtonDown(1)) facilityFocusMousePosition1 = Input.mousePosition;
+            if (Input.GetMouseButton(1)) {
+                Vector3 difference = Input.mousePosition - facilityFocusMousePosition1;
+                facilityFocusMousePosition1 = Input.mousePosition;
+
+                float adjustedDifference = (difference.x / Screen.width) * 100;
+                facilityFocus.instance.rotation.x = 0;
+                facilityFocus.instance.rotation.y = 0;
+                facilityFocus.instance.rotation.z = adjustedDifference;
+            }
+
+            if (Input.mouseScrollDelta.y != 0) {
+                facilityFocus.instance.zoom -= Input.mouseScrollDelta.y * facilityFocus.instance.zoom / 10f;
+                facilityFocus.instance.zoom = Mathf.Max(Mathf.Min(facilityFocus.instance.zoom, 90), 0.1f);
+            }
+
+            facilityFocus.instance.update();
         }
         else
         {
@@ -355,32 +390,15 @@ public class controller : MonoBehaviour
             if (Input.GetKey("a")) master.currentPosition -= right * 5f * (float) master.scale * t;
         }
 
-        if (Input.GetKeyDown("q"))
-        {
-            master.requestScaleUpdate();
-            modeController.toggle(planetOverview.instance);
-            master.clearAllLines();
-
-            general.notifyStatusChange();
-        }
+        if (Input.GetKeyDown("q")) modeController.toggle(planetOverview.instance);
 
         if (Input.GetKeyDown("e")) {
-            master.requestScaleUpdate();
             modeController.toggle(planetFocus.instance);
             general.pt.unload();
             general.plt.clear();
-            master.clearAllLines();
-
-            general.notifyStatusChange();
         }
 
-        if (Input.GetKeyDown("m")) {
-            master.requestScaleUpdate();
-            modeController.toggle(uiMap.instance);
-            master.clearAllLines();
-
-            general.notifyStatusChange();
-        }
+        if (Input.GetKeyDown("m")) modeController.toggle(uiMap.instance);
 
         if (Input.GetKeyDown("z")) {
             foreach (planet p in master.allPlanets) p.tr.enable(!general.showingTrails);
@@ -474,7 +492,14 @@ public class controller : MonoBehaviour
             File.WriteAllText("C:/Users/leozw/Desktop/data.txt", sb.ToString());
             */
         }
+    
+        if (Input.GetKeyDown("r")) {
+            if (uiMap.instance.active || planetOverview.instance.active) return;
+            if (!facilityFocus.instance.active) facilityFocus.instance.query();
+            modeController.toggle(facilityFocus.instance);
+        }
     }
+
     private planetTerrain loadTerrain() {
         planetTerrain pt = new planetTerrain(moon, "Materials/planets/moon/moon", 1737.4, 1);
 

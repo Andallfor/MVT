@@ -208,7 +208,7 @@ public class uiNavPanel : MonoBehaviour
         if (planetFocus.instance.active) focusPlanet.text = "Unfocus Planet";
         else focusPlanet.text = "Focus Planet";
 
-        if (uiMap.useUiMap) {
+        if (uiMap.instance.active) {
             surfaceView.text = "3D View";
             plus.button.interactable = false;
             minus.button.interactable = false;

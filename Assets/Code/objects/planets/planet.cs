@@ -13,8 +13,9 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
     public position rotation {get; private set;}
     public trailRenderer tr;
 
-    public planet(string name, planetData data, representationData rData)
-    {
+    public planet(string name, planetData data, representationData rData) {
+        if (master.allPlanets.Exists(x => x.name == name)) Debug.LogWarning("Duplicate planet detected");
+
         base.name = name;
         base.positions = data.positions;
         this.data = data;

@@ -62,7 +62,7 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
 
     public void setPosition(position pos, bool forceHide = false)
     {
-        if (uiMap.useUiMap) return;
+        if (uiMap.instance.active) return;
 
         if (forceHide) {hide(); return;}
 
