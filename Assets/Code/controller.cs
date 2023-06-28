@@ -410,8 +410,8 @@ public class controller : MonoBehaviour
         }
     
         if (Input.GetKeyDown("p")) {
-            string[] data = File.ReadAllLines("C:/Users/leozw/Downloads/rasters_SRTMGL3(1)/output_SRTMGL3.asc");
-
+            //string[] data = File.ReadAllLines("C:/Users/leozw/Downloads/rasters_SRTMGL3(1)/output_SRTMGL3.asc");
+            string[] data = File.ReadAllLines(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan fernandez islands/data.asc"));
             meshDistributor<poleTerrainMesh> mesh = new meshDistributor<poleTerrainMesh>(new Vector2Int(1371, 1357), Vector2Int.zero, Vector2Int.zero, reverse: true);
 
             geographic g = new geographic(-34.087083333312, -79.055416666690);
@@ -492,11 +492,20 @@ public class controller : MonoBehaviour
             File.WriteAllText("C:/Users/leozw/Desktop/data.txt", sb.ToString());
             */
         }
-    
+        
         if (Input.GetKeyDown("r")) {
             if (uiMap.instance.active || planetOverview.instance.active) return;
             if (!facilityFocus.instance.active) facilityFocus.instance.query();
             modeController.toggle(facilityFocus.instance);
+        }
+
+        if (Input.GetKeyDown("i")) {
+            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/svalbard");
+            var f = new universalTerrainJp2File(Path.Combine(p, "data2.jp2"), Path.Combine(p, "metadata.txt"));
+
+            var mesh = f.load(new Vector2Int(32*16, 32*16), new Vector2Int(32*48, 32*20), 6371);
+            Material m = new Material(resLoader.load<Material>("defaultMat"));
+            mesh.drawAll(m, resLoader.load<GameObject>("planetMesh"), new string[0], earth.representation.gameObject.transform);
         }
     }
 

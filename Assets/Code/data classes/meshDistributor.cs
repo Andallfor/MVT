@@ -29,6 +29,7 @@ public class meshDistributor<T> where T : IMesh, new()
                     Vector2Int _o = new Vector2Int(
                         x + maxVertSize > size.x ? 0 : 1,
                         y + maxVertSize > size.y ? 0 : 1);
+
                     t.init(xLeft + _o.x, yLeft + _o.y, new position(x + offset.x, y + offset.y, 0), new position(maxSize.x, maxSize.y, 0), reverse, customUV);
                     map.Add(new Vector2Int(x, y), t);
                 }
