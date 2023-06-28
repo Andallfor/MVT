@@ -430,6 +430,7 @@ public class controller : MonoBehaviour
             //Debug.Log(Physics.Raycast(r, (float) position.distance(v1, v2)));
             //Debug.DrawLine(v1, v2, Color.red, 10000000);
 
+            /*
             geographic[] points = new geographic[13] {
                 new geographic(21, -140),
                 new geographic(19, -141.42),
@@ -471,6 +472,7 @@ public class controller : MonoBehaviour
             }
 
             File.WriteAllText("C:/Users/leozw/Desktop/data.txt", sb.ToString());
+            */
         }
     }
     private planetTerrain loadTerrain() {
