@@ -42,8 +42,11 @@ public sealed class facilityFocus : IMode {
         if (!querySuccess) return false;
 
         master.requestScaleUpdate();
+        zoom = 60;
+
+        general.camera.transform.position = new Vector3(0, 0, (float) (-10 - 100 / master.scale));
         
-        master.currentPosition = focus.parent.rotateLocalGeo(focus.geo, focus.parent.radius * 0.05);
+        master.currentPosition = focus.parent.rotateLocalGeo(focus.geo, 0);
         master.requestPositionUpdate();
         general.camera.transform.LookAt(focus.representation.gameObject.transform);
 

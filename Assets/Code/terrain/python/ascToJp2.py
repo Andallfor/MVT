@@ -42,6 +42,8 @@ with open(INPUT, "r") as f:
         [name, value] = line.split()
         metadata[name] = float(value) if float(value) != int(float(value)) else int(value) # shhh
     
+    metadata["res"] = 10
+    
     print(metadata)
     
     # now read the actual data
@@ -62,9 +64,8 @@ with open(INPUT, "r") as f:
         if row % 200 == 0:
             eta =  ((time.time() - s1) / max(row / metadata["nrows"], 0.000001)) - (time.time() - s1)
             printProgressBar(row, metadata["nrows"], suffix=f"ETA: {int(eta)}s")
-        
-    
-    glymur.Jp2k(OUTPUT_JP2, data=dataArr)
+
+    glymur.Jp2k(OUTPUT_JP2, data=dataArr, cratios=[1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1])
     
     s = ""
     for key, value in metadata.items():

@@ -65,31 +65,35 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         return m;
     }
 
-    public override meshDistributor<poleTerrainMesh> load(Vector2Int start, Vector2Int end, double radius) {
-        meshDistributor<poleTerrainMesh> m = new meshDistributor<poleTerrainMesh>(
-            new Vector2Int(end.x - start.x, end.y - start.y), Vector2Int.zero, Vector2Int.zero, false);
-        
-        int[] heights = openJpegWrapper.requestTerrain(dataPath, start * 32, end * 32, 5, 0);
+    public override meshDistributor<poleTerrainMesh> load(Vector2 startPercent, Vector2 endPercent, double radius, uint res) {
+        if (res < 0 || res > metadata["res"]) throw new ArgumentException($"Invalid res (0 <= x <= {res})");
+        int power = (int) Math.Pow(2, res);
 
-        Debug.Log(heights.Length);
-        Debug.Log("asjkdlf");
+        Vector2Int start = new Vector2Int((int) (startPercent.x * ncols), (int) (startPercent.y * nrows));
+        Vector2Int end = new Vector2Int((int) (endPercent.x * ncols), (int) (endPercent.y * nrows));
+
+        // ensure that (start - end) will be a multiple of 2^res
+        end.x -= (end.x - start.x) % power;
+        end.y -= (end.y - start.y) % power;
+
+        start /= power;
+        end /= power;
+
+        meshDistributor<poleTerrainMesh> m = new meshDistributor<poleTerrainMesh>(
+            new Vector2Int(end.x - start.x, end.y - start.y),
+            Vector2Int.zero, Vector2Int.zero, true);
+
+        int[] heights = openJpegWrapper.requestTerrain(dataPath, start * power, end * power, res, 0);
 
         int colLen = end.x - start.x;
+        int maxHeight = (int) (nrows / power);
         for (int r = start.y; r < end.y; r++) {
             for (int c = start.x; c < end.x; c++) {
                 int x = (int) c - start.x;
                 int y = (int) r - start.y;
 
-                //geographic g = new geographic(cellSize * (nrows - (double) r), cellSize * (double) c) + llCorner;
-                geographic g = new geographic((double) r * (cellSize) * 32.0, 32.0 * (double) c * cellSize) + llCorner;
-                //g = new geographic(45, 45);
-                //g = new geographic(10.0 + 150 * ((double) x / (double) (end.y - start.y)))
-                //Debug.Log((int) (y * colLen + x));
+                geographic g = new geographic((maxHeight - r) * cellSize * power, c * cellSize * power) + llCorner;
                 position p = g.toCartesian(radius + (double) heights[(int) (y * colLen + x)] / 1000.0).swapAxis() / master.scale;
-                //position p = g.toCartesian(radius).swapAxis() / master.scale;
-
-                //p = p.normalize();
-                //if (x == 0) Debug.Log(p);
 
                 m.addPoint(x, y, p);
             }

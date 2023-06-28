@@ -8,8 +8,9 @@ public abstract class IUniversalTerrainFile<T> where T : IMesh, new() {
     protected string dataPath {get; private set;}
     protected string metadataPath {get; private set;}
     protected double cellSize {get; private set;}
-    protected double nrows {get; private set;}
-    protected double ncols {get; private set;}
+    public double nrows {get; private set;}
+    public double ncols {get; private set;}
+    public uint res {get; private set;}
     protected geographic llCorner {get; private set;}
     protected geographic size {get; private set;}
     protected universalTerrainFileSources src {get; private set;}
@@ -36,12 +37,15 @@ public abstract class IUniversalTerrainFile<T> where T : IMesh, new() {
         llCorner = new geographic(metadata["yllcorner"], metadata["xllcorner"]);
         ncols = metadata["ncols"];
         nrows = metadata["nrows"];
+        res = (uint) metadata["res"];
         size = new geographic(nrows * cellSize, ncols * cellSize);
     }
 
     public abstract meshDistributor<T> loadFull(double radius);
     public abstract meshDistributor<T> load(geographic start, geographic end, double radius);
-    public abstract meshDistributor<poleTerrainMesh> load(Vector2Int start, Vector2Int end, double radius);
+
+    /// <summary> start and end are percents </summary>
+    public abstract meshDistributor<poleTerrainMesh> load(Vector2 startPercent, Vector2 endPercent, double radius, uint res);
 }
 
 public enum universalTerrainFileSources {

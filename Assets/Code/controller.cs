@@ -500,10 +500,12 @@ public class controller : MonoBehaviour
         }
 
         if (Input.GetKeyDown("i")) {
+            new facility("s", earth, new facilityData("s", new geographic(76.564894, 16.730859), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
+
             string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/svalbard");
             var f = new universalTerrainJp2File(Path.Combine(p, "data2.jp2"), Path.Combine(p, "metadata.txt"));
 
-            var mesh = f.load(new Vector2Int(32*16, 32*16), new Vector2Int(32*48, 32*20), 6371);
+            var mesh = f.load(new Vector2(0.3f, 0.3f), new Vector2(0.6f, 0.6f), 6371, 5);
             Material m = new Material(resLoader.load<Material>("defaultMat"));
             mesh.drawAll(m, resLoader.load<GameObject>("planetMesh"), new string[0], earth.representation.gameObject.transform);
         }

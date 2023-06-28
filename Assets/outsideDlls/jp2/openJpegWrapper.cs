@@ -23,7 +23,7 @@ public static class openJpegWrapper {
         IntPtr codec = openjpeg_openjp2_opj_create_decompress(2); // jp2
 
         openjpeg_openjp2_opj_setup_decoder(codec, dparam);
-        openjpeg_openjp2_opj_codec_set_threads(codec, 32);
+        openjpeg_openjp2_opj_codec_set_threads(codec, 8);
         openjpeg_openjp2_opj_read_header(stream, codec, out IntPtr raw);
         openjpeg_openjp2_opj_set_decode_area(codec, raw, (uint) start.x, (uint) start.y, (uint) end.x, (uint) end.y);
 

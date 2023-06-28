@@ -3,3 +3,4 @@ nrows 20694
 xllcorner 6.196111111137
 yllcorner 75.487499999999
 cellsize 0.000277777778
+res 10
