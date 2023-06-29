@@ -156,18 +156,18 @@ public class controller : MonoBehaviour
             else providers.Add(master.allSatellites.Find(x => x.name == p.Key));
         }
 
-        visibility.raycastTerrain(users, providers, master.time.julian, master.time.julian + 30, .0000116*15, options, false);
+        visibility.raycastTerrain(users, providers, master.time.julian, master.time.julian + 30, speed, options, true);
 
 
     }
 
     public static void runDynamicLink() {
-        master.time.addJulianTime((double)2460806.5 - (double)master.time.julian);
+        master.time.addJulianTime((double)2461021.5 - (double)master.time.julian);
         master.requestPositionUpdate();
         dynamicLinkOptions options = new dynamicLinkOptions();
         options.callback = (data) =>
         {
-            System.IO.Directory.CreateDirectory(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "Access Call Results"));
+            //System.IO.Directory.CreateDirectory("User/arya/Downloads/Access Call Results");
 
             foreach (KeyValuePair<string, (bool t, double start, double end)> provider in linkBudgeting.providers)
             {
@@ -183,13 +183,12 @@ public class controller : MonoBehaviour
                     {
                         final.Add("Time:" + time[x] + " Distance: " + distance[x]);
                     }
-
-                    System.IO.File.WriteAllLines(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads)) + "/Access Call Results/" + provider.Key + " to " + user.Key, final);
+                    System.IO.File.WriteAllLines("/Users/arya/Downloads/" + provider.Key + " to " + user.Key, final);
                 }
             }
         };
         options.debug = true;
-        options.blocking = true;
+        options.blocking = false;
         //options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
         options.outputPath = "/Users/arya/Downloads/data.txt";
 
@@ -575,7 +574,7 @@ public class controller : MonoBehaviour
         //string header = "jul2026";
         //string header = "sep2027";
 
-        earth = new planet(  "Earth", new planetData(  6371, rotationType.none,   $"CSVS/JPL/{header}/PLANETS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
+        earth = new planet(  "Earth", new planetData(  6371, rotationType.earth,   $"CSVS/JPL/{header}/PLANETS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
         moon =  new planet(   "Luna", new planetData(1738.1,  rotationType.moon,    $"CSVS/JPL/{header}/PLANETS/Luna",  oneHour,   planetType.moon), new representationData("planet", "moonTex"));
         planet mercury = new planet("Mercury", new planetData(2439.7,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/mercury", oneHour, planetType.planet), new representationData("planet", "mercuryTex"));
         planet venus = new planet(  "Venus", new planetData(6051.8,  rotationType.none,   $"CSVS/JPL/{header}/PLANETS/venus", oneHour, planetType.planet), new representationData("planet", "venusTex"));
@@ -601,9 +600,9 @@ public class controller : MonoBehaviour
         //planet v2 = new planet("Voyager 2", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Voyager2", oneHour, planetType.planet), rd);
         //planet lucy = new planet("Lucy", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Lucy", oneHour, planetType.planet), rd);
 
-        facility svalbard = new facility("Svalbard", earth, new facilityData("Svalbard", new geographic(77.875, 20.9752), 0, new List<antennaData>()), new representationData("facility", "defaultMat"));
-        facility ASF = new facility("ASF", earth, new facilityData("ASF", new geographic(64.8401, 147.72), 0, new List<antennaData>()), new representationData("facility", "defaultMat"));
-        satellite sat1 = new satellite("Sat1", new satelliteData(new Timeline(6371+900, 0, 98, 0, 0, 0, 0, 2461021.5, EarthMu)), rd);
+        facility svalbard = new facility("Svalbard", earth, new facilityData("Svalbard", new geographic(77.875, 20.9752), 10, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        facility ASF = new facility("ASF", earth, new facilityData("ASF", new geographic(64.8401, -147.72), 10, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        satellite sat1 = new satellite("Sat1", new satelliteData(new Timeline(6378.1+900, 0, 98, 0, 0, 0, 0, 2461021.5, EarthMu)), rd);
 
         //body.addFamilyNode(master.sun, v1);
         //body.addFamilyNode(master.sun, v2);
@@ -637,7 +636,8 @@ public class controller : MonoBehaviour
 
         loadingController.addPercent(1);
 
-        runWindowsNoRate();
+        //runWindowsNoRate();
+        runDynamicLink();
         //master.time.addJulianTime(new Time(new DateTime(2026, 7, 12)).julian - master.time.julian);
         //master.time.addJulianTime(new Time(new DateTime(2027, 9, 1)).julian - master.time.julian);
     }

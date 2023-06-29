@@ -70,74 +70,27 @@ public class WNRs
   			time[k] = time[k]- 2461021.5;
   		}
 
-    List<WNR> windows = calculateWindows(time);
+    List<WNR> windows = new List<WNR>();
+    int st = -1;
+
+    for(int x = 1; x < time.Count - 1; x++)
+    {
+      if (st == -1 && time[x] - time[x-1] < .0035)
+      {
+        st = x - 1;
+      }
+      else if (st != -1 && time[x] - time[x-1] > .0035)
+      {
+        WNR window;
+        window.start = time[st];
+        window.stop = time[x-1];
+        windows.Add(window);
+        st = -1;
+      }
+    }
 
     return format(windows, time, distance);
   }
-
-  public static List<WNR> calculateWindows(List<double> time)
-	{
-
-		List<double> temp_Vals = time;
-		temp_Vals.Add(double.MaxValue);
-		List<int> cc = diff(temp_Vals);
-		List<double> start = addTime(temp_Vals, findOperate(cc));
-		List<double> stop = addTime(temp_Vals, cc);
-		return windowsDefiner(start, stop);
-	}
-
-  public static List<int> diff(List<double> toDiff)
-	{
-		List<int> returnList = new List<int>();
-		int i = 0;
-
-		for (int x = 0; x < toDiff.Count - 1; x++)
-		{
-			double Diff = toDiff[x+1]  - toDiff[x];
-			if (Diff >= 0.0007) { returnList.Add(i); }
-			i = i + 1;
-		}
-
-		return returnList;
-	}
-
-  public static List<int> findOperate(List<int> index)
-	{
-		List<int> returnList = new List<int>();
-		returnList.Add(0);
-		for (int x = 0; x < index.Count-1; x++)
-		{
-			returnList.Add(index[x] + 1);
-		}
-
-		return returnList;
-	}
-
-  public static List<double> addTime(List<double> toAdd, List<int> index)
-	{
-		List<double> returnList = new List<double>();
-		foreach (int x in index)
-		{
-			returnList.Add(toAdd[x]);
-		}
-
-		return returnList;
-	}
-
-  public static List<WNR> windowsDefiner(List<double> start, List<double> stop)
-	{
-		List<WNR> returnList = new List<WNR>();
-
-		for (int x = 0; x < stop.Count; x++)
-		{
-			WNR window;
-			window.start = start[x];
-			window.stop = stop[x];
-			returnList.Add(window);
-		}
-
-		return returnList;
-	}
 
   public static List<double[]> format(List<WNR> windows, List<double> time, List<double> distance)
 	{
@@ -147,7 +100,6 @@ public class WNRs
 		{
 			for (int l = 0; l < windows.Count; l++)
 			{
-				int windowStartIndex = minAndAbs(time, windows[l].start); //what time element is close to the start
 				double[] inner = new double[] {windows[l].start, windows[l].stop};
 				returnList.Add(inner);
 			}
@@ -155,23 +107,4 @@ public class WNRs
 
 		return returnList;
 	}
-
-  public static int minAndAbs(List<double> time, double start)
-	{
-		int returnInt = 0;
-
-		for (int x = 0; x < time.Count; x++)
-		{
-			if (x + 1 < time.Count)
-			{
-				double val1 = Math.Abs(time[x] - start);
-				double val2 = Math.Abs(time[x + 1] - start);
-				if (val1 < val2) { returnInt = x; }
-			}
-			else { returnInt = time.Count - 1; }
-		}
-
-		return returnInt;
-	}
-
 }

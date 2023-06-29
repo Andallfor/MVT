@@ -169,30 +169,40 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
 
         double meanAnom = startingMeanAnom;
 
+
         if (t.julian == startingEpoch) meanAnom = startingMeanAnom;
         else meanAnom = startingMeanAnom + 86400.0 * (t.julian - startingEpoch) * Math.Sqrt((mu / Math.Pow(semiMajorAxis, 3)));
 
         double EA = meanAnom;
-        for (int i = 0; i < 50; i++) EA = meanAnom + eccentricity * Math.Sin(EA);
 
-        double trueAnom1 = Math.Sqrt(1 - eccentricity * eccentricity) * (Math.Sin(EA) / (1 - eccentricity * Math.Cos(EA)));
+        double k = 1;
+        double error = .00000000001;
+
+        double y = 0;
+
+        while (k > error)
+        {
+          y = meanAnom + eccentricity * Math.Sin(EA);
+          k = Math.Abs(Math.Abs(EA) - Math.Abs(y));
+          EA = y;
+        }
+
+        double trueAnom1 = (Math.Sqrt(1 - eccentricity * eccentricity) * Math.Sin(EA)) / (1 - eccentricity * Math.Cos(EA));
         double trueAnom2 = (Math.Cos(EA) - eccentricity) / (1 - eccentricity * Math.Cos(EA));
 
         double trueAnom = Math.Atan2(trueAnom1, trueAnom2);
 
         double theta = trueAnom + argOfPerigee;
 
-        double radius = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.Cos(trueAnom));
+        double radius = (semiMajorAxis * (1 - eccentricity * eccentricity)) / (1 + eccentricity * Math.Cos(trueAnom));
 
         double xp = radius * Math.Cos(theta);
         double yp = radius * Math.Sin(theta);
 
         position pos = new position(
         xp * Math.Cos(longOfAscNode) - yp * Math.Cos(inclination) * Math.Sin(longOfAscNode),
-        xp * Math.Sin(longOfAscNode) - yp * Math.Cos(inclination) * Math.Cos(longOfAscNode),
+        xp * Math.Sin(longOfAscNode) + yp * Math.Cos(inclination) * Math.Cos(longOfAscNode),
         yp * Math.Sin(inclination));
-
-
 
         /*position pos = new position(
           o.x * (Math.Cos(argOfPerigee) * Math.Cos(longOfAscNode) - Math.Sin(argOfPerigee) * Math.Cos(inclination) * Math.Sin(longOfAscNode) - o.y * (Math.Sin(argOfPerigee) * Math.Cos(longOfAscNode) + Math.Cos(argOfPerigee) * Math.Cos(inclination) * Math.Sin(longOfAscNode))),
