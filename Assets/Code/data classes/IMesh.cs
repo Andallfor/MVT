@@ -76,6 +76,10 @@ public abstract class IMesh
         return go;
     }
 
+    public void addCollider() {
+        go.AddComponent<MeshCollider>();
+    }
+
     public void clearMesh() {
         this.mesh.Clear();
         this.mesh = new Mesh();

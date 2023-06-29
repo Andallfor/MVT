@@ -7,11 +7,11 @@ using System;
 public abstract class IUniversalTerrainFile<T> where T : IMesh, new() {
     protected string dataPath {get; private set;}
     protected string metadataPath {get; private set;}
-    protected double cellSize {get; private set;}
+    public double cellSize {get; private set;}
     public double nrows {get; private set;}
     public double ncols {get; private set;}
     public uint res {get; private set;}
-    protected geographic llCorner {get; private set;}
+    public geographic llCorner {get; private set;}
     protected geographic size {get; private set;}
     protected universalTerrainFileSources src {get; private set;}
     protected Dictionary<string, double> metadata {get; private set;}

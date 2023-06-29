@@ -4,12 +4,33 @@ using UnityEngine;
 using System;
 
 public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMesh> {
-    public universalTerrainJp2File(string dataPath, string metadataPath) :
+    public bool isForAccessCalls = false;
+
+    /// <summary> Callback for access call generation. Geo is the point's geo, double is the height (not including radius)</summary>
+    public Action<geographic, double> accessCallAction;
+
+    private List<geographic> accessCallGeo;
+    private List<double> accessCallHeight;
+
+    public universalTerrainJp2File(string dataPath, string metadataPath, bool isForAccessCalls = false) :
         base(dataPath, metadataPath, universalTerrainFileSources.jp2) {
-        
+        this.isForAccessCalls = isForAccessCalls;
+    }
+
+    public void consumeAccessCallData() {
+        if (isForAccessCalls && accessCallAction == null) throw new MissingFieldException("isForAccessCalls is true but accessCallAction is null");
+
+        int len = accessCallGeo.Count;
+        for (int i = 0; i < len; i++) accessCallAction(accessCallGeo[i], accessCallHeight[i]);
+
+        accessCallGeo = new List<geographic>();
+        accessCallHeight = new List<double>();
     }
 
     public override meshDistributor<universalTerrainMesh> load(geographic start, geographic end, double radius, uint res) {
+        accessCallGeo = new List<geographic>();
+        accessCallHeight = new List<double>();
+        
         if (start.lat >= end.lat || start.lon >= end.lon) {
             throw new ArgumentException($"End geo ({end}) must be strictly greater than start geo ({start})");
         }
@@ -27,6 +48,9 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
     }
 
     public override meshDistributor<universalTerrainMesh> load(Vector2 startPercent, Vector2 endPercent, double radius, uint res) {
+        accessCallGeo = new List<geographic>();
+        accessCallHeight = new List<double>();
+
         if (res < 0 || res > metadata["res"]) throw new ArgumentException($"Invalid res (0 <= x <= {res})");
         int power = (int) Math.Pow(2, res);
 
@@ -57,9 +81,16 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
                 double height = (heights[(int) (y * colLen + x)] - 32767) / 1000.0; // +32767 bc data is offset in jp2 writer
                 position p = g.toCartesian(radius + height).swapAxis() / master.scale;
 
+                if (isForAccessCalls && height != 0) {
+                    accessCallGeo.Add(g);
+                    accessCallHeight.Add(height);
+                }
+
                 m.addPoint(x, y, p);
             }
         }
+
+        Debug.Log("Loaded area of " + (end.y - start.y) * (end.x - start.x) + " pixels");
 
         return m;
     }

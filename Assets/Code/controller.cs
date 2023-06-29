@@ -500,20 +500,101 @@ public class controller : MonoBehaviour
         }
 
         if (Input.GetKeyDown("i")) {
-            //new facility("s", earth, new facilityData("s", new geographic(76.564894, 16.730859), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
-
             geographic ll = new geographic(64.6345, -148.6890);
             geographic ur = new geographic(65.0588, -146.6895);
+            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/ASF");
+
+            geographic[] points = new geographic[13] {
+                new geographic(21, -140),
+                new geographic(19, -141.42),
+                new geographic(17, -143.3),
+                new geographic(12.9, -146.8),
+                new geographic(8, -151),
+                new geographic(3, -154.5),
+                new geographic(0, -156.5),
+                new geographic(-3, -158.6),
+                new geographic(-6, -160.5),
+                new geographic(-10, -163.1),
+                new geographic(-14, -165.8),
+                new geographic(-17, -167.8),
+                new geographic(-20, -169.8)};
+
+            double targetAlt = 1_500_000;
+
+            Vector3[] pointsPos = new Vector3[13];
+            for (int i = 0; i < pointsPos.Length; i++) pointsPos[i] = earth.localGeoToUnityPos(points[i], targetAlt);
 
             new facility("ll", earth, new facilityData("ll", ll, 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
             new facility("ur", earth, new facilityData("ur", ur, 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
 
-            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/ASF");
-            var f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"));
+            var f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
 
-            var mesh = f.load(ll, ur, 6371, 5);
+            FileStream fs = new FileStream("C:/Users/leozw/Desktop/asfAccess.axis", FileMode.Create);
+            BinaryWriter bw = new BinaryWriter(fs);
+            bw.Write(f.llCorner.lat);
+            bw.Write(f.llCorner.lon);
+            bw.Write(f.ncols);
+            bw.Write(f.nrows);
+            bw.Write(f.cellSize);
+
+            // preallocate to speed up process
+            byte[] lineData = new byte[sizeof(double) * 3 + sizeof(int)];
+            double[] gData = new double[3];
+            int[] intData = new int[1];
+            f.accessCallAction = (geographic g, double h) => {
+                Vector3 src = earth.localGeoToUnityPos(g, h + 0.01);
+                int valid = 0;
+                for (int i = 0; i < pointsPos.Length; i++) {
+                    Vector3 target = pointsPos[i];
+
+                    if (!Physics.Raycast(src, target - src, 1_000_000)) valid++;
+                }
+
+                gData[0] = g.lat;
+                gData[1] = g.lon;
+                gData[2] = h;
+                intData[0] = valid;
+
+                // block copy to copy the byte data
+                Buffer.BlockCopy(gData, 0, lineData, 0, 3 * sizeof(double));
+                Buffer.BlockCopy(intData, 0, lineData, 3 * sizeof(double), sizeof(int));
+
+                bw.Write(lineData);
+            };
+
+            var mesh = f.load(ll, ur, 6371, 3);
             Material m = new Material(resLoader.load<Material>("defaultMat"));
             mesh.drawAll(m, resLoader.load<GameObject>("planetMesh"), new string[0], earth.representation.gameObject.transform);
+            foreach (IMesh child in mesh.allMeshes) child.addCollider();
+
+            f.consumeAccessCallData();
+
+            bw.Close();
+            fs.Close();
+        }
+
+        if (Input.GetKeyDown("u")) {
+            using (FileStream fs = new FileStream("C:/Users/leozw/Desktop/asfAccess.axis", FileMode.Open)) {
+                using (BinaryReader br = new BinaryReader(fs)) {
+                    // consume header
+                    geographic llCorner = new geographic(br.ReadDouble(), br.ReadDouble());
+                    double ncols = br.ReadDouble();
+                    double nrows = br.ReadDouble();
+                    double cellSize = br.ReadDouble();
+
+                    Debug.Log($"Header: {llCorner} {ncols} {nrows} {cellSize}");
+
+                    // consume body
+                    // only iterating 100 times as this is just an example
+                    for (int i = 0; i < 100; i++) {
+                        geographic g = new geographic(br.ReadDouble(), br.ReadDouble());
+                        double height = br.ReadDouble();
+                        int valid = br.ReadInt32();
+
+                        Debug.Log($"Line {i}: {g} {height} {valid}");
+                    }
+                }
+            }
         }
     }
 
