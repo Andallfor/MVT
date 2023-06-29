@@ -49,7 +49,7 @@ public class controller : MonoBehaviour
     {
         //yield return StartCoroutine(Artemis3());
         yield return StartCoroutine(JPL());
-        defaultReferenceFrame = moon;
+        defaultReferenceFrame = earth;
         //onlyEarth();
 
         yield return new WaitForSeconds(0.1f);
@@ -500,12 +500,18 @@ public class controller : MonoBehaviour
         }
 
         if (Input.GetKeyDown("i")) {
-            new facility("s", earth, new facilityData("s", new geographic(76.564894, 16.730859), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
+            //new facility("s", earth, new facilityData("s", new geographic(76.564894, 16.730859), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
 
-            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/svalbard");
-            var f = new universalTerrainJp2File(Path.Combine(p, "data2.jp2"), Path.Combine(p, "metadata.txt"));
+            geographic ll = new geographic(64.6345, -148.6890);
+            geographic ur = new geographic(65.0588, -146.6895);
 
-            var mesh = f.load(new Vector2(0.3f, 0.3f), new Vector2(0.6f, 0.6f), 6371, 5);
+            new facility("ll", earth, new facilityData("ll", ll, 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
+            new facility("ur", earth, new facilityData("ur", ur, 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
+
+            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/ASF");
+            var f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"));
+
+            var mesh = f.load(ll, ur, 6371, 5);
             Material m = new Material(resLoader.load<Material>("defaultMat"));
             mesh.drawAll(m, resLoader.load<GameObject>("planetMesh"), new string[0], earth.representation.gameObject.transform);
         }

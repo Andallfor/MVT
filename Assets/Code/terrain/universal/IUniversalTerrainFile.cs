@@ -41,11 +41,10 @@ public abstract class IUniversalTerrainFile<T> where T : IMesh, new() {
         size = new geographic(nrows * cellSize, ncols * cellSize);
     }
 
-    public abstract meshDistributor<T> loadFull(double radius);
-    public abstract meshDistributor<T> load(geographic start, geographic end, double radius);
+    public abstract meshDistributor<T> load(geographic start, geographic end, double radius, uint res);
 
     /// <summary> start and end are percents </summary>
-    public abstract meshDistributor<poleTerrainMesh> load(Vector2 startPercent, Vector2 endPercent, double radius, uint res);
+    public abstract meshDistributor<T> load(Vector2 startPercent, Vector2 endPercent, double radius, uint res);
 }
 
 public enum universalTerrainFileSources {
