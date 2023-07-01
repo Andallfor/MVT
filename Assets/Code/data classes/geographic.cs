@@ -84,13 +84,6 @@ public struct geographic
     
     public double magnitude() => Math.Sqrt(lat * lat + lon * lon);
 
-    public jsonGeographicStruct requestJsonFile()
-    {
-        return new jsonGeographicStruct() {
-            lat = lat,
-            lon = lon};
-    }
-
     public static geographic operator+(geographic g1, geographic g2) => new geographic(g1.lat + g2.lat, g1.lon + g2.lon);
     public static geographic operator-(geographic g1, geographic g2) => new geographic(g1.lat - g2.lat, g1.lon - g2.lon);
     public static geographic operator*(geographic g1, double d) => new geographic(g1.lat * d, g1.lon * d);

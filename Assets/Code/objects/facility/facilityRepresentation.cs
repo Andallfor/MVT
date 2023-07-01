@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 using TMPro;
 
-public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct>
+public class facilityRepresentation
 {
     private planet parent;
     private representationData data;
@@ -17,7 +17,7 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
     private string shownNameText, name;
     private float r;
     public bool selected {get; private set;}
-    private bool planetFocusHidden;
+    public bool planetFocusHidden {get; private set;}
 
     public void initDebugger() {
         facilityDebugger debugger = gameObject.GetComponent<facilityDebugger>();
@@ -67,31 +67,9 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
         shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
     }
 
-    public void regenerate() {
-        if (gameObject != null) GameObject.Destroy(gameObject);
-        if (shownName != null) GameObject.Destroy(shownName.gameObject);
-
-        gameObject = GameObject.Instantiate(data.model);
-        gameObject.GetComponent<MeshRenderer>().material = data.material;
-        gameObject.transform.parent = parent.representation.gameObject.transform;
-        gameObject.transform.localScale = new Vector3(r, r, r);
-
-        this.gameObject.name = name;
-        this.shownNameText = name;
-
-        foreach (antennaRepresentation ad in antennas) ad.regenerate(this.gameObject);
-
-        GameObject canvas = GameObject.FindGameObjectWithTag("ui/canvas");
-        lr = gameObject.GetComponent<LineRenderer>();
-        lr.positionCount = 2;
-        mr = gameObject.GetComponent<MeshRenderer>();
-        mr.enabled = false;
-
-        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
-        shownName.fontSize = 25;
-        shownName.text = name;
-        shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
+    public void addAntennaFromParent(antennaData ad) {
+        antennaRepresentation ar = new antennaRepresentation(ad, this.gameObject);
+        this.antennas.Add(ar);
     }
 
     public void updatePos(planet parent, double alt, bool forceHide = false) {
@@ -108,16 +86,18 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
 
         foreach (antennaRepresentation ar in antennas) ar.updatePos(parent);
 
-        if (!planetFocusHidden) {
-            RaycastHit hit;
-            if (Physics.Raycast(general.camera.transform.position,
-                this.gameObject.transform.position - general.camera.transform.position, out hit, 
-                Vector3.Distance(this.gameObject.transform.position, general.camera.transform.position), 1 << 6)) {
-                shownName.text = "";
-            } else {
-                shownName.text = shownNameText;
-                uiHelper.drawTextOverObject(shownName, this.gameObject.transform.position);
-            }
+        if (antennas.Count == 0 || general.camera.fieldOfView > 15) {
+            if (!planetFocusHidden) {
+                RaycastHit hit;
+                if (Physics.Raycast(general.camera.transform.position,
+                    this.gameObject.transform.position - general.camera.transform.position, out hit, 
+                    Vector3.Distance(this.gameObject.transform.position, general.camera.transform.position), 1 << 6)) {
+                    shownName.text = "";
+                } else {
+                    shownName.text = shownNameText;
+                    uiHelper.drawTextOverObject(shownName, this.gameObject.transform.position);
+                }
+            } else shownName.text = "";
         } else shownName.text = "";
     }
 
@@ -132,13 +112,6 @@ public class facilityRepresentation : IJsonFile<jsonFacilityRepresentationStruct
 
     public void setNameFont(TMP_FontAsset font) {
         shownName.font = font;
-    }
-
-    public jsonFacilityRepresentationStruct requestJsonFile()
-    {
-        return new jsonFacilityRepresentationStruct() {
-            modelPath = data.modelPath,
-            materialPath = data.materialPath};
     }
 
     public void setActive(bool b)

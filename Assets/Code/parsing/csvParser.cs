@@ -73,45 +73,6 @@ public static class csvParser
         return new Timeline(processed, timestep);
     }
 
-    /// <summary> Ignores antenna that has the same name </summary>
-    public static List<facilityData> loadFacilities(string path)
-    {
-        Regex splitter = new Regex("," + "(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
-        TextAsset data = Resources.Load(path) as TextAsset;
-        List<string> formatted = data.ToString().Split('\n').ToList();
-
-        Dictionary<geographic, facilityData> facilities = new Dictionary<geographic, facilityData>();
-
-        for (int i = 1; i < formatted.Count; i++) {
-            List<string> s = splitter.Split(formatted[i]).ToList();
-
-            antennaData antenna = new antennaData(
-                payload: int.Parse(s[0], System.Globalization.NumberStyles.Any),
-                groundStation: s[1],
-                antenna: s[2],
-                diameter: double.Parse(s[3], System.Globalization.NumberStyles.Any),
-                freqBand: s[4],
-                centerFreq: double.Parse(s[5], System.Globalization.NumberStyles.Any),
-                geo: new geographic(
-                    double.Parse(s[6], System.Globalization.NumberStyles.Any),
-                    double.Parse(s[7], System.Globalization.NumberStyles.Any)),
-                alt: double.Parse(s[8], System.Globalization.NumberStyles.Any),
-                gPerT: double.Parse(s[9], System.Globalization.NumberStyles.Any),
-                maxRate: int.Parse(s[10], System.Globalization.NumberStyles.Any),
-                network: s[11],
-                priority: double.Parse(s[12], System.Globalization.NumberStyles.Any));
-            
-            KeyValuePair<geographic, string> f = facilityLocations.ToList().OrderBy(x => antenna.geo.distAs2DVector(x.Key)).First();
-
-            if (facilities.ContainsKey(f.Key)) facilities[f.Key].antennas.Add(antenna);
-            else facilities[f.Key] = new facilityData(f.Value, f.Key, 0, new List<antennaData>() {antenna});
-
-            antenna.parent = f.Value;
-        }
-
-        return facilities.Values.ToList();
-    }
-
     public static void loadScheduling(string path)
     {
         TextAsset data = Resources.Load(path) as TextAsset;
@@ -199,6 +160,79 @@ public static class csvParser
         }
 
         return dataHolder;
+    }
+
+    public static void loadAndCreateFacilities(string path, planet p) {
+        string[] lines = Resources.Load<TextAsset>(path).text.Split(new string[1] {"\n"}, StringSplitOptions.RemoveEmptyEntries).Skip(1).ToArray();
+
+        string prevName = "";
+        facility currentFacility = null;
+        foreach (string line in lines) {
+            bool seenQuote = false;
+            int currentSplitIndex = 1;
+            int[] splitIndices = new int[13];
+            splitIndices[0] = -1;
+            for (int i = 0; i < line.Length; i++) {
+                char c = line[i];
+                if (c == ',' && !seenQuote) {
+                    splitIndices[currentSplitIndex] = i;
+                    currentSplitIndex++;
+                } else if (c == '"') seenQuote = !seenQuote;
+            }
+
+            string antenna, freqBand, networks;
+            double diameter, centerFreq, lat, lon, alt, gt, maxRate, priority, payload;
+            string[] data = new string[13];
+            for (int i = 1; i < splitIndices.Length; i++) data[i - 1] = line.Substring(splitIndices[i - 1] + 1, splitIndices[i] - splitIndices[i - 1] - 1);
+            data[data.Length - 1] = line.Substring(splitIndices[splitIndices.Length - 1] + 1);
+
+            payload = Double.Parse(data[0]);            
+            antenna = data[2];
+            diameter = Double.Parse(data[3]);
+            freqBand = data[4];
+            centerFreq = Double.Parse(data[5]);
+            lat = Double.Parse(data[6]);
+            lon = Double.Parse(data[7]);
+            alt = Double.Parse(data[8]);
+            gt = Double.Parse(data[9]);
+            maxRate = Double.Parse(data[10]);
+            networks = data[11];
+            priority = Double.Parse(data[12]);
+
+            // create new facility
+            if (data[1] != "") {
+                string groundStation = data[1];
+                if (groundStation.Contains('"')) groundStation = string.Concat(groundStation.Skip(1).Take(groundStation.Length - 2)); // remove quotes
+
+                if (groundStation != prevName) {
+                    prevName = groundStation;
+                    currentFacility = new facility(
+                        groundStation,
+                        p,
+                        new facilityData(groundStation,
+                        new geographic(lat, lon),
+                        0,
+                        new List<antennaData>()),
+                        new representationData("facility", "defaultMat"));
+                }
+            }
+
+            antennaData ant = new antennaData(
+                currentFacility,
+                (int) payload,
+                antenna,
+                diameter,
+                freqBand,
+                centerFreq,
+                new geographic(lat, lon),
+                alt,
+                gt,
+                (int) maxRate,
+                networks,
+                priority);
+            
+            currentFacility.addAntenna(ant);
+        }
     }
 
     public readonly static Dictionary<string, string> abbreviations = new Dictionary<string, string>() {

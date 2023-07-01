@@ -169,8 +169,6 @@ public readonly struct position
         return returnList;
     }
 
-    public jsonPositionStruct requestJsonFile() => new jsonPositionStruct() {x=x, y=y, z=z};
-
     public double length() => Math.Sqrt(x * x + y * y + z * z);
 
     public override string ToString() => $"xyz: {x}, {y}, {z}";

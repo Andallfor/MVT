@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using TMPro;
 
-public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
+public class planetRepresentation
 {
     private float _r;
     private TextMeshProUGUI shownName;
@@ -42,37 +42,6 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
         shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold | FontStyles.Italic;
 
         planetParent = GameObject.FindGameObjectWithTag("planet/parent");
-    }
-
-    public void regenerate() {
-        if (gameObject != null) GameObject.Destroy(gameObject);
-        if (shownName != null) GameObject.Destroy(shownName.gameObject);
-
-        gameObject = GameObject.Instantiate(data.model);
-        gameObject.GetComponent<MeshRenderer>().material = data.material;
-        gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
-        gameObject.name = name;
-
-        this.shownNameText = name;
-        this.setRadius(radius);
-        this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
-        this.mrSelf = gameObject.GetComponent<MeshRenderer>();
-        this.hitbox = gameObject.GetComponent<Collider>();
-
-        this.shownName = resLoader.createPrefab("bodyName").GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
-        shownName.fontSize = 25;
-        shownName.text = name;
-        shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold | FontStyles.Italic;
-
-        planetParent = GameObject.FindGameObjectWithTag("planet/parent");
-    }
-
-    public jsonPlanetRepresentationStruct requestJsonFile()
-    {
-        return new jsonPlanetRepresentationStruct() {
-            modelPath = this.data.modelPath,
-            materialPath = this.data.materialPath};
     }
 
     // updating shown values

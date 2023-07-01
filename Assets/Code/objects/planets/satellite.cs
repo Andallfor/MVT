@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class satellite : body, IJsonFile<jsonSatelliteStruct>
+public class satellite : body
 {
     public satelliteRepresentation representation {get; private set;}
     private satelliteData data;
@@ -42,15 +42,6 @@ public class satellite : body, IJsonFile<jsonSatelliteStruct>
         return p;
     }
     public override void updateScale(object sender, EventArgs args) {}
-
-    public new jsonSatelliteStruct requestJsonFile()
-    {
-        return new jsonSatelliteStruct() {
-            name = this.name,
-            positions = data.positions.requestJsonFile(),
-            representation = representation.requestJsonFile(),
-            bodyData = base.requestJsonFile()};
-    }
 }
 
 public class satelliteData

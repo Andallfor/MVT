@@ -6,23 +6,6 @@ using System.IO;
 using System;
 
 public static class highResTerrain {
-    public static List<nearbyFacilities> neededAreas() {
-        List<nearbyFacilities> nfs = new List<nearbyFacilities>();
-        foreach (facilityData fd in csvParser.loadFacilities("CSVS/FACILITIES/stationList")) {
-            bool foundValidParent = false;
-            foreach (nearbyFacilities nf in nfs) {
-                if (nf.tryJoin(fd)) {
-                    foundValidParent = true;
-                    break;
-                }
-            }
-
-            if (!foundValidParent) nfs.Add(new nearbyFacilities(fd));
-        }
-
-        return nfs;
-    }
-
     public static meshDistributor<dtedBasedMesh> readHRT(string path) {
         string[] data = File.ReadAllLines(path);
 

@@ -19,7 +19,6 @@ public class controller : MonoBehaviour
     public static bool useTerrainVisibility = false;
     public static controller self;
 
-    public float logBase = 35;
     public static float _logBase = 35;
 
     private void Awake() {self = this;}
@@ -43,6 +42,8 @@ public class controller : MonoBehaviour
         });
 
         StartCoroutine(start());
+
+        csvParser.loadAndCreateFacilities("CSVS/stationlist", earth);
     }
 
     IEnumerator start()
@@ -345,269 +346,6 @@ public class controller : MonoBehaviour
                 }
             }
         }
-        /*
-        return;
-        _logBase = logBase;
-        if (planetOverview.instance.active) {
-            planetOverview po = planetOverview.instance;
-
-            if (Input.GetKey("d")) po.rotationalOffset -= 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
-            if (Input.GetKey("a")) po.rotationalOffset += 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
-
-            if (Input.mouseScrollDelta.y != 0) {
-                general.camera.orthographicSize -= Input.mouseScrollDelta.y * UnityEngine.Time.deltaTime * 100f * general.camera.orthographicSize;
-                general.camera.orthographicSize = Math.Max(0.01f, Math.Min(20, general.camera.orthographicSize));
-                po.updateAxes(true); // force update for changing zoom
-            } else po.updateAxes();
-
-            if (Input.GetKey(KeyCode.UpArrow)) {
-                general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, 20f * UnityEngine.Time.deltaTime);            
-            }
-
-            if (Input.GetKey(KeyCode.DownArrow)) {
-                general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, -20f * UnityEngine.Time.deltaTime);
-            }
-
-            if (Input.GetKeyDown(KeyCode.RightArrow)) {
-                general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, 90f - general.camera.transform.eulerAngles.x);
-                po.rotationalOffset = -45f * Mathf.Deg2Rad;
-                po.displayScale = 13.65f;
-            }
-
-            if (Input.GetKeyDown(KeyCode.LeftArrow)) {
-                general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, -general.camera.transform.eulerAngles.x);
-                po.rotationalOffset = Mathf.Deg2Rad * 90f * (float) (po.rotationalOffset * Mathf.Rad2Deg / 90);
-            }
-
-            if (Input.GetKey("w")) po.displayScale += 5f * UnityEngine.Time.deltaTime;
-            if (Input.GetKey("s")) po.displayScale -= 5f * UnityEngine.Time.deltaTime;
-        }
-        else if (planetFocus.instance.active) {
-            if (Input.GetMouseButtonDown(0)) planetFocusMousePosition = Input.mousePosition;
-            else if (Input.GetMouseButton(0)) {
-                Vector3 difference = Input.mousePosition - planetFocusMousePosition;
-                planetFocusMousePosition = Input.mousePosition;
-
-                Vector2 adjustedDifference = new Vector2(-difference.y / Screen.height, difference.x / Screen.width);
-                adjustedDifference *= 100f;
-
-                planetFocus.instance.rotation.x = adjustedDifference.x * planetFocus.instance.zoom / 125f;
-                planetFocus.instance.rotation.y = adjustedDifference.y * planetFocus.instance.zoom / 125f;
-                planetFocus.instance.rotation.z = 0;
-            }
-
-            if (Input.GetMouseButtonDown(1)) planetFocusMousePosition1 = Input.mousePosition;
-            if (Input.GetMouseButton(1)) {
-                Vector3 difference = Input.mousePosition - planetFocusMousePosition1;
-                planetFocusMousePosition1 = Input.mousePosition;
-
-                float adjustedDifference = (difference.x / Screen.width) * 100;
-                planetFocus.instance.rotation.x = 0;
-                planetFocus.instance.rotation.y = 0;
-                planetFocus.instance.rotation.z = adjustedDifference;
-            }
-
-            if (Input.mouseScrollDelta.y != 0) {
-                // hi!
-                // i know you probably have questions about y tf the code below here exists
-                // well too bad
-                // if u want to fix it go ahead, otherwise its staying here
-                if (planetFocus.instance.usePoleFocus) {
-                    float change = (float) (0.1 * master.scale) * Mathf.Sign(Input.mouseScrollDelta.y);
-                    master.scale -= change;
-                    planetFocus.instance.update();
-                    master.requestPositionUpdate();
-                } else {
-                    planetFocus.instance.zoom -= Input.mouseScrollDelta.y * planetFocus.instance.zoom / 10f;
-                    planetFocus.instance.zoom = Mathf.Max(Mathf.Min(planetFocus.instance.zoom, 90), 0.1f);
-                }
-            }
-
-            float t = UnityEngine.Time.deltaTime;
-            float r = planetFocus.instance.zoom / 40f;
-            if (Input.GetKey("w")) planetFocus.instance.movementOffset += (float) master.scale * 0.75f * general.camera.transform.up * r * t;
-            if (Input.GetKey("s")) planetFocus.instance.movementOffset -= (float) master.scale * 0.75f * general.camera.transform.up * r * t;
-            if (Input.GetKey("d")) planetFocus.instance.movementOffset += (float) master.scale * 0.75f * general.camera.transform.right * r * t;
-            if (Input.GetKey("a")) planetFocus.instance.movementOffset -= (float) master.scale * 0.75f * general.camera.transform.right * r * t;
-
-            if (Input.GetKeyDown("t") && !general.plt.currentlyDrawing) {
-                planetFocus.instance.togglePoleFocus(!planetFocus.instance.usePoleFocus);
-                if (planetFocus.instance.usePoleFocus) general.plt.genMinScale();
-                else general.plt.clear();
-            }
-
-            if (planetFocus.instance.usePoleFocus) {
-                if (Input.GetKeyDown("=")) general.plt.increaseScale();
-                if (Input.GetKeyDown("-")) general.plt.decreaseScale();
-
-                planetFocus.instance.focus.representation.forceHide = true;
-            }
-
-            planetFocus.instance.update();
-        }
-        else if (uiMap.instance.active) {
-            uiMap.instance.update();
-        }
-        else if (facilityFocus.instance.active) {
-            // code copied pasted from planetFocus
-            // TODO: centralize this type of movement code
-            if (Input.GetMouseButtonDown(0)) facilityFocusMousePosition = Input.mousePosition;
-            else if (Input.GetMouseButton(0)) {
-                Vector3 difference = Input.mousePosition - facilityFocusMousePosition;
-                facilityFocusMousePosition = Input.mousePosition;
-
-                Vector2 adjustedDifference = new Vector2(-difference.y / Screen.height, difference.x / Screen.width);
-                adjustedDifference *= 100f;
-
-                facilityFocus.instance.rotation.x = adjustedDifference.x * facilityFocus.instance.zoom / 125f;
-                facilityFocus.instance.rotation.y = adjustedDifference.y * facilityFocus.instance.zoom / 125f;
-                facilityFocus.instance.rotation.z = 0;
-            }
-
-            if (Input.GetMouseButtonDown(1)) facilityFocusMousePosition1 = Input.mousePosition;
-            if (Input.GetMouseButton(1)) {
-                Vector3 difference = Input.mousePosition - facilityFocusMousePosition1;
-                facilityFocusMousePosition1 = Input.mousePosition;
-
-                float adjustedDifference = (difference.x / Screen.width) * 100;
-                facilityFocus.instance.rotation.x = 0;
-                facilityFocus.instance.rotation.y = 0;
-                facilityFocus.instance.rotation.z = adjustedDifference;
-            }
-
-            if (Input.mouseScrollDelta.y != 0) {
-                facilityFocus.instance.zoom -= Input.mouseScrollDelta.y * facilityFocus.instance.zoom / 10f;
-                facilityFocus.instance.zoom = Mathf.Max(Mathf.Min(facilityFocus.instance.zoom, 90), 0.1f);
-            }
-
-            facilityFocus.instance.update();
-        }
-        else
-        {
-            if (Input.GetMouseButton(1) && !EventSystem.current.IsPointerOverGameObject())
-            {
-                Transform c = general.camera.transform;
-                c.Rotate(0, Input.GetAxis("Mouse X") * 2, 0);
-                c.Rotate(-Input.GetAxis("Mouse Y") * 2, 0, 0);
-                c.localEulerAngles = new Vector3(c.localEulerAngles.x, c.localEulerAngles.y, 0);
-            }
-
-            Vector3 forward = general.camera.transform.forward;
-            Vector3 right = general.camera.transform.right;
-            float t = UnityEngine.Time.deltaTime;
-            if (Input.GetKey("w")) master.currentPosition += forward * 5f * (float) master.scale * t;
-            if (Input.GetKey("s")) master.currentPosition -= forward * 5f * (float) master.scale * t;
-            if (Input.GetKey("d")) master.currentPosition += right * 5f * (float) master.scale * t;
-            if (Input.GetKey("a")) master.currentPosition -= right * 5f * (float) master.scale * t;
-        }
-
-        if (Input.GetKeyDown("q")) modeController.toggle(planetOverview.instance);
-
-        if (Input.GetKeyDown("e")) {
-            modeController.toggle(planetFocus.instance);
-            general.pt.unload();
-            general.plt.clear();
-        }
-
-        if (Input.GetKeyDown("m")) modeController.toggle(uiMap.instance);
-
-        if (Input.GetKeyDown("z")) {
-            foreach (planet p in master.allPlanets) p.tr.enable(!general.showingTrails);
-            if (!general.showingTrails) trailRenderer.drawAllSatelliteTrails(master.allSatellites);
-            else foreach (satellite s in master.allSatellites) s.tr.disable();
-
-            general.showingTrails = !general.showingTrails;
-            general.notifyTrailsChange();
-        }
-    
-        if (Input.GetKeyDown("p")) {
-            //string[] data = File.ReadAllLines("C:/Users/leozw/Downloads/rasters_SRTMGL3(1)/output_SRTMGL3.asc");
-            string[] data = File.ReadAllLines(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan fernandez islands/data.asc"));
-            meshDistributor<poleTerrainMesh> mesh = new meshDistributor<poleTerrainMesh>(new Vector2Int(1371, 1357), Vector2Int.zero, Vector2Int.zero, reverse: true);
-
-            geographic g = new geographic(-34.087083333312, -79.055416666690);
-            List<position> toCheck = new List<position>();
-            List<Vector2Int> toCheckGrid = new List<Vector2Int>();
-
-            double inc = 0.000833333333;
-            for (int row = 6; row < 1357 + 6; row++) {
-                string[] line = data[row].Split(new string[] {" "}, System.StringSplitOptions.RemoveEmptyEntries);
-                for (int col = 0; col < 1371; col++) {
-                    geographic change = new geographic(inc * (double) (1357 - (row - 6)), inc * (double) col);
-                    change += g;
-                    double alt = double.Parse(line[col]) / 1000.0;
-
-                    if (alt != 0) {
-                        toCheck.Add(new position(change.lon, change.lat, alt));
-                        toCheckGrid.Add(new Vector2Int(col, row - 6));
-                    }
-                    mesh.addPoint(col, row - 6, change.toCartesian(6371 + alt).swapAxis() / master.scale);
-                }
-            }
-
-            Material m = new Material(resLoader.load<Material>("defaultMat"));
-            planet earth = master.allPlanets.First(x=>x.name=="Earth");
-            //mesh.drawAll(m, resLoader.load<GameObject>("planetMesh"), new string[0], earth.representation.gameObject.transform);
-            (mesh.draw(new Vector2Int(0, 750), m, resLoader.load<GameObject>("planetMesh"), "", earth.representation.gameObject.transform)).AddComponent<MeshCollider>();
-            (mesh.draw(new Vector2Int(250, 750), m, resLoader.load<GameObject>("planetMesh"), "", earth.representation.gameObject.transform)).AddComponent<MeshCollider>();
-
-            //facility f1 = new facility("north", earth, new facilityData("north", new geographic(-33.60579, -78.88177), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
-            //facility f2 = new facility("south", earth, new facilityData("south", new geographic(-33.65108, -78.86861), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
-            //Vector3 v1 = earth.localGeoToUnityPos(f1.geo, 10 / 1000.0);
-            //Vector3 v2 = earth.localGeoToUnityPos(f2.geo, 10 / 1000.0);
-            //Ray r = new Ray(v1, v2 - v1);
-            //Debug.Log(Physics.Raycast(r, (float) position.distance(v1, v2)));
-            //Debug.DrawLine(v1, v2, Color.red, 10000000);
-
-            /*
-            geographic[] points = new geographic[13] {
-                new geographic(21, -140),
-                new geographic(19, -141.42),
-                new geographic(17, -143.3),
-                new geographic(12.9, -146.8),
-                new geographic(8, -151),
-                new geographic(3, -154.5),
-                new geographic(0, -156.5),
-                new geographic(-3, -158.6),
-                new geographic(-6, -160.5),
-                new geographic(-10, -163.1),
-                new geographic(-14, -165.8),
-                new geographic(-17, -167.8),
-                new geographic(-20, -169.8)};
-            
-            double targetAlt = 1_500_000;
-
-            StringBuilder sb = new StringBuilder();
-
-            for (int i = 0; i < toCheck.Count; i++) {
-                position p = toCheck[i];
-                Vector2Int v = toCheckGrid[i];
-
-                int valid = 0;
-                geographic start = new geographic(p.y, p.x);
-                Vector3 v1 = earth.localGeoToUnityPos(start, p.z + 10.0 / 1000.0);
-                foreach (geographic target in points) {
-                    Vector3 v2 = earth.localGeoToUnityPos(target, targetAlt);
-
-                    //int c = position.lineSphereInteresection(v1, v2, earth.representation.gameObject.transform.position, earth.representation.gameObject.transform.localScale.x).Count;
-                    //if (c != 0) continue;
-
-                    if (!Physics.Raycast(v1, v2 - v1, (float) position.distance(v1, v2))) {
-                        valid++;
-                        if (v == new Vector2Int(217, 777)) Debug.DrawLine(v1, v2, Color.green, 1000000000);
-                    } else if (v == new Vector2Int(217, 777)) Debug.DrawLine(v1, v2, Color.red, 1000000000);
-                }
-                sb.Append($"{v.x} {v.y} {p.z} {valid}\n");
-            }
-
-            File.WriteAllText("C:/Users/leozw/Desktop/data.txt", sb.ToString());
-        }
-        
-        if (Input.GetKeyDown("r")) {
-            if (uiMap.instance.active || planetOverview.instance.active) return;
-            if (!facilityFocus.instance.active) facilityFocus.instance.query();
-            modeController.toggle(facilityFocus.instance);
-        }*/
     }
 
     private planetTerrain loadTerrain() {
@@ -699,6 +437,8 @@ public class controller : MonoBehaviour
         body.addFamilyNode(earth, moon);
 
         master.relationshipPlanet[earth] = new List<planet>() {solo, moon, mercury, venus, jupiter, saturn, uranus, neptune, mars, master.sun, solarProbe, v1, v2};
+
+        //new facility("ASF", earth, new facilityData("ASF", new geo  (64)))
         //master.relationshipSatellite[earth] = new List<satellite>() {stpSat5};
 
         //master.orbitalPeriods["Voyager 1"] = 62;
@@ -872,8 +612,11 @@ public class controller : MonoBehaviour
                     if (dict["TimeInterval_stop"] is string) stop = Double.Parse(dict["TimeInterval_stop"], System.Globalization.NumberStyles.Any);
                     else stop = (double) dict["TimeInterval_stop"];
 
-                    List<antennaData> antenna = new List<antennaData>() {new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"])};
-                    facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), 0, antenna, new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);
+                    facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), 0, new List<antennaData>(), new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);
+                    List<antennaData> antenna = new List<antennaData>() {new antennaData(fd, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"])};
+
+                    fd.data.antennas.Concat(antenna);
+                    
 
                     if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
                     if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
@@ -882,8 +625,10 @@ public class controller : MonoBehaviour
                         linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
                     }
                 } else {
-                    List<antennaData> antenna = new List<antennaData>() {new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Ground_Priority"])};
-                    facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), 0, antenna), frd);
+                    facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), 0, new List<antennaData>()), frd);
+                    List<antennaData> antenna = new List<antennaData>() {new antennaData(fd, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Ground_Priority"])};
+
+                    fd.data.antennas.Concat(antenna);
 
                     if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
                     if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));

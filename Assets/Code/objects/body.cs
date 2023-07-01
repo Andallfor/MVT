@@ -39,19 +39,6 @@ public abstract class body
         child.parent = null;
     }
 
-    public jsonBodyStruct requestJsonFile()
-    {
-        List<string> d = new List<string>();
-        foreach (planet p in children)
-        {
-            d.Add(p.name);
-        }
-
-        return new jsonBodyStruct() {
-            parent = (ReferenceEquals(parent, null)) ? "" : parent.name,
-            children = d.ToArray()};
-    }
-
     public abstract void updatePosition(object sender, EventArgs args);
     public abstract void updateScale(object sender, EventArgs args);
     public abstract position requestPosition(Time t);

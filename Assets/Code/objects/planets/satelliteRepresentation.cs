@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using TMPro;
 
-public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStruct>
+public class satelliteRepresentation
 {
     private GameObject canvas, planetParent;
     public planet parent;
@@ -41,24 +41,6 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
     }
 
     public void setRelationshipParent() {parent = master.relationshipSatellite.First(x => x.Value.Exists(y => y.name == name)).Key;}
-
-    public void regenerate() {
-        if (gameObject != null) GameObject.Destroy(gameObject);
-        if (shownName != null) GameObject.Destroy(shownName.gameObject);
-
-        gameObject = GameObject.Instantiate(data.model);
-        gameObject.GetComponent<MeshRenderer>().material = data.material;
-        gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
-        gameObject.name = name;
-        mrSelf = gameObject.GetComponent<MeshRenderer>();
-
-        this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
-
-        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
-        shownName.fontSize = 23;
-        shownName.text = name;
-    }
 
     public void setPosition(position pos, bool forceHide = false)
     {
@@ -104,13 +86,6 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
     private void hide() {
         mrSelf.enabled = false;
         shownName.text = "";
-    }
-
-    public jsonSatelliteRepresentationStruct requestJsonFile()
-    {
-        return new jsonSatelliteRepresentationStruct() {
-            modelPath = data.modelPath,
-            materialPath = data.materialPath};
     }
 
     public void setRadius(double radius)
