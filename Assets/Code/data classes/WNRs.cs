@@ -44,7 +44,7 @@ public class WNRs
           WNRInner inner;
           inner.source = user.Key;
           inner.destination = provider.Key;
-          inner.windows = generateWindows(time, distance);
+          inner.windows = generateWindows(time);
 
           innerWindowList.Add(inner);
         }
@@ -57,19 +57,21 @@ public class WNRs
     json.windows = innerWindowList;
 
     string jsonReturn = JsonConvert.SerializeObject(json, Formatting.Indented);
-    //File.WriteAllText(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "windows.json"), jsonReturn);
-    File.WriteAllText("/Users/arya/Downloads/windows.json", jsonReturn);
+    File.WriteAllText(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "windows.json"), jsonReturn);
+    //File.WriteAllText("/Users/arya/Downloads/windows.json", jsonReturn);
     Debug.Log("Finished Writing File");
   }
 
-  public static List<double[]> generateWindows(List<double> time, List<double> distance)
+  public static List<double[]> generateWindows(List<double> time)
   {
 
   		for(int k = 0; k < time.Count; k++)
   		{
-  			time[k] = time[k]- 2461021.5;
+  			time[k] = time[k] - 2461021.5;
+            Debug.Log(time[k]);
   		}
 
+<<<<<<< Updated upstream
     List<WNR> windows = new List<WNR>();
     int st = -1;
 
@@ -88,11 +90,40 @@ public class WNRs
         st = -1;
       }
     }
+=======
+        List<double> temp = time;
+        temp.Add(Double.MaxValue);
+>>>>>>> Stashed changes
 
-    return format(windows, time, distance);
+        List<WNR> windows = new List<WNR>();
+
+        int st = -1;
+        for (int x = 0; x < temp.Count - 1; x++)
+        {
+            if (st == -1 && temp[x + 1] - temp[x] < .0035)
+            {
+                st = x;
+            }
+            else if (st != -1 && temp[x] != Double.MaxValue && temp[x + 1] - temp[x] > .0035)
+            {
+                Debug.Log("start: " + temp[st] + ", end: " + temp[x]);
+                WNR window;
+                window.start = temp[st];
+                window.stop = temp[x];
+                windows.Add(window);
+                st = -1;
+            }
+        }
+
+        return format(windows, time);
   }
 
+<<<<<<< Updated upstream
   public static List<double[]> format(List<WNR> windows, List<double> time, List<double> distance)
+=======
+
+  public static List<double[]> format(List<WNR> windows, List<double> time)
+>>>>>>> Stashed changes
 	{
 		List<double[]> returnList = new List<double[]>();
 

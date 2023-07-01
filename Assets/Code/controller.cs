@@ -12,7 +12,7 @@ public class controller : MonoBehaviour
     public static planet earth, moon;
     public static planet mars;
     public static planet defaultReferenceFrame;
-    public static double speed = 0.00005;
+    public static double speed = 0.0005;
     public static int tickrate = 7200;
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
     private Coroutine loop;
@@ -136,8 +136,8 @@ public class controller : MonoBehaviour
         };
         options.debug = true;
         options.blocking = true;
-        //options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
-        options.outputPath = "/Users/arya/Downloads/data.txt";
+        options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+        //options.outputPath = "/Users/arya/Downloads/data.txt";
 
         useTerrainVisibility = true;
 
@@ -156,7 +156,11 @@ public class controller : MonoBehaviour
             else providers.Add(master.allSatellites.Find(x => x.name == p.Key));
         }
 
+<<<<<<< Updated upstream
         visibility.raycastTerrain(users, providers, master.time.julian, master.time.julian + 30, speed, options, true);
+=======
+        visibility.raycastTerrain(users, providers, master.time.julian, master.time.julian + 30, speed, options, false);
+>>>>>>> Stashed changes
 
 
     }
@@ -183,14 +187,24 @@ public class controller : MonoBehaviour
                     {
                         final.Add("Time:" + time[x] + " Distance: " + distance[x]);
                     }
+<<<<<<< Updated upstream
                     System.IO.File.WriteAllLines("/Users/arya/Downloads/" + provider.Key + " to " + user.Key, final);
+=======
+
+                    System.IO.File.WriteAllLines(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads)) + "/Access Call Results/" + provider.Key + " to " + user.Key +".txt", final);
+>>>>>>> Stashed changes
                 }
             }
         };
         options.debug = true;
         options.blocking = false;
+<<<<<<< Updated upstream
         //options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
         options.outputPath = "/Users/arya/Downloads/data.txt";
+=======
+        options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+        //options.outputPath = "/Users/arya/Downloads/data.txt";
+>>>>>>> Stashed changes
 
         useTerrainVisibility = true;
 
@@ -601,8 +615,14 @@ public class controller : MonoBehaviour
         //planet lucy = new planet("Lucy", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Lucy", oneHour, planetType.planet), rd);
 
         facility svalbard = new facility("Svalbard", earth, new facilityData("Svalbard", new geographic(77.875, 20.9752), 10, new List<antennaData>()), new representationData("facility", "defaultMat"));
+<<<<<<< Updated upstream
         facility ASF = new facility("ASF", earth, new facilityData("ASF", new geographic(64.8401, -147.72), 10, new List<antennaData>()), new representationData("facility", "defaultMat"));
         satellite sat1 = new satellite("Sat1", new satelliteData(new Timeline(6378.1+900, 0, 98, 0, 0, 0, 0, 2461021.5, EarthMu)), rd);
+=======
+        facility ASF = new facility("ASF", earth, new facilityData("ASF", new geographic(64.8401, -147.72), 0, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        //facility juan = new facility("Juan Fernandez", earth, new facilityData("Juan Fernandez", new geographic(-33.651250000153, -78.827916666781), 0, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        satellite sat1 = new satellite("Sat1", new satelliteData(new Timeline(6371+900, 0, 98, 0, 0, 0, 0, 2461021.5, EarthMu)), rd);
+>>>>>>> Stashed changes
 
         //body.addFamilyNode(master.sun, v1);
         //body.addFamilyNode(master.sun, v2);
@@ -630,14 +650,19 @@ public class controller : MonoBehaviour
         master.relationshipSatellite[earth] = new List<satellite>() {sat1};
 
         linkBudgeting.users.Add("Sat1", (false, 2461021.5, 2461051.5));
+        //linkBudgeting.providers.Add("Juan Fernandez", (true, 2461021.5, 2461051.5));
         linkBudgeting.providers.Add("ASF", (true, 2461021.5, 2461051.5));
         linkBudgeting.providers.Add("Svalbard", (true, 2461021.5, 2461051.5));
 
-
         loadingController.addPercent(1);
 
+<<<<<<< Updated upstream
         //runWindowsNoRate();
         runDynamicLink();
+=======
+        //runDynamicLink();
+        runWindowsNoRate();
+>>>>>>> Stashed changes
         //master.time.addJulianTime(new Time(new DateTime(2026, 7, 12)).julian - master.time.julian);
         //master.time.addJulianTime(new Time(new DateTime(2027, 9, 1)).julian - master.time.julian);
     }

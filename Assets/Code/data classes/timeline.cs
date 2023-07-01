@@ -182,9 +182,15 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
 
         while (k > error)
         {
+<<<<<<< Updated upstream
           y = meanAnom + eccentricity * Math.Sin(EA);
           k = Math.Abs(Math.Abs(EA) - Math.Abs(y));
           EA = y;
+=======
+            y = meanAnom + eccentricity * Math.Sin(EA);
+            k = Math.Abs(Math.Abs(EA) - Math.Abs(y));
+            EA = y;
+>>>>>>> Stashed changes
         }
 
         double trueAnom1 = (Math.Sqrt(1 - eccentricity * eccentricity) * Math.Sin(EA)) / (1 - eccentricity * Math.Cos(EA));
