@@ -71,29 +71,8 @@ public class WNRs
             Debug.Log(time[k]);
   		}
 
-<<<<<<< Updated upstream
-    List<WNR> windows = new List<WNR>();
-    int st = -1;
-
-    for(int x = 1; x < time.Count - 1; x++)
-    {
-      if (st == -1 && time[x] - time[x-1] < .0035)
-      {
-        st = x - 1;
-      }
-      else if (st != -1 && time[x] - time[x-1] > .0035)
-      {
-        WNR window;
-        window.start = time[st];
-        window.stop = time[x-1];
-        windows.Add(window);
-        st = -1;
-      }
-    }
-=======
         List<double> temp = time;
         temp.Add(Double.MaxValue);
->>>>>>> Stashed changes
 
         List<WNR> windows = new List<WNR>();
 
@@ -118,12 +97,8 @@ public class WNRs
         return format(windows, time);
   }
 
-<<<<<<< Updated upstream
-  public static List<double[]> format(List<WNR> windows, List<double> time, List<double> distance)
-=======
 
   public static List<double[]> format(List<WNR> windows, List<double> time)
->>>>>>> Stashed changes
 	{
 		List<double[]> returnList = new List<double[]>();
 
