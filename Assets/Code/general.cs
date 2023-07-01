@@ -65,6 +65,8 @@ public static class general
 
         while (tickCount < requestedTicks)
         {
+            if (1.0f / UnityEngine.Time.smoothDeltaTime < 60f) Debug.LogWarning("Program is lagging and may not be able to stay up to date!");
+
             tickBucket += UnityEngine.Time.deltaTime * 1000f;
             int ticks = (int) Math.Round((tickBucket - (tickBucket % timePerTick)) / timePerTick);
             tickBucket -= ticks *  timePerTick;

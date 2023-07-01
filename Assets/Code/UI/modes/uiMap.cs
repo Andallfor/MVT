@@ -207,6 +207,18 @@ public sealed class uiMap : IMode {
     private uiMap() {}
     private static readonly Lazy<uiMap> lazy = new Lazy<uiMap>(() => new uiMap());
     public static uiMap instance => lazy.Value;
+
+    protected override void loadControls() {
+        List<IMode> w = new List<IMode>() {this};
+
+        playerControls.addKey("", conTrig.none, () => {
+            update();
+        }, whitelist: w);
+
+        playerControls.addKey("m", conTrig.down, () => {
+            modeController.toggle(this);
+        });
+    }
 }
 
 internal enum markerType {

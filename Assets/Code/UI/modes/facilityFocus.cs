@@ -79,4 +79,8 @@ public sealed class facilityFocus : IMode {
     private facilityFocus() {}
     private static readonly Lazy<facilityFocus> lazy = new Lazy<facilityFocus>(() => new facilityFocus());
     public static facilityFocus instance => lazy.Value;
+
+    protected override void loadControls() {
+        
+    }
 }

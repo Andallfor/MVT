@@ -44,10 +44,22 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         Vector2 s = new Vector2((float) (_s.lon / deltaX), 1f - (float) (_e.lat / deltaY));
         Vector2 e = new Vector2((float) (_e.lon / deltaX), 1f - (float) (_s.lat / deltaY));
 
+        s.x = clamp(s.x, 0, 1);
+        s.y = clamp(s.y, 0, 1);
+        e.x = clamp(e.x, 0, 1);
+        e.y = clamp(e.y, 0, 1);
+
         return load(s, e, radius, res);
     }
 
+    private float clamp(float v, float min, float max) => Math.Max(Math.Min(v, max), min);
+
     public override meshDistributor<universalTerrainMesh> load(Vector2 startPercent, Vector2 endPercent, double radius, uint res) {
+        startPercent.x = clamp(startPercent.x, 0, 1);
+        startPercent.y = clamp(startPercent.y, 0, 1);
+        endPercent.x = clamp(endPercent.x, 0, 1);
+        endPercent.y = clamp(endPercent.y, 0, 1);
+
         accessCallGeo = new List<geographic>();
         accessCallHeight = new List<double>();
 

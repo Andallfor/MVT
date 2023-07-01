@@ -38,6 +38,8 @@ public abstract class IMode {
         initialized = true;
 
         _initialize();
+
+        loadControls();
     }
 
     protected virtual void _initialize() { // for if ur really lazy
@@ -45,6 +47,7 @@ public abstract class IMode {
         toggle(false, true);
     }
 
+    protected abstract void loadControls();
     protected abstract bool enable();
     protected abstract bool disable();
 }
@@ -60,9 +63,10 @@ public static class modeController {
         }
         initialized = true;
 
+        modes.Add(defaultMode.instance);
         foreach (IMode mode in modes) mode.initialize();
 
-        modeParameters.load(new defaultParameters());
+        defaultMode.instance.toggle(true);
     }
 
     public static void registerMode(IMode m) {
@@ -77,7 +81,7 @@ public static class modeController {
 
     public static void disableAll() {
         foreach (IMode m in modes) m.toggle(false);
-        modeParameters.load(new defaultParameters());
+        defaultMode.instance.toggle(true);
     }
 
     public static void toggle(IMode target) {
