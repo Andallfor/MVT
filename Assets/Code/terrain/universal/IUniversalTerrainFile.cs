@@ -12,6 +12,7 @@ public abstract class IUniversalTerrainFile<T> where T : IMesh, new() {
     public double ncols {get; private set;}
     public uint res {get; private set;}
     public geographic llCorner {get; private set;}
+    public geographic center {get; private set;}
     protected geographic size {get; private set;}
     protected universalTerrainFileSources src {get; private set;}
     protected Dictionary<string, double> metadata {get; private set;}
@@ -39,7 +40,11 @@ public abstract class IUniversalTerrainFile<T> where T : IMesh, new() {
         nrows = metadata["nrows"];
         res = (uint) metadata["res"];
         size = new geographic(nrows * cellSize, ncols * cellSize);
+
+        center = llCorner + size / 2.0;
     }
+
+    public abstract meshDistributor<T> load(geographic center, double planetRadius, uint res, double offset = 0.5);
 
     public abstract meshDistributor<T> load(geographic start, geographic end, double radius, uint res);
 

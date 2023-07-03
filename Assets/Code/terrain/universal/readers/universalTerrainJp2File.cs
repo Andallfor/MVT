@@ -54,6 +54,34 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
 
     private float clamp(float v, float min, float max) => Math.Max(Math.Min(v, max), min);
 
+    /// <summary> Try to match res to get the desired amount of points </summary>
+    public uint getBestResolution(geographic ll, geographic up, double pointThreshold) {
+        geographic delta = up - ll;
+        double deltaY = delta.lat / cellSize;
+        double deltaX = delta.lon / cellSize;
+
+        int cols = (int) Math.Floor(deltaX);
+        int rows = (int) Math.Floor(deltaY);
+
+        double total = cols * rows;
+        if (pointThreshold > total) return 0;
+
+        double p = Math.Log(total / pointThreshold, 2) / 2.0;
+        p = Math.Round(p);
+        if (p > 5) p = 5;
+        if (p < 0) p = 0;
+
+        return (uint) p;
+    }
+
+    public override meshDistributor<universalTerrainMesh> load(geographic center, double planetRadius, uint res, double offset = 0.5) {
+        accessCallGeo = new List<geographic>();
+        accessCallHeight = new List<double>();
+
+        geographic o = new geographic(offset, offset);
+        return load(center - o, center + o, planetRadius, res);
+    }
+
     public override meshDistributor<universalTerrainMesh> load(Vector2 startPercent, Vector2 endPercent, double radius, uint res) {
         startPercent.x = clamp(startPercent.x, 0, 1);
         startPercent.y = clamp(startPercent.y, 0, 1);

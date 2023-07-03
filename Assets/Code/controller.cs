@@ -67,7 +67,7 @@ public class controller : MonoBehaviour
         //runScheduling();
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
 
-        master.setReferenceFrame(master.allPlanets.First(x => x.name == "Luna"));
+        master.setReferenceFrame(master.allPlanets.First(x => x.name == "Earth"));
         master.pause = false;
         general.camera = Camera.main;
 
@@ -346,7 +346,29 @@ public class controller : MonoBehaviour
                 }
             }
         }
+    
+        if (Input.GetKeyDown("g")) {
+            string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth");
+            string p = Directory.GetDirectories(src)[stationIndex];
+            universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
+            Debug.Log(p);
+            Debug.Log(f.center);
+            
+            if (prevDist != null) prevDist.clear();
+            geographic offset = new geographic(1, 1);
+            // NOTE THAT TERRAIN FOR KENNEDY, PONCE, and WALLOP MAY BE SLIGHTLY OFF
+            // THIS IS BECAUSE I HAD TO CONVERT BETWEEN UTM AND LATLON
+            prevDist = f.load(f.center, earth.radius, f.getBestResolution(f.center - offset, f.center + offset, 5_000_000), offset: 1);
+            prevDist.drawAll(earth.representation.gameObject.transform);
+
+            stationIndex++;
+
+            if (stationIndex >= 20) stationIndex = 0;
+        }
     }
+
+    int stationIndex = 0;
+    meshDistributor<universalTerrainMesh> prevDist;
 
     private planetTerrain loadTerrain() {
         planetTerrain pt = new planetTerrain(moon, "Materials/planets/moon/moon", 1737.4, 1);
