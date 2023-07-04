@@ -75,13 +75,14 @@ public static class visibility
             master.time.addJulianTime(increment);
             master.requestPositionUpdate();
 
+						bool hit;
+
             foreach (var ukvp in u)
             {
                 foreach (var pkvp in p)
                 {
                     if (ukvp.Key == pkvp.Key) continue;
                     if (!existance[ukvp.Key](master.time) || !existance[pkvp.Key](master.time)) continue;
-                    bool hit = false;
                     if (!Physics.Linecast(ukvp.Value.position, pkvp.Value.position, LayerMask.GetMask("terrain", "planet")))
                     {
                         var results = output[(ukvp.Key, pkvp.Key)];
@@ -89,10 +90,12 @@ public static class visibility
                         results.dist.Add(Vector3.Distance(ukvp.Value.position, pkvp.Value.position) * master.scale);
 
                         hit = false;
+												Debug.Log("connected");
                     }
                     else
                     {
                         hit = true;
+												Debug.Log("hit");
                     }
 
 
@@ -181,13 +184,14 @@ public static class visibility
             master.time.addJulianTime(increment);
             master.requestPositionUpdate();
 
+						bool hit;
+
             foreach (var ukvp in u)
             {
                 foreach (var pkvp in p)
                 {
                     if (ukvp.Key == pkvp.Key) continue;
                     if (!existance[ukvp.Key](master.time) || !existance[pkvp.Key](master.time)) continue;
-                    bool hit = false;
                     if (!Physics.Linecast(ukvp.Value.position, pkvp.Value.position, LayerMask.GetMask("terrain", "planet")))
                     {
                         var results = output[(ukvp.Key, pkvp.Key)];
