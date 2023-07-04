@@ -249,7 +249,7 @@ public class controller : MonoBehaviour
             for (int r = 0; r < sy; r++) {
                 for (int c = 0; c < sx; c++) {
                     geographic g = new geographic(180.0 * (double) r / (double) sy - 90.0, 360.0 * (double) c / (double) sx - 180.0);
-                    mesh.addPoint(c, r, g.toCartesianWGS(earth.radius).swapAxis() / master.scale);
+                    mesh.addPoint(c, r, g.toCartesianWGS(earth.radius).swapAxis() / (master.scale * 2));
                 }
             }
             mesh.drawAll(earth.representation.gameObject.transform);
