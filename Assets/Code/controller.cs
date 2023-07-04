@@ -249,15 +249,15 @@ public class controller : MonoBehaviour
             for (int r = 0; r < sy; r++) {
                 for (int c = 0; c < sx; c++) {
                     geographic g = new geographic(180.0 * (double) r / (double) sy - 90.0, 360.0 * (double) c / (double) sx - 180.0);
-                    mesh.addPoint(c, r, g.toCartesian(earth.radius).swapAxis() / master.scale);
+                    mesh.addPoint(c, r, g.toCartesianWGS(earth.radius).swapAxis() / master.scale);
                 }
             }
             mesh.drawAll(earth.representation.gameObject.transform);
         }
 
         if (Input.GetKeyDown("o")) {
-            Vector3 v1 = (Vector3) (geographic.toCartesian(new geographic(45, 45), earth.radius).swapAxis() / master.scale);
-            Vector3 v2 = (Vector3) (geographic.toCartesianWGS(new geographic(45, 45), 0).swapAxis() / master.scale);
+            Vector3 v1 = (Vector3) (geographic.toCartesian(new geographic(90, 0), earth.radius).swapAxis());
+            Vector3 v2 = (Vector3) (geographic.toCartesianWGS(new geographic(90, 0), 0).swapAxis());
 
             Debug.Log("regular: " + v1);
             Debug.Log("wgs: " + v2);
@@ -362,14 +362,14 @@ public class controller : MonoBehaviour
                 }
             }
         }
-    
+
         if (Input.GetKeyDown("g")) {
             string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth");
             string p = Directory.GetDirectories(src)[stationIndex];
             universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
             //f.overrideToCart(geographic.toCartesianWGS);
             Debug.Log(p);
-            
+
             if (prevDist != null) prevDist.clear();
             geographic offset = new geographic(1, 1);
             // NOTE THAT TERRAIN FOR KENNEDY, PONCE, and WALLOP MAY BE SLIGHTLY OFF
@@ -562,7 +562,7 @@ public class controller : MonoBehaviour
         planet mars = new planet(   "Mars", new planetData(3389.92,  rotationType.none,    "CSVS/ARTEMIS 3/PLANETS/mars", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/mars"));
         planet deimos = new planet("Deimos", new planetData(6.9, rotationType.none, new Timeline(23458.30390813599, 2.130593815196214E-04, 2.458935818421859E+01, 3.539530138717170E+02, 7.976620457709659E+01, 2.361661169839224E+02, 1, Time.strDateToJulian("2022 May 11 00:00:00.0000"), MarsMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/deimos"));
         planet phobos = new planet("Phobos", new planetData(13.1, rotationType.none, new Timeline(9.378107274617230E+03, 3.639882214816549E-01, 1.011880520567134E+02, 1.315971874726009E+02, 9.280370816213794E+01, 2.712109828748827E+02, 1, Time.strDateToJulian("2022 May 11 00:00:00.0000"), MarsMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/phobos"));
-        
+
         //semiMajorAxis, eccentricity, inclination, argOfPerigee, longOfAscNode, meanAnom, mass, startingEpoch, mu)
         planet jupiter = new planet("Jupiter", new planetData( 71492,  rotationType.none, "CSVS/ARTEMIS 3/PLANETS/jupiter", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/jupiter"));
         planet europa = new planet("Europa", new planetData(1560.8, rotationType.none, new Timeline(6.712324897297744E+05, 9.756905445059905E-03, 2.558300580281146E+01, 3.130131294888411E+02, 3.570102271715173E+02, 3.771874902292626E+01, 1, Time.strDateToJulian("2022 May 11 00:00:00.0000"), JupMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/mars/deimos"));
@@ -588,7 +588,7 @@ public class controller : MonoBehaviour
         planet neptune = new planet("Neptune", new planetData( 24764,  rotationType.none, "CSVS/ARTEMIS 3/PLANETS/neptune", oneHour, planetType.planet), new representationData("Prefabs/Planet", "Materials/planets/neptune"));
         planet Proteus = new planet("Proteus", new planetData(208, rotationType.none, new Timeline(1.176751084140828E+05, 6.698630624651811E-04, 4.759369671202530E+01, 3.565033778835370E+02, 2.962923214096653E+01, 3.283481977496181E+02, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), NeptuneMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/neptune/proteus"));
         planet Triton = new planet("Triton", new planetData(1352.6, rotationType.none, new Timeline(3.547667476641174E+05, 1.412643162056324E-05, 1.106056038830452E+02, 4.917714675888436, 2.140211313394768E+02, 3.248133065059064E+01, 1, Time.strDateToJulian("2025 May 11 00:00:00.0000"), NeptuneMu), 1, planetType.moon), new representationData("Prefabs/Planet", "Materials/planets/Moons/neptune/triton"));
-        
+
         yield return new WaitForSeconds(0.1f);
         loadingController.addPercent(0.11f);
 
@@ -654,7 +654,7 @@ public class controller : MonoBehaviour
                     List<antennaData> antenna = new List<antennaData>() {new antennaData(fd, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"])};
 
                     fd.data.antennas.Concat(antenna);
-                    
+
 
                     if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
                     if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));

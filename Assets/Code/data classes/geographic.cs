@@ -54,17 +54,19 @@ public struct geographic
     public static position toCartesianWGS(geographic g, double alt) {
         double Deg2Rad = Math.PI / 180.0;
         geographic geo = new geographic(g.lat * Deg2Rad, g.lon * Deg2Rad);
-        
+
         double rEq = 6378.14; // equatorial radius
         double rPol = 6356.75; // polar radius
 
-        double a = Math.Pow(Math.Pow(rEq, 2) * Math.Cos(geo.lat), 2) + Math.Pow(Math.Pow(rPol, 2) * Math.Sin(geo.lat), 2);
-        double b = Math.Pow(rEq * Math.Cos(geo.lat), 2) + Math.Pow(rPol * Math.Sin(geo.lat), 2);
+        double a = Math.Pow(rEq * rEq * Math.Cos(geo.lat), 2);
+        double b = Math.Pow(rPol * rPol * Math.Sin(geo.lat), 2);
+        double c = Math.Pow(rEq * Math.Cos(geo.lat), 2);
+        double d = Math.Pow(rPol * Math.Sin(geo.lat), 2);
 
-        double rGs = Math.Sqrt(a / b);
+        double rGs = Math.Sqrt((a + b) / (c + d));
 
         double aE = 6378.137;
-        double eEsq = 6.69437888014 * .001;
+        double eEsq = .00669437888014;
 
         double nTheta = aE / Math.Sqrt(1 - eEsq * Math.Sin(geo.lat));
 
@@ -73,9 +75,8 @@ public struct geographic
         double zGS_geo = (nTheta * (1 - eEsq) + alt) * Math.Sin(geo.lat);
 
         position locGeo = new position(xGS_geo, yGS_geo, zGS_geo);
-        position n = locGeo.normalize();
-        locGeo = new position(locGeo.x / n.x, locGeo.y / n.y, locGeo.z / n.z);
-
+        double n = position.norm(locGeo);
+        locGeo = new position(locGeo.x / n, locGeo.y / n, locGeo.z / n);
         return locGeo * (rGs + alt);
     }
 
@@ -106,13 +107,13 @@ public struct geographic
         // haversine formula
         return 2.0 * radius * Math.Asin(Math.Sqrt(
             (Math.Sin((lt2 - lt1) / 2.0) * Math.Sin((lt2 - lt1) / 2.0)) +
-            Math.Cos(lt1) * Math.Cos(lt2) * 
+            Math.Cos(lt1) * Math.Cos(lt2) *
             (Math.Sin((ln2 - ln1) / 2.0) * Math.Sin((ln2 - ln1) / 2.0))));
     }
 
     public double distAs2DVector(geographic g) => Math.Sqrt(
         (g.lat - this.lat) * (g.lat - this.lat) + (g.lon - this.lon) * (g.lon - this.lon));
-    
+
     public double magnitude() => Math.Sqrt(lat * lat + lon * lon);
 
     public static geographic operator+(geographic g1, geographic g2) => new geographic(g1.lat + g2.lat, g1.lon + g2.lon);
