@@ -14,10 +14,17 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
     private geographic generatedLL, generatedUR;
     private Vector2Int generatedStart, generatedEnd;
     private int generatedPower;
+    private Func<geographic, double, position> toCart;
 
     public universalTerrainJp2File(string dataPath, string metadataPath, bool isForAccessCalls = false) :
         base(dataPath, metadataPath, universalTerrainFileSources.jp2) {
         this.isForAccessCalls = isForAccessCalls;
+
+        toCart = geographic.toCartesian;
+    }
+
+    public void overrideToCart(Func<geographic, double, position> f) {
+        toCart = f;
     }
 
     public void consumeAccessCallData() {
@@ -126,7 +133,7 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
 
                 geographic g = new geographic((maxHeight - r) * cellSize * power, c * cellSize * power) + llCorner;
                 double height = (heights[(int) (y * colLen + x)] - 32767) / 1000.0; // +32767 bc data is offset in jp2 writer
-                position p = g.toCartesian(radius + height).swapAxis() / master.scale;
+                position p = toCart(g, radius + height).swapAxis() / master.scale;
 
                 if (isForAccessCalls && height != 0) {
                     accessCallGeo.Add(g);

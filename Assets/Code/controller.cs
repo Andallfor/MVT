@@ -242,6 +242,24 @@ public class controller : MonoBehaviour
     public void Update() {
         playerControls.update();
 
+        if (Input.GetKeyDown("p")) {
+            meshDistributor<universalTerrainMesh> mesh = new meshDistributor<universalTerrainMesh>(new Vector2Int(3600, 1800), Vector2Int.zero, Vector2Int.zero);
+            for (int r = 0; r < 1800; r++) {
+                for (int c = 0; c < 3600; c++) {
+                    geographic g = new geographic(r / 3600.0 - 90.0, c / 3600.0 - 180.0);
+                    //mesh.addPoint(c, r, )
+                }
+            }
+        }
+
+        if (Input.GetKeyDown("o")) {
+            Vector3 v1 = (Vector3) (geographic.toCartesian(new geographic(45, 45), earth.radius).swapAxis() / master.scale);
+            Vector3 v2 = (Vector3) (geographic.toCartesianWGS(new geographic(45, 45), 0).swapAxis() / master.scale);
+
+            Debug.Log("regular: " + v1);
+            Debug.Log("wgs: " + v2);
+        }
+
         if (Input.GetKeyDown("i")) {
             string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/svalbard");
 
@@ -346,8 +364,8 @@ public class controller : MonoBehaviour
             string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth");
             string p = Directory.GetDirectories(src)[stationIndex];
             universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
+            //f.overrideToCart(geographic.toCartesianWGS);
             Debug.Log(p);
-            Debug.Log(f.center);
             
             if (prevDist != null) prevDist.clear();
             geographic offset = new geographic(1, 1);
