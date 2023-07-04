@@ -11,6 +11,9 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
 
     private List<geographic> accessCallGeo;
     private List<double> accessCallHeight;
+    private geographic generatedLL, generatedUR;
+    private Vector2Int generatedStart, generatedEnd;
+    private int generatedPower;
 
     public universalTerrainJp2File(string dataPath, string metadataPath, bool isForAccessCalls = false) :
         base(dataPath, metadataPath, universalTerrainFileSources.jp2) {
@@ -104,6 +107,10 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         start /= power;
         end /= power;
 
+        generatedStart = start;
+        generatedEnd = end;
+        generatedPower = power;
+
         meshDistributor<universalTerrainMesh> m = new meshDistributor<universalTerrainMesh>(
             new Vector2Int(end.x - start.x, end.y - start.y),
             Vector2Int.zero, Vector2Int.zero, true);
@@ -133,5 +140,16 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         Debug.Log("Loaded area of " + (end.y - start.y) * (end.x - start.x) + " pixels");
 
         return m;
+    }
+
+    public void overridePoint(meshDistributor<universalTerrainMesh> src, geographic g, position p) {
+        g -= llCorner;
+        double dy = g.lat / size.lat;
+        double dx = g.lon / size.lon;
+
+        int y = (int) Math.Round((1.0 - dy) * nrows / generatedPower - generatedStart.y);
+        int x = (int) Math.Round(dx * ncols / generatedPower - generatedStart.x);
+
+        src.addPoint(x, y, p.swapAxis() / master.scale);
     }
 }

@@ -243,9 +243,7 @@ public class controller : MonoBehaviour
         playerControls.update();
 
         if (Input.GetKeyDown("i")) {
-            geographic ll = new geographic(-33.7238, -78.9732);
-            geographic ur = new geographic(-33.5935, -78.7212);
-            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan fernandez islands");
+            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/svalbard");
 
             geographic[] points = new geographic[13] {
                 new geographic(21, -140),
@@ -267,10 +265,7 @@ public class controller : MonoBehaviour
             Vector3[] pointsPos = new Vector3[13];
             for (int i = 0; i < pointsPos.Length; i++) pointsPos[i] = earth.localGeoToUnityPos(points[i], targetAlt);
 
-            new facility("ll", earth, new facilityData("ll", ll, 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
-            new facility("ur", earth, new facilityData("ur", ur, 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
-
-            var f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
+            var f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), false);
 
             FileStream fs = new FileStream("C:/Users/leozw/Desktop/juanAccess.axis", FileMode.Create);
             BinaryWriter bw = new BinaryWriter(fs);
@@ -284,7 +279,6 @@ public class controller : MonoBehaviour
             byte[] lineData = new byte[sizeof(double) * 3 + sizeof(int)];
             double[] gData = new double[3];
             int[] intData = new int[1];
-            StringBuilder sb = new StringBuilder();
             f.accessCallAction = (geographic g, double h) => {
                 Vector3 src = earth.localGeoToUnityPos(g, h + 0.01);
                 int valid = 0;
@@ -306,21 +300,22 @@ public class controller : MonoBehaviour
                 Buffer.BlockCopy(intData, 0, lineData, 3 * sizeof(double), sizeof(int));
 
                 bw.Write(lineData);
-
-                sb.AppendLine($"{g.lat} {g.lon} {h} " + s);
             };
 
-            var mesh = f.load(ll, ur, 6371, 1);
-            Material m = new Material(resLoader.load<Material>("defaultMat"));
-            mesh.drawAll(m, resLoader.load<GameObject>("planetMesh"), new string[0], earth.representation.gameObject.transform);
-            foreach (IMesh child in mesh.allMeshes) child.addCollider();
+            //var mesh = f.load(f.center, earth.radius, 4, 1);
+            var mesh = f.load(new Vector2(0.2f, 0.2f), new Vector2(0.8f, 0.8f), earth.radius, 5);
+            if (p.Contains("svalbard")) {
+                // overwrite the mesh point
+                f.overridePoint(mesh, new geographic(78.2329, 15.3818), new position(1258.263086, 346.152785, 6222.762166));
+                new facility("V", earth, new facilityData("V", new geographic(78.2329, 15.3818), 0, new List<antennaData>()), new representationData("facility", "defaultMat"));
+            }
+            mesh.drawAll(earth.representation.gameObject.transform);
+            //foreach (IMesh child in mesh.allMeshes) child.addCollider();
 
-            f.consumeAccessCallData();
+            //f.consumeAccessCallData();
 
             bw.Close();
             fs.Close();
-
-            File.WriteAllText("C:/Users/leozw/Desktop/juan.txt", sb.ToString());
         }
 
         if (Input.GetKeyDown("u")) {
