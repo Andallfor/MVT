@@ -243,13 +243,16 @@ public class controller : MonoBehaviour
         playerControls.update();
 
         if (Input.GetKeyDown("p")) {
-            meshDistributor<universalTerrainMesh> mesh = new meshDistributor<universalTerrainMesh>(new Vector2Int(3600, 1800), Vector2Int.zero, Vector2Int.zero);
-            for (int r = 0; r < 1800; r++) {
-                for (int c = 0; c < 3600; c++) {
-                    geographic g = new geographic(r / 3600.0 - 90.0, c / 3600.0 - 180.0);
-                    //mesh.addPoint(c, r, )
+            int sy = 450;
+            int sx = 900;
+            meshDistributor<universalTerrainMesh> mesh = new meshDistributor<universalTerrainMesh>(new Vector2Int(sx, sy), Vector2Int.zero, Vector2Int.zero);
+            for (int r = 0; r < sy; r++) {
+                for (int c = 0; c < sx; c++) {
+                    geographic g = new geographic(180.0 * (double) r / (double) sy - 90.0, 360.0 * (double) c / (double) sx - 180.0);
+                    mesh.addPoint(c, r, g.toCartesian(earth.radius).swapAxis() / master.scale);
                 }
             }
+            mesh.drawAll(earth.representation.gameObject.transform);
         }
 
         if (Input.GetKeyDown("o")) {
