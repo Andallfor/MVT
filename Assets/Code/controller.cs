@@ -138,8 +138,8 @@ public class controller : MonoBehaviour
         };
         options.debug = true;
         options.blocking = false;
-        //options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
-        options.outputPath = "/Users/arya/Downloads/data.txt";
+        options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+        //options.outputPath = "/Users/arya/Downloads/data.txt";
 
         useTerrainVisibility = true;
 
@@ -286,10 +286,12 @@ public class controller : MonoBehaviour
             for (int r = 0; r < sy; r++) {
                 for (int c = 0; c < sx; c++) {
                     geographic g = new geographic(180.0 * (double) r / (double) sy - 90.0, 360.0 * (double) c / (double) sx - 180.0);
-                    mesh.addPoint(c, r, g.toCartesian(earth.radius).swapAxis() / master.scale);
+                    mesh.addPoint(c, r, g.toCartesianWGS(earth.radius).swapAxis() / (master.scale));
                 }
             }
             mesh.drawAll(earth.representation.gameObject.transform);
+
+            runWindowsNoRate();
         }
 
         if (Input.GetKeyDown("o")) {
@@ -487,7 +489,9 @@ public class controller : MonoBehaviour
         //string header = "jul2026";
         //string header = "sep2027";
 
-        earth = new planet(  "Earth", new planetData(  6371, rotationType.none,   $"CSVS/JPL/{header}/PLANETS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
+        double EarthMu = 398600.0;
+
+        earth = new planet(  "Earth", new planetData(  6371, rotationType.earth,   $"CSVS/JPL/{header}/PLANETS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
         moon =  new planet(   "Luna", new planetData(1738.1,  rotationType.moon,    $"CSVS/JPL/{header}/PLANETS/Luna",  oneHour,   planetType.moon), new representationData("planet", "moonTex"));
         planet mercury = new planet("Mercury", new planetData(2439.7,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/mercury", oneHour, planetType.planet), new representationData("planet", "mercuryTex"));
         planet venus = new planet(  "Venus", new planetData(6051.8,  rotationType.none,   $"CSVS/JPL/{header}/PLANETS/venus", oneHour, planetType.planet), new representationData("planet", "venusTex"));
@@ -502,38 +506,23 @@ public class controller : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         loadingController.addPercent(0.11f);
 
+        facility svalbard = new facility("Svalbard", earth, new facilityData("Svalbard", new geographic(77.875, 20.9752), .001, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        facility ASF = new facility("ASF", earth, new facilityData("ASF", new geographic(64.8401, -147.72), .001, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        satellite sat1 = new satellite("Sat1", new satelliteData(new Timeline(6371 + 900, 0, 98, 0, 0, 0, 0, 2461021.5, EarthMu)), rd);
+
+        body.addFamilyNode(earth, sat1);
+        body.addFamilyNode(earth, moon);
+
+        master.relationshipSatellite[earth] = new List<satellite>() { sat1 };
+
         master.relationshipPlanet[earth] = new List<planet>() {moon};
         master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/PLANETS/moon", oneMin));
         master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/SATS/v", 0.0006944444));
 
-        //satellite stpSat5 = new satellite("STP Sat 5", new satelliteData($"CSVS/JPL/{header}/SATS/STPSat_5", oneMin), rd);
-        planet solarProbe = new planet("PSP", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/ParkerSolarProbe", oneHour, planetType.planet), rd);
-        planet solo = new planet("SOLO", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/SOLO", oneHour, planetType.planet), rd);
-        planet v1 = new planet("Voyager 1", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Voyager1", oneHour, planetType.planet), rd);
-        planet v2 = new planet("Voyager 2", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Voyager2", oneHour, planetType.planet), rd);
-        //planet lucy = new planet("Lucy", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Lucy", oneHour, planetType.planet), rd);
 
-        //body.addFamilyNode(master.sun, v1);
-        //body.addFamilyNode(master.sun, v2);
-        body.addFamilyNode(master.sun, solo);
-        body.addFamilyNode(master.sun, solarProbe);
-        //body.addFamilyNode(master.sun, lucy);
-        //body.addFamilyNode(earth, stpSat5);
-        body.addFamilyNode(earth, moon);
-
-        master.relationshipPlanet[earth] = new List<planet>() {solo, moon, mercury, venus, jupiter, saturn, uranus, neptune, mars, master.sun, solarProbe, v1, v2};
-
-        //new facility("ASF", earth, new facilityData("ASF", new geo  (64)))
-        //master.relationshipSatellite[earth] = new List<satellite>() {stpSat5};
-
-        //master.orbitalPeriods["Voyager 1"] = 62;
-        //master.orbitalPeriods["Voyager 2"] = 62;
-        //master.orbitalPeriods["Parker Solar Probe"] = 62;
-        //master.orbitalPeriods["SOLO"] = 62;
-
-        //body.addFamilyNode(earth, stpSat5);
-
-        //master.relationshipSatellite[earth] = new List<satellite>() {stpSat5};
+        linkBudgeting.users.Add("Sat1", (false, 2461021.5, 2461051.5));
+        linkBudgeting.providers.Add("ASF", (true, 2461021.5, 2461051.5));
+        linkBudgeting.providers.Add("Svalbard", (true, 2461021.5, 2461051.5));
 
         loadingController.addPercent(1);
 

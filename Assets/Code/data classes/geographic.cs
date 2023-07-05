@@ -77,7 +77,7 @@ public struct geographic
         position locGeo = new position(xGS_geo, yGS_geo, zGS_geo);
         double n = position.norm(locGeo);
         locGeo = new position(locGeo.x / n, locGeo.y / n, locGeo.z / n);
-        return locGeo * (rGs + alt);
+        return (locGeo * (rGs + alt)) / 2;
     }
 
     /// <summary> Takes a point centered on (0, 0) with unknown length, and converts it into geo </summary>
@@ -95,6 +95,35 @@ public struct geographic
         return new geographic(
             Math.Asin(p.y / radius) * (180.0 / Math.PI),
             Math.Atan2(p.z, p.x) * (180.0 / Math.PI));
+    }
+
+    public static geographic toGeographicWGS(position pos)
+    {
+        pos = pos * 1000;
+        double a = 6378137.0;
+        double f = 1 / 298.257223563;
+        double b = a * (1 - f);
+
+        double p = Math.Sqrt(pos.x * pos.x + pos.y * pos.y);
+        double Theta = Math.Atan(pos.z * a / p * b);
+
+        double e = Math.Sqrt(((a * a) - (b * b)) / (a * a));
+        double e2 = Math.Sqrt(((a * a) - (b * b)) / (b * b));
+
+        double lat = Math.Atan2(pos.z, (p * (1 - e * e)));
+        double alt = 0.0;
+
+        for (int i = 0; i < 10000; i++)
+        {
+            double N = a / Math.Sqrt(1 - e * e * Math.Sin(lat) * Math.Sin(lat));
+            alt = (p / Math.Cos(lat)) - N;
+            lat = Math.Atan2(pos.z, (p * (1 - e * e * (N / (N + alt)))));
+        }
+
+        double lon = (Math.Atan2(pos.y, pos.x)) * (180 / Math.PI);
+        lat = lat * (180 / Math.PI);
+
+        return new geographic(lat, lon);
     }
 
     /// <summary> Gets the distance between two geographic points, assuming the shortest path is on the sphere with radius </summary>

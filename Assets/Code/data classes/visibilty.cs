@@ -83,7 +83,7 @@ public static class visibility
                 {
                     if (ukvp.Key == pkvp.Key) continue;
                     if (!existance[ukvp.Key](master.time) || !existance[pkvp.Key](master.time)) continue;
-                    if (!Physics.Linecast(ukvp.Value.position, pkvp.Value.position, LayerMask.GetMask("terrain", "planet")))
+                    if (!Physics.Linecast(ukvp.Value.position, pkvp.Value.position, LayerMask.GetMask("terrain")))
                     {
                         var results = output[(ukvp.Key, pkvp.Key)];
                         results.time.Add(master.time.julian);
@@ -192,7 +192,7 @@ public static class visibility
                 {
                     if (ukvp.Key == pkvp.Key) continue;
                     if (!existance[ukvp.Key](master.time) || !existance[pkvp.Key](master.time)) continue;
-                    if (!Physics.Linecast(ukvp.Value.position, pkvp.Value.position, LayerMask.GetMask("terrain", "planet")))
+                    if (!Physics.Linecast(ukvp.Value.position, pkvp.Value.position, LayerMask.GetMask("terrain")))
                     {
                         var results = output[(ukvp.Key, pkvp.Key)];
                         results.time.Add(master.time.julian);
