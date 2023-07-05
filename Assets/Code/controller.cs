@@ -264,7 +264,7 @@ public class controller : MonoBehaviour
         }
 
         if (Input.GetKeyDown("i")) {
-            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/svalbard");
+            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan fernandez islands");
 
             geographic[] points = new geographic[13] {
                 new geographic(21, -140),
@@ -286,7 +286,7 @@ public class controller : MonoBehaviour
             Vector3[] pointsPos = new Vector3[13];
             for (int i = 0; i < pointsPos.Length; i++) pointsPos[i] = earth.localGeoToUnityPos(points[i], targetAlt);
 
-            var f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), false);
+            var f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
 
             FileStream fs = new FileStream("C:/Users/leozw/Desktop/juanAccess.axis", FileMode.Create);
             BinaryWriter bw = new BinaryWriter(fs);
@@ -300,15 +300,19 @@ public class controller : MonoBehaviour
             byte[] lineData = new byte[sizeof(double) * 3 + sizeof(int)];
             double[] gData = new double[3];
             int[] intData = new int[1];
-            f.accessCallAction = (geographic g, double h) => {
+
+            StringBuilder sb = new StringBuilder();
+            f.accessCallAction = (Vector2Int v, geographic g, double h) => {
                 Vector3 src = earth.localGeoToUnityPos(g, h + 0.01);
                 int valid = 0;
                 string s = "";
                 for (int i = 0; i < pointsPos.Length; i++) {
                     Vector3 target = pointsPos[i];
 
-                    if (!Physics.Raycast(src, target - src, 1_000_000)) s += "1 ";
-                    else s += "0 ";
+                    if (!Physics.Raycast(src, target - src, 1_000_000)) {
+                        valid++;
+                        s += "1 ";
+                    } else s += "0 ";
                 }
 
                 gData[0] = g.lat;
@@ -321,22 +325,26 @@ public class controller : MonoBehaviour
                 Buffer.BlockCopy(intData, 0, lineData, 3 * sizeof(double), sizeof(int));
 
                 bw.Write(lineData);
+
+                sb.AppendLine($"{v.x} {v.y} {h} " + s);
             };
 
             //var mesh = f.load(f.center, earth.radius, 4, 1);
-            var mesh = f.load(new Vector2(0.2f, 0.2f), new Vector2(0.8f, 0.8f), earth.radius, 5);
+            var mesh = f.load(new Vector2(0.2f, 0.2f), new Vector2(0.8f, 0.8f), earth.radius, 0);
             if (p.Contains("svalbard")) {
                 // overwrite the mesh point
                 f.overridePoint(mesh, new geographic(78.2329, 15.3818), new position(1258.263086, 346.152785, 6222.762166));
                 new facility("V", earth, new facilityData("V", new geographic(78.2329, 15.3818), 0, new List<antennaData>()), new representationData("facility", "defaultMat"));
             }
             mesh.drawAll(earth.representation.gameObject.transform);
-            //foreach (IMesh child in mesh.allMeshes) child.addCollider();
+            foreach (IMesh child in mesh.allMeshes) child.addCollider();
 
-            //f.consumeAccessCallData();
+            f.consumeAccessCallData();
 
             bw.Close();
             fs.Close();
+
+            File.WriteAllText("C:/Users/leozw/Desktop/juanAccess.txt", sb.ToString());
         }
 
         if (Input.GetKeyDown("u")) {
@@ -372,10 +380,11 @@ public class controller : MonoBehaviour
 
             if (prevDist != null) prevDist.clear();
             geographic offset = new geographic(1, 1);
-            // NOTE THAT TERRAIN FOR KENNEDY, PONCE, and WALLOP MAY BE SLIGHTLY OFF
-            // THIS IS BECAUSE I HAD TO CONVERT BETWEEN UTM AND LATLON
             prevDist = f.load(f.center, earth.radius, f.getBestResolution(f.center - offset, f.center + offset, 5_000_000), offset: 1);
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
             prevDist.drawAll(earth.representation.gameObject.transform);
+            Debug.Log($"Time to draw mesh: {sw.ElapsedMilliseconds}");
 
             stationIndex++;
 

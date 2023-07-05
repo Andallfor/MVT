@@ -7,10 +7,11 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
     public bool isForAccessCalls = false;
 
     /// <summary> Callback for access call generation. Geo is the point's geo, double is the height (not including radius)</summary>
-    public Action<geographic, double> accessCallAction;
+    public Action<Vector2Int, geographic, double> accessCallAction;
 
     private List<geographic> accessCallGeo;
     private List<double> accessCallHeight;
+    private List<Vector2Int> accessCallGrid;
     private geographic generatedLL, generatedUR;
     private Vector2Int generatedStart, generatedEnd;
     private int generatedPower;
@@ -28,18 +29,21 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
     }
 
     public void consumeAccessCallData() {
+        if (!isForAccessCalls) throw new ArgumentException("This instance is not marked as isForAccessCalls");
         if (isForAccessCalls && accessCallAction == null) throw new MissingFieldException("isForAccessCalls is true but accessCallAction is null");
 
         int len = accessCallGeo.Count;
-        for (int i = 0; i < len; i++) accessCallAction(accessCallGeo[i], accessCallHeight[i]);
+        for (int i = 0; i < len; i++) accessCallAction(accessCallGrid[i], accessCallGeo[i], accessCallHeight[i]);
 
         accessCallGeo = new List<geographic>();
         accessCallHeight = new List<double>();
+        accessCallGrid = new List<Vector2Int>();
     }
 
     public override meshDistributor<universalTerrainMesh> load(geographic start, geographic end, double radius, uint res) {
         accessCallGeo = new List<geographic>();
         accessCallHeight = new List<double>();
+        accessCallGrid = new List<Vector2Int>();
         
         if (start.lat >= end.lat || start.lon >= end.lon) {
             throw new ArgumentException($"End geo ({end}) must be strictly greater than start geo ({start})");
@@ -87,6 +91,7 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
     public override meshDistributor<universalTerrainMesh> load(geographic center, double planetRadius, uint res, double offset = 0.5) {
         accessCallGeo = new List<geographic>();
         accessCallHeight = new List<double>();
+        accessCallGrid = new List<Vector2Int>();
 
         geographic o = new geographic(offset, offset);
         return load(center - o, center + o, planetRadius, res);
@@ -100,6 +105,7 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
 
         accessCallGeo = new List<geographic>();
         accessCallHeight = new List<double>();
+        accessCallGrid = new List<Vector2Int>();
 
         if (res < 0 || res > metadata["res"]) throw new ArgumentException($"Invalid res (0 <= x <= {res})");
         int power = (int) Math.Pow(2, res);
@@ -122,7 +128,11 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
             new Vector2Int(end.x - start.x, end.y - start.y),
             Vector2Int.zero, Vector2Int.zero, true);
 
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        sw.Start();
         int[] heights = openJpegWrapper.requestTerrain(dataPath, start * power, end * power, res, 0);
+        long s1 = sw.ElapsedMilliseconds;
+        Debug.Log($"Time to read {(end.y - start.y) * (end.x - start.x)} pixels: {s1}ms");
 
         int colLen = end.x - start.x;
         int maxHeight = (int) (nrows / power);
@@ -138,11 +148,14 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
                 if (isForAccessCalls && height != 0) {
                     accessCallGeo.Add(g);
                     accessCallHeight.Add(height);
+                    accessCallGrid.Add(new Vector2Int(x, y));
                 }
 
                 m.addPoint(x, y, p);
             }
         }
+
+        Debug.Log($"Time to write points: {sw.ElapsedMilliseconds - s1}ms");
 
         Debug.Log("Loaded area of " + (end.y - start.y) * (end.x - start.x) + " pixels");
 
