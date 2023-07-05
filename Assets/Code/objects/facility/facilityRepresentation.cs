@@ -78,6 +78,7 @@ public class facilityRepresentation
         if (forceHide || planetOverview.instance.active || position.distance(parent.pos, master.referenceFrame + master.currentPosition) > master.scale * 1000.0) {
             gameObject.SetActive(false);
             shownName.text = "";
+            foreach (antennaRepresentation ar in antennas) ar.hideName();
             return;
         }
 

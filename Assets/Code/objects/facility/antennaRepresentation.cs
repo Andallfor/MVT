@@ -54,6 +54,13 @@ public class antennaRepresentation
 
     public void updatePos(planet parent) {
         if (mr.enabled) mr.enabled = false;
+
+        if (planetOverview.instance.active) {
+            Debug.Log("passed");
+            shownName.text = "";
+            return;
+        }
+
         position p = data.geo.toCartesian(parent.radius) / (2 * parent.radius);
         gameObject.transform.localPosition = (Vector3) (p.swapAxis());
 
@@ -69,4 +76,6 @@ public class antennaRepresentation
             }
         } else shownName.text = "";
     }
+
+    public void hideName() {shownName.text = "";}
 }
