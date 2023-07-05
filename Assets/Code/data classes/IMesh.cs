@@ -7,7 +7,7 @@ public abstract class IMesh
 {
     protected List<int> triangles = new List<int>();
     protected List<Vector2> uvs = new List<Vector2>();
-    protected Vector3[] verts;
+    public Vector3[] verts;
     protected Mesh mesh;
     public Vector2Int shape {get; protected set;}
     protected GameObject go;
@@ -74,6 +74,10 @@ public abstract class IMesh
         this.verts = new Vector3[0];
 
         return go;
+    }
+
+    public void addCollider() {
+        go.AddComponent<MeshCollider>();
     }
 
     public void clearMesh() {

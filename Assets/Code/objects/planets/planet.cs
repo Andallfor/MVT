@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class planet : body, IJsonFile<jsonPlanetStruct>
+public class planet : body
 {
     public planetRepresentation representation {get; private set;}
     private planetData data;
@@ -13,8 +13,9 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
     public position rotation {get; private set;}
     public trailRenderer tr;
 
-    public planet(string name, planetData data, representationData rData)
-    {
+    public planet(string name, planetData data, representationData rData) {
+        if (master.allPlanets.Exists(x => x.name == name)) Debug.LogWarning("Duplicate planet detected");
+
         base.name = name;
         base.positions = data.positions;
         this.data = data;
@@ -133,19 +134,6 @@ public class planet : body, IJsonFile<jsonPlanetStruct>
 
         //return new position(rotationDays, sunDeclin, 0);
         return new position(rotationDays, 0, 0);
-    }
-
-    public new jsonPlanetStruct requestJsonFile()
-    {
-        return new jsonPlanetStruct() {
-            radius = this.radius,
-            positions = this.data.positions.requestJsonFile(),
-            name = this.name,
-            representationData = this.representation.requestJsonFile(),
-            //rotate = this.data.rotate,
-            planetType = (int) this.pType,
-            bodyData = base.requestJsonFile()
-        };
     }
     
     public override int GetHashCode() => name.GetHashCode();

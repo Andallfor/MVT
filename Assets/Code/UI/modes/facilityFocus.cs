@@ -1,46 +1,86 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
-using System.IO;
-using UnityEngine.SceneManagement;
+using System;
+using TMPro;
 
-public static class facilityFocus
-{
-    public static planet parent {get; private set;}
-    public static string facilityName {get; private set;}
-    public static geographic sw;
-    public static position pointCenteringOffset;
+public sealed class facilityFocus : IMode {
+    protected override IModeParameters modePara => new facilityFocusParameters();
+    private facility focus;
+    private bool querySuccess = false;
 
-    public static Dictionary<string, facilityFocusRepresentation> representations = new Dictionary<string, facilityFocusRepresentation>();
+    public Vector3 rotation;
+    public float zoom = 60;
 
-    public static void enable(bool use, string facilityName) {
-        facilityFocus.facilityName = facilityName;
-
-        if (use) {
-            // unload all Facilities (done in facilityRepresentation.cs)
-            parent = master.allFacilities.First(x => x.name == facilityName).facParent;
-
-            SceneManager.LoadScene("facilityFocus", LoadSceneMode.Single);
-        } else {
-            
+    public void query() {
+        if (!(master.requestReferenceFrame() is planet)) {
+            querySuccess = false;
+            return;
         }
+
+        RaycastHit hit;
+        Transform ct = general.camera.gameObject.transform;
+        if (Physics.Raycast(ct.position, ct.forward, out hit, 10)) {
+            planet p = (planet) master.requestReferenceFrame();
+            Vector3 v = hit.point - p.representation.gameObject.transform.position;
+            focus = new facility("↓", p, new facilityData("↓", p.localPosToLocalGeo(v), 0,
+                new List<antennaData>()),
+                new representationData("facility", "defaultMat"));
+
+            focus.representation.setNameFont(Resources.Load<TMP_FontAsset>("Fonts/inter/Inter-Light SDF"));
+        } else {
+            querySuccess = false;
+            return;
+        }
+
+        querySuccess = true;
+        return;
     }
 
-    public static void loadTerrain() {
-        string path = $"C:/Users/leozw/Desktop/dteds/{facilityName}";
-        string predictedHrt = Path.Combine(path, facilityName + ".hrt");
-        string predictedPng = Path.Combine(path, facilityName + ".png");
+    protected override bool enable() {
+        // expects query to happen before actually changing into scene
+        if (!querySuccess) return false;
 
-        Texture2D tex = new Texture2D(10980, 10980);
-        tex.LoadImage(File.ReadAllBytes(predictedPng));
-        Material m = new Material(Resources.Load("Materials/planets/earth/earth") as Material);
-        m.mainTexture = tex;
+        master.requestScaleUpdate();
+        zoom = 60;
 
-        meshDistributor<dtedBasedMesh> md = highResTerrain.readHRT(predictedHrt);
-        md.drawAll(m, Resources.Load("Prefabs/PlanetMesh") as GameObject, new string[0], GameObject.FindGameObjectWithTag("facilityFocus/parent").transform);
+        general.camera.transform.position = new Vector3(0, 0, (float) (-10 - 100 / master.scale));
+        
+        master.currentPosition = focus.parent.rotateLocalGeo(focus.geo, 0);
+        master.requestPositionUpdate();
+        general.camera.transform.LookAt(focus.representation.gameObject.transform);
 
-        facilityFocus.sw = md.baseType.sw;
-        facilityFocus.pointCenteringOffset = md.baseType.offset;
+        querySuccess = false;
+        return true;
+    }
+
+    protected override bool disable() {
+        master.removeFacility(focus);
+        focus = null;
+        zoom = 60;
+
+        querySuccess = false;
+        return true;
+    }
+
+    protected override void _initialize() {}
+
+    public void update() {
+        master.currentPosition = focus.parent.rotateLocalGeo(focus.geo, 0);
+
+        general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, rotation.x);
+        general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.up, rotation.y);
+
+        general.camera.transform.rotation *= Quaternion.AngleAxis(rotation.z, Vector3.forward);
+
+        general.camera.fieldOfView = zoom;
+    }
+
+    private facilityFocus() {}
+    private static readonly Lazy<facilityFocus> lazy = new Lazy<facilityFocus>(() => new facilityFocus());
+    public static facilityFocus instance => lazy.Value;
+
+    protected override void loadControls() {
+        
     }
 }

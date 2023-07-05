@@ -6,8 +6,8 @@ using System;
 
 public class meshDistributor<T> where T : IMesh, new()
 {
-    public static int maxVerts = 65535;
-    private static int maxVertSize = 250;
+    public const int maxVerts = 65535;
+    private const int maxVertSize = 255;
 
     private Dictionary<Vector2Int, T> map = new Dictionary<Vector2Int, T>();
     public T baseType;
@@ -20,8 +20,8 @@ public class meshDistributor<T> where T : IMesh, new()
 
         for (int x = 0; x < size.x; x += maxVertSize) {
             for (int y = 0; y < size.y; y += maxVertSize) {
-                int xLeft = (x + maxVertSize >= size.x) ? maxVertSize - ((x + maxVertSize) % size.x) : maxVertSize;
-                int yLeft = (y + maxVertSize >= size.y) ? maxVertSize - ((y + maxVertSize) % size.y) : maxVertSize;
+                int xLeft = (x + maxVertSize >= size.x) ? size.x % maxVertSize : maxVertSize;
+                int yLeft = (y + maxVertSize >= size.y) ? size.y % maxVertSize : maxVertSize;
 
                 // dont create a mesh if it has 0 area
                 if (xLeft != 0 && yLeft != 0) {
@@ -29,6 +29,7 @@ public class meshDistributor<T> where T : IMesh, new()
                     Vector2Int _o = new Vector2Int(
                         x + maxVertSize > size.x ? 0 : 1,
                         y + maxVertSize > size.y ? 0 : 1);
+
                     t.init(xLeft + _o.x, yLeft + _o.y, new position(x + offset.x, y + offset.y, 0), new position(maxSize.x, maxSize.y, 0), reverse, customUV);
                     map.Add(new Vector2Int(x, y), t);
                 }
@@ -73,7 +74,17 @@ public class meshDistributor<T> where T : IMesh, new()
         }
     }
 
+    public void drawAll(Transform parent) {
+        Material m = new Material(resLoader.load<Material>("defaultMat"));
+        GameObject go = resLoader.load<GameObject>("planetMesh");
+        drawAll(m, go, new string[0], parent);
+    }
+
     public GameObject draw(Vector2Int index, Material mat, GameObject model, string name, Transform parent) {
         return map[index].drawMesh(mat, model, name, parent);
+    }
+
+    public void clear() {
+        foreach (T t in allMeshes) t.clearMesh();
     }
 }

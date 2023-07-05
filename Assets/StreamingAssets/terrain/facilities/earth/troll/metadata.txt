@@ -1,0 +1,6 @@
+ncols 11391
+nrows 2880
+xllcorner 1.180833333333
+yllcorner -72.42625
+cellsize 0.000277777778
+res 5

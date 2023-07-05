@@ -51,7 +51,7 @@ public sealed class planetOverview : IMode {
 
     protected override IModeParameters modePara => new planetOverviewParameters();
 
-    protected override void enable() {
+    protected override bool enable() {
         calculateDefaultMaxDist();
         general.camera.transform.LookAt(Vector3.zero);
         rotationalOffset = 0;
@@ -75,9 +75,11 @@ public sealed class planetOverview : IMode {
         drawAxes();
 
         toggleLines.gameObject.SetActive(true);
+
+        return true;
     }
 
-    protected override void disable() {
+    protected override bool disable() {
         modeParameters.load(new defaultParameters());
         maxDist = 0;
         focus = master.sun;
@@ -88,8 +90,9 @@ public sealed class planetOverview : IMode {
         clearAxes();
 
         foreach (facility f in master.allFacilities) f.representation.setActive(true);
-
         toggleLines.gameObject.SetActive(false);
+
+        return true;
     }
 
     protected override void callback() {
@@ -310,5 +313,58 @@ public sealed class planetOverview : IMode {
         foreach (planet p in master.allPlanets) {
             if (p.pType == planetType.planet) obeyingPlanets.Add(p);
         }
+    }
+
+    protected override void loadControls() {
+        List<IMode> w = new List<IMode>() {this};
+
+        playerControls.addKey("d", conTrig.held, () => {
+            rotationalOffset -= 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
+        }, whitelist: w);
+
+        playerControls.addKey("a", conTrig.held, () => {
+            rotationalOffset += 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
+        }, whitelist: w);
+
+        playerControls.addKey("", conTrig.none, () => {
+            updateAxes();
+        }, whitelist: w);
+
+        playerControls.addKey("", conTrig.none, () => {
+            general.camera.orthographicSize -= Input.mouseScrollDelta.y * UnityEngine.Time.deltaTime * 100f * general.camera.orthographicSize;
+            general.camera.orthographicSize = Math.Max(0.01f, Math.Min(20, general.camera.orthographicSize));
+            updateAxes(true); // force update for changing zoom
+        }, precondition: () => Input.mouseScrollDelta.y != 0, whitelist: w);
+
+        playerControls.addKey("", conTrig.none, () => {
+            general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, 20f * UnityEngine.Time.deltaTime);
+        }, precondition: () => Input.GetKeyDown(KeyCode.UpArrow), whitelist: w);
+
+        playerControls.addKey("", conTrig.none, () => {
+            general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, -20f * UnityEngine.Time.deltaTime);
+        }, precondition: () => Input.GetKeyDown(KeyCode.DownArrow), whitelist: w);
+        
+        playerControls.addKey("", conTrig.none, () => {
+            general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, 90f - general.camera.transform.eulerAngles.x);
+            rotationalOffset = -45f * Mathf.Deg2Rad;
+            displayScale = 13.65f;
+        }, precondition: () => Input.GetKeyDown(KeyCode.RightArrow), whitelist: w);
+
+        playerControls.addKey("", conTrig.none, () => {
+            general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, -general.camera.transform.eulerAngles.x);
+            rotationalOffset = Mathf.Deg2Rad * 90f * (float) (rotationalOffset * Mathf.Rad2Deg / 90);
+        }, precondition: () => Input.GetKeyDown(KeyCode.LeftArrow), whitelist: w);
+
+        playerControls.addKey("w", conTrig.held, () => {
+            displayScale += 5f * UnityEngine.Time.deltaTime;
+        }, whitelist: w);
+
+        playerControls.addKey("s", conTrig.held, () => {
+            displayScale -= 5f * UnityEngine.Time.deltaTime;
+        }, whitelist: w);
+
+        playerControls.addKey("q", conTrig.down, () => {
+            modeController.toggle(this);
+        });
     }
 }

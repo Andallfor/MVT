@@ -42,12 +42,6 @@ public class Timeline : ITimeline
         else tp.alwaysExist = true;
     }
 
-    public jsonTimelineStruct requestJsonFile()
-    {
-        if (selection == TimelineSelection.positions) return tp.requestJsonFile();
-        else return tk.requestJsonFile();
-    }
-
     public position find(Time t)
     {
         if (selection == TimelineSelection.positions) return tp.find(t);
@@ -122,19 +116,6 @@ public class TimelinePosition : ITimeline
         if (alwaysExist) return true;
         else return t.julian > first && t.julian < last;
     }
-
-    public jsonTimelineStruct requestJsonFile()
-    {
-        Dictionary<double, jsonPositionStruct> pos = new Dictionary<double, jsonPositionStruct>();
-        foreach (KeyValuePair<double, position> kvp in data)
-        {
-            pos.Add(kvp.Key, kvp.Value.requestJsonFile());
-        }
-
-        return new jsonTimelineStruct() {
-            timestep = this.timestep,
-            positions = pos};
-    }
 }
 
 public class TimelineComparer : IComparer<double>
@@ -151,7 +132,7 @@ public class TimelineComparer : IComparer<double>
     }
 }
 
-public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
+public class TimelineKepler : ITimeline
 {
     private double semiMajorAxis, eccentricity, inclination, argOfPerigee, longOfAscNode, mu, startingEpoch, meanAngularMotion, orbitalPeriod, startingMeanAnom;
     public Time start, end;
@@ -271,14 +252,11 @@ public class TimelineKepler : ITimeline, IJsonFile<jsonTimelineStruct>
         this.end = end;
         this.alwaysExist = false;
     }
-
-    public jsonTimelineStruct requestJsonFile() => new jsonTimelineStruct();
 }
 
 public interface ITimeline
 {
     position find(Time t);
-    jsonTimelineStruct requestJsonFile();
 }
 
 public enum TimelineSelection

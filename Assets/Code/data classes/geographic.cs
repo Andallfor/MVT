@@ -34,18 +34,50 @@ public struct geographic
     }
 
     /// <summary> Converts lat, lon into a cartesian point centered on (0, 0) with length radius </summary>
-    public position toCartesian(double radius)
-    {
-        this.lat = Math.Min(Math.Max(-90, lat), 90);
-        this.lon = Math.Min(Math.Max(-180, lon), 180);
+    public position toCartesian(double radius) => toCartesian(this, radius);
 
-        double lt = this.lat * (Math.PI / 180.0);
-        double ln = this.lon * (Math.PI / 180.0);
+    public static position toCartesian(geographic g, double radius) {
+        g.lat = Math.Min(Math.Max(-90, g.lat), 90);
+        g.lon = Math.Min(Math.Max(-180, g.lon), 180);
+
+        double lt = g.lat * (Math.PI / 180.0);
+        double ln = g.lon * (Math.PI / 180.0);
 
         return new position(
             radius * Math.Cos(lt) * Math.Cos(ln),
             radius * Math.Cos(lt) * Math.Sin(ln),
             radius * Math.Sin(lt));
+    }
+
+    public position toCartesianWGS(double alt) => toCartesianWGS(this, alt);
+
+    public static position toCartesianWGS(geographic g, double alt) {
+        double Deg2Rad = Math.PI / 180.0;
+        geographic geo = new geographic(g.lat * Deg2Rad, g.lon * Deg2Rad);
+
+        double rEq = 6378.14; // equatorial radius
+        double rPol = 6356.75; // polar radius
+
+        double a = Math.Pow(rEq * rEq * Math.Cos(geo.lat), 2);
+        double b = Math.Pow(rPol * rPol * Math.Sin(geo.lat), 2);
+        double c = Math.Pow(rEq * Math.Cos(geo.lat), 2);
+        double d = Math.Pow(rPol * Math.Sin(geo.lat), 2);
+
+        double rGs = Math.Sqrt((a + b) / (c + d));
+
+        double aE = 6378.137;
+        double eEsq = .00669437888014;
+
+        double nTheta = aE / Math.Sqrt(1 - eEsq * Math.Sin(geo.lat));
+
+        double xGS_geo = (nTheta + alt) * Math.Cos(geo.lat) * Math.Cos(geo.lon);
+        double yGS_geo = (nTheta + alt) * Math.Cos(geo.lat) * Math.Sin(geo.lon);
+        double zGS_geo = (nTheta * (1 - eEsq) + alt) * Math.Sin(geo.lat);
+
+        position locGeo = new position(xGS_geo, yGS_geo, zGS_geo);
+        double n = position.norm(locGeo);
+        locGeo = new position(locGeo.x / n, locGeo.y / n, locGeo.z / n);
+        return locGeo * (rGs + alt);
     }
 
     /// <summary> Takes a point centered on (0, 0) with unknown length, and converts it into geo </summary>
@@ -75,21 +107,14 @@ public struct geographic
         // haversine formula
         return 2.0 * radius * Math.Asin(Math.Sqrt(
             (Math.Sin((lt2 - lt1) / 2.0) * Math.Sin((lt2 - lt1) / 2.0)) +
-            Math.Cos(lt1) * Math.Cos(lt2) * 
+            Math.Cos(lt1) * Math.Cos(lt2) *
             (Math.Sin((ln2 - ln1) / 2.0) * Math.Sin((ln2 - ln1) / 2.0))));
     }
 
     public double distAs2DVector(geographic g) => Math.Sqrt(
         (g.lat - this.lat) * (g.lat - this.lat) + (g.lon - this.lon) * (g.lon - this.lon));
-    
-    public double magnitude() => Math.Sqrt(lat * lat + lon * lon);
 
-    public jsonGeographicStruct requestJsonFile()
-    {
-        return new jsonGeographicStruct() {
-            lat = lat,
-            lon = lon};
-    }
+    public double magnitude() => Math.Sqrt(lat * lat + lon * lon);
 
     public static geographic operator+(geographic g1, geographic g2) => new geographic(g1.lat + g2.lat, g1.lon + g2.lon);
     public static geographic operator-(geographic g1, geographic g2) => new geographic(g1.lat - g2.lat, g1.lon - g2.lon);

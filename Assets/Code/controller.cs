@@ -14,13 +14,12 @@ public class controller : MonoBehaviour
     public static planet defaultReferenceFrame;
     public static double speed = 0.0005;
     public static int tickrate = 7200;
-    private Vector3 planetFocusMousePosition, planetFocusMousePosition1;
+    private Vector3 planetFocusMousePosition, planetFocusMousePosition1, facilityFocusMousePosition, facilityFocusMousePosition1;
     private Coroutine loop;
     public static bool useTerrainVisibility = false;
     public static controller self;
 
-    public float logBase = 35;
-    public static float _logBase;
+    public static float _logBase = 35;
 
     private void Awake() {self = this;}
 
@@ -43,6 +42,8 @@ public class controller : MonoBehaviour
         });
 
         StartCoroutine(start());
+
+        csvParser.loadAndCreateFacilities("CSVS/stationlist", earth);
     }
 
     IEnumerator start()
@@ -80,6 +81,7 @@ public class controller : MonoBehaviour
         modeController.registerMode(planetOverview.instance);
         modeController.registerMode(planetFocus.instance);
         modeController.registerMode(uiMap.instance);
+        modeController.registerMode(facilityFocus.instance);
         modeController.initialize();
 
         modeController.disableAll();
@@ -270,163 +272,12 @@ public class controller : MonoBehaviour
         }, null));
     }
 
-    public void Update()
-    {
-        _logBase = logBase;
-        if (planetOverview.instance.active) {
-            planetOverview po = planetOverview.instance;
+    public void LateUpdate() {
+        playerControls.lastMousePos = Input.mousePosition;
+    }
 
-            if (Input.GetKey("d")) po.rotationalOffset -= 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
-            if (Input.GetKey("a")) po.rotationalOffset += 90f * UnityEngine.Time.deltaTime * Mathf.Deg2Rad;
-
-            if (Input.mouseScrollDelta.y != 0) {
-                general.camera.orthographicSize -= Input.mouseScrollDelta.y * UnityEngine.Time.deltaTime * 100f * general.camera.orthographicSize;
-                general.camera.orthographicSize = Math.Max(0.01f, Math.Min(20, general.camera.orthographicSize));
-                po.updateAxes(true); // force update for changing zoom
-            } else po.updateAxes();
-
-            if (Input.GetKey(KeyCode.UpArrow)) {
-                general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, 20f * UnityEngine.Time.deltaTime);
-            }
-
-            if (Input.GetKey(KeyCode.DownArrow)) {
-                general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, -20f * UnityEngine.Time.deltaTime);
-            }
-
-            if (Input.GetKeyDown(KeyCode.RightArrow)) {
-                general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, 90f - general.camera.transform.eulerAngles.x);
-                po.rotationalOffset = -45f * Mathf.Deg2Rad;
-                po.displayScale = 13.65f;
-            }
-
-            if (Input.GetKeyDown(KeyCode.LeftArrow)) {
-                general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, -general.camera.transform.eulerAngles.x);
-                po.rotationalOffset = Mathf.Deg2Rad * 90f * (float) (po.rotationalOffset * Mathf.Rad2Deg / 90);
-            }
-
-            if (Input.GetKey("w")) po.displayScale += 5f * UnityEngine.Time.deltaTime;
-            if (Input.GetKey("s")) po.displayScale -= 5f * UnityEngine.Time.deltaTime;
-        }
-        else if (planetFocus.instance.active) {
-            if (Input.GetMouseButtonDown(0)) planetFocusMousePosition = Input.mousePosition;
-            else if (Input.GetMouseButton(0)) {
-                Vector3 difference = Input.mousePosition - planetFocusMousePosition;
-                planetFocusMousePosition = Input.mousePosition;
-
-                Vector2 adjustedDifference = new Vector2(-difference.y / Screen.height, difference.x / Screen.width);
-                adjustedDifference *= 100f;
-
-                planetFocus.instance.rotation.x = adjustedDifference.x * planetFocus.instance.zoom / 125f;
-                planetFocus.instance.rotation.y = adjustedDifference.y * planetFocus.instance.zoom / 125f;
-                planetFocus.instance.rotation.z = 0;
-            }
-
-            if (Input.GetMouseButtonDown(1)) planetFocusMousePosition1 = Input.mousePosition;
-            if (Input.GetMouseButton(1)) {
-                Vector3 difference = Input.mousePosition - planetFocusMousePosition1;
-                planetFocusMousePosition1 = Input.mousePosition;
-
-                float adjustedDifference = (difference.x / Screen.width) * 100;
-                planetFocus.instance.rotation.x = 0;
-                planetFocus.instance.rotation.y = 0;
-                planetFocus.instance.rotation.z = adjustedDifference;
-            }
-
-            if (Input.mouseScrollDelta.y != 0) {
-                // hi!
-                // i know you probably have questions about y tf the code below here exists
-                // well too bad
-                // if u want to fix it go ahead, otherwise its staying here
-                if (planetFocus.instance.usePoleFocus) {
-                    float change = (float) (0.1 * master.scale) * Mathf.Sign(Input.mouseScrollDelta.y);
-                    master.scale -= change;
-                    planetFocus.instance.update();
-                    master.requestPositionUpdate();
-                } else {
-                    planetFocus.instance.zoom -= Input.mouseScrollDelta.y * planetFocus.instance.zoom / 10f;
-                    planetFocus.instance.zoom = Mathf.Max(Mathf.Min(planetFocus.instance.zoom, 90), 0.1f);
-                }
-            }
-
-            float t = UnityEngine.Time.deltaTime;
-            float r = planetFocus.instance.zoom / 40f;
-            if (Input.GetKey("w")) planetFocus.instance.movementOffset += (float) master.scale * 0.75f * general.camera.transform.up * r * t;
-            if (Input.GetKey("s")) planetFocus.instance.movementOffset -= (float) master.scale * 0.75f * general.camera.transform.up * r * t;
-            if (Input.GetKey("d")) planetFocus.instance.movementOffset += (float) master.scale * 0.75f * general.camera.transform.right * r * t;
-            if (Input.GetKey("a")) planetFocus.instance.movementOffset -= (float) master.scale * 0.75f * general.camera.transform.right * r * t;
-
-            if (Input.GetKeyDown("t") && !general.plt.currentlyDrawing) {
-                planetFocus.instance.togglePoleFocus(!planetFocus.instance.usePoleFocus);
-                if (planetFocus.instance.usePoleFocus) general.plt.genMinScale();
-                else general.plt.clear();
-            }
-
-            if (planetFocus.instance.usePoleFocus) {
-                if (Input.GetKeyDown("=")) general.plt.increaseScale();
-                if (Input.GetKeyDown("-")) general.plt.decreaseScale();
-
-                planetFocus.instance.focus.representation.forceHide = true;
-            }
-
-            planetFocus.instance.update();
-        }
-        else if (uiMap.useUiMap) {
-            uiMap.instance.update();
-        }
-        else
-        {
-            if (Input.GetMouseButton(1) && !EventSystem.current.IsPointerOverGameObject())
-            {
-                Transform c = general.camera.transform;
-                c.Rotate(0, Input.GetAxis("Mouse X") * 2, 0);
-                c.Rotate(-Input.GetAxis("Mouse Y") * 2, 0, 0);
-                c.localEulerAngles = new Vector3(c.localEulerAngles.x, c.localEulerAngles.y, 0);
-            }
-
-            Vector3 forward = general.camera.transform.forward;
-            Vector3 right = general.camera.transform.right;
-            float t = UnityEngine.Time.deltaTime;
-            if (Input.GetKey("w")) master.currentPosition += forward * 5f * (float) master.scale * t;
-            if (Input.GetKey("s")) master.currentPosition -= forward * 5f * (float) master.scale * t;
-            if (Input.GetKey("d")) master.currentPosition += right * 5f * (float) master.scale * t;
-            if (Input.GetKey("a")) master.currentPosition -= right * 5f * (float) master.scale * t;
-        }
-
-        if (Input.GetKeyDown("q"))
-        {
-            master.requestScaleUpdate();
-            modeController.toggle(planetOverview.instance);
-            master.clearAllLines();
-
-            general.notifyStatusChange();
-        }
-
-        if (Input.GetKeyDown("e")) {
-            master.requestScaleUpdate();
-            modeController.toggle(planetFocus.instance);
-            general.pt.unload();
-            general.plt.clear();
-            master.clearAllLines();
-
-            general.notifyStatusChange();
-        }
-
-        if (Input.GetKeyDown("m")) {
-            master.requestScaleUpdate();
-            modeController.toggle(uiMap.instance);
-            master.clearAllLines();
-
-            general.notifyStatusChange();
-        }
-
-        if (Input.GetKeyDown("z")) {
-            foreach (planet p in master.allPlanets) p.tr.enable(!general.showingTrails);
-            if (!general.showingTrails) trailRenderer.drawAllSatelliteTrails(master.allSatellites);
-            else foreach (satellite s in master.allSatellites) s.tr.disable();
-
-            general.showingTrails = !general.showingTrails;
-            general.notifyTrailsChange();
-        }
+    public void Update() {
+        playerControls.update();
 
         if (Input.GetKeyDown("p")) {
             string[] data = File.ReadAllLines("Assets/Code/terrain/output_SRTMGL3.asc");
@@ -466,6 +317,18 @@ public class controller : MonoBehaviour
             //Ray r = new Ray(v1, v2 - v1);
             //Debug.Log(Physics.Raycast(r, (float) position.distance(v1, v2)));
             //Debug.DrawLine(v1, v2, Color.red, 10000000);
+        }
+
+        if (Input.GetKeyDown("o")) {
+            Vector3 v1 = (Vector3) (geographic.toCartesian(new geographic(90, 0), earth.radius).swapAxis());
+            Vector3 v2 = (Vector3) (geographic.toCartesianWGS(new geographic(90, 0), 0).swapAxis());
+
+            Debug.Log("regular: " + v1);
+            Debug.Log("wgs: " + v2);
+        }
+
+        if (Input.GetKeyDown("i")) {
+            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan fernandez islands");
 
             geographic[] points = new geographic[13] {
                 new geographic(21, -140),
@@ -484,32 +347,118 @@ public class controller : MonoBehaviour
 
             double targetAlt = 1_500_000;
 
+            Vector3[] pointsPos = new Vector3[13];
+            for (int i = 0; i < pointsPos.Length; i++) pointsPos[i] = earth.localGeoToUnityPos(points[i], targetAlt);
+
+            var f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
+
+            FileStream fs = new FileStream("C:/Users/leozw/Desktop/juanAccess.axis", FileMode.Create);
+            BinaryWriter bw = new BinaryWriter(fs);
+            bw.Write(f.llCorner.lat);
+            bw.Write(f.llCorner.lon);
+            bw.Write(f.ncols);
+            bw.Write(f.nrows);
+            bw.Write(f.cellSize);
+
+            // preallocate to speed up process
+            byte[] lineData = new byte[sizeof(double) * 3 + sizeof(int)];
+            double[] gData = new double[3];
+            int[] intData = new int[1];
+
             StringBuilder sb = new StringBuilder();
-
-            for (int i = 0; i < toCheck.Count; i++) {
-                position p = toCheck[i];
-                Vector2Int v = toCheckGrid[i];
-
+            f.accessCallAction = (Vector2Int v, geographic g, double h) => {
+                Vector3 src = earth.localGeoToUnityPos(g, h + 0.01);
                 int valid = 0;
-                geographic start = new geographic(p.y, p.x);
-                Vector3 v1 = earth.localGeoToUnityPos(start, p.z + 10.0 / 1000.0);
-                foreach (geographic target in points) {
-                    Vector3 v2 = earth.localGeoToUnityPos(target, targetAlt);
+                string s = "";
+                for (int i = 0; i < pointsPos.Length; i++) {
+                    Vector3 target = pointsPos[i];
 
-                    //int c = position.lineSphereInteresection(v1, v2, earth.representation.gameObject.transform.position, earth.representation.gameObject.transform.localScale.x).Count;
-                    //if (c != 0) continue;
-
-                    if (!Physics.Raycast(v1, v2 - v1, (float) position.distance(v1, v2))) {
+                    if (!Physics.Raycast(src, target - src, 1_000_000)) {
                         valid++;
-                        if (v == new Vector2Int(217, 777)) Debug.DrawLine(v1, v2, Color.green, 1000000000);
-                    } else if (v == new Vector2Int(217, 777)) Debug.DrawLine(v1, v2, Color.red, 1000000000);
+                        s += "1 ";
+                    } else s += "0 ";
                 }
-                sb.Append($"{v.x} {v.y} {p.z} {valid}\n");
+
+                gData[0] = g.lat;
+                gData[1] = g.lon;
+                gData[2] = h;
+                intData[0] = valid;
+
+                // block copy to copy the byte data
+                Buffer.BlockCopy(gData, 0, lineData, 0, 3 * sizeof(double));
+                Buffer.BlockCopy(intData, 0, lineData, 3 * sizeof(double), sizeof(int));
+
+                bw.Write(lineData);
+
+                sb.AppendLine($"{v.x} {v.y} {h} " + s);
+            };
+
+            //var mesh = f.load(f.center, earth.radius, 4, 1);
+            var mesh = f.load(new Vector2(0.2f, 0.2f), new Vector2(0.8f, 0.8f), earth.radius, 0);
+            if (p.Contains("svalbard")) {
+                // overwrite the mesh point
+                f.overridePoint(mesh, new geographic(78.2329, 15.3818), new position(1258.263086, 346.152785, 6222.762166));
+                new facility("V", earth, new facilityData("V", new geographic(78.2329, 15.3818), 0, new List<antennaData>()), new representationData("facility", "defaultMat"));
             }
+            mesh.drawAll(earth.representation.gameObject.transform);
+            foreach (IMesh child in mesh.allMeshes) child.addCollider();
+
+            f.consumeAccessCallData();
+
+            bw.Close();
+            fs.Close();
 
             File.WriteAllText("data.txt", sb.ToString());
         }
+
+        if (Input.GetKeyDown("u")) {
+            using (FileStream fs = new FileStream("C:/Users/leozw/Desktop/juanAccess.axis", FileMode.Open)) {
+                using (BinaryReader br = new BinaryReader(fs)) {
+                    // consume header
+                    geographic llCorner = new geographic(br.ReadDouble(), br.ReadDouble());
+                    double ncols = br.ReadDouble();
+                    double nrows = br.ReadDouble();
+                    double cellSize = br.ReadDouble();
+
+                    Debug.Log($"Header: {llCorner} {ncols} {nrows} {cellSize}");
+
+                    // consume body
+                    // only iterating 100 times as this is just an example
+                    for (int i = 0; i < 10; i++) {
+                        geographic g = new geographic(br.ReadDouble(), br.ReadDouble());
+                        double height = br.ReadDouble();
+                        int valid = br.ReadInt32();
+
+                        Debug.Log($"Line {i}: {g} {height} {valid}");
+                    }
+                }
+            }
+        }
+
+        if (Input.GetKeyDown("g")) {
+            string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth");
+            string p = Directory.GetDirectories(src)[stationIndex];
+            universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
+            //f.overrideToCart(geographic.toCartesianWGS);
+            Debug.Log(p);
+
+            if (prevDist != null) prevDist.clear();
+            geographic offset = new geographic(1, 1);
+            prevDist = f.load(f.center, earth.radius, f.getBestResolution(f.center - offset, f.center + offset, 5_000_000), offset: 1);
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+            prevDist.drawAll(earth.representation.gameObject.transform);
+            Debug.Log($"Time to draw mesh: {sw.ElapsedMilliseconds}");
+
+            stationIndex++;
+
+            if (stationIndex >= 20) stationIndex = 0;
+        }
     }
+
+    int stationIndex = 0;
+    meshDistributor<universalTerrainMesh> prevDist;
+
     private planetTerrain loadTerrain() {
         planetTerrain pt = new planetTerrain(moon, "Materials/planets/moon/moon", 1737.4, 1);
 
@@ -559,16 +508,6 @@ public class controller : MonoBehaviour
 
         double oneMin = 0.0006944444;
         double oneHour = 0.0416666667;
-        double oneSec = 0.00001157;
-
-        double MoonMu = 4902.800066;
-        double MarsMu = 4.2828375815756095E+04;
-        double UranusMu = 5.7939556417959081E+06;
-        double NeptuneMu = 6.8351025518691950E+06;
-        double SunMu = 1.3271244091061847E+11;
-        double JupMu = 1.2668973461247002E+08;
-        double SatMu = 3.7940184296380058E+07;
-        double EarthMu = 398600.4418;
 
         string header = "dec2025";
         //string header = "jul2026";
@@ -614,10 +553,9 @@ public class controller : MonoBehaviour
         body.addFamilyNode(earth, sat1);
         body.addFamilyNode(earth, moon);
 
-        master.relationshipPlanet[earth] = new List<planet>() {moon, mercury, venus, jupiter, saturn, uranus, neptune, mars, master.sun};
+        master.relationshipPlanet[earth] = new List<planet>() {solo, moon, mercury, venus, jupiter, saturn, uranus, neptune, mars, master.sun, solarProbe, v1, v2};
 
-
-        //master.relationshipPlanet[earth] = new List<planet>() {solo, moon, mercury, venus, jupiter, saturn, uranus, neptune, mars, master.sun, solarProbe, v1, v2};
+        //new facility("ASF", earth, new facilityData("ASF", new geo  (64)))
         //master.relationshipSatellite[earth] = new List<satellite>() {stpSat5};
 
         //master.orbitalPeriods["Voyager 1"] = 62;
@@ -802,8 +740,11 @@ public class controller : MonoBehaviour
                     if (dict["TimeInterval_stop"] is string) stop = Double.Parse(dict["TimeInterval_stop"], System.Globalization.NumberStyles.Any);
                     else stop = (double) dict["TimeInterval_stop"];
 
-                    List<antennaData> antenna = new List<antennaData>() {new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"])};
-                    facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), 0, antenna, new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);
+                    facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), 0, new List<antennaData>(), new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);
+                    List<antennaData> antenna = new List<antennaData>() {new antennaData(fd, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Schedule_Priority"], dict["Service_Level"], dict["Service_Period"])};
+
+                    fd.data.antennas.Concat(antenna);
+
 
                     if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
                     if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
@@ -812,8 +753,10 @@ public class controller : MonoBehaviour
                         linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
                     }
                 } else {
-                    List<antennaData> antenna = new List<antennaData>() {new antennaData(x.Key, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Ground_Priority"])};
-                    facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), 0, antenna), frd);
+                    facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), 0, new List<antennaData>()), frd);
+                    List<antennaData> antenna = new List<antennaData>() {new antennaData(fd, x.Key, new geographic(dict["Lat"], dict["Long"]), dict["Ground_Priority"])};
+
+                    fd.data.antennas.Concat(antenna);
 
                     if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
                     if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));

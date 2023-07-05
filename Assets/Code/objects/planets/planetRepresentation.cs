@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using TMPro;
 
-public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
+public class planetRepresentation
 {
     private float _r;
     private TextMeshProUGUI shownName;
@@ -44,43 +44,11 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
 
         planetParent = GameObject.FindGameObjectWithTag("planet/parent");
     }
-
-    public void regenerate() {
-        if (gameObject != null) GameObject.Destroy(gameObject);
-        if (shownName != null) GameObject.Destroy(shownName.gameObject);
-
-        gameObject = GameObject.Instantiate(data.model);
-        gameObject.GetComponent<MeshRenderer>().material = data.material;
-        gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
-        gameObject.name = name;
-
-        this.shownNameText = name;
-        this.setRadius(radius);
-        this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
-        this.mrSelf = gameObject.GetComponent<MeshRenderer>();
-        this.hitbox = gameObject.GetComponent<SphereCollider>();
-        this.hitbox.radius = .497f;
-
-        this.shownName = resLoader.createPrefab("bodyName").GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
-        shownName.fontSize = 25;
-        shownName.text = name;
-        shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold | FontStyles.Italic;
-
-        planetParent = GameObject.FindGameObjectWithTag("planet/parent");
-    }
-
-    public jsonPlanetRepresentationStruct requestJsonFile()
-    {
-        return new jsonPlanetRepresentationStruct() {
-            modelPath = this.data.modelPath,
-            materialPath = this.data.materialPath};
-    }
-
+  
     // updating shown values
     public void setPosition(position pos)
     {
-        if (uiMap.useUiMap) return;
+        if (uiMap.instance.active) return;
 
         bool endDisable = false;
         if (planetOverview.instance.active) {
@@ -100,18 +68,20 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
             (float) (pos.y / master.scale),
             (float) (pos.z / master.scale));
 
-        if (Vector3.Distance(p, Vector3.zero) > 1000f) endDisable = false; // hide if too far away
+        if (Vector3.Distance(p, Vector3.zero) - radius / master.scale > 1000f) endDisable = false; // hide if too far away
         else {
             endDisable = true;
             gameObject.transform.localPosition = p;
 
-            if (shownName.text == "") shownName.text = shownNameText;
+            if (master.requestReferenceFrame().name != name) {
+                if (shownName.text == "") shownName.text = shownNameText;
+            } else shownName.text = "";
 
             // scale far away planets so they can be seen better
-            float distance = Vector3.Distance(Vector3.zero, gameObject.transform.position);
-            float scale = 0.01f * distance;
-            float r = Mathf.Max(Mathf.Min(gameObject.transform.localScale.x, _r), scale);
-            gameObject.transform.localScale = new Vector3(r, r, r);
+            //float distance = Vector3.Distance(Vector3.zero, gameObject.transform.position);
+            //float scale = 0.01f * distance;
+            //float r = Mathf.Max(Mathf.Min(gameObject.transform.localScale.x, _r), scale);
+            //gameObject.transform.localScale = new Vector3(r, r, r);
         }
 
         // position the name of the planet so that it is over the displayed position

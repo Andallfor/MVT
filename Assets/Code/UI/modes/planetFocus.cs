@@ -13,7 +13,7 @@ public sealed class planetFocus : IMode {
 
     protected override IModeParameters modePara => new planetFocusParameters();
 
-    protected override void enable() {
+    protected override bool enable() {
         reset();
         if (master.requestReferenceFrame() is planet) {
             // we want planet to take up about 60%
@@ -21,12 +21,15 @@ public sealed class planetFocus : IMode {
             master.scale = focus.radius / (0.6 * -general.defaultCameraPosition.z);
             master.requestPositionUpdate();
             general.camera.transform.LookAt(focus.representation.gameObject.transform.position);
-        } else active = false;
+        } else return false;
+        return true;
     }
 
-    protected override void disable() {
+    protected override bool disable() {
         general.pt.unload();
         general.plt.clear();
+
+        return true;
     }
 
     protected override void callback() {
@@ -69,6 +72,70 @@ public sealed class planetFocus : IMode {
         general.camera.transform.rotation *= Quaternion.AngleAxis(rotation.z, Vector3.forward);
 
         general.camera.fieldOfView = zoom;
+    }
+
+    protected override void loadControls() {
+        playerControls.addKey("e", conTrig.down, () => {
+            modeController.toggle(planetFocus.instance);
+            general.pt.unload();
+            general.plt.clear();
+        });
+
+        List<IMode> w = new List<IMode>() {this};
+
+        playerControls.addKey("", conTrig.none, () => {
+            Vector3 difference = Input.mousePosition - playerControls.lastMousePos;
+
+            Vector2 adjustedDifference = new Vector2(-difference.y / Screen.height, difference.x / Screen.width);
+            adjustedDifference *= 100f;
+
+            planetFocus.instance.rotation.x = adjustedDifference.x * planetFocus.instance.zoom / 125f;
+            planetFocus.instance.rotation.y = adjustedDifference.y * planetFocus.instance.zoom / 125f;
+            planetFocus.instance.rotation.z = 0;
+        }, precondition: () => Input.GetMouseButton(0), whitelist: w);
+
+        playerControls.addKey("", conTrig.none, () => {
+            Vector3 difference = Input.mousePosition - playerControls.lastMousePos;
+
+            float adjustedDifference = (difference.x / Screen.width) * 100;
+            planetFocus.instance.rotation.x = 0;
+            planetFocus.instance.rotation.y = 0;
+            planetFocus.instance.rotation.z = adjustedDifference;
+        }, precondition: () => Input.GetMouseButton(1), whitelist: w);
+
+        playerControls.addKey("", conTrig.none, () => {
+            // hi!
+            // i know you probably have questions about y tf the code below here exists
+            // well too bad
+            // if u want to fix it go ahead, otherwise its staying here
+            if (planetFocus.instance.usePoleFocus) {
+                float change = (float) (0.1 * master.scale) * Mathf.Sign(Input.mouseScrollDelta.y);
+                master.scale -= change;
+                planetFocus.instance.update();
+                master.requestPositionUpdate();
+            } else {
+                planetFocus.instance.zoom -= Input.mouseScrollDelta.y * planetFocus.instance.zoom / 10f;
+                planetFocus.instance.zoom = Mathf.Max(Mathf.Min(planetFocus.instance.zoom, 90), 0.1f);
+            }
+        }, precondition: () => Input.mouseScrollDelta.y != 0, whitelist: w);
+
+        playerControls.addKey("t", conTrig.down, () => {
+            planetFocus.instance.togglePoleFocus(!planetFocus.instance.usePoleFocus);
+            if (planetFocus.instance.usePoleFocus) general.plt.genMinScale();
+            else general.plt.clear();
+        }, precondition: () => !general.plt.currentlyDrawing, whitelist: w);
+
+        playerControls.addKey("-", conTrig.down, () => {
+            general.plt.decreaseScale();
+        }, precondition: () => planetFocus.instance.usePoleFocus, whitelist: w);
+
+        playerControls.addKey("=", conTrig.down, () => {
+            general.plt.increaseScale();
+        }, precondition: () => planetFocus.instance.usePoleFocus, whitelist: w);
+
+        playerControls.addKey("", conTrig.none, () => update(), whitelist: w);
+
+        //playerControls
     }
 
     private planetFocus() {}
