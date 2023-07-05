@@ -12,7 +12,7 @@ public class controller : MonoBehaviour
     public static planet earth, moon;
     public static planet mars;
     public static planet defaultReferenceFrame;
-    public static double speed = 0.00005;
+    public static double speed = 0.0005;
     public static int tickrate = 7200;
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1, facilityFocusMousePosition, facilityFocusMousePosition1;
     private Coroutine loop;
@@ -89,20 +89,22 @@ public class controller : MonoBehaviour
         startMainLoop();
 
         //Debug.Log(position.J2000(new position(0, 1, 0), new position(0, 0, -1), new position(0, 1, 0)));
-        facility f1 = new facility("1", earth, new facilityData("1", new geographic(-33.60579, -78.88177), 10, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        //facility f1 = new facility("1", earth, new facilityData("1", new geographic(-33.60579, -78.88177), 10, new List<antennaData>()), new representationData("facility", "defaultMat"));
     }
 
     public static void runWindows()
     {
-        master.time.addJulianTime((double)2460806.5 - (double)master.time.julian);
+        master.time.addJulianTime((double)2461021.5 - (double)master.time.julian);
         master.requestPositionUpdate();
         dynamicLinkOptions options = new dynamicLinkOptions();
         options.callback = (data) => {
+            //windows.jsonWindows(data);
             windows.jsonWindows(data);
         };
         options.debug = true;
         options.blocking = true;
-        options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+        //options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+
 
         useTerrainVisibility = true;
 
@@ -126,13 +128,46 @@ public class controller : MonoBehaviour
 
     }
 
+    public static void runWindowsNoRate()
+    {
+        master.time.addJulianTime((double)2461021.5 - (double)master.time.julian);
+        master.requestPositionUpdate();
+        dynamicLinkOptions options = new dynamicLinkOptions();
+        options.callback = (data) => {
+            WNRs.jsonWindows(data);
+        };
+        options.debug = true;
+        options.blocking = false;
+        //options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+        options.outputPath = "/Users/arya/Downloads/data.txt";
+
+        useTerrainVisibility = true;
+
+        List<object> users = new List<object>();
+        List<object> providers = new List<object>();
+
+        foreach (var u in linkBudgeting.users)
+        {
+            if (u.Value.Item1) users.Add(master.allFacilities.Find(x => x.name == u.Key));
+            else users.Add(master.allSatellites.Find(x => x.name == u.Key));
+        }
+
+        foreach (var p in linkBudgeting.providers)
+        {
+            if (p.Value.Item1) providers.Add(master.allFacilities.Find(x => x.name == p.Key));
+            else providers.Add(master.allSatellites.Find(x => x.name == p.Key));
+        }
+
+        visibility.raycastTerrain(users, providers, master.time.julian, master.time.julian + 30, speed, options, true);
+    }
+
     public static void runDynamicLink() {
-        master.time.addJulianTime((double)2460806.5 - (double)master.time.julian);
+        master.time.addJulianTime((double)2461021.5 - (double)master.time.julian);
         master.requestPositionUpdate();
         dynamicLinkOptions options = new dynamicLinkOptions();
         options.callback = (data) =>
         {
-            System.IO.Directory.CreateDirectory(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "Access Call Results"));
+            //System.IO.Directory.CreateDirectory("User/arya/Downloads/Access Call Results");
 
             foreach (KeyValuePair<string, (bool t, double start, double end)> provider in linkBudgeting.providers)
             {
@@ -149,13 +184,15 @@ public class controller : MonoBehaviour
                         final.Add("Time:" + time[x] + " Distance: " + distance[x]);
                     }
 
-                    System.IO.File.WriteAllLines(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads)) + "/Access Call Results/" + provider.Key + " to " + user.Key, final);
+                    System.IO.File.WriteAllLines(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads)) + "/Access Call Results/" + provider.Key + " to " + user.Key +".txt", final);
                 }
             }
         };
         options.debug = true;
-        options.blocking = true;
+        options.blocking = false;
         options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+        //options.outputPath = "/Users/arya/Downloads/data.txt";
+
 
         useTerrainVisibility = true;
 
@@ -243,16 +280,43 @@ public class controller : MonoBehaviour
         playerControls.update();
 
         if (Input.GetKeyDown("p")) {
-            int sy = 450;
-            int sx = 900;
-            meshDistributor<universalTerrainMesh> mesh = new meshDistributor<universalTerrainMesh>(new Vector2Int(sx, sy), Vector2Int.zero, Vector2Int.zero);
-            for (int r = 0; r < sy; r++) {
-                for (int c = 0; c < sx; c++) {
-                    geographic g = new geographic(180.0 * (double) r / (double) sy - 90.0, 360.0 * (double) c / (double) sx - 180.0);
-                    mesh.addPoint(c, r, g.toCartesianWGS(earth.radius).swapAxis() / (master.scale * 2));
+            string[] data = File.ReadAllLines("Assets/Code/terrain/output_SRTMGL3.asc");
+
+            meshDistributor<poleTerrainMesh> mesh = new meshDistributor<poleTerrainMesh>(new Vector2Int(1371, 1357), Vector2Int.zero, Vector2Int.zero, reverse: true);
+
+            geographic g = new geographic(-34.087083333312, -79.055416666690);
+            List<position> toCheck = new List<position>();
+            List<Vector2Int> toCheckGrid = new List<Vector2Int>();
+
+            double inc = 0.000833333333;
+            for (int row = 6; row < 1357 + 6; row++) {
+                string[] line = data[row].Split(new string[] {" "}, System.StringSplitOptions.RemoveEmptyEntries);
+                for (int col = 0; col < 1371; col++) {
+                    geographic change = new geographic(inc * (double) (1357 - (row - 6)), inc * (double) col);
+                    change += g;
+                    double alt = double.Parse(line[col]) / 1000.0;
+
+                    if (alt != 0) {
+                        toCheck.Add(new position(change.lon, change.lat, alt));
+                        toCheckGrid.Add(new Vector2Int(col, row - 6));
+                    }
+                    mesh.addPoint(col, row - 6, change.toCartesian(6371 + alt).swapAxis() / master.scale);
                 }
             }
-            mesh.drawAll(earth.representation.gameObject.transform);
+
+            Material m = new Material(resLoader.load<Material>("defaultMat"));
+            planet earth = master.allPlanets.First(x=>x.name=="Earth");
+            //mesh.drawAll(m, resLoader.load<GameObject>("planetMesh"), new string[0], earth.representation.gameObject.transform);
+            (mesh.draw(new Vector2Int(0, 750), m, resLoader.load<GameObject>("planetMesh"), "", earth.representation.gameObject.transform)).AddComponent<MeshCollider>();
+            (mesh.draw(new Vector2Int(250, 750), m, resLoader.load<GameObject>("planetMesh"), "", earth.representation.gameObject.transform)).AddComponent<MeshCollider>();
+
+            //facility f1 = new facility("north", earth, new facilityData("north", new geographic(-33.60579, -78.88177), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
+            //facility f2 = new facility("south", earth, new facilityData("south", new geographic(-33.65108, -78.86861), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
+            //Vector3 v1 = earth.localGeoToUnityPos(f1.geo, 10 / 1000.0);
+            //Vector3 v2 = earth.localGeoToUnityPos(f2.geo, 10 / 1000.0);
+            //Ray r = new Ray(v1, v2 - v1);
+            //Debug.Log(Physics.Raycast(r, (float) position.distance(v1, v2)));
+            //Debug.DrawLine(v1, v2, Color.red, 10000000);
         }
 
         if (Input.GetKeyDown("o")) {
@@ -344,7 +408,7 @@ public class controller : MonoBehaviour
             bw.Close();
             fs.Close();
 
-            File.WriteAllText("C:/Users/leozw/Desktop/juanAccess.txt", sb.ToString());
+            File.WriteAllText("data.txt", sb.ToString());
         }
 
         if (Input.GetKeyDown("u")) {
@@ -449,7 +513,7 @@ public class controller : MonoBehaviour
         //string header = "jul2026";
         //string header = "sep2027";
 
-        earth = new planet(  "Earth", new planetData(  6371, rotationType.none,   $"CSVS/JPL/{header}/PLANETS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
+        earth = new planet(  "Earth", new planetData(  6371, rotationType.earth,   $"CSVS/JPL/{header}/PLANETS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
         moon =  new planet(   "Luna", new planetData(1738.1,  rotationType.moon,    $"CSVS/JPL/{header}/PLANETS/Luna",  oneHour,   planetType.moon), new representationData("planet", "moonTex"));
         planet mercury = new planet("Mercury", new planetData(2439.7,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/mercury", oneHour, planetType.planet), new representationData("planet", "mercuryTex"));
         planet venus = new planet(  "Venus", new planetData(6051.8,  rotationType.none,   $"CSVS/JPL/{header}/PLANETS/venus", oneHour, planetType.planet), new representationData("planet", "venusTex"));
@@ -469,18 +533,24 @@ public class controller : MonoBehaviour
         master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/SATS/v", 0.0006944444));
 
         //satellite stpSat5 = new satellite("STP Sat 5", new satelliteData($"CSVS/JPL/{header}/SATS/STPSat_5", oneMin), rd);
-        planet solarProbe = new planet("PSP", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/ParkerSolarProbe", oneHour, planetType.planet), rd);
-        planet solo = new planet("SOLO", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/SOLO", oneHour, planetType.planet), rd);
-        planet v1 = new planet("Voyager 1", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Voyager1", oneHour, planetType.planet), rd);
-        planet v2 = new planet("Voyager 2", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Voyager2", oneHour, planetType.planet), rd);
+        //planet solarProbe = new planet("PSP", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/ParkerSolarProbe", oneHour, planetType.planet), rd);
+        //planet solo = new planet("SOLO", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/SOLO", oneHour, planetType.planet), rd);
+        //planet v1 = new planet("Voyager 1", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Voyager1", oneHour, planetType.planet), rd);
+        //planet v2 = new planet("Voyager 2", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Voyager2", oneHour, planetType.planet), rd);
         //planet lucy = new planet("Lucy", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Lucy", oneHour, planetType.planet), rd);
+
+        facility svalbard = new facility("Svalbard", earth, new facilityData("Svalbard", new geographic(77.875, 20.9752), .001, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        facility ASF = new facility("ASF", earth, new facilityData("ASF", new geographic(64.8401, -147.72), .001, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        //facility juan = new facility("Juan Fernandez", earth, new facilityData("Juan Fernandez", new geographic(-33.651250000153, -78.827916666781), 0, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        satellite sat1 = new satellite("Sat1", new satelliteData(new Timeline(6371+900, 0, 98, 0, 0, 0, 0, 2461021.5, EarthMu)), rd);
 
         //body.addFamilyNode(master.sun, v1);
         //body.addFamilyNode(master.sun, v2);
-        body.addFamilyNode(master.sun, solo);
-        body.addFamilyNode(master.sun, solarProbe);
+        //body.addFamilyNode(master.sun, solo);
+        //body.addFamilyNode(master.sun, solarProbe);
         //body.addFamilyNode(master.sun, lucy);
         //body.addFamilyNode(earth, stpSat5);
+        body.addFamilyNode(earth, sat1);
         body.addFamilyNode(earth, moon);
 
         master.relationshipPlanet[earth] = new List<planet>() {solo, moon, mercury, venus, jupiter, saturn, uranus, neptune, mars, master.sun, solarProbe, v1, v2};
@@ -496,9 +566,20 @@ public class controller : MonoBehaviour
         //body.addFamilyNode(earth, stpSat5);
 
         //master.relationshipSatellite[earth] = new List<satellite>() {stpSat5};
+        master.relationshipSatellite[earth] = new List<satellite>() {sat1};
+
+        linkBudgeting.users.Add("Sat1", (false, 2461021.5, 2461051.5));
+        //linkBudgeting.providers.Add("Juan Fernandez", (true, 2461021.5, 2461051.5));
+        linkBudgeting.providers.Add("ASF", (true, 2461021.5, 2461051.5));
+        linkBudgeting.providers.Add("Svalbard", (true, 2461021.5, 2461051.5));
 
         loadingController.addPercent(1);
 
+        Debug.Log("ASF: " + new geographic(64.8401, -147.72).toCartesian(6371));
+        Debug.Log("SVB: " + new geographic(77.875, 20.9752).toCartesian(6371));
+
+        //runDynamicLink();
+        //runWindowsNoRate();
         //master.time.addJulianTime(new Time(new DateTime(2026, 7, 12)).julian - master.time.julian);
         //master.time.addJulianTime(new Time(new DateTime(2027, 9, 1)).julian - master.time.julian);
     }

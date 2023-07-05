@@ -61,7 +61,7 @@ public class windows
 			if (Diff >= 0.0035) { returnList.Add(i); }
 			i = i + 1;
 		}
-		
+
 		return returnList;
 	}
 
@@ -103,7 +103,7 @@ public class windows
 		List<int> returnList = new List<int>();
 		for (int i = 0; i < toSearch.Count; i++)
 		{
-			if (toSearch[i].Item2 > minRate && toSearch[i].Item2 <= maxRate) 
+			if (toSearch[i].Item2 > minRate && toSearch[i].Item2 <= maxRate)
 			{
 				returnList.Add(i);
 			}
@@ -141,7 +141,7 @@ public class windows
 	public static int minAndAbs(List<double> time, double start)
 	{
 		int returnInt = 0;
-		
+
 		for (int x = 0; x < time.Count; x++)
 		{
 			if (x + 1 < time.Count)
@@ -174,10 +174,10 @@ public class windows
 		List<double[]> returnList = new List<double[]>();
 
 		if (windows.Count > 0)
-		{	 
+		{
 			for (int l = 0; l < windows.Count; l++)
 			{
-				int windowStartIndex = minAndAbs(time, windows[l].start); //what time element is close to the start 
+				int windowStartIndex = minAndAbs(time, windows[l].start); //what time element is close to the start
 				double delayDistance = distance[windowStartIndex];
 				double[] inner = new double[] {windows[l].start, windows[l].stop, ((delayDistance * 1000) / 299792458)};
 				returnList.Add(inner);
@@ -208,8 +208,8 @@ public class windows
 		}
 
 		List<finalWindow> windows = calculateWindows(time_Rate(time, rate), DataRate/1000000, 0);
-		
-		return format(windows, time, distance);	
+
+		return format(windows, time, distance);
 	}
 
 	public static void jsonWindows(Dictionary<(string, string), (List<double>, List<double>)> linkResults)
@@ -219,12 +219,12 @@ public class windows
 
 		foreach (KeyValuePair <string, (bool, double, double)> provider in linkBudgeting.providers)
 		{
-			foreach (KeyValuePair <string, (bool, double, double)> user in linkBudgeting.users) 
+			foreach (KeyValuePair <string, (bool, double, double)> user in linkBudgeting.users)
 			{
 				if (!linkResults.ContainsKey((user.Key, provider.Key))) continue;
 				List<double> time = linkResults[(user.Key, provider.Key)].Item1;
 				List<double> distance = linkResults[(user.Key, provider.Key)].Item2;
-				
+
 				if (time.Count > 0)
 				{
 					string[] possibleBands = new string[] {"SBand", "XBand", "KaBand"};
@@ -281,7 +281,6 @@ public class windows
 						}
 					}
 				}
-				
 			}
 		}
 
@@ -289,7 +288,7 @@ public class windows
 		json.epochTime = "11-May-2025";
 		json.fileGenDate = DateTime.Now.ToString("MM-dd_hhmm"); ;
 		json.windows = innerWindowList;
-		
+
 		string jsonReturn = JsonConvert.SerializeObject(json, Formatting.Indented);
 		File.WriteAllText(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "windows.json"), jsonReturn);
 		Debug.Log("Finished Writing File");
