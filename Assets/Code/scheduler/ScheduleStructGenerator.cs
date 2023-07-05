@@ -47,7 +47,7 @@ public static class ScheduleStructGenerator
             createCommand.ExecuteNonQuery();
             Debug.Log("Created DB");
         }
-        string restrictionPath = $"Assets/Code/scheduler/restrictions.json";
+        string restrictionPath = $"Assets/Code/scheduler/restrictions2023.json";
         JObject restrictionJson = JObject.Parse(File.ReadAllText(restrictionPath));
         string filePath = $"Assets/Resources/SchedulingJSONS/{JSONPath}";
         JObject json = JObject.Parse(File.ReadAllText(filePath)); 
@@ -104,6 +104,9 @@ public static class ScheduleStructGenerator
                     break;
                 case "S Band":
                     freqPrio = 3;
+                    break;
+                default:
+                    freqPrio = 0;
                     break;
             }
             if (!scenario.users.ContainsKey(source))

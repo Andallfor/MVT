@@ -30,7 +30,7 @@ public class controller : MonoBehaviour
         master.sun = new planet("Sun", new planetData(695700, false, "CSVS/ARTEMIS 3/PLANETS/sun", 0.0416666665, planetType.planet),
             new representationData(
                 "Prefabs/Planet",
-                "Materials/default"));
+                "Materials/default"));  
 
         //onlyEarth();
         //kepler();
@@ -41,22 +41,28 @@ public class controller : MonoBehaviour
         if(!File.Exists(@"Assets\Code\parsing\main.db"))
         {
             Debug.Log("Generating main.db");
-            System.Diagnostics.Process.Start(@"Assets\Code\parsing\parser.exe", @"Assets\Code\parsing\FinalScenarioAssets.xlsx Assets\Code\parsing\main.db").WaitForExit();  
+            System.Diagnostics.Process.Start(@"Assets\Code\parsing\ExcelParser.exe", @"Assets\Code\parsing\2023EarthAssets.xlsx Assets\Code\parsing\main.db").WaitForExit();  
         }
         var missionStructure = DBReader.getData();
         System.IO.Directory.CreateDirectory($"Assets/Code/scheduler/{date}");
         string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
-        System.IO.File.WriteAllText (@"MissionStructure_2023.txt", json);       
-        //Debug.Log("Generating windows.....");
-        //ScheduleStructGenerator.genDB(missionStructure, "Artemis_III", "AryaTesting0813.json", date, "PreconWindows");
-     //   Debug.Log("Generating conflict list.....");
-     //   ScheduleStructGenerator.createConflictList(date);
+        System.IO.File.WriteAllText (@$"Assets/Code/scheduler/{date}/MissionStructure_2023.txt", json);       
+        Debug.Log("Generating windows.....");
+        ScheduleStructGenerator.genDB(missionStructure, "EarthTest", "windows (9).json", date, "PreconWindows");
+        Debug.Log("Generating conflict list.....");
+        ScheduleStructGenerator.createConflictList(date);
         //Debug.Log("Regenerating windows");
-        //ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", "LunarWindows-RAC2_1_07_19_22.json", date, "PostconWindows");
-     //   Debug.Log("Doing DFS.....");
-      //  ScheduleStructGenerator.doDFS(date);
-       // System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PreDFSUsers.txt Assets/Code/scheduler/{date}/PreDFSUsers_{date}.png");
-        //System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmap.exe", $"PostDFSUsers.txt Assets/Code/scheduler/{date}/PostDFSUsers_{date}.png");
+        //ScheduleStructGenerator.genDB(missionStructure, "EarthTest", "SAT1Test.json", date, "PostconWindows");
+        Debug.Log("Doing DFS.....");
+        ScheduleStructGenerator.doDFS(date);
+        //System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+        //startInfo.FileName = "Assets\\Code\\scheduler\\heatmapVerbose.exe";
+        //startInfo.Arguments =$"PreDFSUsers.txt Assets/Code/scheduler/{date}/PreDFSUsers_{date}.png";
+        //System.Diagnostics.Process.Start(startInfo);
+        //System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmapVerbose.exe", $"PostDFSUsers.txt Assets/Code/scheduler/{date}/PostDFSUsers_{date}.png");
+        //System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmapVerbose.exe", $"PreDFSUsers.txt Assets/Code/scheduler/{date}/PreDFSUsers_{date}.png");
+        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\ScheduleDiagramGen.exe", $"Assets/Code/scheduler/{date}/ScheduleCSV_{date}.csv source destination 0 1 Assets/Code/scheduler/{date}/sched_{date}.png 0");
+
 
         //Debug.Log("Testing.....");
 
