@@ -328,7 +328,7 @@ public class controller : MonoBehaviour
         }
 
         if (Input.GetKeyDown("i")) {
-            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan fernandez islands");
+            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan");
 
             geographic[] points = new geographic[13] {
                 new geographic(21, -140),
@@ -351,6 +351,7 @@ public class controller : MonoBehaviour
             for (int i = 0; i < pointsPos.Length; i++) pointsPos[i] = earth.localGeoToUnityPos(points[i], targetAlt);
 
             var f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
+            f.overrideToCart(geographic.toCartesianWGS);
 
             FileStream fs = new FileStream("C:/Users/leozw/Desktop/juanAccess.axis", FileMode.Create);
             BinaryWriter bw = new BinaryWriter(fs);
@@ -394,7 +395,7 @@ public class controller : MonoBehaviour
             };
 
             //var mesh = f.load(f.center, earth.radius, 4, 1);
-            var mesh = f.load(new Vector2(0.2f, 0.2f), new Vector2(0.8f, 0.8f), earth.radius, 0);
+            var mesh = f.load(Vector2.zero, Vector2.one, 0, 0);
             if (p.Contains("svalbard")) {
                 // overwrite the mesh point
                 f.overridePoint(mesh, new geographic(78.2329, 15.3818), new position(1258.263086, 346.152785, 6222.762166));
