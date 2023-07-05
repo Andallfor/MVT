@@ -280,43 +280,16 @@ public class controller : MonoBehaviour
         playerControls.update();
 
         if (Input.GetKeyDown("p")) {
-            string[] data = File.ReadAllLines("Assets/Code/terrain/output_SRTMGL3.asc");
-
-            meshDistributor<poleTerrainMesh> mesh = new meshDistributor<poleTerrainMesh>(new Vector2Int(1371, 1357), Vector2Int.zero, Vector2Int.zero, reverse: true);
-
-            geographic g = new geographic(-34.087083333312, -79.055416666690);
-            List<position> toCheck = new List<position>();
-            List<Vector2Int> toCheckGrid = new List<Vector2Int>();
-
-            double inc = 0.000833333333;
-            for (int row = 6; row < 1357 + 6; row++) {
-                string[] line = data[row].Split(new string[] {" "}, System.StringSplitOptions.RemoveEmptyEntries);
-                for (int col = 0; col < 1371; col++) {
-                    geographic change = new geographic(inc * (double) (1357 - (row - 6)), inc * (double) col);
-                    change += g;
-                    double alt = double.Parse(line[col]) / 1000.0;
-
-                    if (alt != 0) {
-                        toCheck.Add(new position(change.lon, change.lat, alt));
-                        toCheckGrid.Add(new Vector2Int(col, row - 6));
-                    }
-                    mesh.addPoint(col, row - 6, change.toCartesian(6371 + alt).swapAxis() / master.scale);
+            int sy = 450;
+            int sx = 900;
+            meshDistributor<universalTerrainMesh> mesh = new meshDistributor<universalTerrainMesh>(new Vector2Int(sx, sy), Vector2Int.zero, Vector2Int.zero);
+            for (int r = 0; r < sy; r++) {
+                for (int c = 0; c < sx; c++) {
+                    geographic g = new geographic(180.0 * (double) r / (double) sy - 90.0, 360.0 * (double) c / (double) sx - 180.0);
+                    mesh.addPoint(c, r, g.toCartesian(earth.radius).swapAxis() / master.scale);
                 }
             }
-
-            Material m = new Material(resLoader.load<Material>("defaultMat"));
-            planet earth = master.allPlanets.First(x=>x.name=="Earth");
-            //mesh.drawAll(m, resLoader.load<GameObject>("planetMesh"), new string[0], earth.representation.gameObject.transform);
-            (mesh.draw(new Vector2Int(0, 750), m, resLoader.load<GameObject>("planetMesh"), "", earth.representation.gameObject.transform)).AddComponent<MeshCollider>();
-            (mesh.draw(new Vector2Int(250, 750), m, resLoader.load<GameObject>("planetMesh"), "", earth.representation.gameObject.transform)).AddComponent<MeshCollider>();
-
-            //facility f1 = new facility("north", earth, new facilityData("north", new geographic(-33.60579, -78.88177), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
-            //facility f2 = new facility("south", earth, new facilityData("south", new geographic(-33.65108, -78.86861), 10, new List<antennaData>()), new representationData("Prefabs/Facility", "Materials/default"));
-            //Vector3 v1 = earth.localGeoToUnityPos(f1.geo, 10 / 1000.0);
-            //Vector3 v2 = earth.localGeoToUnityPos(f2.geo, 10 / 1000.0);
-            //Ray r = new Ray(v1, v2 - v1);
-            //Debug.Log(Physics.Raycast(r, (float) position.distance(v1, v2)));
-            //Debug.DrawLine(v1, v2, Color.red, 10000000);
+            mesh.drawAll(earth.representation.gameObject.transform);
         }
 
         if (Input.GetKeyDown("o")) {
@@ -351,7 +324,7 @@ public class controller : MonoBehaviour
             for (int i = 0; i < pointsPos.Length; i++) pointsPos[i] = earth.localGeoToUnityPos(points[i], targetAlt);
 
             var f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
-            f.overrideToCart(geographic.toCartesianWGS);
+            //f.overrideToCart(geographic.toCartesianWGS);
 
             FileStream fs = new FileStream("C:/Users/leozw/Desktop/juanAccess.axis", FileMode.Create);
             BinaryWriter bw = new BinaryWriter(fs);
@@ -395,7 +368,7 @@ public class controller : MonoBehaviour
             };
 
             //var mesh = f.load(f.center, earth.radius, 4, 1);
-            var mesh = f.load(Vector2.zero, Vector2.one, 0, 0);
+            var mesh = f.load(Vector2.zero, Vector2.one, earth.radius, 0);
             if (p.Contains("svalbard")) {
                 // overwrite the mesh point
                 f.overridePoint(mesh, new geographic(78.2329, 15.3818), new position(1258.263086, 346.152785, 6222.762166));
