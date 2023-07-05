@@ -12,7 +12,7 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
     private GameObject canvas, planetParent;
     public GameObject gameObject;
     public MeshRenderer mrSelf;
-    public Collider hitbox;
+    public SphereCollider hitbox;
     private string shownNameText, name;
     private double radius;
 
@@ -32,7 +32,8 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
         this.pType = pType;
         this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
         this.mrSelf = gameObject.GetComponent<MeshRenderer>();
-        this.hitbox = gameObject.GetComponent<Collider>();
+        this.hitbox = gameObject.GetComponent<SphereCollider>();
+        this.hitbox.radius = .497f;
         this.name = name;
 
         this.shownName = resLoader.createPrefab("bodyName").GetComponent<TextMeshProUGUI>();
@@ -57,7 +58,8 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
         this.setRadius(radius);
         this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
         this.mrSelf = gameObject.GetComponent<MeshRenderer>();
-        this.hitbox = gameObject.GetComponent<Collider>();
+        this.hitbox = gameObject.GetComponent<SphereCollider>();
+        this.hitbox.radius = .497f;
 
         this.shownName = resLoader.createPrefab("bodyName").GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
@@ -142,7 +144,7 @@ public class planetRepresentation : IJsonFile<jsonPlanetRepresentationStruct>
     }
     public void setRadius(double radius)
     {
-        _r = ((float) Math.Max((radius * 2) / master.scale, 0.00001));
+        _r = (float) ((radius * 2) / master.scale);
         gameObject.transform.localScale = new Vector3(_r, _r, _r);
     }
 }

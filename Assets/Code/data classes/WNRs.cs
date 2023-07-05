@@ -57,8 +57,8 @@ public class WNRs
     json.windows = innerWindowList;
 
     string jsonReturn = JsonConvert.SerializeObject(json, Formatting.Indented);
-    File.WriteAllText(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "windows.json"), jsonReturn);
-    //File.WriteAllText("/Users/arya/Downloads/windows.json", jsonReturn);
+    //File.WriteAllText(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "windows.json"), jsonReturn);
+    File.WriteAllText("/Users/arya/Downloads/windows.json", jsonReturn);
     Debug.Log("Finished Writing File");
   }
 
@@ -96,7 +96,6 @@ public class WNRs
 
         return format(windows, time);
   }
-
 
   public static List<double[]> format(List<WNR> windows, List<double> time)
 	{

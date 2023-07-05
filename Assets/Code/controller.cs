@@ -135,9 +135,9 @@ public class controller : MonoBehaviour
             WNRs.jsonWindows(data);
         };
         options.debug = true;
-        options.blocking = true;
-        options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
-        //options.outputPath = "/Users/arya/Downloads/data.txt";
+        options.blocking = false;
+        //options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+        options.outputPath = "/Users/arya/Downloads/data.txt";
 
         useTerrainVisibility = true;
 
@@ -600,12 +600,10 @@ public class controller : MonoBehaviour
         //planet v2 = new planet("Voyager 2", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Voyager2", oneHour, planetType.planet), rd);
         //planet lucy = new planet("Lucy", new planetData(1000, rotationType.none, $"CSVS/JPL/{header}/SATS/Lucy", oneHour, planetType.planet), rd);
 
-        facility svalbard = new facility("Svalbard", earth, new facilityData("Svalbard", new geographic(77.875, 20.9752), 10, new List<antennaData>()), new representationData("facility", "defaultMat"));
-
-        facility ASF = new facility("ASF", earth, new facilityData("ASF", new geographic(64.8401, -147.72), 0, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        facility svalbard = new facility("Svalbard", earth, new facilityData("Svalbard", new geographic(77.875, 20.9752), .001, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        facility ASF = new facility("ASF", earth, new facilityData("ASF", new geographic(64.8401, -147.72), .001, new List<antennaData>()), new representationData("facility", "defaultMat"));
         //facility juan = new facility("Juan Fernandez", earth, new facilityData("Juan Fernandez", new geographic(-33.651250000153, -78.827916666781), 0, new List<antennaData>()), new representationData("facility", "defaultMat"));
         satellite sat1 = new satellite("Sat1", new satelliteData(new Timeline(6371+900, 0, 98, 0, 0, 0, 0, 2461021.5, EarthMu)), rd);
-
 
         //body.addFamilyNode(master.sun, v1);
         //body.addFamilyNode(master.sun, v2);
@@ -639,7 +637,11 @@ public class controller : MonoBehaviour
 
         loadingController.addPercent(1);
 
+        Debug.Log("ASF: " + new geographic(64.8401, -147.72).toCartesian(6371));
+        Debug.Log("SVB: " + new geographic(77.875, 20.9752).toCartesian(6371));
 
+        //runDynamicLink();
+        //runWindowsNoRate();
         //master.time.addJulianTime(new Time(new DateTime(2026, 7, 12)).julian - master.time.julian);
         //master.time.addJulianTime(new Time(new DateTime(2027, 9, 1)).julian - master.time.julian);
     }
