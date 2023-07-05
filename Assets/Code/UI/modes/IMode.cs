@@ -93,5 +93,7 @@ public static class modeController {
 
         master.clearAllLines();
         general.notifyStatusChange();
+
+        if (state == true) defaultMode.instance.toggle(true);
     }
 }
