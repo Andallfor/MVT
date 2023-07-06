@@ -137,15 +137,19 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         generatedEnd = end;
         generatedPower = power;
 
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        sw.Start();
+
         meshDistributor<universalTerrainMesh> m = new meshDistributor<universalTerrainMesh>(
             new Vector2Int(end.x - start.x, end.y - start.y),
             Vector2Int.zero, Vector2Int.zero, true);
 
-        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-        sw.Start();
-        int[] heights = openJpegWrapper.requestTerrain(dataPath, start * power, end * power, res, 0);
         long s1 = sw.ElapsedMilliseconds;
-        Debug.Log($"Time to read {(end.y - start.y) * (end.x - start.x)} pixels: {s1}ms");
+        Debug.Log($"Time to init mesh: {s1}ms");
+        
+        int[] heights = openJpegWrapper.requestTerrain(dataPath, start * power, end * power, res, 0);
+        Debug.Log($"Time to read {(end.y - start.y) * (end.x - start.x)} pixels: {sw.ElapsedMilliseconds - s1}ms");
+        s1 = sw.ElapsedMilliseconds;
 
         int colLen = end.x - start.x;
         int maxHeight = (int) (nrows / power);

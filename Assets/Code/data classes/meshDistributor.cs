@@ -4,11 +4,11 @@ using UnityEngine;
 using System.Linq;
 using System;
 
-public class meshDistributor<T> where T : IMesh, new()
-{
-    public const int maxVerts = 65535;
-    private const int maxVertSize = 255;
+public class meshDistributor {
+    public const int maxVertSize = 255;
+}
 
+public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
     private Dictionary<Vector2Int, T> map = new Dictionary<Vector2Int, T>();
     public T baseType;
 

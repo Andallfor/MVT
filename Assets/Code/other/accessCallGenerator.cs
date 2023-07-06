@@ -140,7 +140,7 @@ public class accessCallGeneratorWGS<T> where T : IMesh, new() {
         Vector3 dst = (Vector3) ((target.pos - master.referenceFrame - master.currentPosition) / master.scale);
 
         bool result = Physics.Linecast(src, dst, (1 << 6) | (1 << 7)); // terrain and planets only
-        //Debug.DrawLine(src, dst, result ? Color.red : Color.green, 10000000);
+        Debug.DrawLine(src, dst, result ? Color.red : Color.green, 10000000);
         return result;
     }
 }
