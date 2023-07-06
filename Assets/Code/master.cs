@@ -92,7 +92,10 @@ public static class master
 
 
     /// <summary> Calls <see cref="updatePositions"/>. </summary>
-    public static void requestPositionUpdate() {updatePositions(null, EventArgs.Empty);}
+    public static void requestPositionUpdate() {
+        updatePositions(null, EventArgs.Empty);
+        _refFrameLast = _referenceFrame.pos;
+    }
 
     /// <summary> Calls <see cref="updateScheduling"/>. </summary>
     public static void requestSchedulingUpdate() {updateScheduling(null, EventArgs.Empty);}

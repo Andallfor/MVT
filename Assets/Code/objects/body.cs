@@ -14,10 +14,10 @@ public abstract class body
     public event EventHandler onPositionUpdate = delegate {};
     public Timeline positions {get; protected set;} = null;
 
-    public body parent {get; protected set;} = null;
+    public planet parent {get; protected set;} = null;
     public List<body> children {get; protected set;} = new List<body>();
 
-    public static void addFamilyNode(body parent, body child)
+    public static void addFamilyNode(planet parent, body child)
     {
         master.time.onChange -= parent.updatePosition;
         master.time.onChange -= child.updatePosition;

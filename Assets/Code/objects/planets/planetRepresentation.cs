@@ -73,7 +73,7 @@ public class planetRepresentation
             endDisable = true;
             gameObject.transform.localPosition = p;
 
-            if (master.requestReferenceFrame().name != name) {
+            if (master.requestReferenceFrame().name != name || planetOverview.instance.active) {
                 if (shownName.text == "") shownName.text = shownNameText;
             } else shownName.text = "";
 

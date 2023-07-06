@@ -40,6 +40,19 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         accessCallGrid = new List<Vector2Int>();
     }
 
+    public double getHeight(geographic g) {
+        double deltaY = nrows * cellSize;
+        double deltaX = ncols * cellSize;
+
+        geographic _g = g - llCorner;
+        Vector2 percent = new Vector2((float) (_g.lon / deltaX), 1f - (float) (_g.lat / deltaY));
+        Vector2Int point = new Vector2Int((int) (percent.x * ncols), (int) (percent.y * nrows));
+
+        int[] heights = openJpegWrapper.requestTerrain(dataPath, point, point + Vector2Int.one, 0, 0);
+
+        return (heights[0] - 32767.0) / 1000.0;
+    }
+
     public override meshDistributor<universalTerrainMesh> load(geographic start, geographic end, double radius, uint res) {
         accessCallGeo = new List<geographic>();
         accessCallHeight = new List<double>();

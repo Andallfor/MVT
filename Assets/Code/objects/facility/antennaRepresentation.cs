@@ -68,7 +68,7 @@ public class antennaRepresentation
             RaycastHit hit;
             if (Physics.Raycast(general.camera.transform.position,
                 this.gameObject.transform.position - general.camera.transform.position, out hit, 
-                Vector3.Distance(this.gameObject.transform.position, general.camera.transform.position), 1 << 6)) {
+                Vector3.Distance(this.gameObject.transform.position, general.camera.transform.position), (1 << 6) | (1 << 7))) {
                 shownName.text = "";
             } else {
                 shownName.text = shownNameText;

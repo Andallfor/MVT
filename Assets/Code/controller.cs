@@ -18,6 +18,7 @@ public class controller : MonoBehaviour
     private Coroutine loop;
     public static bool useTerrainVisibility = false;
     public static controller self;
+    private satellite sat1;
 
     public static float _logBase = 35;
 
@@ -323,7 +324,7 @@ public class controller : MonoBehaviour
             double targetAlt = 1_500_000;
 
             Vector3[] pointsPos = new Vector3[13];
-            for (int i = 0; i < pointsPos.Length; i++) pointsPos[i] = earth.localGeoToUnityPos(points[i], targetAlt);
+            for (int i = 0; i < pointsPos.Length; i++) pointsPos[i] = earth.localGeoToUnityPos(points[i], 0);
 
             var f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
             //f.overrideToCart(geographic.toCartesianWGS);
@@ -430,6 +431,37 @@ public class controller : MonoBehaviour
 
             if (stationIndex >= 20) stationIndex = 0;
         }
+    
+        if (Input.GetKeyDown("y")) {
+            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/canberra");
+            universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"));
+            f.overrideToCart(geographic.toCartesianWGS);
+
+            geographic g = new geographic(-35.398522, 148.981904);
+            double alt = f.getHeight(g);
+
+            new facility("V", earth, new facilityData("V", g, alt, new List<antennaData>()), new representationData("facility", "defaultMat"));
+            
+            accessCallGeneratorWGS<universalTerrainMesh> access = new accessCallGeneratorWGS<universalTerrainMesh>(earth, g, alt, sat1);
+
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+            meshDistributor<universalTerrainMesh> mesh = f.load(Vector2.zero, Vector2.one, earth.radius, 2);
+            long s1 = sw.ElapsedMilliseconds;
+            Debug.Log("Time to load: " + s1);
+
+            s1 = sw.ElapsedMilliseconds;
+            mesh.drawAll(earth.representation.gameObject.transform);
+            Debug.Log("Time to draw mesh: " + (sw.ElapsedMilliseconds - s1));
+
+            s1 = sw.ElapsedMilliseconds;
+            var output = access.bruteForce(new Time(2461021.77854328), new Time(2461021.77991930), 0.00001157407 , mesh);
+            Debug.Log("Time to generate access calls: " + (sw.ElapsedMilliseconds - s1));
+
+            foreach (accessCallTimeSpan span in output) {
+                Debug.Log(span);
+            }
+        }
     }
 
     int stationIndex = 0;
@@ -508,7 +540,7 @@ public class controller : MonoBehaviour
 
         facility svalbard = new facility("Svalbard", earth, new facilityData("Svalbard", new geographic(77.875, 20.9752), .001, new List<antennaData>()), new representationData("facility", "defaultMat"));
         facility ASF = new facility("ASF", earth, new facilityData("ASF", new geographic(64.8401, -147.72), .001, new List<antennaData>()), new representationData("facility", "defaultMat"));
-        satellite sat1 = new satellite("Sat1", new satelliteData(new Timeline(6371 + 900, 0, 98, 0, 0, 0, 0, 2461021.5, EarthMu)), rd);
+        sat1 = new satellite("Sat1", new satelliteData(new Timeline(6371 + 900, 0, 98, 0, 0, 0, 0, 2461021.5, EarthMu)), rd);
 
         body.addFamilyNode(earth, sat1);
         body.addFamilyNode(earth, moon);

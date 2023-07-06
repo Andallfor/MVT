@@ -74,7 +74,7 @@ public class satelliteRepresentation
         }
 
         RaycastHit hit;
-        if (Physics.Raycast(Camera.main.transform.position, p - Camera.main.transform.position, out hit, Vector3.Distance(p, Camera.main.transform.position), 1 << 6)) shownName.text = "";
+        if (Physics.Raycast(Camera.main.transform.position, p - Camera.main.transform.position, out hit, Vector3.Distance(p, Camera.main.transform.position), (1 << 6) | (1 << 7))) shownName.text = "";
         else {
             shownName.text = shownNameText;
             Vector3 rot = planetParent.transform.rotation.eulerAngles * Mathf.Deg2Rad;
