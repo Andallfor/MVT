@@ -139,8 +139,8 @@ public class controller : MonoBehaviour
         };
         options.debug = true;
         options.blocking = false;
-        options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
-        //options.outputPath = "/Users/arya/Downloads/data.txt";
+        //options.outputPath = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "data.txt");
+        options.outputPath = "/Users/arya/Downloads/data.txt";
 
         useTerrainVisibility = true;
 
@@ -291,16 +291,16 @@ public class controller : MonoBehaviour
                 }
             }
             mesh.drawAll(earth.representation.gameObject.transform);
-
-            runWindowsNoRate();
         }
 
         if (Input.GetKeyDown("o")) {
-            Vector3 v1 = (Vector3) (geographic.toCartesian(new geographic(90, 0), earth.radius).swapAxis());
-            Vector3 v2 = (Vector3) (geographic.toCartesianWGS(new geographic(90, 0), 0).swapAxis());
+            Vector3 v1 = (Vector3) (geographic.toCartesian(new geographic(0, 0), earth.radius).swapAxis());
+            Vector3 v2 = (Vector3) (geographic.toCartesianWGS(new geographic(0, 0), 0).swapAxis());
 
             Debug.Log("regular: " + v1);
             Debug.Log("wgs: " + v2);
+
+            runWindowsNoRate();
         }
 
         if (Input.GetKeyDown("i")) {
@@ -416,12 +416,12 @@ public class controller : MonoBehaviour
             string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth");
             string p = Directory.GetDirectories(src)[stationIndex];
             universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
-            //f.overrideToCart(geographic.toCartesianWGS);
+            f.overrideToCart(geographic.toCartesianWGS);
             Debug.Log(p);
 
             if (prevDist != null) prevDist.clear();
             geographic offset = new geographic(1, 1);
-            prevDist = f.load(f.center, earth.radius, f.getBestResolution(f.center - offset, f.center + offset, 5_000_000), offset: 1);
+            prevDist = f.load(f.center, earth.radius, f.getBestResolution(f.center - offset, f.center + offset, 500000), offset: 1);
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
             prevDist.drawAll(earth.representation.gameObject.transform);
@@ -431,7 +431,7 @@ public class controller : MonoBehaviour
 
             if (stationIndex >= 20) stationIndex = 0;
         }
-    
+
         if (Input.GetKeyDown("y")) {
             string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/canberra");
             universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"));
@@ -441,7 +441,7 @@ public class controller : MonoBehaviour
             double alt = f.getHeight(g);
 
             new facility("V", earth, new facilityData("V", g, alt, new List<antennaData>()), new representationData("facility", "defaultMat"));
-            
+
             accessCallGeneratorWGS<universalTerrainMesh> access = new accessCallGeneratorWGS<universalTerrainMesh>(earth, g, alt, sat1);
 
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
@@ -524,7 +524,7 @@ public class controller : MonoBehaviour
 
         double EarthMu = 398600.0;
 
-        earth = new planet(  "Earth", new planetData(  6371, rotationType.earth,   $"CSVS/JPL/{header}/PLANETS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
+        earth = new planet(  "Earth", new planetData(6378.14, rotationType.earth,   $"CSVS/JPL/{header}/PLANETS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
         moon =  new planet(   "Luna", new planetData(1738.1,  rotationType.moon,    $"CSVS/JPL/{header}/PLANETS/Luna",  oneHour,   planetType.moon), new representationData("planet", "moonTex"));
         planet mercury = new planet("Mercury", new planetData(2439.7,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/mercury", oneHour, planetType.planet), new representationData("planet", "mercuryTex"));
         planet venus = new planet(  "Venus", new planetData(6051.8,  rotationType.none,   $"CSVS/JPL/{header}/PLANETS/venus", oneHour, planetType.planet), new representationData("planet", "venusTex"));

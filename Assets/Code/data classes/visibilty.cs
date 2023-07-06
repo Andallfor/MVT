@@ -83,7 +83,7 @@ public static class visibility
                 {
                     if (ukvp.Key == pkvp.Key) continue;
                     if (!existance[ukvp.Key](master.time) || !existance[pkvp.Key](master.time)) continue;
-                    if (!Physics.Linecast(ukvp.Value.position, pkvp.Value.position, LayerMask.GetMask("terrain")))
+                    if (!Physics.Linecast(ukvp.Value.position, pkvp.Value.position, LayerMask.GetMask("planet", "terrain")))
                     {
                         var results = output[(ukvp.Key, pkvp.Key)];
                         results.time.Add(master.time.julian);
@@ -192,7 +192,7 @@ public static class visibility
                 {
                     if (ukvp.Key == pkvp.Key) continue;
                     if (!existance[ukvp.Key](master.time) || !existance[pkvp.Key](master.time)) continue;
-                    if (!Physics.Linecast(ukvp.Value.position, pkvp.Value.position, LayerMask.GetMask("terrain")))
+                    if (!Physics.Linecast(ukvp.Value.position, pkvp.Value.position, LayerMask.GetMask("planet", "terrain")))
                     {
                         var results = output[(ukvp.Key, pkvp.Key)];
                         results.time.Add(master.time.julian);
@@ -202,7 +202,7 @@ public static class visibility
                         Debug.Log("connected");
 
                         //if (options.outputPath != default(string)) sb.AppendLine($"{master.time.ToString()}: {ukvp.Key} to {pkvp.Key}");
-                        if (options.outputPath != default(string)) sb.AppendLine($"{master.time.julian}: {ukvp.Key} to {pkvp.Key}");
+                        //if (options.outputPath != default(string)) sb.AppendLine($"{master.time.julian}: {ukvp.Key} to {pkvp.Key}");
                     }
                     else
                     {
@@ -232,7 +232,7 @@ public static class visibility
             foreach (LineRenderer lr in lrs.Values) GameObject.Destroy(lr.gameObject);
         }
 
-        if (options.outputPath != default(string)) File.WriteAllText(options.outputPath, sb.ToString());
+        //if (options.outputPath != default(string)) File.WriteAllText(options.outputPath, sb.ToString());
 
         if (options.callback != null) options.callback(output);
 

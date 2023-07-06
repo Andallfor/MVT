@@ -76,3 +76,6 @@ Assets/StreamingAssets/pythonWindows/Lib/site-packages/pip.meta
 Assets/StreamingAssets/pythonWindows/Lib/site-packages/pip/_vendor.meta
 Assets/StreamingAssets/pythonWindows/Lib/site-packages/pip/_vendor/urllib3.meta
 data.txt
+Assets/outsideDlls/OpenJpegDotNetNative.dll
+Assets/outsideDlls/OpenJpegDotNetNative.dylib
+Assets/outsideDlls/OpenJpegDotNetNative.dll

@@ -58,7 +58,7 @@ public class facilityRepresentation
         lr = gameObject.GetComponent<LineRenderer>();
         lr.positionCount = 2;
         mr = gameObject.GetComponent<MeshRenderer>();
-        mr.enabled = false;
+        mr.enabled = true;
 
         this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
@@ -91,15 +91,18 @@ public class facilityRepresentation
             if (!planetFocusHidden) {
                 RaycastHit hit;
                 if (Physics.Raycast(general.camera.transform.position,
-                    this.gameObject.transform.position - general.camera.transform.position, out hit, 
+                    this.gameObject.transform.position - general.camera.transform.position, out hit,
                     Vector3.Distance(this.gameObject.transform.position, general.camera.transform.position), (1 << 6) | (1 << 7))) {
                     shownName.text = "";
                 } else {
                     shownName.text = shownNameText;
                     uiHelper.drawTextOverObject(shownName, this.gameObject.transform.position);
+                    gameObject.SetActive(true);
                 }
-            } else shownName.text = "";
-        } else shownName.text = "";
+            } else {shownName.text = ""; gameObject.SetActive(false);}
+        } else {shownName.text = ""; gameObject.SetActive(false);}
+
+
     }
 
     public void drawSchedulingConnections(List<antennaData> ads) {
