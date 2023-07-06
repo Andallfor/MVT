@@ -199,7 +199,7 @@ public static class visibility
                         hit = false;
 
                         //if (options.outputPath != default(string)) sb.AppendLine($"{master.time.ToString()}: {ukvp.Key} to {pkvp.Key}");
-                        //if (options.outputPath != default(string)) sb.AppendLine($"{master.time.julian}: {ukvp.Key} to {pkvp.Key}");
+                        if (options.outputPath != default(string)) sb.AppendLine($"{master.time.julian}: {ukvp.Key} to {pkvp.Key}");
                     }
                     else
                     {
@@ -228,7 +228,7 @@ public static class visibility
             foreach (LineRenderer lr in lrs.Values) GameObject.Destroy(lr.gameObject);
         }
 
-        //if (options.outputPath != default(string)) File.WriteAllText(options.outputPath, sb.ToString());
+        if (options.outputPath != default(string)) File.WriteAllText(options.outputPath, sb.ToString());
 
         if (options.callback != null) options.callback(output);
 

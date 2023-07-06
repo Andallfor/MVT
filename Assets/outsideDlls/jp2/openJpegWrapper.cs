@@ -56,8 +56,11 @@ public static class openJpegWrapper {
 
         return formatted;
     }
-
-    private const string lib = "OpenJpegDotNetNative";
+    #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+    private const string lib = "OpenJpegDotNetNativeWindows";
+    #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+    private const string lib = "OpenJpegDotNetNativeMac";
+    #endif
     private const CallingConvention ccon = CallingConvention.Cdecl;
 
     [DllImport(lib, CallingConvention = ccon)] private static extern IntPtr openjpeg_openjp2_opj_dparameters_t_new();
