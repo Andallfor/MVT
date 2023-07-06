@@ -455,7 +455,8 @@ public class controller : MonoBehaviour
             Debug.Log("Time to draw mesh: " + (sw.ElapsedMilliseconds - s1));
 
             s1 = sw.ElapsedMilliseconds;
-            var output = access.bruteForce(new Time(2461021.77854328), new Time(2461021.77991930), 0.00001157407 , mesh);
+            //var output = access.bruteForce(new Time(2461021.77854328 + 0.055), new Time(2461021.77854328 + 0.1), 0.00001157407, mesh);
+            var output = access.findTimes(new Time(2461021.77854328 + 0.055), new Time(2461021.77854328 + 0.1), 0.00069444444, 0.00001157407, mesh);
             Debug.Log("Time to generate access calls: " + (sw.ElapsedMilliseconds - s1));
 
             foreach (accessCallTimeSpan span in output) {

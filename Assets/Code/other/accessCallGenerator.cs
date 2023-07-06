@@ -38,7 +38,10 @@ public class accessCallGeneratorWGS<T> where T : IMesh, new() {
             if (isBlocked != hit) {
                 isBlocked = hit;
 
-                if (hit) spans[spans.Count - 1].setEnd(master.time.julian);
+                if (hit) {
+                    accessCallTimeSpan span = spans[spans.Count - 1];
+                    spans[spans.Count - 1] = new accessCallTimeSpan(span.start, master.time.julian - inc);
+                }
                 else spans.Add(new accessCallTimeSpan(master.time.julian, 0));
             }
 
@@ -48,7 +51,10 @@ public class accessCallGeneratorWGS<T> where T : IMesh, new() {
         }
 
         // close any remaining windows
-        if (!isBlocked) spans[spans.Count - 1].setEnd(master.time.julian);
+        if (!isBlocked) {
+            accessCallTimeSpan span = spans[spans.Count - 1];
+            spans[spans.Count - 1] = new accessCallTimeSpan(span.start, master.time.julian);
+        }
 
         Debug.Log($"Total of {iterations} iterations for brute force access calls");
 
@@ -71,53 +77,71 @@ public class accessCallGeneratorWGS<T> where T : IMesh, new() {
 
         double currentInc = maxInc;
         while (master.time.julian < end.julian) {
+            double currentIterationTime = master.time.julian;
             master.requestPositionUpdate();
 
-            Vector3 src = earth.localGeoToUnityPos(pos, alt);
-            Vector3 dst = (Vector3) ((target.pos - master.referenceFrame - master.currentPosition) / master.scale);
-
-            bool hit = Physics.Linecast(src, dst, (1 << 6) | (1 << 7)); // terrain and planets only
-            Debug.DrawLine(src, dst, Color.red, 10000000);
+            bool hit = raycast();
 
             if (isBlocked != hit) {
                 isBlocked = hit;
 
-                if (hit) spans[spans.Count - 1].setEnd(master.time.julian);
-                else spans.Add(new accessCallTimeSpan(master.time.julian, 0));
+                if (hit) {
+                    accessCallTimeSpan span = spans[spans.Count - 1];
+                    spans[spans.Count - 1] = new accessCallTimeSpan(span.start, findBoundary(master.time.julian, maxInc, false, minInc));
+                }
+                else spans.Add(new accessCallTimeSpan(findBoundary(master.time.julian, maxInc, true, minInc) + minInc, 0));
             }
 
-            master.time.addJulianTime(currentInc);
+            master.time.addJulianTime((currentIterationTime + maxInc) - master.time.julian);
         }
 
         // close any remaining windows
-        if (!isBlocked) spans[spans.Count - 1].setEnd(master.time.julian);
+        if (!isBlocked) {
+            accessCallTimeSpan span = spans[spans.Count - 1];
+            spans[spans.Count - 1] = new accessCallTimeSpan(span.start, master.time.julian);
+        }
 
         // reset time
-        master.time.addJulianTime(initialTime - master.time.julian);
-        master.requestPositionUpdate();
+        //master.time.addJulianTime(initialTime - master.time.julian);
+        //master.requestPositionUpdate();
 
         return spans;
     }
 
-    private double findBoundary(double inc, bool original, double minInc) {
+    private double findBoundary(double time, double inc, bool targetStart, double minInc) {
         // termination condition- original, !original (separated by minInc)
+        if (inc <= minInc) return time;
 
-        //bool originalHit = 
-        return 0;
+        bool originalHit = raycast(time, false);
+        if (originalHit != targetStart) return findBoundary(time - inc / 2.0, inc / 2.0, targetStart, minInc);
+
+        bool next = raycast(time + minInc, false);
+        if (next != targetStart) return time;
+        return findBoundary(time + inc / 2.0, inc / 2.0, targetStart, minInc);
     }
 
-    private bool raycast(double time) {
+    public bool raycast(double time, bool reset = true) {
+        double initialTime = master.time.julian;
         master.time.addJulianTime(time - master.time.julian);
         master.requestPositionUpdate();
 
-        return false;
+        bool result = raycast();
+
+        if (reset) {
+            master.time.addJulianTime(initialTime - master.time.julian);
+            master.requestPositionUpdate();
+        }
+
+        return result;
     }
 
     private bool raycast() {
         Vector3 src = earth.localGeoToUnityPos(pos, alt);
         Vector3 dst = (Vector3) ((target.pos - master.referenceFrame - master.currentPosition) / master.scale);
 
-        return Physics.Linecast(src, dst, (1 << 6) | (1 << 7)); // terrain and planets only
+        bool result = Physics.Linecast(src, dst, (1 << 6) | (1 << 7)); // terrain and planets only
+        //Debug.DrawLine(src, dst, result ? Color.red : Color.green, 10000000);
+        return result;
     }
 }
 
@@ -127,10 +151,6 @@ public struct accessCallTimeSpan {
         this.start = start;
         this.end = end;
     }
-
-    public void setEnd(double end) {this.end = end;}
-
-    public void setStart(double start) {this.start = start;}
 
     public override string ToString() => $"{start} to {end}";
 }
