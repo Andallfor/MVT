@@ -90,12 +90,10 @@ public static class visibility
                         results.dist.Add(Vector3.Distance(ukvp.Value.position, pkvp.Value.position) * master.scale);
 
                         hit = false;
-												Debug.Log("connected");
                     }
                     else
                     {
                         hit = true;
-												Debug.Log("hit");
                     }
 
 
@@ -199,7 +197,6 @@ public static class visibility
                         results.dist.Add(Vector3.Distance(ukvp.Value.position, pkvp.Value.position) * master.scale);
 
                         hit = false;
-                        Debug.Log("connected");
 
                         //if (options.outputPath != default(string)) sb.AppendLine($"{master.time.ToString()}: {ukvp.Key} to {pkvp.Key}");
                         //if (options.outputPath != default(string)) sb.AppendLine($"{master.time.julian}: {ukvp.Key} to {pkvp.Key}");
@@ -207,7 +204,6 @@ public static class visibility
                     else
                     {
                         hit = true;
-                        Debug.Log("hit");
                     }
 
                     if (options.debug)
