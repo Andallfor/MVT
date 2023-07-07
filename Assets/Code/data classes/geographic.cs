@@ -77,7 +77,7 @@ public struct geographic
         position locGeo = new position(xGS_geo, yGS_geo, zGS_geo);
         double n = position.norm(locGeo);
         locGeo = new position(locGeo.x / n, locGeo.y / n, locGeo.z / n);
-        return (locGeo * (rGs + alt) / 2);
+        return (locGeo * (rGs + alt));
     }
 
     /// <summary> Takes a point centered on (0, 0) with unknown length, and converts it into geo </summary>

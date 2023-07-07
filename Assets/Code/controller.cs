@@ -287,7 +287,7 @@ public class controller : MonoBehaviour
             for (int r = 0; r < sy; r++) {
                 for (int c = 0; c < sx; c++) {
                     geographic g = new geographic(180.0 * (double) r / (double) sy - 90.0, 360.0 * (double) c / (double) sx - 180.0);
-                    mesh.addPoint(c, r, g.toCartesianWGS(earth.radius).swapAxis() / (master.scale));
+                    mesh.addPoint(c, r, g.toCartesianWGS(0).swapAxis() / (master.scale));
                 }
             }
             mesh.drawAll(earth.representation.gameObject.transform);
@@ -421,7 +421,7 @@ public class controller : MonoBehaviour
 
             if (prevDist != null) prevDist.clear();
             geographic offset = new geographic(1, 1);
-            prevDist = f.load(f.center, earth.radius, f.getBestResolution(f.center - offset, f.center + offset, 5_000_000), offset: 1);
+            prevDist = f.load(f.center, 0, f.getBestResolution(f.center - offset, f.center + offset, 5_000_000), offset: 1);
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
             prevDist.drawAll(earth.representation.gameObject.transform);
@@ -524,7 +524,7 @@ public class controller : MonoBehaviour
 
         double EarthMu = 398600.0;
 
-        earth = new planet(  "Earth", new planetData(6378.14, rotationType.earth,   $"CSVS/JPL/{header}/PLANETS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
+        earth = new planet(  "Earth", new planetData(6356.75, rotationType.earth,   $"CSVS/JPL/{header}/PLANETS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
         moon =  new planet(   "Luna", new planetData(1738.1,  rotationType.moon,    $"CSVS/JPL/{header}/PLANETS/Luna",  oneHour,   planetType.moon), new representationData("planet", "moonTex"));
         planet mercury = new planet("Mercury", new planetData(2439.7,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/mercury", oneHour, planetType.planet), new representationData("planet", "mercuryTex"));
         planet venus = new planet(  "Venus", new planetData(6051.8,  rotationType.none,   $"CSVS/JPL/{header}/PLANETS/venus", oneHour, planetType.planet), new representationData("planet", "venusTex"));

@@ -82,7 +82,7 @@ public class facilityRepresentation
             return;
         }
 
-        position p = geo.toCartesian(parent.radius + alt) / (2 * parent.radius);
+        position p = geo.toCartesianWGS(alt) / (parent.radius * 2);
         this.gameObject.transform.localPosition = (Vector3) (p.swapAxis());
 
         foreach (antennaRepresentation ar in antennas) ar.updatePos(parent);
