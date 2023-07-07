@@ -151,24 +151,38 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         Debug.Log($"Time to read {(end.y - start.y) * (end.x - start.x)} pixels: {sw.ElapsedMilliseconds - s1}ms");
         s1 = sw.ElapsedMilliseconds;
 
-        int colLen = end.x - start.x;
-        int maxHeight = (int) (nrows / power);
+        //int colLen = end.x - start.x;
+        //int maxHeight = (int) (nrows / power);
+        //for (int r = start.y; r < end.y; r++) {
+        //    for (int c = start.x; c < end.x; c++) {
+        //        int x = c - start.x;
+        //        int y = r - start.y;
+//
+        //        geographic g = new geographic((maxHeight - r) * cellSize * power, c * cellSize * power) + llCorner;
+        //        double height = (heights[(int) (y * colLen + x)] - 32767) / 1000.0; // +32767 bc data is offset in jp2 writer
+        //        position p = toCart(g, radius + height).swapAxis() / master.scale;
+//
+        //        if (isForAccessCalls && height != 0) {
+        //            accessCallGeo.Add(g);
+        //            accessCallHeight.Add(height);
+        //            accessCallGrid.Add(new Vector2Int(x, y));
+        //        }
+//
+        //        m.addPoint(x, y, p);
+        //    }
+        //}
+
+        
+
+        Vector3[] output = processPoints(heights, start, end, power);
+
+        int index = 0;
         for (int r = start.y; r < end.y; r++) {
             for (int c = start.x; c < end.x; c++) {
                 int x = c - start.x;
                 int y = r - start.y;
 
-                geographic g = new geographic((maxHeight - r) * cellSize * power, c * cellSize * power) + llCorner;
-                double height = (heights[(int) (y * colLen + x)] - 32767) / 1000.0; // +32767 bc data is offset in jp2 writer
-                position p = toCart(g, radius + height).swapAxis() / master.scale;
-
-                if (isForAccessCalls && height != 0) {
-                    accessCallGeo.Add(g);
-                    accessCallHeight.Add(height);
-                    accessCallGrid.Add(new Vector2Int(x, y));
-                }
-
-                m.addPoint(x, y, p);
+                m.addPoint(x, y, output[index++]);
             }
         }
 
@@ -188,5 +202,54 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         int x = (int) Math.Round(dx * ncols / generatedPower - generatedStart.x);
 
         src.addPoint(x, y, p.swapAxis() / master.scale);
+    }
+
+    private Vector3[] processPoints(int[] heights, Vector2Int start, Vector2Int end, int power) {
+        // if needed in the future:
+        // https://stackoverflow.com/questions/73504670/is-it-possible-to-use-multiple-compute-buffers-in-compute-shader-in-hlsl-in-unit
+
+        ComputeShader cs = Resources.Load<ComputeShader>("Materials/terrainWGSCompute");
+        cs.SetInt("lenHeights", heights.Length);
+        cs.SetInt("gridX", end.x - start.x);
+        cs.SetInt("gridY", end.y - start.y);
+        cs.SetInt("startX", start.x);
+        cs.SetInt("startY", start.y);
+        cs.SetInt("endX", end.x);
+        cs.SetInt("endY", end.y);
+        cs.SetInt("trueX", (int) ncols);
+        cs.SetInt("trueY", (int) nrows);
+        cs.SetInt("power", power);
+        cs.SetInt("assignedLength", Mathf.CeilToInt((float) heights.Length / 65536f)); // 65536f is max thread count allowed
+
+        double[] doubleArray = new double[4] {cellSize, llCorner.lat, llCorner.lon, master.scale};
+        ComputeBuffer doubleBuffer = new ComputeBuffer(doubleArray.Length, doubleArray.Length * sizeof(double));
+        doubleBuffer.SetData(doubleArray);
+
+        ComputeBuffer heightBuffer = new ComputeBuffer(heights.Length, sizeof(int));
+        heightBuffer.SetData(heights);
+
+        Vector3[] vectors = new Vector3[heights.Length * 3];
+        ComputeBuffer vectorBuffer = new ComputeBuffer(vectors.Length, sizeof(float) * 3);
+        vectorBuffer.SetData(vectors);
+
+        cs.SetBuffer(0, "heights", heightBuffer);
+        cs.SetBuffer(0, "vectors", vectorBuffer);
+        cs.SetBuffer(0, "data", doubleBuffer);
+        
+        // max of 65536 threads, 1024 (dispatch) * 64 (compute)
+        // generating less then 65536 points (256x256) will decrease performance
+        cs.Dispatch(0, 1024, 1, 1);
+
+        vectorBuffer.GetData(vectors);
+
+        return vectors;
+    }
+
+    private int[] splitDouble(double d) {
+        byte[] src = BitConverter.GetBytes(d);
+        int[] output = new int[2];
+        Buffer.BlockCopy(src, 0, output, 0, 2);
+
+        return output;
     }
 }

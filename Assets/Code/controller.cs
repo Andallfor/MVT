@@ -421,7 +421,7 @@ public class controller : MonoBehaviour
 
             if (prevDist != null) prevDist.clear();
             geographic offset = new geographic(1, 1);
-            prevDist = f.load(f.center, earth.radius, f.getBestResolution(f.center - offset, f.center + offset, 5_000_000), offset: 1);
+            prevDist = f.load(f.center, 0, f.getBestResolution(f.center - offset, f.center + offset, 5_000_000), offset: 1);
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
             prevDist.drawAll(earth.representation.gameObject.transform);

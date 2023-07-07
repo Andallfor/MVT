@@ -76,7 +76,7 @@ public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
 
     public void drawAll(Transform parent) {
         Material m = new Material(resLoader.load<Material>("defaultMat"));
-        GameObject go = resLoader.load<GameObject>("planetMesh");
+        GameObject go = resLoader.load<GameObject>("terrainMesh");
         drawAll(m, go, new string[0], parent);
     }
 
