@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System;
+using System.Text;
 
 public class meshDistributor {
     public const int maxVertSize = 255;
@@ -15,7 +16,7 @@ public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
     public List<T> allMeshes {get => map.Values.ToList();}
     
     // try to create as many 255x255 meshes as possible
-    public meshDistributor(Vector2Int size, Vector2Int maxSize, Vector2Int offset, bool reverse = false, Func<Vector2Int, Vector2> customUV = null) {
+    public meshDistributor(Vector2Int size, Vector2Int maxSize, Vector2Int offset, bool reverse = false, Func<Vector2Int, Vector2> customUV = null, bool fastVerts = false) {
         baseType = new T();
 
         for (int x = 0; x < size.x; x += maxVertSize) {
@@ -31,6 +32,8 @@ public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
                         y + maxVertSize > size.y ? 0 : 1);
 
                     t.init(xLeft + _o.x, yLeft + _o.y, new position(x + offset.x, y + offset.y, 0), new position(maxSize.x, maxSize.y, 0), reverse, customUV);
+                    if (!fastVerts) t.prepareVerts();
+
                     map.Add(new Vector2Int(x, y), t);
                 }
             }   

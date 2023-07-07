@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public abstract class IMesh
-{
-    protected int[] triangles = new int[0];
-    protected Vector2[] uvs = new Vector2[0];
+public abstract class IMesh {
     public Vector3[] verts;
+    public Vector2[] uvs;
     protected Mesh mesh;
     public Vector2Int shape {get; protected set;}
     protected GameObject go;
+    protected bool reverse, usingCustomUV;
 
     protected static Dictionary<Vector2Int, int[]> trianglesForwards = new Dictionary<Vector2Int, int[]>();
     protected static Dictionary<Vector2Int, int[]> trianglesBackwards = new Dictionary<Vector2Int, int[]>();
@@ -20,30 +19,24 @@ public abstract class IMesh
 
     public void init(int cols, int rows, position initialPosition, position mapSize, bool reverse = false, Func<Vector2Int, Vector2> customUV = null) {
         shape = new Vector2Int(cols, rows);
-        verts = new Vector3[cols * rows];
-        triangles = new int[(rows - 1) * (cols - 1) * 6];
-        uvs = new Vector2[rows * cols];
+        this.reverse = reverse;
 
         this.mapSize = mapSize;
 
         bool trianglesSatisfied = false;
-        if (reverse && trianglesBackwards.ContainsKey(shape)) {
-            triangles = trianglesBackwards[shape];
-            trianglesSatisfied = true;
-        } else if (trianglesForwards.ContainsKey(shape)) {
-            triangles = trianglesForwards[shape];
-            trianglesSatisfied = true;
-        }
+        if ((reverse && trianglesBackwards.ContainsKey(shape)) || (!reverse && trianglesForwards.ContainsKey(shape))) trianglesSatisfied = true;
 
         bool uvSatisfied = false;
-        bool usingCustomUV = customUV != null;
+        usingCustomUV = customUV != null;
         if (!usingCustomUV) {
             customUV = defaultUV;
-            if (defaultUVs.ContainsKey(shape)) {
-                uvs = defaultUVs[shape];
-                uvSatisfied = true;
-            }
+            if (defaultUVs.ContainsKey(shape)) uvSatisfied = true;
         }
+
+        int[] triangles = null;
+        uvs = null;
+        if (!trianglesSatisfied) triangles = new int[(rows - 1) * (cols - 1) * 6];
+        if (!uvSatisfied) uvs = new Vector2[rows * cols];
 
         if (!uvSatisfied || !trianglesSatisfied) {
             int index = 0;
@@ -74,9 +67,15 @@ public abstract class IMesh
             }
         }
 
-        if (reverse) trianglesBackwards[shape] = triangles;
-        else trianglesForwards[shape] = triangles;
-        if (!usingCustomUV) defaultUVs[shape] = uvs;
+        if (!trianglesSatisfied) {
+            if (reverse) trianglesBackwards[shape] = triangles;
+            else trianglesForwards[shape] = triangles;
+        }
+        if (!usingCustomUV && !uvSatisfied) defaultUVs[shape] = uvs;
+    }
+
+    public void prepareVerts() {
+        verts = new Vector3[shape.x * shape.y];
     }
 
     private Vector2 defaultUV(Vector2Int v) => new Vector2((float) (v.x / mapSize.x), (float) (v.y / mapSize.y));
@@ -85,8 +84,12 @@ public abstract class IMesh
         mesh = new Mesh();
         mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         mesh.vertices = verts;
-        mesh.triangles = triangles;
-        mesh.uv = uvs;
+
+        if (reverse) mesh.triangles = trianglesBackwards[shape];
+        else mesh.triangles = trianglesForwards[shape];
+
+        if (usingCustomUV) mesh.uv = uvs;
+        else mesh.uv = defaultUVs[shape];
 
         mesh.RecalculateNormals();
 
@@ -99,8 +102,7 @@ public abstract class IMesh
         go.GetComponent<MeshRenderer>().material = mat;
         go.GetComponent<MeshFilter>().mesh = mesh;
 
-        this.triangles = new int[0];
-        this.uvs = new Vector2[0];
+        this.uvs = null;
         this.verts = new Vector3[0];
 
         return go;

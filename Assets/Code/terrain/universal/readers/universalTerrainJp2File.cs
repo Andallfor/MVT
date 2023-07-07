@@ -242,6 +242,10 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
 
         vectorBuffer.GetData(vectors);
 
+        doubleBuffer.Dispose();
+        vectorBuffer.Dispose();
+        heightBuffer.Dispose();
+
         return vectors;
     }
 

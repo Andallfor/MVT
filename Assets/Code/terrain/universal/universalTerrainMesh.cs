@@ -7,7 +7,7 @@ public class universalTerrainMesh : IMesh {
     public universalTerrainMesh() {}
 
     public universalTerrainMesh(int width, int height, position ll, position max, bool reverse, Func<Vector2Int, Vector2> customUV = null) {
-        base.init(width, height, ll, max, reverse, customUV: customUV);
+        //base.init(width, height, ll, max, reverse, customUV: customUV);
     }
 
     public override Vector3 addPoint(int x, int y, geographic g, double h) {
