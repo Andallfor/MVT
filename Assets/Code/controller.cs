@@ -12,7 +12,7 @@ public class controller : MonoBehaviour
     public static planet earth, moon;
     public static planet mars;
     public static planet defaultReferenceFrame;
-    public static double speed = 0.0005;
+    public static double speed = 0.0000116 * 60;
     public static int tickrate = 7200;
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1, facilityFocusMousePosition, facilityFocusMousePosition1;
     private Coroutine loop;
@@ -159,7 +159,7 @@ public class controller : MonoBehaviour
             else providers.Add(master.allSatellites.Find(x => x.name == p.Key));
         }
 
-        visibility.raycastTerrain(users, providers, master.time.julian, master.time.julian + 30, speed, options, true);
+        visibility.raycastTerrain(users, providers, master.time.julian, master.time.julian + 1, speed, options, true);
     }
 
     public static void runDynamicLink() {
@@ -440,7 +440,7 @@ public class controller : MonoBehaviour
         }
 
         if (Input.GetKeyDown("y")) {
-            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/canberra");
+            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan");
             universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"));
             f.overrideToCart(geographic.toCartesianWGS);
 
@@ -548,7 +548,11 @@ public class controller : MonoBehaviour
 
         facility svalbard = new facility("Svalbard", earth, new facilityData("Svalbard", new geographic(77.875, 20.9752), .001, new List<antennaData>()), new representationData("facility", "defaultMat"));
         facility ASF = new facility("ASF", earth, new facilityData("ASF", new geographic(64.8401, -147.72), .001, new List<antennaData>()), new representationData("facility", "defaultMat"));
-        sat1 = new satellite("Sat1", new satelliteData(new Timeline(6371 + 900, 0, 98, 0, 0, 0, 0, 2461021.5, EarthMu)), rd);
+        sat1 = new satellite("Sat1", new satelliteData(new Timeline(6378.1 + 900, 0, 98, 0, 0, 0, 0, 2461021.5, EarthMu)), rd);
+
+        facility np = new facility("North Pole", earth, new facilityData("North Pole", new geographic(90, 0), 0, new List<antennaData>()), new representationData("facility", "defaultMat"));
+        facility eq = new facility("Equator", earth, new facilityData("Equator", new geographic(0, 0), .001, new List<antennaData>()), new representationData("facility", "defaultMat"));
+
 
         body.addFamilyNode(earth, sat1);
         body.addFamilyNode(earth, moon);
@@ -563,6 +567,7 @@ public class controller : MonoBehaviour
         linkBudgeting.users.Add("Sat1", (false, 2461021.5, 2461051.5));
         linkBudgeting.providers.Add("ASF", (true, 2461021.5, 2461051.5));
         linkBudgeting.providers.Add("Svalbard", (true, 2461021.5, 2461051.5));
+        linkBudgeting.providers.Add("Equator", (true, 2461021.5, 2461051.5));
 
         loadingController.addPercent(1);
 
