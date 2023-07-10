@@ -302,6 +302,13 @@ public class controller : MonoBehaviour
 
             runWindowsNoRate();
         }
+        if (Input.GetKeyDown("k")) {
+            string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan");
+            var f = new universalTerrainJp2File(Path.Combine(src, "data.jp2"), Path.Combine(src, "metadata.txt"));
+            f.overrideToCart(geographic.toCartesianWGS);
+
+            f.load(Vector2.zero, Vector2.one, 0, 0).drawAll(earth.representation.gameObject.transform);
+        }
 
         if (Input.GetKeyDown("i")) {
             string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan");
