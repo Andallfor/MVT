@@ -142,7 +142,9 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
 
         meshDistributor<universalTerrainMesh> m = new meshDistributor<universalTerrainMesh>(
             new Vector2Int(end.x - start.x, end.y - start.y),
-            Vector2Int.zero, Vector2Int.zero, true);
+            Vector2Int.zero, Vector2Int.zero, true, customUV: (Vector2Int v) => {
+                return new Vector2((float) v.x / (float) (end.x - start.x), (float) v.y / (float) (end.y - start.y));
+            });
 
         long s1 = sw.ElapsedMilliseconds;
         Debug.Log($"Time to init mesh: {s1}ms");

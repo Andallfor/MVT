@@ -58,7 +58,7 @@ public class facilityRepresentation
         lr = gameObject.GetComponent<LineRenderer>();
         lr.positionCount = 2;
         mr = gameObject.GetComponent<MeshRenderer>();
-        mr.enabled = true;
+        mr.enabled = false;
 
         this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
         shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);

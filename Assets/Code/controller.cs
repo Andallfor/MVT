@@ -302,12 +302,14 @@ public class controller : MonoBehaviour
 
             runWindowsNoRate();
         }
+        
         if (Input.GetKeyDown("k")) {
             string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan");
             var f = new universalTerrainJp2File(Path.Combine(src, "data.jp2"), Path.Combine(src, "metadata.txt"));
             f.overrideToCart(geographic.toCartesianWGS);
 
-            f.load(Vector2.zero, Vector2.one, 0, 0).drawAll(earth.representation.gameObject.transform);
+            Material m = Resources.Load<Material>("Materials/vis/juanVis");
+            f.load(Vector2.zero, Vector2.one, 0, 0).drawAll(m, resLoader.load<GameObject>("planetMesh"), new string[0], earth.representation.gameObject.transform);
         }
 
         if (Input.GetKeyDown("i")) {
@@ -440,7 +442,7 @@ public class controller : MonoBehaviour
         }
 
         if (Input.GetKeyDown("y")) {
-            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan");
+            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/canberra");
             universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"));
             f.overrideToCart(geographic.toCartesianWGS);
 
@@ -453,7 +455,7 @@ public class controller : MonoBehaviour
 
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
-            meshDistributor<universalTerrainMesh> mesh = f.load(Vector2.zero, Vector2.one, earth.radius, 2);
+            meshDistributor<universalTerrainMesh> mesh = f.load(Vector2.zero, Vector2.one, 0, 2);
             long s1 = sw.ElapsedMilliseconds;
             Debug.Log("Time to load: " + s1);
 
