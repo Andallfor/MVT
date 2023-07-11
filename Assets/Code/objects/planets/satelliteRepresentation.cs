@@ -24,6 +24,7 @@ public class satelliteRepresentation
         gameObject.GetComponent<MeshRenderer>().material = data.material;
         gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
         gameObject.name = name;
+        gameObject.GetComponent<SphereCollider>().enabled = false;
 
         this.name = name;
         this.shownNameText = name;
