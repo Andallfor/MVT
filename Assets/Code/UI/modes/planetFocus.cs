@@ -71,6 +71,9 @@ public sealed class planetFocus : IMode {
 
         general.camera.transform.rotation *= Quaternion.AngleAxis(rotation.z, Vector3.forward);
 
+        rotation *= Mathf.Max(1f - (UnityEngine.Time.deltaTime * 5f), 0);
+        if (rotation.magnitude < 0.001f) rotation = Vector3.zero;
+
         general.camera.fieldOfView = zoom;
     }
 
