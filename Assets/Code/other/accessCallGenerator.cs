@@ -28,7 +28,7 @@ public class accessCallGeneratorWGS {
         master.scale = 1; // TODO only works when 1
         worldPositionNoHeight = pos.toCartesianWGS(0).swapAxis();
         unityPositionNoHeight = (Vector3) (worldPositionNoHeight / master.scale);
-        master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight;
+        //master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight;
 
         meshFile = new universalTerrainJp2File(path, false);
         meshFile.overrideToCart(geographic.toCartesianWGS);
@@ -37,11 +37,13 @@ public class accessCallGeneratorWGS {
         unityPositionWithHeight = (Vector3) ((pos.toCartesianWGS(alt + 0.01) / master.scale).swapAxis());
 
         // draw terrain
-        meshDist = meshFile.load(start, end, 0, res, -1 * unityPositionNoHeight);
-        meshDist.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
+        //meshDist = meshFile.load(start, end, 0, res, -1 * unityPositionNoHeight);
+        meshDist = meshFile.load(start, end, 0, res, default(position));
+        //meshDist.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
+        meshDist.drawAll(earth.representation.gameObject.transform);
         foreach (universalTerrainMesh mesh in meshDist.allMeshes) {
             mesh.addCollider();
-            mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
+            //mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
             //mesh.hide();
         }
 
@@ -55,11 +57,12 @@ public class accessCallGeneratorWGS {
                 meshWGS.addPoint(c, r, g.toCartesianWGS(0).swapAxis() / master.scale);
             }
         }
-        meshWGS.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
+        //meshWGS.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
+        meshWGS.drawAll(earth.representation.gameObject.transform);
         foreach (universalTerrainMesh mesh in meshWGS.allMeshes) {
             mesh.addCollider();
-            mesh.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
-            mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
+            //mesh.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
+            //mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
             //mesh.hide();
         }
 
@@ -132,7 +135,7 @@ public class accessCallGeneratorWGS {
         double currentInc = maxInc;
         while (master.time.julian < end.julian) {
             double currentIterationTime = master.time.julian;
-            //master.requestPositionUpdate();
+            master.requestPositionUpdate();
 
             bool hit = raycast();
 
@@ -148,7 +151,7 @@ public class accessCallGeneratorWGS {
 
             //if (master.time.julian > 2461026.93171353) return null;
 
-            if (count > 200) return null;
+            //if (count > 200) return null;
             //return null;
             
 
@@ -211,7 +214,8 @@ public class accessCallGeneratorWGS {
 
     private bool raycast() {
         Quaternion q = earth.representation.gameObject.transform.rotation;
-        Vector3 src = q * (unityPositionWithHeight - unityPositionNoHeight);
+        //Vector3 src = q * (unityPositionWithHeight - unityPositionNoHeight);
+        Vector3 src = q * unityPositionWithHeight;
         Vector3 dst = (Vector3) ((target.pos - master.referenceFrame - master.currentPosition) / master.scale);
 
         RaycastHit ray;
@@ -227,13 +231,13 @@ public class accessCallGeneratorWGS {
     }
 
     private void updateMeshes() {
-        Quaternion earthRot = earth.representation.gameObject.transform.rotation;
-        master.currentPosition = earthRot * (Vector3) worldPositionNoHeight; // TODO
-        foreach (universalTerrainMesh m in meshDist.allMeshes) m.go.transform.rotation = earthRot;
-        foreach (universalTerrainMesh m in meshWGS.allMeshes) {
-            m.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
-            m.go.transform.rotation = earthRot;
-        }
+        //Quaternion earthRot = earth.representation.gameObject.transform.rotation;
+        //master.currentPosition = earthRot * (Vector3) worldPositionNoHeight; // TODO
+        //foreach (universalTerrainMesh m in meshDist.allMeshes) m.go.transform.rotation = earthRot;
+        //foreach (universalTerrainMesh m in meshWGS.allMeshes) {
+        //    m.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
+        //    m.go.transform.rotation = earthRot;
+        //}
 
         master.requestPositionUpdate();
     }
