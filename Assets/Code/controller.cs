@@ -280,20 +280,6 @@ public class controller : MonoBehaviour
     public void Update() {
         playerControls.update();
 
-        if (Input.GetKeyDown("p")) {
-            int sy = 450;
-            int sx = 900;
-            meshDistributor<universalTerrainMesh> m = new meshDistributor<universalTerrainMesh>(new Vector2Int(sx, sy), Vector2Int.zero, Vector2Int.zero);
-            for (int r = 0; r < sy; r++) {
-                for (int c = 0; c < sx; c++) {
-                    geographic g = new geographic(180.0 * (double) r / (double) sy - 90.0, 360.0 * (double) c / (double) sx - 180.0);
-                    m.addPoint(c, r, g.toCartesianWGS(0).swapAxis() / (master.scale));
-                }
-            }
-            m.drawAll(earth.representation.gameObject.transform);
-            foreach (IMesh child in m.allMeshes) child.addCollider();
-        }
-
         if (Input.GetKeyDown("o")) {
             Vector3 v1 = (Vector3) (geographic.toCartesian(new geographic(0, 0), earth.radius).swapAxis());
             Vector3 v2 = (Vector3) (geographic.toCartesianWGS(new geographic(0, 0), 0).swapAxis());
@@ -392,6 +378,7 @@ public class controller : MonoBehaviour
 
         // 7,2461022.77871296,2461022.78237024,315.989
         var output = access.findTimes(new Time(2461021.77854328), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
+        //var output = access.bruteForce(new Time(2461021.77854328), new Time(2461022.93452393), 0.00001157407);
         access.saveResults(output);
     }
 

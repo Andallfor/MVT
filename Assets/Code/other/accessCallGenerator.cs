@@ -33,6 +33,7 @@ public class accessCallGeneratorWGS {
         meshFile.overrideToCart(geographic.toCartesianWGS);
 
         double alt = meshFile.getHeight(pos);
+        alt = 0.55;
         worldPositionWithHeight = pos.toCartesianWGS(alt + 0.01);
         unityPositionWithHeight = (Vector3) (worldPositionWithHeight.swapAxis() / master.scale);
 
@@ -75,23 +76,21 @@ public class accessCallGeneratorWGS {
     }
 
     public List<accessCallTimeSpan> bruteForce(Time start, Time end, double inc) {
+        if (!initialized) throw new MethodAccessException("Cannot run access calls unless .initialize(...) has been called!");
+
         double initialTime = master.time.julian;
         master.time.addJulianTime(start.julian - master.time.julian);
-        master.requestPositionUpdate();
+        updateMeshes();
 
         bool isBlocked = true;
         List<accessCallTimeSpan> spans = new List<accessCallTimeSpan>();
 
         int iterations = 0;
-
         while (master.time.julian < end.julian) {
-            master.requestPositionUpdate();
+            double currentIterationTime = master.time.julian;
+            updateMeshes();
 
-            Vector3 src = earth.representation.gameObject.transform.rotation * unityPositionWithHeight;
-            Vector3 dst = (Vector3) ((target.pos - master.referenceFrame - master.currentPosition) / master.scale);
-
-            bool hit = Physics.Linecast(src, dst, (1 << 6) | (1 << 7)); // terrain and planets only
-            Debug.DrawLine(src, dst, hit ? Color.red : Color.green, 10000000);
+            bool hit = raycast();
 
             if (isBlocked != hit) {
                 isBlocked = hit;
@@ -133,8 +132,6 @@ public class accessCallGeneratorWGS {
         bool isBlocked = true;
         List<accessCallTimeSpan> spans = new List<accessCallTimeSpan>();
 
-        int count = 0;
-
         double currentInc = maxInc;
         while (master.time.julian < end.julian) {
             double currentIterationTime = master.time.julian;
@@ -152,17 +149,7 @@ public class accessCallGeneratorWGS {
                 else spans.Add(new accessCallTimeSpan(findBoundary(master.time.julian, maxInc, true, minInc) + minInc, 0));
             }
 
-            //if (master.time.julian > 2461026.93171353) return null;
-
-            //if (count > 100) {
-            //    updateMeshes();
-            //    return null;
-            //}
-            //return null;
-
             master.time.addJulianTime((currentIterationTime + maxInc) - master.time.julian);
-
-            count++;
         }
 
         // close any remaining windows
