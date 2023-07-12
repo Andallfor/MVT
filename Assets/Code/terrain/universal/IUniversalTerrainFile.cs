@@ -44,12 +44,12 @@ public abstract class IUniversalTerrainFile<T> where T : IMesh, new() {
         center = llCorner + size / 2.0;
     }
 
-    public abstract meshDistributor<T> load(geographic center, double planetRadius, uint res, double offset = 0.5);
+    public abstract meshDistributor<T> load(geographic center, double planetRadius, uint res, double offset = 0.5, position posOffset = default(position));
 
-    public abstract meshDistributor<T> load(geographic start, geographic end, double radius, uint res);
+    public abstract meshDistributor<T> load(geographic start, geographic end, double radius, uint res, position posOffset = default(position));
 
     /// <summary> start and end are percents </summary>
-    public abstract meshDistributor<T> load(Vector2 startPercent, Vector2 endPercent, double radius, uint res);
+    public abstract meshDistributor<T> load(Vector2 startPercent, Vector2 endPercent, double radius, uint res, position posOffset);
 }
 
 public enum universalTerrainFileSources {

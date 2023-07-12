@@ -111,19 +111,6 @@ public class planet : body
         return (Vector3) ((gg.toCartesian(radius + alt) + pos - master.currentPosition - master.referenceFrame) / master.scale).swapAxis();
     }
 
-    public position rotateLocalGeoWGS(geographic g, double alt) => geographic.toGeographicWGS(representation.gameObject.transform.rotation * (Vector3)(g.toCartesianWGS(radius + alt)).swapAxis()).toCartesianWGS(radius + alt).swapAxis();
-
-    /// <summary> Takes a world pos and converts it to the respective geographic on the planet, respecting the planets rotation </summary>
-    public geographic worldPosToLocalGeoWGS(position p) => geographic.toGeographicWGS(Quaternion.Inverse(representation.gameObject.transform.rotation) * (Vector3)((p - pos) / master.scale));
-    /// <summary> Takes a pos centered on (0, 0) and converts it to the respective geographic on the planet, respecting the planets rotation </summary>
-    public geographic localPosToLocalGeoWGS(position p) => geographic.toGeographicWGS(Quaternion.Inverse(representation.gameObject.transform.rotation) * (Vector3)(p / master.scale));
-    public Vector3 localGeoToUnityPosWGS(geographic g, double alt)
-    {
-        position c = representation.gameObject.transform.rotation * (Vector3)(g.toCartesianWGS(radius + alt)).swapAxis();
-        geographic gg = geographic.toGeographicWGS(c);
-        return (Vector3)((gg.toCartesianWGS(radius + alt) + pos - master.currentPosition - master.referenceFrame) / master.scale).swapAxis();
-    }
-
 
     private position calcRotWNutation()
     {

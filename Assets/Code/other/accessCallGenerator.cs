@@ -1,22 +1,73 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.Text;
+using System.IO;
 
-public class accessCallGeneratorWGS<T> where T : IMesh, new() {
+public class accessCallGeneratorWGS {
     private satellite target;
     private geographic pos;
-    private double alt;
     private planet earth;
-    public accessCallGeneratorWGS(planet earth, geographic pos, double alt, satellite target) {
+    private position worldPositionNoHeight;
+    private Vector3 unityPositionWithHeight, unityPositionNoHeight;
+    private bool initialized = false;
+    private meshDistributor<universalTerrainMesh> meshDist, meshWGS;
+    private universalTerrainJp2File meshFile;
+
+    public accessCallGeneratorWGS(planet earth, geographic pos, satellite target) {
         this.target = target;
         this.pos = pos;
-        this.alt = alt;
         this.earth = earth;
     }
 
-    public List<accessCallTimeSpan> bruteForce(Time start, Time end, double inc, meshDistributor<T> terrain) {
-        foreach (IMesh child in terrain.allMeshes) child.addCollider();
+    public void initialize(string path, uint res) {initialize(path, Vector2.zero, Vector2.one, res);}
+    public void initialize(string path, Vector2 start, Vector2 end, uint res) {
+        initialized = true;
 
+        master.scale = 5; // TODO only works when 1
+        worldPositionNoHeight = pos.toCartesianWGS(0).swapAxis();
+        unityPositionNoHeight = (Vector3) (worldPositionNoHeight / master.scale);
+        master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight;
+
+        meshFile = new universalTerrainJp2File(path, false);
+        meshFile.overrideToCart(geographic.toCartesianWGS);
+
+        double alt = meshFile.getHeight(pos);
+        unityPositionWithHeight = (Vector3) ((pos.toCartesianWGS(alt + 0.01) / master.scale).swapAxis());
+
+        // draw terrain
+        meshDist = meshFile.load(start, end, 0, res, -1 * unityPositionNoHeight);
+        meshDist.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
+        foreach (universalTerrainMesh mesh in meshDist.allMeshes) {
+            mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
+            mesh.addCollider();
+            //mesh.hide();
+        }
+
+        // draw wgs sphere
+        int sy = 450;
+        int sx = 900;
+        meshWGS = new meshDistributor<universalTerrainMesh>(new Vector2Int(sx, sy), Vector2Int.zero, Vector2Int.zero);
+        for (int r = 0; r < sy; r++) {
+            for (int c = 0; c < sx; c++) {
+                geographic g = new geographic(180.0 * (double) r / (double) sy - 90.0, 360.0 * (double) c / (double) sx - 180.0);
+                meshWGS.addPoint(c, r, g.toCartesianWGS(0).swapAxis() / master.scale);
+            }
+        }
+        meshWGS.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
+        foreach (universalTerrainMesh mesh in meshWGS.allMeshes) {
+            mesh.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
+            mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
+            mesh.addCollider();
+            //mesh.hide();
+        }
+
+        master.requestScaleUpdate();
+        master.requestPositionUpdate();
+    }
+
+    public List<accessCallTimeSpan> bruteForce(Time start, Time end, double inc) {
         double initialTime = master.time.julian;
         master.time.addJulianTime(start.julian - master.time.julian);
         master.requestPositionUpdate();
@@ -29,11 +80,11 @@ public class accessCallGeneratorWGS<T> where T : IMesh, new() {
         while (master.time.julian < end.julian) {
             master.requestPositionUpdate();
 
-            Vector3 src = earth.localGeoToUnityPos(pos, alt);
+            Vector3 src = earth.representation.gameObject.transform.rotation * unityPositionWithHeight;
             Vector3 dst = (Vector3) ((target.pos - master.referenceFrame - master.currentPosition) / master.scale);
 
             bool hit = Physics.Linecast(src, dst, (1 << 6) | (1 << 7)); // terrain and planets only
-            Debug.DrawLine(src, dst, Color.red, 10000000);
+            Debug.DrawLine(src, dst, hit ? Color.red : Color.green, 10000000);
 
             if (isBlocked != hit) {
                 isBlocked = hit;
@@ -65,20 +116,23 @@ public class accessCallGeneratorWGS<T> where T : IMesh, new() {
         return spans;
     }
 
-    public List<accessCallTimeSpan> findTimes(Time start, Time end, double maxInc, double minInc, meshDistributor<T> terrain) {
-        foreach (IMesh child in terrain.allMeshes) child.addCollider();
+    public List<accessCallTimeSpan> findTimes(Time start, Time end, double maxInc, double minInc) {
+        if (!initialized) throw new MethodAccessException("Cannot run access calls unless .initialize(...) has been called!");
 
         double initialTime = master.time.julian;
         master.time.addJulianTime(start.julian - master.time.julian);
-        master.requestPositionUpdate();
+        //master.requestPositionUpdate();
+        updateMeshes();
 
         bool isBlocked = true;
         List<accessCallTimeSpan> spans = new List<accessCallTimeSpan>();
 
+        int count = 0;
+
         double currentInc = maxInc;
         while (master.time.julian < end.julian) {
             double currentIterationTime = master.time.julian;
-            master.requestPositionUpdate();
+            //master.requestPositionUpdate();
 
             bool hit = raycast();
 
@@ -92,13 +146,33 @@ public class accessCallGeneratorWGS<T> where T : IMesh, new() {
                 else spans.Add(new accessCallTimeSpan(findBoundary(master.time.julian, maxInc, true, minInc) + minInc, 0));
             }
 
+            //if (master.time.julian > 2461026.93171353) return null;
+
+            //if (count > 50) return null;
+            return null;
+            
+
             master.time.addJulianTime((currentIterationTime + maxInc) - master.time.julian);
+            updateMeshes();
+
+            count++;
         }
 
         // close any remaining windows
         if (!isBlocked) {
             accessCallTimeSpan span = spans[spans.Count - 1];
             spans[spans.Count - 1] = new accessCallTimeSpan(span.start, master.time.julian);
+        }
+
+        // join together any spans that are closer than maxInc to each other
+        for (int i = 0; i < spans.Count - 1; i++) {
+            accessCallTimeSpan current = spans[i];
+            accessCallTimeSpan next = spans[i + 1];
+            if (next.start - current.end <= maxInc) {
+                Debug.LogWarning("Warning: Two spans detected that are separated by less then maxInc from each other. Joining the two spans together.");
+                spans.RemoveAt(i + 1);
+                spans[i] = new accessCallTimeSpan(current.start, next.end);
+            }
         }
 
         // reset time
@@ -136,12 +210,43 @@ public class accessCallGeneratorWGS<T> where T : IMesh, new() {
     }
 
     private bool raycast() {
-        Vector3 src = earth.localGeoToUnityPos(pos, alt);
+        Quaternion q = earth.representation.gameObject.transform.rotation;
+        Vector3 src = q * (unityPositionWithHeight - unityPositionNoHeight);
+        //Vector3 src = (Vector3) (q * posCart - master.currentPosition.swapAxis());
         Vector3 dst = (Vector3) ((target.pos - master.referenceFrame - master.currentPosition) / master.scale);
 
-        bool result = Physics.Linecast(src, dst, (1 << 6) | (1 << 7)); // terrain and planets only
+        RaycastHit ray;
+        bool result = Physics.Linecast(src, dst, out ray, (1 << 6) | (1 << 7)); // terrain and planets only
         Debug.DrawLine(src, dst, result ? Color.red : Color.green, 10000000);
+        if (result) {
+            //GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            //go.transform.position = ray.point;
+            Debug.Log(ray.collider.gameObject.name);
+        }
         return result;
+    }
+
+    private void updateMeshes() {
+        Quaternion earthRot = earth.representation.gameObject.transform.rotation;
+        master.currentPosition = earthRot * (Vector3) worldPositionNoHeight; // TODO
+        foreach (universalTerrainMesh m in meshDist.allMeshes) m.go.transform.rotation = earthRot;
+        foreach (universalTerrainMesh m in meshWGS.allMeshes) {
+            m.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
+            m.go.transform.rotation = earthRot;
+        }
+
+        master.requestPositionUpdate();
+    }
+
+    public void saveResults(List<accessCallTimeSpan> spans) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < spans.Count; i++) {
+            accessCallTimeSpan span = spans[i];
+            sb.AppendLine($"{i},{span.start},{span.end},{span.end-span.start}");
+        }
+
+        string path = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "accessNew.txt");
+        File.WriteAllText(path, sb.ToString());
     }
 }
 

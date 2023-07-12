@@ -27,6 +27,7 @@ TagManager:
   - ui/bodyName
   - ui/loading
   - ui/planetOverview/lines
+  - fakeMeshParent
   layers:
   - Default
   - TransparentFX

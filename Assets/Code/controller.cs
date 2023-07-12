@@ -283,14 +283,15 @@ public class controller : MonoBehaviour
         if (Input.GetKeyDown("p")) {
             int sy = 450;
             int sx = 900;
-            meshDistributor<universalTerrainMesh> mesh = new meshDistributor<universalTerrainMesh>(new Vector2Int(sx, sy), Vector2Int.zero, Vector2Int.zero);
+            meshDistributor<universalTerrainMesh> m = new meshDistributor<universalTerrainMesh>(new Vector2Int(sx, sy), Vector2Int.zero, Vector2Int.zero);
             for (int r = 0; r < sy; r++) {
                 for (int c = 0; c < sx; c++) {
                     geographic g = new geographic(180.0 * (double) r / (double) sy - 90.0, 360.0 * (double) c / (double) sx - 180.0);
-                    mesh.addPoint(c, r, g.toCartesianWGS(0).swapAxis() / (master.scale));
+                    m.addPoint(c, r, g.toCartesianWGS(0).swapAxis() / (master.scale));
                 }
             }
-            mesh.drawAll(earth.representation.gameObject.transform);
+            m.drawAll(earth.representation.gameObject.transform);
+            foreach (IMesh child in m.allMeshes) child.addCollider();
         }
 
         if (Input.GetKeyDown("o")) {
@@ -309,116 +310,7 @@ public class controller : MonoBehaviour
             f.overrideToCart(geographic.toCartesianWGS);
 
             Material m = Resources.Load<Material>("Materials/vis/juanVis");
-            f.load(Vector2.zero, Vector2.one, 0, 0).drawAll(m, resLoader.load<GameObject>("planetMesh"), new string[0], earth.representation.gameObject.transform);
-        }
-
-        if (Input.GetKeyDown("i")) {
-            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan");
-
-            geographic[] points = new geographic[13] {
-                new geographic(21, -140),
-                new geographic(19, -141.42),
-                new geographic(17, -143.3),
-                new geographic(12.9, -146.8),
-                new geographic(8, -151),
-                new geographic(3, -154.5),
-                new geographic(0, -156.5),
-                new geographic(-3, -158.6),
-                new geographic(-6, -160.5),
-                new geographic(-10, -163.1),
-                new geographic(-14, -165.8),
-                new geographic(-17, -167.8),
-                new geographic(-20, -169.8)};
-
-            double targetAlt = 1_500_000;
-
-            Vector3[] pointsPos = new Vector3[13];
-            for (int i = 0; i < pointsPos.Length; i++) pointsPos[i] = earth.localGeoToUnityPos(points[i], 0);
-
-            var f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
-            //f.overrideToCart(geographic.toCartesianWGS);
-
-            FileStream fs = new FileStream("C:/Users/leozw/Desktop/juanAccess.axis", FileMode.Create);
-            BinaryWriter bw = new BinaryWriter(fs);
-            bw.Write(f.llCorner.lat);
-            bw.Write(f.llCorner.lon);
-            bw.Write(f.ncols);
-            bw.Write(f.nrows);
-            bw.Write(f.cellSize);
-
-            // preallocate to speed up process
-            byte[] lineData = new byte[sizeof(double) * 3 + sizeof(int)];
-            double[] gData = new double[3];
-            int[] intData = new int[1];
-
-            StringBuilder sb = new StringBuilder();
-            f.accessCallAction = (Vector2Int v, geographic g, double h) => {
-                Vector3 src = earth.localGeoToUnityPos(g, h + 0.01);
-                int valid = 0;
-                string s = "";
-                for (int i = 0; i < pointsPos.Length; i++) {
-                    Vector3 target = pointsPos[i];
-
-                    if (!Physics.Raycast(src, target - src, 1_000_000)) {
-                        valid++;
-                        s += "1 ";
-                    } else s += "0 ";
-                }
-
-                gData[0] = g.lat;
-                gData[1] = g.lon;
-                gData[2] = h;
-                intData[0] = valid;
-
-                // block copy to copy the byte data
-                Buffer.BlockCopy(gData, 0, lineData, 0, 3 * sizeof(double));
-                Buffer.BlockCopy(intData, 0, lineData, 3 * sizeof(double), sizeof(int));
-
-                bw.Write(lineData);
-
-                sb.AppendLine($"{v.x} {v.y} {h} " + s);
-            };
-
-            //var mesh = f.load(f.center, earth.radius, 4, 1);
-            var mesh = f.load(Vector2.zero, Vector2.one, earth.radius, 0);
-            if (p.Contains("svalbard")) {
-                // overwrite the mesh point
-                f.overridePoint(mesh, new geographic(78.2329, 15.3818), new position(1258.263086, 346.152785, 6222.762166));
-                new facility("V", earth, new facilityData("V", new geographic(78.2329, 15.3818), 0, new List<antennaData>()), new representationData("facility", "defaultMat"));
-            }
-            mesh.drawAll(earth.representation.gameObject.transform);
-            foreach (IMesh child in mesh.allMeshes) child.addCollider();
-
-            f.consumeAccessCallData();
-
-            bw.Close();
-            fs.Close();
-
-            File.WriteAllText("data.txt", sb.ToString());
-        }
-
-        if (Input.GetKeyDown("u")) {
-            using (FileStream fs = new FileStream("C:/Users/leozw/Desktop/juanAccess.axis", FileMode.Open)) {
-                using (BinaryReader br = new BinaryReader(fs)) {
-                    // consume header
-                    geographic llCorner = new geographic(br.ReadDouble(), br.ReadDouble());
-                    double ncols = br.ReadDouble();
-                    double nrows = br.ReadDouble();
-                    double cellSize = br.ReadDouble();
-
-                    Debug.Log($"Header: {llCorner} {ncols} {nrows} {cellSize}");
-
-                    // consume body
-                    // only iterating 100 times as this is just an example
-                    for (int i = 0; i < 10; i++) {
-                        geographic g = new geographic(br.ReadDouble(), br.ReadDouble());
-                        double height = br.ReadDouble();
-                        int valid = br.ReadInt32();
-
-                        Debug.Log($"Line {i}: {g} {height} {valid}");
-                    }
-                }
-            }
+            f.load(Vector2.zero, Vector2.one, 0, 0, default(position)).drawAll(m, resLoader.load<GameObject>("planetMesh"), new string[0], earth.representation.gameObject.transform);
         }
 
         if (Input.GetKeyDown("g")) {
@@ -442,6 +334,14 @@ public class controller : MonoBehaviour
         }
 
         if (Input.GetKeyDown("y")) {
+            accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, new geographic(-35.398522, 148.981904), sat1);
+            access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/canberra"), 2);
+            //var output = access.findTimes(new Time(2461021.77854328), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
+            //var output = access.findTimes(new Time(2461021.77854328 + 0.0002), new Time(2461021.77991930), 0.00069444444, 0.00001157407 / 2.0);
+            //access.saveResults(output);
+            //StartCoroutine(stall(access));
+            
+            /*
             string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/canberra");
             universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"));
             f.overrideToCart(geographic.toCartesianWGS);
@@ -449,9 +349,10 @@ public class controller : MonoBehaviour
             geographic g = new geographic(-35.398522, 148.981904);
             double alt = f.getHeight(g);
 
-            new facility("V", earth, new facilityData("V", g, alt, new List<antennaData>()), new representationData("facility", "defaultMat"));
+            GameObject go = resLoader.createPrefab("defaultPrefab");
+            go.transform.position = earth.representation.gameObject.transform.rotation * (Vector3) (g.toCartesianWGS(alt).swapAxis() / master.scale);
 
-            accessCallGeneratorWGS<universalTerrainMesh> access = new accessCallGeneratorWGS<universalTerrainMesh>(earth, g, alt, sat1);
+            accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, g, alt, sat1);
 
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
@@ -464,14 +365,31 @@ public class controller : MonoBehaviour
             Debug.Log("Time to draw mesh: " + (sw.ElapsedMilliseconds - s1));
 
             s1 = sw.ElapsedMilliseconds;
-            //var output = access.bruteForce(new Time(2461021.77854328 + 0.055), new Time(2461021.77854328 + 0.1), 0.00001157407, mesh);
-            var output = access.findTimes(new Time(2461021.77854328 + 0.055), new Time(2461021.77854328 + 0.1), 0.00069444444, 0.00001157407, mesh);
+            
+            //foreach (IMesh child in mesh.allMeshes) child.addCollider();
+            //var output = access.bruteForce(new Time(2461021.77854328), new Time(2461029.93452393), 0.00001157407);
+            //var output = access.bruteForce(new Time(2461021.95), new Time(2461022.05), 0.00001157407);
+            //var output = access.bruteForce(new Time(2461026.84968476), new Time(2461026.86275181), 0.00001157407);
+            //var output = access.findTimes(new Time(2461026.92073842), new Time(2461026.93171353), 0.00069444444, 0.00001157407 / 2.0);
+            var output = access.findTimes(new Time(2461022.84641104), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
+            //var output = access.findTimes(new Time(2461026.85107154), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
             Debug.Log("Time to generate access calls: " + (sw.ElapsedMilliseconds - s1));
 
-            foreach (accessCallTimeSpan span in output) {
-                Debug.Log(span);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < output.Count; i++) {
+                accessCallTimeSpan span = output[i];
+                sb.AppendLine($"{i},{span.start},{span.end},{span.end-span.start}");
             }
+
+            File.WriteAllText("C:/Users/leozw/Desktop/accessNew.csv", sb.ToString());
+            */
         }
+    }
+
+    private IEnumerator stall(accessCallGeneratorWGS access) {
+        yield return new WaitForSeconds(1);
+        var output = access.findTimes(new Time(2461021.77854328 + 0.0002), new Time(2461021.77991930), 0.00069444444, 0.00001157407 / 2.0);
+        access.saveResults(output);
     }
 
     int stationIndex = 0;

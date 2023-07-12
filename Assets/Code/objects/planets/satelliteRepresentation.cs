@@ -59,7 +59,7 @@ public class satelliteRepresentation
             (float) (pos.y / master.scale),
             (float) (pos.z / master.scale));
 
-        if (Vector3.Distance(p, Vector3.zero) > 1000f) mrSelf.enabled = false;
+        if (Vector3.Distance(p, Vector3.zero) > 10000f) mrSelf.enabled = false;
         else
         {
             if (!gameObject.activeSelf) gameObject.SetActive(true);
