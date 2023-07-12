@@ -45,6 +45,8 @@ public abstract class IMesh
             }
         }
 
+        trianglesSatisfied = false;
+
         if (!uvSatisfied || !trianglesSatisfied) {
             int index = 0;
             for (int y = 0; y < rows; y++) {
@@ -107,7 +109,8 @@ public abstract class IMesh
     }
 
     public void addCollider() {
-        go.AddComponent<MeshCollider>();
+        MeshCollider mc = go.AddComponent<MeshCollider>();
+        //mc.convex = true;
     }
 
     public void clearMesh() {

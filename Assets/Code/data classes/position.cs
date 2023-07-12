@@ -200,6 +200,7 @@ public readonly struct position
         p1.x - p2.x,
         p1.y - p2.y,
         p1.z - p2.z);
+    public static position operator-(position p) => new position(-p.x, -p.y, -p.z);
     public static position operator*(position p1, double d) => new position(
         p1.x * d,
         p1.y * d,
