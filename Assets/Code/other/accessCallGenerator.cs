@@ -25,7 +25,7 @@ public class accessCallGeneratorWGS {
     public void initialize(string path, Vector2 start, Vector2 end, uint res) {
         initialized = true;
 
-        master.scale = 5; // TODO only works when 1
+        master.scale = 1; // TODO only works when 1
         worldPositionNoHeight = pos.toCartesianWGS(0).swapAxis();
         unityPositionNoHeight = (Vector3) (worldPositionNoHeight / master.scale);
         master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight;
@@ -40,8 +40,8 @@ public class accessCallGeneratorWGS {
         meshDist = meshFile.load(start, end, 0, res, -1 * unityPositionNoHeight);
         meshDist.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
         foreach (universalTerrainMesh mesh in meshDist.allMeshes) {
-            mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
             mesh.addCollider();
+            mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
             //mesh.hide();
         }
 
@@ -57,9 +57,9 @@ public class accessCallGeneratorWGS {
         }
         meshWGS.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
         foreach (universalTerrainMesh mesh in meshWGS.allMeshes) {
+            mesh.addCollider();
             mesh.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
             mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
-            mesh.addCollider();
             //mesh.hide();
         }
 
@@ -148,8 +148,8 @@ public class accessCallGeneratorWGS {
 
             //if (master.time.julian > 2461026.93171353) return null;
 
-            //if (count > 50) return null;
-            return null;
+            if (count > 200) return null;
+            //return null;
             
 
             master.time.addJulianTime((currentIterationTime + maxInc) - master.time.julian);
@@ -212,17 +212,17 @@ public class accessCallGeneratorWGS {
     private bool raycast() {
         Quaternion q = earth.representation.gameObject.transform.rotation;
         Vector3 src = q * (unityPositionWithHeight - unityPositionNoHeight);
-        //Vector3 src = (Vector3) (q * posCart - master.currentPosition.swapAxis());
         Vector3 dst = (Vector3) ((target.pos - master.referenceFrame - master.currentPosition) / master.scale);
 
         RaycastHit ray;
         bool result = Physics.Linecast(src, dst, out ray, (1 << 6) | (1 << 7)); // terrain and planets only
         Debug.DrawLine(src, dst, result ? Color.red : Color.green, 10000000);
-        if (result) {
-            //GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            //go.transform.position = ray.point;
-            Debug.Log(ray.collider.gameObject.name);
-        }
+        //if (result) {
+        //    GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        //    go.transform.position = ray.point;
+        //    Debug.Log(ray.collider.gameObject.name);
+        //    ray.collider.gameObject.SetActive(false);
+        //}
         return result;
     }
 
