@@ -9,7 +9,7 @@ public class accessCallGeneratorWGS {
     private satellite target;
     private geographic pos;
     private planet earth;
-    private position worldPositionNoHeight;
+    private position worldPositionNoHeight, worldPositionWithHeight;
     private Vector3 unityPositionWithHeight, unityPositionNoHeight;
     private bool initialized = false;
     private meshDistributor<universalTerrainMesh> meshDist, meshWGS;
@@ -25,16 +25,19 @@ public class accessCallGeneratorWGS {
     public void initialize(string path, Vector2 start, Vector2 end, uint res) {
         initialized = true;
 
-        master.scale = 1; // TODO only works when 1
-        worldPositionNoHeight = pos.toCartesianWGS(0).swapAxis();
-        unityPositionNoHeight = (Vector3) (worldPositionNoHeight / master.scale);
-        //master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight;
+        master.scale = 1;
+        worldPositionNoHeight = pos.toCartesianWGS(0);
+        unityPositionNoHeight = (Vector3) (worldPositionNoHeight.swapAxis() / master.scale);
 
         meshFile = new universalTerrainJp2File(path, false);
         meshFile.overrideToCart(geographic.toCartesianWGS);
 
         double alt = meshFile.getHeight(pos);
-        unityPositionWithHeight = (Vector3) ((pos.toCartesianWGS(alt + 0.01) / master.scale).swapAxis());
+        worldPositionWithHeight = pos.toCartesianWGS(alt + 0.01);
+        unityPositionWithHeight = (Vector3) (worldPositionWithHeight.swapAxis() / master.scale);
+
+        //master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight;
+        master.currentPosition = new position(500, 500, 500);
 
         // draw terrain
         //meshDist = meshFile.load(start, end, 0, res, -1 * unityPositionNoHeight);
@@ -153,7 +156,6 @@ public class accessCallGeneratorWGS {
 
             //if (count > 200) return null;
             //return null;
-            
 
             master.time.addJulianTime((currentIterationTime + maxInc) - master.time.julian);
             updateMeshes();
@@ -200,7 +202,8 @@ public class accessCallGeneratorWGS {
     public bool raycast(double time, bool reset = true) {
         double initialTime = master.time.julian;
         master.time.addJulianTime(time - master.time.julian);
-        master.requestPositionUpdate();
+        updateMeshes();
+        //master.requestPositionUpdate();
 
         bool result = raycast();
 
@@ -217,6 +220,9 @@ public class accessCallGeneratorWGS {
         //Vector3 src = q * (unityPositionWithHeight - unityPositionNoHeight);
         Vector3 src = q * unityPositionWithHeight;
         Vector3 dst = (Vector3) ((target.pos - master.referenceFrame - master.currentPosition) / master.scale);
+
+        Vector3 offset = (Vector3) (master.currentPosition / master.scale);
+        src -= offset;
 
         RaycastHit ray;
         bool result = Physics.Linecast(src, dst, out ray, (1 << 6) | (1 << 7)); // terrain and planets only
