@@ -44,6 +44,6 @@ with open(FILE2, "r") as f:
 plt.ylim(-10, 10)
 plt.show()
 
-print(startDifference / len(starts))
-print(endDifference / len(ends))
+print(24 * 60 * 60 * startDifference / len(starts))
+print(24 * 60 * 60 * endDifference / len(ends))
 print(lengthDifference / len(lengths))

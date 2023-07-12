@@ -25,7 +25,7 @@ public class accessCallGeneratorWGS {
     public void initialize(string path, Vector2 start, Vector2 end, uint res) {
         initialized = true;
 
-        master.scale = 10;
+        master.scale = 1;
         worldPositionNoHeight = pos.toCartesianWGS(0);
         unityPositionNoHeight = (Vector3) (worldPositionNoHeight.swapAxis() / master.scale);
 
@@ -36,16 +36,17 @@ public class accessCallGeneratorWGS {
         worldPositionWithHeight = pos.toCartesianWGS(alt + 0.01);
         unityPositionWithHeight = (Vector3) (worldPositionWithHeight.swapAxis() / master.scale);
 
-        master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis();
+        master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionWithHeight.swapAxis();
 
         // draw terrain
-        //meshDist = meshFile.load(start, end, 0, res, -unityPositionNoHeight);
-        meshDist = meshFile.load(start, end, 0, res, default(position));
-        //meshDist.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
-        meshDist.drawAll(earth.representation.gameObject.transform);
+        meshDist = meshFile.load(start, end, 0, res, -worldPositionWithHeight);
+        //meshDist = meshFile.load(start, end, 0, res, default(position));
+        meshDist.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
+        //meshDist.drawAll(earth.representation.gameObject.transform);
         foreach (universalTerrainMesh mesh in meshDist.allMeshes) {
             //mesh.addCollider();
-            //mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
+            //mesh.go.transform.position = -(Vector3) ((master.currentPosition - earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis()) / master.scale);
+            mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
             //mesh.hide();
         }
 
@@ -127,7 +128,6 @@ public class accessCallGeneratorWGS {
 
         double initialTime = master.time.julian;
         master.time.addJulianTime(start.julian - master.time.julian);
-        //master.requestPositionUpdate();
         updateMeshes();
 
         bool isBlocked = true;
@@ -138,7 +138,6 @@ public class accessCallGeneratorWGS {
         double currentInc = maxInc;
         while (master.time.julian < end.julian) {
             double currentIterationTime = master.time.julian;
-            //master.requestPositionUpdate();
             updateMeshes();
 
             bool hit = raycast();
@@ -155,7 +154,10 @@ public class accessCallGeneratorWGS {
 
             //if (master.time.julian > 2461026.93171353) return null;
 
-            //if (count > 200) return null;
+            //if (count > 100) {
+            //    updateMeshes();
+            //    return null;
+            //}
             //return null;
 
             master.time.addJulianTime((currentIterationTime + maxInc) - master.time.julian);
@@ -203,49 +205,37 @@ public class accessCallGeneratorWGS {
         double initialTime = master.time.julian;
         master.time.addJulianTime(time - master.time.julian);
         updateMeshes();
-        //master.requestPositionUpdate();
 
         bool result = raycast();
 
         if (reset) {
             master.time.addJulianTime(initialTime - master.time.julian);
             updateMeshes();
-            //master.requestPositionUpdate();
         }
 
         return result;
     }
 
     private bool raycast() {
-        Quaternion q = earth.representation.gameObject.transform.rotation;
-        //Vector3 src = q * (unityPositionWithHeight - unityPositionNoHeight);
-        Vector3 src = q * unityPositionWithHeight;
         Vector3 dst = (Vector3) ((target.pos - master.referenceFrame - master.currentPosition) / master.scale);
 
-        Vector3 offset = (Vector3) (master.currentPosition / master.scale);
-        src -= offset;
-
-        RaycastHit ray;
-        bool result = Physics.Linecast(src, dst, out ray, (1 << 6) | (1 << 7)); // terrain and planets only
-        Debug.DrawLine(src, dst, result ? Color.red : Color.green, 10000000);
-        //if (result) {
-        //    GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        //    go.transform.position = ray.point;
-        //    Debug.Log(ray.collider.gameObject.name);
-        //    ray.collider.gameObject.SetActive(false);
-        //}
+        // (0,0,0) because we center (via master.currentPosition) on the correct starting position
+        // raycast instead of linecast to prevent physics from checking too much (we really only need to check whats nearby)
+        bool result = Physics.Raycast(Vector3.zero, dst, 100, (1 << 6) | (1 << 7)); // terrain and planets only
+        Debug.DrawLine(Vector3.zero, dst, result ? Color.red : Color.green, 10000000);
         return result;
     }
 
     private void updateMeshes() {
-        master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis();
-        //master.currentPosition += new position(1, 1, 1);
-        //master.requestPositionUpdate();
+        master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionWithHeight.swapAxis();
 
         Quaternion earthRot = earth.representation.gameObject.transform.rotation;
         //master.currentPosition = earthRot * (Vector3) worldPositionNoHeight; // TODO
         //master.currentPosition = ((quaternionDouble) earthRot).mult(worldPositionNoHeight.swapAxis());
-        //foreach (universalTerrainMesh m in meshDist.allMeshes) m.go.transform.rotation = earthRot;
+        foreach (universalTerrainMesh m in meshDist.allMeshes) {
+            //m.go.transform.position = -(Vector3) ((master.currentPosition - earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis()) / master.scale);
+            m.go.transform.rotation = earthRot;
+        }
         foreach (universalTerrainMesh m in meshWGS.allMeshes) {
             m.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
             m.go.transform.rotation = earthRot;
@@ -285,6 +275,13 @@ internal struct quaternionDouble {
         this.y = y;
         this.z = z;
         this.w = w;
+    }
+
+    public quaternionDouble(Quaternion q) {
+        this.x = q.x;
+        this.y = q.y;
+        this.z = q.z;
+        this.w = q.w;
     }
 
     public position mult(position p) {

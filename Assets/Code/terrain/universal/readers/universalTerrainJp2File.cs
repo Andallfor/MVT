@@ -170,8 +170,9 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
 
                 geographic g = new geographic((maxHeight - r) * cellSize * power, c * cellSize * power) + llCorner;
                 double height = (heights[(int) (y * colLen + x)] - 32767) / 1000.0; // +32767 bc data is offset in jp2 writer
-                position p = toCart(g, radius + height).swapAxis() / master.scale;
+                position p = toCart(g, radius + height);
                 p += posOffset;
+                p = p.swapAxis() / master.scale;
 
                 if (isForAccessCalls && height != 0) {
                     accessCallGeo.Add(g);
