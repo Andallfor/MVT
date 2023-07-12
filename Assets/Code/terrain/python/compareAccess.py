@@ -4,7 +4,7 @@ from math import trunc
 def draw(start, end, y, color):
     plt.plot([start, end], [y, y], color=color, linewidth='5')
 
-FILE1 = "C:/Users/leozw/Downloads/accessTruth.csv"
+FILE1 = "C:/Users/leozw/Downloads/canberra_data.csv"
 FILE2 = "C:/Users/leozw/Downloads/accessNew.txt"
 
 starts = []
@@ -15,13 +15,13 @@ with open(FILE1, "r") as f:
     for i, line in enumerate(f.readlines()):
         if i > 20:
             break
-        _, start, end, length = [float(i) for i in line.strip().split(',')]
+        _, start, end = [float(i) for i in line.strip().split(',')]
 
         draw(start, end, 0, 'green')
         
         starts.append(start)
         ends.append(end)
-        lengths.append(length)
+        lengths.append((float(end) - float(start)) * 24 * 60 * 60)
 
 startDifference = 0
 endDifference = 0

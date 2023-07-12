@@ -48,7 +48,7 @@ public class accessCallGeneratorWGS {
             //mesh.addCollider();
             //mesh.go.transform.position = -(Vector3) ((master.currentPosition - earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis()) / master.scale);
             mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
-            //mesh.hide();
+            mesh.hide();
         }
 
         // draw wgs sphere
