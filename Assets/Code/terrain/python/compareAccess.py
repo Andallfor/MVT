@@ -12,7 +12,7 @@ lengths = []
 
 with open(FILE1, "r") as f:
     for i, line in enumerate(f.readlines()):
-        if i > 40:
+        if i > 20:
             break
         _, start, end, length = [float(i) for i in line.strip().split(',')]
 

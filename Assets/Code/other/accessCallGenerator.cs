@@ -25,7 +25,7 @@ public class accessCallGeneratorWGS {
     public void initialize(string path, Vector2 start, Vector2 end, uint res) {
         initialized = true;
 
-        master.scale = 1;
+        master.scale = 10;
         worldPositionNoHeight = pos.toCartesianWGS(0);
         unityPositionNoHeight = (Vector3) (worldPositionNoHeight.swapAxis() / master.scale);
 
@@ -36,16 +36,15 @@ public class accessCallGeneratorWGS {
         worldPositionWithHeight = pos.toCartesianWGS(alt + 0.01);
         unityPositionWithHeight = (Vector3) (worldPositionWithHeight.swapAxis() / master.scale);
 
-        //master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight;
-        master.currentPosition = new position(500, 500, 500);
+        master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis();
 
         // draw terrain
-        //meshDist = meshFile.load(start, end, 0, res, -1 * unityPositionNoHeight);
+        //meshDist = meshFile.load(start, end, 0, res, -unityPositionNoHeight);
         meshDist = meshFile.load(start, end, 0, res, default(position));
         //meshDist.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
         meshDist.drawAll(earth.representation.gameObject.transform);
         foreach (universalTerrainMesh mesh in meshDist.allMeshes) {
-            mesh.addCollider();
+            //mesh.addCollider();
             //mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
             //mesh.hide();
         }
@@ -60,17 +59,18 @@ public class accessCallGeneratorWGS {
                 meshWGS.addPoint(c, r, g.toCartesianWGS(0).swapAxis() / master.scale);
             }
         }
-        //meshWGS.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
-        meshWGS.drawAll(earth.representation.gameObject.transform);
+        meshWGS.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
+        //meshWGS.drawAll(earth.representation.gameObject.transform);
         foreach (universalTerrainMesh mesh in meshWGS.allMeshes) {
             mesh.addCollider();
-            //mesh.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
-            //mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
+            mesh.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
+            mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
             //mesh.hide();
         }
 
         master.requestScaleUpdate();
         master.requestPositionUpdate();
+        updateMeshes();
     }
 
     public List<accessCallTimeSpan> bruteForce(Time start, Time end, double inc) {
@@ -138,7 +138,8 @@ public class accessCallGeneratorWGS {
         double currentInc = maxInc;
         while (master.time.julian < end.julian) {
             double currentIterationTime = master.time.julian;
-            master.requestPositionUpdate();
+            //master.requestPositionUpdate();
+            updateMeshes();
 
             bool hit = raycast();
 
@@ -158,7 +159,6 @@ public class accessCallGeneratorWGS {
             //return null;
 
             master.time.addJulianTime((currentIterationTime + maxInc) - master.time.julian);
-            updateMeshes();
 
             count++;
         }
@@ -209,7 +209,8 @@ public class accessCallGeneratorWGS {
 
         if (reset) {
             master.time.addJulianTime(initialTime - master.time.julian);
-            master.requestPositionUpdate();
+            updateMeshes();
+            //master.requestPositionUpdate();
         }
 
         return result;
@@ -237,15 +238,22 @@ public class accessCallGeneratorWGS {
     }
 
     private void updateMeshes() {
-        //Quaternion earthRot = earth.representation.gameObject.transform.rotation;
+        master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis();
+        //master.currentPosition += new position(1, 1, 1);
+        //master.requestPositionUpdate();
+
+        Quaternion earthRot = earth.representation.gameObject.transform.rotation;
         //master.currentPosition = earthRot * (Vector3) worldPositionNoHeight; // TODO
+        //master.currentPosition = ((quaternionDouble) earthRot).mult(worldPositionNoHeight.swapAxis());
         //foreach (universalTerrainMesh m in meshDist.allMeshes) m.go.transform.rotation = earthRot;
-        //foreach (universalTerrainMesh m in meshWGS.allMeshes) {
-        //    m.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
-        //    m.go.transform.rotation = earthRot;
-        //}
+        foreach (universalTerrainMesh m in meshWGS.allMeshes) {
+            m.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
+            m.go.transform.rotation = earthRot;
+        }
 
         master.requestPositionUpdate();
+
+        Physics.SyncTransforms();
     }
 
     public void saveResults(List<accessCallTimeSpan> spans) {
@@ -268,4 +276,37 @@ public struct accessCallTimeSpan {
     }
 
     public override string ToString() => $"{start} to {end}";
+}
+
+internal struct quaternionDouble {
+    public double x, y, z, w;
+    public quaternionDouble(double x, double y, double z, double w) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
+    }
+
+    public position mult(position p) {
+        double _x = x * 2.0;
+        double _y = y * 2.0;
+        double _z = z * 2.0;
+        double xx = _x * x;
+        double yy = _y * y;
+        double zz = _z * z;
+        double xy = _x * y;
+        double xz = _x * z;
+        double yz = _y * z;
+        double wx = w * x;
+        double wy = w * y;
+        double wz = w * z;
+
+        double ox = (1.0 - (yy + zz)) * p.x + (xy - wz) * p.y + (xz + wy) * p.z;
+        double oy = (xy + wz) * p.x + (1.0 - (xx + zz)) * p.y + (yz - wx) * p.z;
+        double oz = (xz - wy) * p.x + (yz + wx) * p.y + (1.0 - (xx + yy)) * p.z;
+        
+        return new position(ox, oy, oz);
+    }
+
+    public static explicit operator quaternionDouble(Quaternion q) => new quaternionDouble(q.x, q.y, q.z, q.w);
 }
