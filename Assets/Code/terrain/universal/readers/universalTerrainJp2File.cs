@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.IO;
 
 public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMesh> {
     public bool isForAccessCalls = false;
@@ -19,6 +20,13 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
 
     public universalTerrainJp2File(string dataPath, string metadataPath, bool isForAccessCalls = false) :
         base(dataPath, metadataPath, universalTerrainFileSources.jp2) {
+        this.isForAccessCalls = isForAccessCalls;
+
+        toCart = geographic.toCartesian;
+    }
+
+    public universalTerrainJp2File(string path, bool isForAccessCalls = false) :
+        base(Path.Combine(path, "data.jp2"), Path.Combine(path, "metadata.txt"), universalTerrainFileSources.jp2) {
         this.isForAccessCalls = isForAccessCalls;
 
         toCart = geographic.toCartesian;
@@ -53,7 +61,7 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         return (heights[0] - 32767.0) / 1000.0;
     }
 
-    public override meshDistributor<universalTerrainMesh> load(geographic start, geographic end, double radius, uint res) {
+    public override meshDistributor<universalTerrainMesh> load(geographic start, geographic end, double radius, uint res, position posOffset = default(position)) {
         accessCallGeo = new List<geographic>();
         accessCallHeight = new List<double>();
         accessCallGrid = new List<Vector2Int>();
@@ -76,7 +84,7 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         e.x = clamp(e.x, 0, 1);
         e.y = clamp(e.y, 0, 1);
 
-        return load(s, e, radius, res);
+        return load(s, e, radius, res, posOffset);
     }
 
     private float clamp(float v, float min, float max) => Math.Max(Math.Min(v, max), min);
@@ -101,16 +109,16 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         return (uint) p;
     }
 
-    public override meshDistributor<universalTerrainMesh> load(geographic center, double planetRadius, uint res, double offset = 0.5) {
+    public override meshDistributor<universalTerrainMesh> load(geographic center, double planetRadius, uint res, double offset = 0.5, position posOffset = default(position)) {
         accessCallGeo = new List<geographic>();
         accessCallHeight = new List<double>();
         accessCallGrid = new List<Vector2Int>();
 
         geographic o = new geographic(offset, offset);
-        return load(center - o, center + o, planetRadius, res);
+        return load(center - o, center + o, planetRadius, res, posOffset);
     }
 
-    public override meshDistributor<universalTerrainMesh> load(Vector2 startPercent, Vector2 endPercent, double radius, uint res) {
+    public override meshDistributor<universalTerrainMesh> load(Vector2 startPercent, Vector2 endPercent, double radius, uint res, position posOffset) {
         startPercent.x = clamp(startPercent.x, 0, 1);
         startPercent.y = clamp(startPercent.y, 0, 1);
         endPercent.x = clamp(endPercent.x, 0, 1);
@@ -142,7 +150,9 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
 
         meshDistributor<universalTerrainMesh> m = new meshDistributor<universalTerrainMesh>(
             new Vector2Int(end.x - start.x, end.y - start.y),
-            Vector2Int.zero, Vector2Int.zero, true);
+            Vector2Int.zero, Vector2Int.zero, true, customUV: (Vector2Int v) => {
+                return new Vector2((float) v.x / (float) (end.x - start.x), (float) v.y / (float) (end.y - start.y));
+            });
 
         long s1 = sw.ElapsedMilliseconds;
         Debug.Log($"Time to init mesh: {s1}ms");
@@ -159,8 +169,10 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         //        int y = r - start.y;
 //
         //        geographic g = new geographic((maxHeight - r) * cellSize * power, c * cellSize * power) + llCorner;
-        //        double height = (heights[(int) (y * colLen + x)] - 32767) / 1000.0; // +32767 bc data is offset in jp2 writer
-        //        position p = toCart(g, radius + height).swapAxis() / master.scale;
+//                double height = (heights[(int) (y * colLen + x)] - 32767) / 1000.0; // +32767 bc data is offset in jp2 writer
+//                position p = toCart(g, radius + height);
+//                p += posOffset;
+//                p = p.swapAxis() / master.scale;
 //
         //        if (isForAccessCalls && height != 0) {
         //            accessCallGeo.Add(g);

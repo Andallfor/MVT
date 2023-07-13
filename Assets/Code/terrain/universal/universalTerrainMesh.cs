@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 
 public class universalTerrainMesh : IMesh {
+    public new GameObject go {get => base.go;}
     public universalTerrainMesh() {}
 
     public universalTerrainMesh(int width, int height, position ll, position max, bool reverse, Func<Vector2Int, Vector2> customUV = null) {

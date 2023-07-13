@@ -76,6 +76,62 @@ public readonly struct position
         return theta;
     }
 
+    public static position ECI2ECEF(position p, double jd)
+    {
+        double T = (jd - 2451545.0) / 36525.0;
+        double a0 = -0.641 * T;
+        double d0 = -0.557 * T;
+
+        double DegToRad = Math.PI / 180.0;
+
+        double G = 0.0;
+        double p1 = (876600.0 * 60.0 * 60.0 + 8640184.812866) * T;
+        double p2 = 0.093104 * (T * T);
+        double p3 = (0.0000062) * (T * T * T);
+
+        G = 67310.54841 + p1 + p2 - p3;
+
+        double sec = G % 86400.0;
+
+        double GST = sec / 240.0;
+
+        (position, position, position) A = R3(a0 * DegToRad);
+        (position, position, position) B = R1(-d0 * DegToRad);
+        (position, position, position) C = R3((GST + a0 * Math.Cos(d0 * DegToRad)) * DegToRad); // <---BEST APPROXIMATION
+
+        (position, position, position) AB = mult2(A, B);
+        (position, position, position) ABC = mult2(AB, C);
+
+        return mult1(ABC, p);
+    }
+
+    public static (position, position, position) R1(double x)
+    {
+        double ct = Math.Cos(x);
+        double st = Math.Sin(x);
+        return (new position(1, 0, 0),
+                new position(0, ct, st),
+                new position(0, -st, ct));
+    }
+
+    public static (position, position, position) R2(double x)
+    {
+        double ct = Math.Cos(x);
+        double st = Math.Sin(x);
+        return (new position(ct, 0, -st),
+                new position(0, 1, 0),
+                new position(st, 0, ct));
+    }
+
+    public static (position, position, position) R3(double x)
+    {
+        double ct = Math.Cos(x);
+        double st = Math.Sin(x);
+        return (new position(ct, st, 0),
+                new position(-st, ct, 0),
+                new position(0, 0, 1));
+    }
+
     public static double dotProduct(position vector1, position vector2) => vector2.x * vector1.x + vector2.y * vector1.y + vector2.z * vector1.z;
 
     // https://stackoverflow.com/questions/5883169/intersection-between-a-line-and-a-sphere
@@ -131,6 +187,24 @@ public readonly struct position
         return p1;
     }
 
+    public static double mult(position v1, position v2)
+    {
+        return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+    }
+
+    public static position mult1((position,position,position) m1, position v1)
+    {
+        return new position(mult(m1.Item1, v1), mult(m1.Item2, v1), mult(m1.Item3, v1));
+    }
+
+    public static (position, position, position) mult2((position, position, position) m1, (position, position, position) m2)
+    {
+        return (new position(mult(m1.Item1, new position(m2.Item1.x, m2.Item2.x, m2.Item3.x)), mult(m1.Item1, new position(m2.Item1.y, m2.Item2.y, m2.Item3.y)), mult(m1.Item1, new position(m2.Item1.z, m2.Item2.z, m2.Item3.z))),
+                new position(mult(m1.Item2, new position(m2.Item1.x, m2.Item2.x, m2.Item3.x)), mult(m1.Item2, new position(m2.Item1.y, m2.Item2.y, m2.Item3.y)), mult(m1.Item2, new position(m2.Item1.z, m2.Item2.z, m2.Item3.z))),
+                new position(mult(m1.Item3, new position(m2.Item1.x, m2.Item2.x, m2.Item3.x)), mult(m1.Item3, new position(m2.Item1.y, m2.Item2.y, m2.Item3.y)), mult(m1.Item3, new position(m2.Item1.z, m2.Item2.z, m2.Item3.z))));
+    }
+
+
     public static List<(double, position)> J2000(position moon1, position velocity1, position sat)
     {
         List<(double, position)> returnList = new List<(double, position)>();
@@ -182,6 +256,7 @@ public readonly struct position
         p1.x - p2.x,
         p1.y - p2.y,
         p1.z - p2.z);
+    public static position operator-(position p) => new position(-p.x, -p.y, -p.z);
     public static position operator*(position p1, double d) => new position(
         p1.x * d,
         p1.y * d,

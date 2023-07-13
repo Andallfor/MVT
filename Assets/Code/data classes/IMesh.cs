@@ -109,7 +109,8 @@ public abstract class IMesh {
     }
 
     public void addCollider() {
-        go.AddComponent<MeshCollider>();
+        MeshCollider mc = go.AddComponent<MeshCollider>();
+        //mc.convex = true;
     }
 
     public void clearMesh() {
