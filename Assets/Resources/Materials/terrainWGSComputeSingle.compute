@@ -5,7 +5,8 @@ struct doubleData {
     double cellSize, lat, lon, scale;
 };
 
-uint lenHeights, assignedLength, gridX, startX, startY, trueY, power;
+uint gridX, gridY, startX, startY, trueY, power;
+uint2 mesh;
 
 // note: test with rwstructuredbuffer, rwbuffer, and rwbyteaddressbuffer
 RWStructuredBuffer<int> heights;
@@ -14,9 +15,18 @@ RWStructuredBuffer<float3> vectors;
 
 // TODO: check performance of running code without if statements
 
-[numthreads(64,1,1)]
+[numthreads(128,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID) {
-    uint idx = id.x * assignedLength;
+    uint meshIndex = (id.x - id.x % 128) / 128;
+    uint xLength = (meshIndex + 1) % mesh.x == 0 ? gridX % 255 : 255;
+
+    uint y = ceil(meshIndex / mesh.x);
+    uint yLength = y * 128;
+    if (yLength > gridY) yLength = 0;
+    else if (yLength + 128 > gridY) yLength = yLength + 128 - gridY;
+    else yLength = 128;
+
+    if (id.x % 128 >= yLength) return;
 
     doubleData _d = data[0];
 
@@ -31,14 +41,9 @@ void CSMain (uint3 id : SV_DispatchThreadID) {
 
     double downscale = 1.0 / _d.scale;
 
-    double maxHeight = trueY / power;
-
-    for (uint i = 0; i < assignedLength; i++, idx++) {
-        if (idx >= lenHeights) return;
-
-        // maybe try converting everything to double to minimize type conversions?
-        double x = double(idx % gridX);
-        double y = double((idx - x) / gridX);
+    for (uint i = 0; i < xLength; i++) {
+        uint x = i + (meshIndex % mesh.x) * 255;
+        uint idx = y * gridX + x;
 
         double col = x + startX;
         double row = y + startY;
@@ -75,4 +80,17 @@ void CSMain (uint3 id : SV_DispatchThreadID) {
 
         vectors[idx] = float3(gx, gz, gy);
     }
+
+    /*
+    uint idx = id.x;
+
+    
+
+
+    // maybe try converting everything to double to minimize type conversions?
+    double x = double(idx % gridX);
+    double y = double((idx - x) / gridX);
+
+    
+    */
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using System;
 using System.Text;
+using System.Runtime.InteropServices;
 
 public class meshDistributor {
     public const int maxVertSize = 255;
@@ -12,6 +13,8 @@ public class meshDistributor {
 public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
     private Dictionary<Vector2Int, T> map = new Dictionary<Vector2Int, T>();
     public T baseType;
+
+    public Vector2Int shape;
 
     public List<T> allMeshes {get => map.Values.ToList();}
     
@@ -37,6 +40,19 @@ public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
                     map.Add(new Vector2Int(x, y), t);
                 }
             }   
+        }
+
+        shape = new Vector2Int(Mathf.CeilToInt(size.x / maxVertSize), Mathf.CeilToInt(size.y / maxVertSize));
+    }
+
+    public void forceSetAllPoints(Vector3[] arr) {
+        int offset = 0;
+        foreach (T t in map.Values) {
+            int count = t.shape.x * t.shape.y;
+            for (int i = offset; i < offset + count; i++) {
+                t.verts[i - offset] = arr[i];
+            }
+            offset += count;
         }
     }
 

@@ -174,7 +174,13 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
 
         
 
-        Vector3[] output = processPoints(heights, start, end, power);
+        Vector3[] output = processPointsSingle(heights, start, end, power, m);
+        //m.forceSetAllPoints(output);
+
+        HashSet<Vector3> hashes = new HashSet<Vector3>();
+        for (int i = 0; i < 1000; i++) {
+            //Debug.Log(output[i]);
+        }
 
         int index = 0;
         for (int r = start.y; r < end.y; r++) {
@@ -182,9 +188,16 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
                 int x = c - start.x;
                 int y = r - start.y;
 
-                m.addPoint(x, y, output[index++]);
+                Vector3 v = output[index++];
+
+                m.addPoint(x, y, v);
+                //hashes.Add(v);
             }
         }
+
+        //foreach (Vector3 v in hashes) {
+        //    Debug.Log(v);
+        //}
 
         Debug.Log($"Time to write points: {sw.ElapsedMilliseconds - s1}ms");
 
@@ -204,6 +217,48 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         src.addPoint(x, y, p.swapAxis() / master.scale);
     }
 
+    private Vector3[] processPointsSingle(int[] heights, Vector2Int start, Vector2Int end, int power, meshDistributor<universalTerrainMesh> m) {
+        ComputeShader cs = Resources.Load<ComputeShader>("Materials/terrainWGSComputeSingle");
+        cs.SetInt("gridX", end.x - start.x);
+        cs.SetInt("gridY", end.y - start.y);
+        cs.SetInt("startX", start.x);
+        cs.SetInt("startY", start.y);
+        cs.SetInt("trueY", (int) nrows);
+        cs.SetInt("power", power);
+        cs.SetInts("mesh", new int[] {m.shape.x, m.shape.y});
+
+        double[] doubleArray = new double[4] {cellSize, llCorner.lat, llCorner.lon, master.scale};
+        ComputeBuffer doubleBuffer = new ComputeBuffer(doubleArray.Length, doubleArray.Length * sizeof(double));
+        doubleBuffer.SetData(doubleArray);
+
+        ComputeBuffer heightBuffer = new ComputeBuffer(heights.Length, sizeof(int));
+        heightBuffer.SetData(heights);
+
+        Vector3[] vectors = new Vector3[heights.Length * 3];
+        ComputeBuffer vectorBuffer = new ComputeBuffer(vectors.Length, sizeof(float) * 3);
+        vectorBuffer.SetData(vectors);
+
+        cs.SetBuffer(0, "heights", heightBuffer);
+        cs.SetBuffer(0, "vectors", vectorBuffer);
+        cs.SetBuffer(0, "data", doubleBuffer);
+
+        /* Every two work groups is responsible for one mesh. each thread is responsible for 1 line in the mesh
+         * Every 2 groups is 256 threads
+         * Can handle total of 128 meshes per compute shader
+         */
+
+        // should be totalMeshes % 128 * 2
+        cs.Dispatch(0, 512, 1, 1);
+
+        vectorBuffer.GetData(vectors);
+
+        doubleBuffer.Dispose();
+        vectorBuffer.Dispose();
+        heightBuffer.Dispose();
+
+        return vectors;
+    }
+
     private Vector3[] processPoints(int[] heights, Vector2Int start, Vector2Int end, int power) {
         // if needed in the future:
         // https://stackoverflow.com/questions/73504670/is-it-possible-to-use-multiple-compute-buffers-in-compute-shader-in-hlsl-in-unit
@@ -211,12 +266,8 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         ComputeShader cs = Resources.Load<ComputeShader>("Materials/terrainWGSCompute");
         cs.SetInt("lenHeights", heights.Length);
         cs.SetInt("gridX", end.x - start.x);
-        cs.SetInt("gridY", end.y - start.y);
         cs.SetInt("startX", start.x);
         cs.SetInt("startY", start.y);
-        cs.SetInt("endX", end.x);
-        cs.SetInt("endY", end.y);
-        cs.SetInt("trueX", (int) ncols);
         cs.SetInt("trueY", (int) nrows);
         cs.SetInt("power", power);
         cs.SetInt("assignedLength", Mathf.CeilToInt((float) heights.Length / 65536f)); // 65536f is max thread count allowed
