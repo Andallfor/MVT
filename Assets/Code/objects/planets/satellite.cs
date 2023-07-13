@@ -6,7 +6,7 @@ using UnityEngine;
 public class satellite : body
 {
     public satelliteRepresentation representation {get; private set;}
-    private satelliteData data;
+    public satelliteData data;
     public trailRenderer tr;
 
     public satellite(string name, satelliteData data, representationData rData) {

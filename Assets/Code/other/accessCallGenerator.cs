@@ -14,6 +14,7 @@ public class accessCallGeneratorWGS {
     private bool initialized = false;
     private meshDistributor<universalTerrainMesh> meshDist, meshWGS;
     private universalTerrainJp2File meshFile;
+    private double altitude;
 
     public accessCallGeneratorWGS(planet earth, geographic pos, satellite target) {
         this.target = target;
@@ -33,7 +34,8 @@ public class accessCallGeneratorWGS {
         meshFile.overrideToCart(geographic.toCartesianWGS);
 
         double alt = meshFile.getHeight(pos);
-        alt = 0.55;
+        altitude = alt;
+        //alt = 0.55;
         worldPositionWithHeight = pos.toCartesianWGS(alt + 0.01);
         unityPositionWithHeight = (Vector3) (worldPositionWithHeight.swapAxis() / master.scale);
 
@@ -88,18 +90,27 @@ public class accessCallGeneratorWGS {
         int iterations = 0;
         while (master.time.julian < end.julian) {
             double currentIterationTime = master.time.julian;
-            updateMeshes();
 
-            bool hit = raycast();
+            //enter code here
+            
 
-            if (isBlocked != hit) {
-                isBlocked = hit;
+            if (Calc.topo(target.data.positions.find(master.time), pos, altitude, master.time.julian) - 5 > 0)
+            {
+                updateMeshes();
 
-                if (hit) {
-                    accessCallTimeSpan span = spans[spans.Count - 1];
-                    spans[spans.Count - 1] = new accessCallTimeSpan(span.start, master.time.julian - inc);
+                bool hit = raycast();
+
+                if (isBlocked != hit)
+                {
+                    isBlocked = hit;
+
+                    if (hit)
+                    {
+                        accessCallTimeSpan span = spans[spans.Count - 1];
+                        spans[spans.Count - 1] = new accessCallTimeSpan(span.start, master.time.julian - inc);
+                    }
+                    else spans.Add(new accessCallTimeSpan(master.time.julian, 0));
                 }
-                else spans.Add(new accessCallTimeSpan(master.time.julian, 0));
             }
 
             master.time.addJulianTime(inc);

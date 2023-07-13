@@ -4,8 +4,8 @@ from math import trunc
 def draw(start, end, y, color):
     plt.plot([start, end], [y, y], color=color, linewidth='5')
 
-FILE1 = "C:/Users/leozw/Downloads/canberra_data.csv"
-FILE2 = "C:/Users/leozw/Downloads/accessNew.txt"
+FILE1 = "C:/Users/AKaze/Downloads/canberra_data.csv"
+FILE2 = "C:/Users/AKaze/Downloads/accessNew.txt"
 
 starts = []
 ends = []
