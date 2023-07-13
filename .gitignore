@@ -76,3 +76,411 @@ Assets/StreamingAssets/pythonWindows/Lib/site-packages/pip.meta
 Assets/StreamingAssets/pythonWindows/Lib/site-packages/pip/_vendor.meta
 Assets/StreamingAssets/pythonWindows/Lib/site-packages/pip/_vendor/urllib3.meta
 data.txt
+Assets/Code/terrain/.output_SRTMGL3.asc.icloud
+Assets/Code/terrain/output_SRTMGL3.asc
+Assets/Code/terrain/output_SRTMGL3.asc.meta
+Assets/Resources/CSVS/ARTEMIS 3/PLANETS/.moon.csv.icloud
+Assets/Resources/CSVS/ARTEMIS 3/PLANETS/moon.csv
+Assets/Resources/CSVS/ARTEMIS 3/PLANETS/moon.csv.meta
+Assets/Resources/CSVS/ARTEMIS 3/SATS/.Gateway-EOR.csv.icloud
+Assets/Resources/CSVS/ARTEMIS 3/SATS/.HLS-Descent.csv.icloud
+Assets/Resources/CSVS/ARTEMIS 3/SATS/.v.csv.icloud
+Assets/Resources/CSVS/ARTEMIS 3/SATS/Gateway-EOR.csv
+Assets/Resources/CSVS/ARTEMIS 3/SATS/Gateway-EOR.csv.meta
+Assets/Resources/CSVS/ARTEMIS 3/SATS/HLS-Descent.csv
+Assets/Resources/CSVS/ARTEMIS 3/SATS/HLS-Descent.csv.meta
+Assets/Resources/CSVS/ARTEMIS 3/SATS/v.csv
+Assets/Resources/CSVS/ARTEMIS 3/SATS/v.csv.meta
+Assets/Resources/CSVS/OLD/EARTHBASED/.AIM.csv.icloud
+Assets/Resources/CSVS/OLD/EARTHBASED/.AQUA.csv.icloud
+Assets/Resources/CSVS/OLD/EARTHBASED/.AURA.csv.icloud
+Assets/Resources/CSVS/OLD/EARTHBASED/.OCO-2.csv.icloud
+Assets/Resources/CSVS/OLD/EARTHBASED/AIM.csv
+Assets/Resources/CSVS/OLD/EARTHBASED/AIM.csv.meta
+Assets/Resources/CSVS/OLD/EARTHBASED/AQUA.csv
+Assets/Resources/CSVS/OLD/EARTHBASED/AQUA.csv.meta
+Assets/Resources/CSVS/OLD/EARTHBASED/AURA.csv
+Assets/Resources/CSVS/OLD/EARTHBASED/AURA.csv.meta
+Assets/Resources/CSVS/OLD/EARTHBASED/OCO-2.csv
+Assets/Resources/CSVS/OLD/EARTHBASED/OCO-2.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/.AIM.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.AQUA.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.AURA.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.FGST.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.Geotail.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GOES 1.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GOES 10.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GOES 11.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GOES 12.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GOES 13.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GOES 14.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GOES 2.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GOES 3.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GOES 4.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GOES 5.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GOES 6.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GOES 7.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GOES 8.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GOES 9.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GPM_CORE.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GRACE FO1.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.GRACE FO2.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.HST.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.ICESAT 2.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.ICON.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.IRIS.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.ISS.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.LANDSAT 7.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.LANDSAT 8.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.METOP B.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.METOP C.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.MMS 1.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.MMS 2.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.MMS 3.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.MMS 4.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.NUSTAR.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.OCO-2.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.SCISAT 1.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.SDO.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.SEAHAWK 1.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.SMAP.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.SOLAR B.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.STPSat 3.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.STPSat 4.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.STPSat 5.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.SWIFT.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.TDRS 10.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.TDRS 11.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.TDRS 12.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.TDRS 13.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.TDRS 3.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.TDRS 5.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.TDRS 6.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.TDRS 7.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.TDRS 8.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.TDRS 9.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.TERRA.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.THEMIS_A.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.THEMIS_D.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/.THEMIS_E.csv.icloud
+Assets/Resources/CSVS/OLD/NEW/SATS/AIM.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/AIM.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/AQUA.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/AQUA.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/AURA.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/AURA.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/FGST.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/FGST.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/Geotail.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/Geotail.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 1.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 1.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 10.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 10.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 11.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 11.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 12.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 12.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 13.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 13.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 14.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 14.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 2.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 2.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 3.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 3.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 4.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 4.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 5.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 5.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 6.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 6.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 7.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 7.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 8.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 8.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 9.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GOES 9.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GPM_CORE.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GPM_CORE.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GRACE FO1.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GRACE FO1.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/GRACE FO2.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/GRACE FO2.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/HST.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/HST.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/ICESAT 2.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/ICESAT 2.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/ICON.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/ICON.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/IRIS.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/IRIS.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/ISS.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/ISS.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/LANDSAT 7.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/LANDSAT 7.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/LANDSAT 8.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/LANDSAT 8.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/METOP B.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/METOP B.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/METOP C.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/METOP C.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/MMS 1.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/MMS 1.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/MMS 2.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/MMS 2.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/MMS 3.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/MMS 3.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/MMS 4.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/MMS 4.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/NUSTAR.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/NUSTAR.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/OCO-2.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/OCO-2.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/SCISAT 1.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/SCISAT 1.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/SDO.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/SDO.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/SEAHAWK 1.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/SEAHAWK 1.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/SMAP.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/SMAP.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/SOLAR B.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/SOLAR B.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/STPSat 3.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/STPSat 3.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/STPSat 4.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/STPSat 4.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/STPSat 5.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/STPSat 5.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/SWIFT.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/SWIFT.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 10.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 10.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 11.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 11.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 12.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 12.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 13.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 13.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 3.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 3.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 5.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 5.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 6.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 6.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 7.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 7.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 8.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 8.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 9.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/TDRS 9.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/TERRA.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/TERRA.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/THEMIS_A.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/THEMIS_A.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/THEMIS_D.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/THEMIS_D.csv.meta
+Assets/Resources/CSVS/OLD/NEW/SATS/THEMIS_E.csv
+Assets/Resources/CSVS/OLD/NEW/SATS/THEMIS_E.csv.meta
+Assets/Resources/CSVS/OLD/SATS/.AIM.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.AQUA.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.AURA.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.FGST.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.Geotail.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 1.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 10.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 11.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 12.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 13.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 14.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 15.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 16.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 17.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 2.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 3.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 4.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 5.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 6.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 7.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 8.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GOES 9.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GPM_CORE.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GRACE FO1.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.GRACE FO2.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.HST.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.ICESAT 2.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.ICON.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.IRIS.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.ISS.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.LANDSAT 7.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.LANDSAT 8.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.METOP B.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.METOP C.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.MMS 1.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.MMS 2.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.MMS 3.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.MMS 4.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.NUSTAR.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.OCO-2.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.SCISAT 1.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.SDO.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.SEAHAWK 1.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.SMAP.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.SOLAR B.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.STPSat 3.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.STPSat 4.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.STPSat 5.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.SWIFT.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.TDRS 10.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.TDRS 11.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.TDRS 12.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.TDRS 13.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.TDRS 3.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.TDRS 5.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.TDRS 6.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.TDRS 7.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.TDRS 8.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.TDRS 9.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.TERRA.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.THEMIS_A.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.THEMIS_D.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/.THEMIS_E.csv.icloud
+Assets/Resources/CSVS/OLD/SATS/AIM.csv
+Assets/Resources/CSVS/OLD/SATS/AIM.csv.meta
+Assets/Resources/CSVS/OLD/SATS/AQUA.csv
+Assets/Resources/CSVS/OLD/SATS/AQUA.csv.meta
+Assets/Resources/CSVS/OLD/SATS/AURA.csv
+Assets/Resources/CSVS/OLD/SATS/AURA.csv.meta
+Assets/Resources/CSVS/OLD/SATS/FGST.csv
+Assets/Resources/CSVS/OLD/SATS/FGST.csv.meta
+Assets/Resources/CSVS/OLD/SATS/Geotail.csv
+Assets/Resources/CSVS/OLD/SATS/Geotail.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 1.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 1.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 10.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 10.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 11.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 11.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 12.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 12.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 13.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 13.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 14.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 14.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 15.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 15.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 16.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 16.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 17.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 17.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 2.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 2.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 3.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 3.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 4.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 4.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 5.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 5.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 6.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 6.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 7.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 7.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 8.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 8.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GOES 9.csv
+Assets/Resources/CSVS/OLD/SATS/GOES 9.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GPM_CORE.csv
+Assets/Resources/CSVS/OLD/SATS/GPM_CORE.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GRACE FO1.csv
+Assets/Resources/CSVS/OLD/SATS/GRACE FO1.csv.meta
+Assets/Resources/CSVS/OLD/SATS/GRACE FO2.csv
+Assets/Resources/CSVS/OLD/SATS/GRACE FO2.csv.meta
+Assets/Resources/CSVS/OLD/SATS/HST.csv
+Assets/Resources/CSVS/OLD/SATS/HST.csv.meta
+Assets/Resources/CSVS/OLD/SATS/ICESAT 2.csv
+Assets/Resources/CSVS/OLD/SATS/ICESAT 2.csv.meta
+Assets/Resources/CSVS/OLD/SATS/ICON.csv
+Assets/Resources/CSVS/OLD/SATS/ICON.csv.meta
+Assets/Resources/CSVS/OLD/SATS/IRIS.csv
+Assets/Resources/CSVS/OLD/SATS/IRIS.csv.meta
+Assets/Resources/CSVS/OLD/SATS/ISS.csv
+Assets/Resources/CSVS/OLD/SATS/ISS.csv.meta
+Assets/Resources/CSVS/OLD/SATS/LANDSAT 7.csv
+Assets/Resources/CSVS/OLD/SATS/LANDSAT 7.csv.meta
+Assets/Resources/CSVS/OLD/SATS/LANDSAT 8.csv
+Assets/Resources/CSVS/OLD/SATS/LANDSAT 8.csv.meta
+Assets/Resources/CSVS/OLD/SATS/METOP B.csv
+Assets/Resources/CSVS/OLD/SATS/METOP B.csv.meta
+Assets/Resources/CSVS/OLD/SATS/METOP C.csv
+Assets/Resources/CSVS/OLD/SATS/METOP C.csv.meta
+Assets/Resources/CSVS/OLD/SATS/MMS 1.csv
+Assets/Resources/CSVS/OLD/SATS/MMS 1.csv.meta
+Assets/Resources/CSVS/OLD/SATS/MMS 2.csv
+Assets/Resources/CSVS/OLD/SATS/MMS 2.csv.meta
+Assets/Resources/CSVS/OLD/SATS/MMS 3.csv
+Assets/Resources/CSVS/OLD/SATS/MMS 3.csv.meta
+Assets/Resources/CSVS/OLD/SATS/MMS 4.csv
+Assets/Resources/CSVS/OLD/SATS/MMS 4.csv.meta
+Assets/Resources/CSVS/OLD/SATS/NUSTAR.csv
+Assets/Resources/CSVS/OLD/SATS/NUSTAR.csv.meta
+Assets/Resources/CSVS/OLD/SATS/OCO-2.csv
+Assets/Resources/CSVS/OLD/SATS/OCO-2.csv.meta
+Assets/Resources/CSVS/OLD/SATS/SCISAT 1.csv
+Assets/Resources/CSVS/OLD/SATS/SCISAT 1.csv.meta
+Assets/Resources/CSVS/OLD/SATS/SDO.csv
+Assets/Resources/CSVS/OLD/SATS/SDO.csv.meta
+Assets/Resources/CSVS/OLD/SATS/SEAHAWK 1.csv
+Assets/Resources/CSVS/OLD/SATS/SEAHAWK 1.csv.meta
+Assets/Resources/CSVS/OLD/SATS/SMAP.csv
+Assets/Resources/CSVS/OLD/SATS/SMAP.csv.meta
+Assets/Resources/CSVS/OLD/SATS/SOLAR B.csv
+Assets/Resources/CSVS/OLD/SATS/SOLAR B.csv.meta
+Assets/Resources/CSVS/OLD/SATS/STPSat 3.csv
+Assets/Resources/CSVS/OLD/SATS/STPSat 3.csv.meta
+Assets/Resources/CSVS/OLD/SATS/STPSat 4.csv
+Assets/Resources/CSVS/OLD/SATS/STPSat 4.csv.meta
+Assets/Resources/CSVS/OLD/SATS/STPSat 5.csv
+Assets/Resources/CSVS/OLD/SATS/STPSat 5.csv.meta
+Assets/Resources/CSVS/OLD/SATS/SWIFT.csv
+Assets/Resources/CSVS/OLD/SATS/SWIFT.csv.meta
+Assets/Resources/CSVS/OLD/SATS/TDRS 10.csv
+Assets/Resources/CSVS/OLD/SATS/TDRS 10.csv.meta
+Assets/Resources/CSVS/OLD/SATS/TDRS 11.csv
+Assets/Resources/CSVS/OLD/SATS/TDRS 11.csv.meta
+Assets/Resources/CSVS/OLD/SATS/TDRS 12.csv
+Assets/Resources/CSVS/OLD/SATS/TDRS 12.csv.meta
+Assets/Resources/CSVS/OLD/SATS/TDRS 13.csv
+Assets/Resources/CSVS/OLD/SATS/TDRS 13.csv.meta
+Assets/Resources/CSVS/OLD/SATS/TDRS 3.csv
+Assets/Resources/CSVS/OLD/SATS/TDRS 3.csv.meta
+Assets/Resources/CSVS/OLD/SATS/TDRS 5.csv
+Assets/Resources/CSVS/OLD/SATS/TDRS 5.csv.meta
+Assets/Resources/CSVS/OLD/SATS/TDRS 6.csv
+Assets/Resources/CSVS/OLD/SATS/TDRS 6.csv.meta
+Assets/Resources/CSVS/OLD/SATS/TDRS 7.csv
+Assets/Resources/CSVS/OLD/SATS/TDRS 7.csv.meta
+Assets/Resources/CSVS/OLD/SATS/TDRS 8.csv
+Assets/Resources/CSVS/OLD/SATS/TDRS 8.csv.meta
+Assets/Resources/CSVS/OLD/SATS/TDRS 9.csv
+Assets/Resources/CSVS/OLD/SATS/TDRS 9.csv.meta
+Assets/Resources/CSVS/OLD/SATS/TERRA.csv
+Assets/Resources/CSVS/OLD/SATS/TERRA.csv.meta
+Assets/Resources/CSVS/OLD/SATS/THEMIS_A.csv
+Assets/Resources/CSVS/OLD/SATS/THEMIS_A.csv.meta
+Assets/Resources/CSVS/OLD/SATS/THEMIS_D.csv
+Assets/Resources/CSVS/OLD/SATS/THEMIS_D.csv.meta
+Assets/Resources/CSVS/OLD/SATS/THEMIS_E.csv
+Assets/Resources/CSVS/OLD/SATS/THEMIS_E.csv.meta
+Assets/Resources/Materials/planets/earth/.8k_earth_daymap.jpg.icloud
+Assets/Resources/Materials/planets/earth/.8k_earth_nightmap.jpg.icloud
+Assets/Resources/Materials/planets/earth/.8k_earth_normal_map.jpg.icloud
+Assets/Resources/Materials/planets/earth/.earthClouds.jpg.icloud
+Assets/Resources/Materials/planets/earth/8k_earth_daymap.jpg
+Assets/Resources/Materials/planets/earth/8k_earth_daymap.jpg.meta
+Assets/Resources/Materials/planets/earth/8k_earth_nightmap.jpg
+Assets/Resources/Materials/planets/earth/8k_earth_nightmap.jpg.meta
+Assets/Resources/Materials/planets/earth/8k_earth_normal_map.jpg
+Assets/Resources/Materials/planets/earth/8k_earth_normal_map.jpg.meta
+Assets/Resources/Materials/planets/earth/earthClouds.jpg
+Assets/Resources/Materials/planets/earth/earthClouds.jpg.meta
