@@ -20,12 +20,13 @@ void CSMain (uint3 id : SV_DispatchThreadID) {
 
     if (fy >= pointCount.y) return;
 
-    // the issue is here
     uint lx = min(pointCount.x - sx, 256);
     uint ly = min(pointCount.y - sy, 256);
     uint offset = sy * pointCount.x + sx * ly;
 
     for (uint x = 0; x < lx; x++) {
-        vectors[offset + y * lx + x] = float3(sx + x, 0, sy + y);
+        float tx = sx + x - meshX;
+        float ty = sy + y - meshY;
+        vectors[offset + y * lx + x] = float3(tx, 0, ty);
     }
 }
