@@ -280,6 +280,43 @@ public class controller : MonoBehaviour
     public void Update() {
         playerControls.update();
 
+        if (Input.GetKeyDown("h")) {
+            ComputeShader cs = Resources.Load<ComputeShader>("Materials/testSingle");
+
+            Vector2Int shape = new Vector2Int(256 * 2 + 50, 256 * 1 + 100);
+            Vector2Int meshes = new Vector2Int(Mathf.CeilToInt((float) shape.x / 256f), Mathf.CeilToInt((float) shape.y / 256f));
+
+            Vector3[] vectors = new Vector3[shape.x * shape.y];
+            ComputeBuffer vectorBuffer = new ComputeBuffer(vectors.Length, sizeof(float) * 3);
+            vectorBuffer.SetData(vectors);
+
+            cs.SetBuffer(0, "vectors", vectorBuffer);
+            cs.SetInts("meshCount", new int[] {meshes.x, meshes.y});
+            cs.SetInts("pointCount", new int[] {shape.x, shape.y});
+
+            cs.Dispatch(0, 2 * meshes.x * meshes.y, 1, 1);
+            vectorBuffer.GetData(vectors);
+            vectorBuffer.Dispose();
+
+            int offset = 0;
+            for (int y = 0; y < meshes.y; y++) {
+                for (int x = 0; x < meshes.x; x++) {
+                    int xVerts = Mathf.Min(shape.x - x * 256, 256);
+                    int yVerts = Mathf.Min(shape.y - y * 256, 256);
+
+                    universalTerrainMesh m = new universalTerrainMesh();
+                    m.init(xVerts, yVerts, default(position), default(position));
+                    Vector3[] verts = new Vector3[xVerts * yVerts];
+                    Array.Copy(vectors, offset, verts, 0, xVerts * yVerts);
+                    m.verts = verts;
+
+                    m.drawMesh(resLoader.load<Material>("defaultMat"), resLoader.load<GameObject>("defaultPrefab"), offset.ToString(), null);
+
+                    offset += xVerts * yVerts;
+                }
+            }
+        }
+
         if (Input.GetKeyDown("o")) {
             Vector3 v1 = (Vector3) (geographic.toCartesian(new geographic(0, 0), earth.radius).swapAxis());
             Vector3 v2 = (Vector3) (geographic.toCartesianWGS(new geographic(0, 0), 0).swapAxis());

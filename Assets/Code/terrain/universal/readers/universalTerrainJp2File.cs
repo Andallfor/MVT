@@ -161,51 +161,51 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         Debug.Log($"Time to read {(end.y - start.y) * (end.x - start.x)} pixels: {sw.ElapsedMilliseconds - s1}ms");
         s1 = sw.ElapsedMilliseconds;
 
-        //int colLen = end.x - start.x;
-        //int maxHeight = (int) (nrows / power);
-        //for (int r = start.y; r < end.y; r++) {
-        //    for (int c = start.x; c < end.x; c++) {
-        //        int x = c - start.x;
-        //        int y = r - start.y;
-//
-        //        geographic g = new geographic((maxHeight - r) * cellSize * power, c * cellSize * power) + llCorner;
-//                double height = (heights[(int) (y * colLen + x)] - 32767) / 1000.0; // +32767 bc data is offset in jp2 writer
-//                position p = toCart(g, radius + height);
-//                p += posOffset;
-//                p = p.swapAxis() / master.scale;
-//
-        //        if (isForAccessCalls && height != 0) {
-        //            accessCallGeo.Add(g);
-        //            accessCallHeight.Add(height);
-        //            accessCallGrid.Add(new Vector2Int(x, y));
-        //        }
-//
-        //        m.addPoint(x, y, p);
-        //    }
-        //}
-
-        
-
-        Vector3[] output = processPointsSingle(heights, start, end, power, m);
-        //m.forceSetAllPoints(output);
-
-        HashSet<Vector3> hashes = new HashSet<Vector3>();
-        for (int i = 0; i < 1000; i++) {
-            //Debug.Log(output[i]);
-        }
-
-        int index = 0;
+        int colLen = end.x - start.x;
+        int maxHeight = (int) (nrows / power);
         for (int r = start.y; r < end.y; r++) {
             for (int c = start.x; c < end.x; c++) {
                 int x = c - start.x;
                 int y = r - start.y;
 
-                Vector3 v = output[index++];
+                geographic g = new geographic((maxHeight - r) * cellSize * power, c * cellSize * power) + llCorner;
+                double height = (heights[(int) (y * colLen + x)] - 32767) / 1000.0; // +32767 bc data is offset in jp2 writer
+                position p = toCart(g, radius + height);
+                p += posOffset;
+                p = p.swapAxis() / master.scale;
 
-                m.addPoint(x, y, v);
-                //hashes.Add(v);
+                if (isForAccessCalls && height != 0) {
+                    accessCallGeo.Add(g);
+                    accessCallHeight.Add(height);
+                    accessCallGrid.Add(new Vector2Int(x, y));
+                }
+
+                m.addPoint(x, y, p);
             }
         }
+
+        
+
+        //Vector3[] output = processPointsSingle(heights, start, end, power, m);
+        //m.forceSetAllPoints(output);
+//
+        //HashSet<Vector3> hashes = new HashSet<Vector3>();
+        //for (int i = 0; i < 1000; i++) {
+        //    //Debug.Log(output[i]);
+        //}
+//
+        //int index = 0;
+        //for (int r = start.y; r < end.y; r++) {
+        //    for (int c = start.x; c < end.x; c++) {
+        //        int x = c - start.x;
+        //        int y = r - start.y;
+//
+        //        Vector3 v = output[index++];
+//
+        //        m.addPoint(x, y, v);
+        //        //hashes.Add(v);
+        //    }
+        //}
 
         //foreach (Vector3 v in hashes) {
         //    Debug.Log(v);

@@ -80,17 +80,4 @@ void CSMain (uint3 id : SV_DispatchThreadID) {
 
         vectors[idx] = float3(gx, gz, gy);
     }
-
-    /*
-    uint idx = id.x;
-
-    
-
-
-    // maybe try converting everything to double to minimize type conversions?
-    double x = double(idx % gridX);
-    double y = double((idx - x) / gridX);
-
-    
-    */
 }

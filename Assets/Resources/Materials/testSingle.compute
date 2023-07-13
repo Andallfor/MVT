@@ -1,0 +1,31 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+uint2 meshCount, pointCount;
+
+RWStructuredBuffer<float3> vectors;
+
+[numthreads(128,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID) {
+    uint threadGroup = id.x / 128;
+    uint meshIndex = threadGroup / 2;
+    uint meshX = meshIndex % meshCount.x;
+    uint meshY = (meshIndex - meshX) / meshCount.x;
+
+    uint sx = meshX * 256;
+    uint sy = meshY * 256;
+
+    uint y = id.x % 256;
+    uint fy = y + sy;
+
+    if (fy >= pointCount.y) return;
+
+    // the issue is here
+    uint lx = min(pointCount.x - sx, 256);
+    uint ly = min(pointCount.y - sy, 256);
+    uint offset = sy * pointCount.x + sx * ly;
+
+    for (uint x = 0; x < lx; x++) {
+        vectors[offset + y * lx + x] = float3(sx + x, 0, sy + y);
+    }
+}
