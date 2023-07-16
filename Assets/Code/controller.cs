@@ -280,43 +280,6 @@ public class controller : MonoBehaviour
     public void Update() {
         playerControls.update();
 
-        if (Input.GetKeyDown("h")) {
-            ComputeShader cs = Resources.Load<ComputeShader>("Materials/terrainWGSComputeSingle");
-
-            Vector2Int shape = new Vector2Int(256 * 2 + 50, 256 * 1 + 100);
-            Vector2Int meshes = new Vector2Int(Mathf.CeilToInt((float) shape.x / 256f), Mathf.CeilToInt((float) shape.y / 256f));
-
-            Vector3[] vectors = new Vector3[shape.x * shape.y];
-            ComputeBuffer vectorBuffer = new ComputeBuffer(vectors.Length, sizeof(float) * 3);
-            vectorBuffer.SetData(vectors);
-
-            cs.SetBuffer(0, "vectors", vectorBuffer);
-            cs.SetInts("meshCount", new int[] {meshes.x, meshes.y});
-            cs.SetInts("pointCount", new int[] {shape.x, shape.y});
-
-            cs.Dispatch(0, 2 * meshes.x * meshes.y, 1, 1);
-            vectorBuffer.GetData(vectors);
-            vectorBuffer.Dispose();
-
-            int offset = 0;
-            for (int y = 0; y < meshes.y; y++) {
-                for (int x = 0; x < meshes.x; x++) {
-                    int xVerts = Mathf.Min(shape.x - x * 256, 256);
-                    int yVerts = Mathf.Min(shape.y - y * 256, 256);
-
-                    universalTerrainMesh m = new universalTerrainMesh();
-                    m.init(xVerts, yVerts, default(position), default(position));
-                    Vector3[] verts = new Vector3[xVerts * yVerts];
-                    Array.Copy(vectors, offset, verts, 0, xVerts * yVerts);
-                    m.verts = verts;
-
-                    m.drawMesh(resLoader.load<Material>("defaultMat"), resLoader.load<GameObject>("defaultPrefab"), offset.ToString(), null);
-
-                    offset += xVerts * yVerts;
-                }
-            }
-        }
-
         if (Input.GetKeyDown("o")) {
             Vector3 v1 = (Vector3) (geographic.toCartesian(new geographic(0, 0), earth.radius).swapAxis());
             Vector3 v2 = (Vector3) (geographic.toCartesianWGS(new geographic(0, 0), 0).swapAxis());
@@ -363,49 +326,6 @@ public class controller : MonoBehaviour
             //var output = access.findTimes(new Time(2461021.77854328 + 0.0002), new Time(2461021.77991930), 0.00069444444, 0.00001157407 / 2.0);
             //access.saveResults(output);
             StartCoroutine(stall(access));
-            
-            /*
-            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/canberra");
-            universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"));
-            f.overrideToCart(geographic.toCartesianWGS);
-
-            geographic g = new geographic(-35.398522, 148.981904);
-            double alt = f.getHeight(g);
-
-            GameObject go = resLoader.createPrefab("defaultPrefab");
-            go.transform.position = earth.representation.gameObject.transform.rotation * (Vector3) (g.toCartesianWGS(alt).swapAxis() / master.scale);
-
-            accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, g, alt, sat1);
-
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
-            meshDistributor<universalTerrainMesh> mesh = f.load(Vector2.zero, Vector2.one, 0, 2);
-            long s1 = sw.ElapsedMilliseconds;
-            Debug.Log("Time to load: " + s1);
-
-            s1 = sw.ElapsedMilliseconds;
-            mesh.drawAll(earth.representation.gameObject.transform);
-            Debug.Log("Time to draw mesh: " + (sw.ElapsedMilliseconds - s1));
-
-            s1 = sw.ElapsedMilliseconds;
-            
-            //foreach (IMesh child in mesh.allMeshesOrdered) child.addCollider();
-            //var output = access.bruteForce(new Time(2461021.77854328), new Time(2461029.93452393), 0.00001157407);
-            //var output = access.bruteForce(new Time(2461021.95), new Time(2461022.05), 0.00001157407);
-            //var output = access.bruteForce(new Time(2461026.84968476), new Time(2461026.86275181), 0.00001157407);
-            //var output = access.findTimes(new Time(2461026.92073842), new Time(2461026.93171353), 0.00069444444, 0.00001157407 / 2.0);
-            var output = access.findTimes(new Time(2461022.84641104), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
-            //var output = access.findTimes(new Time(2461026.85107154), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
-            Debug.Log("Time to generate access calls: " + (sw.ElapsedMilliseconds - s1));
-
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < output.Count; i++) {
-                accessCallTimeSpan span = output[i];
-                sb.AppendLine($"{i},{span.start},{span.end},{span.end-span.start}");
-            }
-
-            File.WriteAllText("C:/Users/leozw/Desktop/accessNew.csv", sb.ToString());
-            */
         }
     }
 
