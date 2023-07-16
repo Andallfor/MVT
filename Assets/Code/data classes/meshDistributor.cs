@@ -7,7 +7,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 
 public class meshDistributor {
-    public const int maxVertSize = 255;
+    public const int maxVertSize = 256;
 }
 
 public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
@@ -16,14 +16,16 @@ public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
 
     public Vector2Int shape;
 
-    public List<T> allMeshes {get => map.Values.ToList();}
+    public List<T> allMeshesOrdered;
     
     // try to create as many 255x255 meshes as possible
-    public meshDistributor(Vector2Int size, Vector2Int maxSize, Vector2Int offset, bool reverse = false, Func<Vector2Int, Vector2> customUV = null, bool fastVerts = false) {
+    public meshDistributor(Vector2Int size, Vector2Int maxSize, Vector2Int offset, bool reverse = false, Func<Vector2Int, Vector2> customUV = null, bool fastVerts = false, bool meshEdgeOffset = true) {
         baseType = new T();
 
-        for (int x = 0; x < size.x; x += maxVertSize) {
-            for (int y = 0; y < size.y; y += maxVertSize) {
+        allMeshesOrdered = new List<T>();
+
+        for (int y = 0; y < size.y; y += maxVertSize) {
+            for (int x = 0; x < size.x; x += maxVertSize) {
                 int xLeft = (x + maxVertSize >= size.x) ? size.x % maxVertSize : maxVertSize;
                 int yLeft = (y + maxVertSize >= size.y) ? size.y % maxVertSize : maxVertSize;
 
@@ -33,11 +35,14 @@ public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
                     Vector2Int _o = new Vector2Int(
                         x + maxVertSize > size.x ? 0 : 1,
                         y + maxVertSize > size.y ? 0 : 1);
+                    
+                    if (!meshEdgeOffset) _o = Vector2Int.zero;
 
                     t.init(xLeft + _o.x, yLeft + _o.y, new position(x + offset.x, y + offset.y, 0), new position(maxSize.x, maxSize.y, 0), reverse, customUV);
                     if (!fastVerts) t.prepareVerts();
 
                     map.Add(new Vector2Int(x, y), t);
+                    allMeshesOrdered.Add(t);
                 }
             }   
         }
@@ -47,12 +52,12 @@ public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
 
     public void forceSetAllPoints(Vector3[] arr) {
         int offset = 0;
-        foreach (T t in map.Values) {
-            int count = t.shape.x * t.shape.y;
-            for (int i = offset; i < offset + count; i++) {
-                t.verts[i - offset] = arr[i];
-            }
-            offset += count;
+        Debug.Log(arr.Length);
+        for (int i = 0; i < allMeshesOrdered.Count; i++) {
+            T m = allMeshesOrdered[i];
+            Array.Copy(arr, offset, m.verts, 0, m.verts.Length);
+
+            offset += m.verts.Length;
         }
     }
 
@@ -104,6 +109,9 @@ public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
     }
 
     public void clear() {
-        foreach (T t in allMeshes) t.clearMesh();
+        foreach (T t in allMeshesOrdered) t.clearMesh();
+        map = null;
+        allMeshesOrdered = null;
+        shape = Vector2Int.zero;
     }
 }

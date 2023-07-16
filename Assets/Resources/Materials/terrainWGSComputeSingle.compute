@@ -1,60 +1,51 @@
-// Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
-struct doubleData {
-    double cellSize, lat, lon, scale;
-};
+uint2 meshCount, pointCount;
+float2 llCorner;
+float scale, cellsize, power, totalNRows;
 
-uint gridX, gridY, startX, startY, trueY, power;
-uint2 mesh;
-
-// note: test with rwstructuredbuffer, rwbuffer, and rwbyteaddressbuffer
 RWStructuredBuffer<int> heights;
-RWStructuredBuffer<doubleData> data;
 RWStructuredBuffer<float3> vectors;
-
-// TODO: check performance of running code without if statements
 
 [numthreads(128,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID) {
-    uint meshIndex = (id.x - id.x % 128) / 128;
-    uint xLength = (meshIndex + 1) % mesh.x == 0 ? gridX % 255 : 255;
+    uint threadGroup = id.x / 128;
+    uint meshIndex = threadGroup / 2;
+    uint meshX = meshIndex % meshCount.x;
+    uint meshY = (meshIndex - meshX) / meshCount.x;
 
-    uint y = ceil(meshIndex / mesh.x);
-    uint yLength = y * 128;
-    if (yLength > gridY) yLength = 0;
-    else if (yLength + 128 > gridY) yLength = yLength + 128 - gridY;
-    else yLength = 128;
+    uint sx = meshX * 256;
+    uint sy = meshY * 256;
 
-    if (id.x % 128 >= yLength) return;
+    uint y = id.x % 256;
+    uint fy = y + sy;
 
-    doubleData _d = data[0];
+    if (fy >= pointCount.y) return;
 
-    double deg2rad = 3.14159265359 / 180.0;
-    double rEq = 6378.14;
-    double rPol = 6356.75;
-    double aE = 6378.137;
-    double eEsq = 0.00669437888014;
+    uint lx = min(pointCount.x - sx, 256);
+    uint ly = min(pointCount.y - sy, 256);
+    uint offset = sy * pointCount.x + sx * ly;
 
-    double rEqXrEq = rEq * rEq;
-    double rPolXrPol = rPol * rPol;
+    const double deg2rad = 3.14159265359 / 180.0;
+    const double rad2deg = 180.0 / 3.14159265359;
+    const double rEq = 6378.14;
+    const double rPol = 6356.75;
+    const double aE = 6378.137;
+    const double eEsq = 0.00669437888014;
+    const double negEEsq = 0.99330562111986;
+    const double rEqXrEq = rEq * rEq;
+    const double rPolXrPol = rPol * rPol;
+    const double downscale = 1.0 / scale;
 
-    double downscale = 1.0 / _d.scale;
+    // todo: check cost of casting these vars
+    for (uint x = 0; x < lx; x++) {
+        double tx = sx + x - meshX;
+        double ty = sy + y - meshY;
+        uint ind = ty * pointCount.x + tx;
 
-    for (uint i = 0; i < xLength; i++) {
-        uint x = i + (meshIndex % mesh.x) * 255;
-        uint idx = y * gridX + x;
+        double2 g = double2(tx * cellsize * power + llCorner.x, (totalNRows - ty * power) * cellsize + llCorner.y);
+        g = double2(g.x * deg2rad, g.y * deg2rad);
 
-        double col = x + startX;
-        double row = y + startY;
-
-        double2 g = double2(col * _d.cellSize * power, -row * _d.cellSize * power);
-        g.x += _d.lon;
-        g.y += _d.lat + trueY * _d.cellSize;
-        g.x *= deg2rad;
-        g.y *= deg2rad;
-
-        // what is the cost of allocating these vars?
         double cosLat = cos(g.y);
         double cosLon = cos(g.x);
         double sinLat = sin(g.y);
@@ -67,17 +58,17 @@ void CSMain (uint3 id : SV_DispatchThreadID) {
         double rGs = sqrt((a + b) / (c + d));
         double nTheta = aE / sqrt(1.0 - eEsq * sinLat);
 
-        double h = heights[idx];
+        //double h = heights[idx];
+        double h = (heights[ind] - 32767.0) / 1000.0;
         double gx = (nTheta + h) * cosLat * cosLon;
         double gy = (nTheta + h) * cosLat * sinLon;
-        double gz = (nTheta * (1.0 - eEsq) + h) * sinLat;
+        double gz = (nTheta * negEEsq + h) * sinLat;
 
         double n = sqrt(gx * gx + gy * gy + gz * gz);
-        double hOffset = (h - 32767.0) / 1000.0;
-        gx = (gx / n) * (rGs + hOffset) * downscale;
-        gy = (gy / n) * (rGs + hOffset) * downscale;
-        gz = (gz / n) * (rGs + hOffset) * downscale;
+        gx = (gx / n) * (rGs + h) * downscale;
+        gy = (gy / n) * (rGs + h) * downscale;
+        gz = (gz / n) * (rGs + h) * downscale;
 
-        vectors[idx] = float3(gx, gz, gy);
+        vectors[offset + y * lx + x] = float3(gx, gz, gy);
     }
 }

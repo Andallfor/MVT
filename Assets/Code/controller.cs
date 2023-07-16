@@ -281,7 +281,7 @@ public class controller : MonoBehaviour
         playerControls.update();
 
         if (Input.GetKeyDown("h")) {
-            ComputeShader cs = Resources.Load<ComputeShader>("Materials/testSingle");
+            ComputeShader cs = Resources.Load<ComputeShader>("Materials/terrainWGSComputeSingle");
 
             Vector2Int shape = new Vector2Int(256 * 2 + 50, 256 * 1 + 100);
             Vector2Int meshes = new Vector2Int(Mathf.CeilToInt((float) shape.x / 256f), Mathf.CeilToInt((float) shape.y / 256f));
@@ -389,7 +389,7 @@ public class controller : MonoBehaviour
 
             s1 = sw.ElapsedMilliseconds;
             
-            //foreach (IMesh child in mesh.allMeshes) child.addCollider();
+            //foreach (IMesh child in mesh.allMeshesOrdered) child.addCollider();
             //var output = access.bruteForce(new Time(2461021.77854328), new Time(2461029.93452393), 0.00001157407);
             //var output = access.bruteForce(new Time(2461021.95), new Time(2461022.05), 0.00001157407);
             //var output = access.bruteForce(new Time(2461026.84968476), new Time(2461026.86275181), 0.00001157407);

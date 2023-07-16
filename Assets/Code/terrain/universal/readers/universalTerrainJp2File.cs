@@ -152,7 +152,7 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
             new Vector2Int(end.x - start.x, end.y - start.y),
             Vector2Int.zero, Vector2Int.zero, true, customUV: (Vector2Int v) => {
                 return new Vector2((float) v.x / (float) (end.x - start.x), (float) v.y / (float) (end.y - start.y));
-            });
+            }, meshEdgeOffset: false);
 
         long s1 = sw.ElapsedMilliseconds;
         Debug.Log($"Time to init mesh: {s1}ms");
@@ -161,28 +161,31 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         Debug.Log($"Time to read {(end.y - start.y) * (end.x - start.x)} pixels: {sw.ElapsedMilliseconds - s1}ms");
         s1 = sw.ElapsedMilliseconds;
 
-        int colLen = end.x - start.x;
-        int maxHeight = (int) (nrows / power);
-        for (int r = start.y; r < end.y; r++) {
-            for (int c = start.x; c < end.x; c++) {
-                int x = c - start.x;
-                int y = r - start.y;
+        //int colLen = end.x - start.x;
+        //int maxHeight = (int) (nrows / power);
+        //for (int r = start.y; r < end.y; r++) {
+        //    for (int c = start.x; c < end.x; c++) {
+        //        int x = c - start.x;
+        //        int y = r - start.y;
+//
+        //        geographic g = new geographic((maxHeight - r) * cellSize * power, c * cellSize * power) + llCorner;
+        //        double height = (heights[(int) (y * colLen + x)] - 32767) / 1000.0; // +32767 bc data is offset in jp2 writer
+        //        position p = toCart(g, radius + height);
+        //        p += posOffset;
+        //        p = p.swapAxis() / master.scale;
+//
+        //        if (isForAccessCalls && height != 0) {
+        //            accessCallGeo.Add(g);
+        //            accessCallHeight.Add(height);
+        //            accessCallGrid.Add(new Vector2Int(x, y));
+        //        }
+//
+        //        m.addPoint(x, y, p);
+        //    }
+        //}
 
-                geographic g = new geographic((maxHeight - r) * cellSize * power, c * cellSize * power) + llCorner;
-                double height = (heights[(int) (y * colLen + x)] - 32767) / 1000.0; // +32767 bc data is offset in jp2 writer
-                position p = toCart(g, radius + height);
-                p += posOffset;
-                p = p.swapAxis() / master.scale;
-
-                if (isForAccessCalls && height != 0) {
-                    accessCallGeo.Add(g);
-                    accessCallHeight.Add(height);
-                    accessCallGrid.Add(new Vector2Int(x, y));
-                }
-
-                m.addPoint(x, y, p);
-            }
-        }
+        Vector3[] output = computeShaderPoints(heights, start, end, power);
+        m.forceSetAllPoints(output);
 
         
 
@@ -227,6 +230,42 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         int x = (int) Math.Round(dx * ncols / generatedPower - generatedStart.x);
 
         src.addPoint(x, y, p.swapAxis() / master.scale);
+    }
+
+    private Vector3[] computeShaderPoints(int[] heights, Vector2Int start, Vector2Int end, int power) {
+        ComputeShader cs = Resources.Load<ComputeShader>("Materials/terrainWGSComputeSingle");
+
+        Vector2Int shape = end - start;
+        Vector2Int meshes = new Vector2Int(Mathf.CeilToInt((float) shape.x / 256f), Mathf.CeilToInt((float) shape.y / 256f));
+
+        Vector3[] vectors = new Vector3[shape.x * shape.y];
+        ComputeBuffer vectorBuffer = new ComputeBuffer(vectors.Length, sizeof(float) * 3);
+        vectorBuffer.SetData(vectors);
+
+        ComputeBuffer heightBuffer = new ComputeBuffer(heights.Length, sizeof(int));
+        heightBuffer.SetData(heights);
+
+        cs.SetBuffer(0, "vectors", vectorBuffer);
+        cs.SetBuffer(0, "heights", heightBuffer);
+
+        cs.SetInts("meshCount", new int[] {meshes.x, meshes.y});
+        cs.SetInts("pointCount", new int[] {shape.x, shape.y});
+        cs.SetFloat("scale", (float) master.scale);
+        cs.SetFloat("cellsize", (float) cellSize);
+        cs.SetFloat("power", power);
+        cs.SetFloat("totalNRows", (float) nrows);
+        cs.SetFloats("llCorner", new float[2] {
+            (float) (start.x * cellSize * power + llCorner.lon),
+            (float) (start.y * cellSize * power + llCorner.lat)
+        });
+
+        cs.Dispatch(0, 2 * meshes.x * meshes.y, 1, 1);
+        vectorBuffer.GetData(vectors);
+
+        vectorBuffer.Dispose();
+        heightBuffer.Dispose();
+
+        return vectors;
     }
 
     private Vector3[] processPointsSingle(int[] heights, Vector2Int start, Vector2Int end, int power, meshDistributor<universalTerrainMesh> m) {
