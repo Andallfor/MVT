@@ -317,10 +317,6 @@ public class controller : MonoBehaviour
             if (stationIndex >= 20) stationIndex = 0;
         }
 
-        if (Input.GetKeyDown("u")) {
-            StartCoroutine(testMeshGenPerformance());
-        }
-
         if (Input.GetKeyDown("y")) {
             accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, new geographic(-35.398522, 148.981904), sat1);
             access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/canberra"), 2);
@@ -330,59 +326,6 @@ public class controller : MonoBehaviour
             StartCoroutine(stall(access));
         }
     }
-
-    private IEnumerator testMeshGenPerformance() {
-        int runCount = 1;
-        for (int i = 0; i < runCount; i++) {
-            if (prevDist != null) {
-                prevDist.clear();
-                IMesh.clearCache();
-                GC.Collect();
-                yield return new WaitForSeconds(1);
-            }
-
-            string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/ASF");
-            universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(src, "data.jp2"), Path.Combine(src, "metadata.txt"), true);
-
-            geographic offset = new geographic(1, 1);
-            prevDist = f.load(f.center, 0, f.getBestResolution(f.center - offset, f.center + offset, 5_000_000), offset: 1);
-
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
-
-            //Material m = new Material(resLoader.load<Material>("defaultMat"));
-            //GameObject go = resLoader.load<GameObject>("terrainMesh");
-            //long tinit = 0, tvert = 0, tuv = 0, tnormal = 0, ttriangle = 0, tinstantiate = 0;
-//
-            //foreach (IMesh mesh in prevDist.allMeshesOrdered) {
-            //    mesh.drawMeshTimed(m, go, "mesh", earth.representation.gameObject.transform, ref tinit, ref ttriangle, ref tuv, ref tvert, ref tnormal, ref tinstantiate);
-            //}
-
-            prevDist.drawAll(earth.representation.gameObject.transform);
-            sw.Stop();
-
-            //Debug.Log($"(mesh) <color=red>Initialize: {tinit}</color>");
-            //Debug.Log($"(mesh) <color=red>Triangles: {ttriangle}</color>");
-            //Debug.Log($"(mesh) <color=red>UVs: {tuv}</color>");
-            //Debug.Log($"(mesh) <color=red>Vertices: {tvert}</color>");
-            //Debug.Log($"(mesh) <color=red>Normals: {tnormal}</color>");
-            //Debug.Log($"(mesh) <color=red>Instantiation: {tinstantiate}</color>");
-
-            meshTimerDraw += sw.ElapsedMilliseconds;
-            Debug.Log($"Time to draw mesh: {sw.ElapsedMilliseconds}");
-
-            //f.writeNormals(prevDist);
-
-            Debug.Log("==========================================");
-        }
-
-        Debug.Log(meshTimerInit / (float) runCount);
-        Debug.Log(meshTimerRead / (float) runCount);
-        Debug.Log(meshTimerWrite / (float) runCount);
-        Debug.Log(meshTimerDraw / (float) runCount);
-    }
-
-    public static long meshTimerInit = 0, meshTimerRead = 0, meshTimerWrite = 0, meshTimerDraw = 0;
 
     private IEnumerator stall(accessCallGeneratorWGS access) { // TODO: replace with a physics update call
         yield return new WaitForSeconds(1);

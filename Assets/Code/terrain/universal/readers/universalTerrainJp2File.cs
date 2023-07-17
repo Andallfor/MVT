@@ -147,54 +147,11 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         generatedEnd = end;
         generatedPower = power;
 
-        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-        sw.Start();
-
         meshDistributor<universalTerrainMesh> m = new meshDistributor<universalTerrainMesh>(
             new Vector2Int(end.x - start.x, end.y - start.y),
             Vector2Int.zero, Vector2Int.zero, true, meshEdgeOffset: false);
-
-        controller.meshTimerInit += sw.ElapsedMilliseconds;
-        Debug.Log($"Time to init mesh: {sw.ElapsedMilliseconds}ms");
-        sw.Restart();
         
         int[] heights = openJpegWrapper.requestTerrain(dataPath, start * power, end * power, res, 0);
-        controller.meshTimerRead += sw.ElapsedMilliseconds;
-        Debug.Log($"Time to read {(end.y - start.y) * (end.x - start.x)} pixels: {sw.ElapsedMilliseconds}ms");
-        sw.Restart();
-
-        // so this isnt great
-        //Task.Run(() => {
-        //    foreach (universalTerrainMesh mesh in m.allMeshesOrdered) {
-        //        int hash = getMeshHash(mesh, power);
-        //        string path = Path.Combine(Application.streamingAssetsPath, folderPath, "normals", $"{hash}.nrm");
-//
-        //        if (!File.Exists(path)) continue;
-//
-        //        // is this costly? (using =>)
-        //        mesh.normalGenerator = Task.Run(() => {
-        //            // TODO: i dont like this. write normals to one massive file then read normals from there
-        //            Vector3[] norms = new Vector3[mesh.shape.x * mesh.shape.y];
-        //            using (FileStream fs = new FileStream(path, FileMode.Open)) {
-        //                using (BinaryReader br = new BinaryReader(fs)) {
-        //                    // validate that the hashes match
-        //                    int encodedHash = br.ReadInt32();
-        //                    if (encodedHash != hash) Debug.LogWarning($"Encoded hash {(encodedHash)} != given hash {(hash)}!");
-        //                    // skip metadata
-        //                    int metadataLength = sizeof(double) * 4 + sizeof(int) * 3;
-        //                    br.BaseStream.Seek(metadataLength, SeekOrigin.Begin);
-//
-        //                    int length = (int) ((br.BaseStream.Length - metadataLength) / sizeof(float) / 3);
-        //                    for (int i = 0; i < length; i++) norms[i] = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
-        //                }
-        //            }
-//
-        //            // TODO: write custom shader and pass normal map in as shader parameter
-        //            // that way we are not limited by num of verts
-        //            mesh.normals = norms;
-        //        });
-        //    }
-        //});
 
         //int colLen = end.x - start.x;
         //int maxHeight = (int) (nrows / power);
@@ -220,17 +177,9 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         //}
 
         Vector3[] output = computeShaderPoints(heights, start, end, power);
-        long s1 = sw.ElapsedMilliseconds;
-        sw.Restart();
-
         m.forceSetAllPoints(output);
-        //Debug.Log($"(cs) <color=orange>Point copying time: {sw.ElapsedMilliseconds}</color>");
 
-        controller.meshTimerWrite += s1 + sw.ElapsedMilliseconds;
-        Debug.Log($"Total processing time: {s1 + sw.ElapsedMilliseconds}");
-        sw.Stop();
-
-        //Debug.Log("Loaded area of " + (end.y - start.y) * (end.x - start.x) + " pixels");   
+        Debug.Log("Loaded area of " + (end.y - start.y) * (end.x - start.x) + " pixels");   
 
         return m;
     }
@@ -247,20 +196,12 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
     }
 
     private Vector3[] computeShaderPoints(int[] heights, Vector2Int start, Vector2Int end, int power) {
-        //System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-        //sw.Start();
-
         ComputeShader cs = Resources.Load<ComputeShader>("Materials/terrainWGSComputeSingle");
 
         Vector2Int shape = end - start;
         Vector2Int meshes = new Vector2Int(Mathf.CeilToInt((float) shape.x / 256f), Mathf.CeilToInt((float) shape.y / 256f));
-        //Debug.Log($"(cs) <color=orange>Initial setup: {sw.ElapsedMilliseconds}</color>");
-        //sw.Restart();
 
         Vector3[] vectors = new Vector3[shape.x * shape.y];
-        //Debug.Log($"(cs) <color=orange>Output array allocation time: {sw.ElapsedMilliseconds}</color>");
-        //sw.Restart();
-
         ComputeBuffer vectorBuffer = new ComputeBuffer(vectors.Length, sizeof(float) * 3);
         vectorBuffer.SetData(vectors);
 
@@ -269,9 +210,6 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
 
         cs.SetBuffer(0, "vectors", vectorBuffer);
         cs.SetBuffer(0, "heights", heightBuffer);
-
-        //Debug.Log($"(cs) <color=orange>Set buffers: {sw.ElapsedMilliseconds}</color>");
-        //sw.Restart();
 
         cs.SetInts("meshCount", new int[] {meshes.x, meshes.y});
         cs.SetInts("pointCount", new int[] {shape.x, shape.y});
@@ -284,16 +222,9 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
             (float) (start.y * cellSize * power + llCorner.lat)
         });
 
-        //Debug.Log($"(cs) <color=orange>Set non-buffer variables: {sw.ElapsedMilliseconds}</color>");
-        //sw.Restart();
-
         cs.Dispatch(0, 2 * meshes.x * meshes.y, 1, 1);
-        //Debug.Log($"(cs) <color=orange>Compute shader running time: {sw.ElapsedMilliseconds}</color>");
-        //sw.Restart();
 
         vectorBuffer.GetData(vectors);
-        //Debug.Log($"(cs) <color=orange>GPU to CPU transfer time: {sw.ElapsedMilliseconds}</color>");
-        //sw.Stop();
 
         vectorBuffer.Dispose();
         heightBuffer.Dispose();

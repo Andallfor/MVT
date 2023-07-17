@@ -9,9 +9,6 @@ public static class openJpegWrapper {
     public static int[] requestTerrain(string file, Vector2Int start, Vector2Int end, uint res, uint quality) {
         // TODO: add error checking
         // TODO: test across a lot of systems to ensure endianess is respected!
-        //System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-        //sw.Start();
-
         IntPtr dparam = openjpeg_openjp2_opj_dparameters_t_new();
         openjpeg_openjp2_opj_dparameters_t_set_cod_format(dparam, 2); // jp2
         openjpeg_openjp2_opj_dparameters_t_set_cp_layer(dparam, quality);
@@ -30,30 +27,18 @@ public static class openJpegWrapper {
         openjpeg_openjp2_opj_read_header(stream, codec, out IntPtr raw);
         openjpeg_openjp2_opj_set_decode_area(codec, raw, (uint) start.x, (uint) start.y, (uint) end.x, (uint) end.y);
 
-        //Debug.Log($"(jp2) <color=olive>Setup running parameters: {sw.ElapsedMilliseconds}</color>");
-        //sw.Restart();
-
         openjpeg_openjp2_opj_decode(codec, stream, raw);
-        //Debug.Log($"(jp2) <color=olive>Decode: {sw.ElapsedMilliseconds}</color>");
-        //sw.Restart();
-
         openjpeg_openjp2_opj_end_decompress(codec, stream);
-        //Debug.Log($"(jp2) <color=olive>Decompress: {sw.ElapsedMilliseconds}</color>");
-        //sw.Restart();
-        
+
         IntPtr imgc = openjpeg_openjp2_opj_image_t_get_comps_by_index(raw, 0);
         uint nrows = openjpeg_openjp2_opj_image_comp_t_get_h(imgc);
         uint ncols = openjpeg_openjp2_opj_image_comp_t_get_w(imgc);
 
         int power = (int) Math.Pow(2, res);
         if (nrows * power != end.y - start.y || ncols * power != end.x - start.x) Debug.LogWarning("OpenJpeg: Output height or width does not match desired!");
-        //Debug.Log($"(jp2) <color=olive>Retrieve metadata: {sw.ElapsedMilliseconds}</color>");
-        //sw.Restart();
 
         long len = 4 * nrows * ncols;
         byte[] data = new byte[len];
-        //Debug.Log($"(jp2) <color=olive>Allocate byte array: {sw.ElapsedMilliseconds}</color>");
-        //sw.Restart();
 
         unsafe {
             fixed (byte* arrStart = &data[0]) { // TODO look into writing this pointer into a native array and then just passing that around and calling .reinterpret()
@@ -61,22 +46,15 @@ public static class openJpegWrapper {
             }
         }
 
-        //Debug.Log($"(jp2) <color=olive>Memory copy: {sw.ElapsedMilliseconds}</color>");
-        //sw.Restart();
 
         int[] formatted = new int[nrows * ncols];
         Buffer.BlockCopy(data, 0, formatted, 0, data.Length);
-        //Debug.Log($"(jp2) <color=olive>Block copy: {sw.ElapsedMilliseconds}</color>");
-        //sw.Restart();
 
         // TODO: maybe run this from thread? we dont need the recycling to happen immediately
         openjpeg_openjp2_opj_destroy_codec(codec);
         openjpeg_openjp2_opj_stream_destroy(stream);
         openjpeg_openjp2_opj_image_t_destroy(raw);
         // TODO: if there is a memory leak, maybe it is coming from here?
-
-        //Debug.Log($"(jp2) <color=olive>Cleanup: {sw.ElapsedMilliseconds}</color>");
-        //sw.Restart();
 
         return formatted;
     }
