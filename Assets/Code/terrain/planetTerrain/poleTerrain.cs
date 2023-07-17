@@ -4,7 +4,6 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.IO;
-using NumSharp;
 using System.Threading.Tasks;
 using UnityEditor;
 using System.Diagnostics;
@@ -98,17 +97,6 @@ public class poleTerrain {
         currentlyDrawing = false;
     }
 
-    private void saveMeshes(int scale, string srcFolder, string output) {
-        foreach (string file in Directory.EnumerateFiles(srcFolder)) {
-            if (Path.GetExtension(file) != ".npy") continue;
-            
-            poleTerrainFile ptf = new poleTerrainFile(file, scale);
-            ptf.saveMesh(Path.Combine(output, $"{ptf.name}.trn"));
-        }
-
-        File.WriteAllText(Path.Combine(output, "data.json"), JsonConvert.SerializeObject(savedPositions));
-    }
-
     public void decreaseScale() {
         if (currentScaleIndex == 0 || currentlyDrawing) return;
         clear();
@@ -186,32 +174,6 @@ public class poleTerrainFile {
     }
 
     public void clear() {GameObject.Destroy(go);}
-
-    public void saveMesh(string path) {
-        NDArray data = np.load(filePath);
-        poleTerrainMesh ptm = new poleTerrainMesh(
-            data.shape[1], data.shape[0],
-            new position(pos.x / scale, pos.y / scale, 0), new position(maxSize / scale, maxSize / scale, 1), true,
-            (p) => new Vector2(
-                ((float) p.x * (float) scale) / 40_000f,
-                (40_000f - (float) p.y * (float) scale) / 40_000f
-            ));
-
-        for (int y = 0; y < data.shape[0]; y++) {
-            for (int x = 0; x < data.shape[1]; x++) {
-                float h = (float) data[y, x];
-                if (float.IsNaN(h)) h = 0;
-                ptm.addPoint(x, y, cartToGeo(new position(x * scale, y * scale, 0) + pos), h);
-            }
-        }
-
-        // dont question it
-        GameObject go = ptm.drawMesh("Materials/default", "a", null);
-
-        File.WriteAllBytes(path, MeshSerializer.SerializeMesh(go.GetComponent<MeshFilter>().mesh, name, ref poleTerrain.savedPositions));
-
-        GameObject.Destroy(go);
-    }
 
     private geographic cartToGeo(position p) {
         p = new position(p.x, 40_000 - p.y, 0);

@@ -5,9 +5,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using NumSharp;
 using Newtonsoft.Json;
 
 public static class terrainProcessor
@@ -216,123 +213,6 @@ public static class terrainProcessor
                 sw.Close();
             }
         }
-    }
-
-    public static void divideJpeg2000(string folderPath, string outputPath, List<terrainResolution> resolutions, bool copyMax = false) {
-        Dictionary<string, int> endingKey = new Dictionary<string, int>() {
-            {"json", 0},
-            {"npy", 1}};
-
-        // sort files (each area has 3 corresponding files)
-        // .json has the metadata info
-        // .npy contains the body
-        List<string> allFiles = Directory.GetFiles(folderPath).ToList();
-        Dictionary<string, string[]> sortedFiles = new Dictionary<string, string[]>();
-        foreach (string file in allFiles) {
-            string name = file.Split('.')[0];
-            string end = file.Split('.')[1];
-            if (!sortedFiles.ContainsKey(name)) sortedFiles[name] = new string[2];
-            sortedFiles[name][endingKey[end]] = file;
-        }
-
-        string headerFolder = Path.Combine(outputPath, "headers");
-        string maxFolder = Path.Combine(outputPath, "max");
-        Directory.CreateDirectory(headerFolder);
-        if (copyMax) Directory.CreateDirectory(maxFolder);
-        bool createdResInfo = false;
-
-        foreach (terrainResolution res in resolutions) {
-            if (Directory.Exists(res.dest)) Directory.Delete(res.dest);
-            Directory.CreateDirectory(res.dest);
-        }
-
-        // n, e, s, w
-        Dictionary<string, Dictionary<string, NDArray>> boundaries = new Dictionary<string, Dictionary<string, NDArray>>();
-        foreach (terrainResolution res in resolutions) boundaries[res.dest] = new Dictionary<string, NDArray>();
-
-        // metadata is sorted seperately
-        // combine header and body into one file
-        foreach (string[] files in sortedFiles.Values) {
-            Debug.Log($"Reading {files[1]}");
-
-            NDArray data = np.load(files[1]);
-            jp2Metadata metadata = JsonConvert.DeserializeObject<jp2Metadata>(File.ReadAllText(files[0]));
-
-            foreach (terrainResolution res in resolutions) {
-                NDArray downsizedData = data[$"::{res.step}", $"::{res.step}"];
-                int rootNumFiles = (int) Math.Sqrt(res.count);
-                int lengthPerFileY = (int) ((metadata.height / res.step) / rootNumFiles);
-                int lengthPerFileX = (int) ((metadata.width / res.step) / rootNumFiles);
-
-                geographic increase = new geographic(
-                    (metadata.ModelPixelScale[0] * metadata.height) / rootNumFiles,
-                    (metadata.ModelPixelScale[0] * metadata.width) / rootNumFiles);
-                
-                int length = 2 + (int) Math.Max(lengthPerFileX, lengthPerFileY);
-
-                for (int fx = 0; fx < rootNumFiles; fx++) {
-                    for (int fy = 0; fy < rootNumFiles; fy++) {
-                        geographic ll = new geographic(
-                            metadata.yll + fy * increase.lat,
-                            metadata.xll + fx * increase.lon);
-
-                        string fileName = terrainProcessor.fileName(ll, increase, "npy");
-
-                        int _fy = rootNumFiles - fy - 1;
-                        
-                        int south = _fy * lengthPerFileY;
-                        int north = (_fy + 1) * lengthPerFileY - 1;
-                        int west = fx * lengthPerFileX;
-                        int east = (fx + 1) * lengthPerFileX - 1;
-                        NDArray arrayData = downsizedData[
-                            $"{south}:{north + 1}", // +1 bc end is exclusive
-                            $"{west}:{east + 1}"];
-
-                        // create bounds array if needed
-                        string boundName = Path.Combine(res.dest, terrainProcessor.fileBoundaryName(ll, increase, "npy"));
-                        if (!boundaries[res.dest].ContainsKey(boundName)) {
-                            boundaries[res.dest][boundName] = np.full(
-                                terrainProcessor.NODATA_value,
-                                (4, length),
-                                Type.GetType("double"));
-                        }
-
-                        // save data
-                        np.save(Path.Combine(res.dest, fileName), arrayData);
-                    }
-                }
-
-                if (!createdResInfo) {
-                    Directory.CreateDirectory(res.dest);
-                    StringBuilder sb = new StringBuilder();
-                    double pointsPerCoord = (1.0 / metadata.ModelPixelScale[0]) / res.step;
-                    sb.AppendLine($"ncols             {pointsPerCoord * 360.0}");
-                    sb.AppendLine($"nrows             {pointsPerCoord * 180.0}");
-                    sb.AppendLine($"cellsize          {metadata.ModelPixelScale[0] * res.step}");
-                    sb.AppendLine($"pointsPerCoord    {pointsPerCoord}");
-                    sb.AppendLine($"filesPerTile      {res.count}");
-                    sb.AppendLine($"generationStep    {res.step}");
-                    sb.AppendLine($"name              {new DirectoryInfo(res.dest).Name}");
-                    sb.AppendLine($"increment         (lat={increase.lat}_lon={increase.lon})");
-                    sb.AppendLine($"type              npy");
-
-                    File.WriteAllText(Path.Combine(res.dest, terrainProcessor.folderInfoName), sb.ToString());
-                }
-            }
-            createdResInfo = true;
-
-            // copy json (metadata) file into output folder
-            File.Copy(files[0], Path.Combine(headerFolder, Path.GetFileName(files[0])), true);
-            // copy max resolution into folder
-            if (copyMax) File.Copy(files[1], Path.Combine(maxFolder, Path.GetFileName(files[1])), true);
-        }
-
-        Debug.Log("finished");
-    }
-
-    private static void tryToCreateJp2(string key, Dictionary<string, NDArray> dict, int length) {
-        if (dict.ContainsKey(key)) return;
-        else dict[key] = np.full(NODATA_value, (4, length), Type.GetType("double"));
     }
 
     private static Vector2Int wrap(Vector2Int v, BoundsInt b)
