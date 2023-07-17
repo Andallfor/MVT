@@ -24,10 +24,10 @@ public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
 
         allMeshesOrdered = new List<T>();
 
-        long prepVerts = 0, meshInit = 0;
+        //long prepVerts = 0, meshInit = 0;
 
-        System.Diagnostics.Stopwatch swVerts = new System.Diagnostics.Stopwatch();
-        System.Diagnostics.Stopwatch swMesh = new System.Diagnostics.Stopwatch();
+        //System.Diagnostics.Stopwatch swVerts = new System.Diagnostics.Stopwatch();
+        //System.Diagnostics.Stopwatch swMesh = new System.Diagnostics.Stopwatch();
 
         for (int y = 0; y < size.y; y += maxVertSize) {
             for (int x = 0; x < size.x; x += maxVertSize) {
@@ -43,15 +43,15 @@ public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
                     
                     if (!meshEdgeOffset) _o = Vector2Int.zero;
 
-                    swVerts.Start();
+                    //swVerts.Start();
                     t.init(xLeft + _o.x, yLeft + _o.y, new position(x + offset.x, y + offset.y, 0), new position(maxSize.x, maxSize.y, 0), reverse, customUV);
-                    prepVerts += swVerts.ElapsedMilliseconds;
-                    swVerts.Reset();
+                    //prepVerts += swVerts.ElapsedMilliseconds;
+                    //swVerts.Reset();
 
-                    swMesh.Start();
+                    //swMesh.Start();
                     if (!fastVerts) t.prepareVerts();
-                    meshInit += swMesh.ElapsedMilliseconds;
-                    swMesh.Reset();
+                    //meshInit += swMesh.ElapsedMilliseconds;
+                    //swMesh.Reset();
 
                     map.Add(new Vector2Int(x, y), t);
                     allMeshesOrdered.Add(t);
@@ -61,8 +61,8 @@ public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
 
         shape = new Vector2Int(Mathf.CeilToInt(size.x / maxVertSize), Mathf.CeilToInt(size.y / maxVertSize));
 
-        Debug.Log($"(init) <color=teal>Initialize meshes: {meshInit}</color>");
-        Debug.Log($"(init) <color=teal>Prepare vertices: {prepVerts}</color>");
+        //Debug.Log($"(init) <color=teal>Initialize meshes: {meshInit}</color>");
+        //Debug.Log($"(init) <color=teal>Prepare vertices: {prepVerts}</color>");
     }
 
     public void forceSetAllPoints(Vector3[] arr) {

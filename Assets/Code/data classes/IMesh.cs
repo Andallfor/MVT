@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Unity.Collections;
+using UnityEngine.Rendering;
 
 public abstract class IMesh {
     public Vector3[] verts;
@@ -11,8 +13,8 @@ public abstract class IMesh {
     protected GameObject go;
     protected bool reverse, usingCustomUV;
 
-    protected static Dictionary<Vector2Int, int[]> trianglesForwards = new Dictionary<Vector2Int, int[]>();
-    protected static Dictionary<Vector2Int, int[]> trianglesBackwards = new Dictionary<Vector2Int, int[]>();
+    protected static Dictionary<Vector2Int, NativeArray<ushort>> trianglesForwards = new Dictionary<Vector2Int, NativeArray<ushort>>();
+    protected static Dictionary<Vector2Int, NativeArray<ushort>> trianglesBackwards = new Dictionary<Vector2Int, NativeArray<ushort>>();
     protected static Dictionary<Vector2Int, Vector2[]> defaultUVs = new Dictionary<Vector2Int, Vector2[]>();
 
     private position mapSize;
@@ -33,9 +35,9 @@ public abstract class IMesh {
             if (defaultUVs.ContainsKey(shape)) uvSatisfied = true;
         }
 
-        int[] triangles = null;
+        NativeArray<ushort> triangles = default;
         uvs = null;
-        if (!trianglesSatisfied) triangles = new int[(rows - 1) * (cols - 1) * 6];
+        if (!trianglesSatisfied) triangles = new NativeArray<ushort>((rows - 1) * (cols - 1) * 6, Allocator.Persistent);
         if (!uvSatisfied) uvs = new Vector2[rows * cols];
 
         if (!uvSatisfied || !trianglesSatisfied) {
@@ -44,21 +46,21 @@ public abstract class IMesh {
                 for (int x = 0; x < cols; x++) {
                     if (!trianglesSatisfied && x != cols - 1 && y != rows - 1) {
                         if (reverse) {
-                            triangles[index++] = toIndex(x + 1, y + 1);
-                            triangles[index++] = toIndex(x, y + 1);
-                            triangles[index++] = toIndex(x, y);
+                            triangles[index++] = (ushort) toIndex(x + 1, y + 1);
+                            triangles[index++] = (ushort) toIndex(x, y + 1);
+                            triangles[index++] = (ushort) toIndex(x, y);
 
-                            triangles[index++] = toIndex(x + 1, y);
-                            triangles[index++] = toIndex(x + 1, y + 1);
-                            triangles[index++] = toIndex(x, y);
+                            triangles[index++] = (ushort) toIndex(x + 1, y);
+                            triangles[index++] = (ushort) toIndex(x + 1, y + 1);
+                            triangles[index++] = (ushort) toIndex(x, y);
                         } else {
-                            triangles[index++] = toIndex(x, y);
-                            triangles[index++] = toIndex(x, y + 1);
-                            triangles[index++] = toIndex(x + 1, y + 1);
+                            triangles[index++] = (ushort) toIndex(x, y);
+                            triangles[index++] = (ushort) toIndex(x, y + 1);
+                            triangles[index++] = (ushort) toIndex(x + 1, y + 1);
                             
-                            triangles[index++] = toIndex(x, y);
-                            triangles[index++] = toIndex(x + 1, y + 1);
-                            triangles[index++] = toIndex(x + 1, y);
+                            triangles[index++] = (ushort) toIndex(x, y);
+                            triangles[index++] = (ushort) toIndex(x + 1, y + 1);
+                            triangles[index++] = (ushort) toIndex(x + 1, y);
                         }
                     }
 
@@ -82,11 +84,18 @@ public abstract class IMesh {
 
     public GameObject drawMesh(Material mat, GameObject model, string name, Transform parent) {
         mesh = new Mesh();
-        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         mesh.vertices = verts;
 
-        if (reverse) mesh.triangles = trianglesBackwards[shape];
-        else mesh.triangles = trianglesForwards[shape];
+        // note that this will cut off the last ind, but since we are overlapping meshes it is hidden away
+        int triangleCount = (shape.x - 1) * (shape.y - 1) * 6;
+        mesh.SetIndexBufferParams(triangleCount * sizeof(ushort), UnityEngine.Rendering.IndexFormat.UInt16);
+
+        MeshUpdateFlags flags = MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontResetBoneBounds | MeshUpdateFlags.DontNotifyMeshUsers | MeshUpdateFlags.DontRecalculateBounds;
+        if (reverse) mesh.SetIndexBufferData<ushort>(trianglesBackwards[shape], 0, 0, triangleCount, flags);
+        else mesh.SetIndexBufferData<ushort>(trianglesForwards[shape], 0, 0, triangleCount, flags);
+
+        mesh.subMeshCount = 1;
+        mesh.SetSubMesh(0, new SubMeshDescriptor(0, triangleCount), flags);
 
         if (usingCustomUV) mesh.uv = uvs;
         else mesh.uv = defaultUVs[shape];
@@ -113,7 +122,6 @@ public abstract class IMesh {
         sw.Start();
 
         mesh = new Mesh();
-        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         tinit += sw.ElapsedMilliseconds;
         sw.Restart();
 
@@ -121,8 +129,15 @@ public abstract class IMesh {
         tvert += sw.ElapsedMilliseconds;
         sw.Restart();
 
-        if (reverse) mesh.triangles = trianglesBackwards[shape];
-        else mesh.triangles = trianglesForwards[shape];
+        int triangleCount = (shape.x - 1) * (shape.y - 1) * 6;
+        mesh.SetIndexBufferParams(triangleCount * sizeof(ushort), UnityEngine.Rendering.IndexFormat.UInt16);
+
+        MeshUpdateFlags flags = MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontResetBoneBounds | MeshUpdateFlags.DontNotifyMeshUsers | MeshUpdateFlags.DontRecalculateBounds;
+        if (reverse) mesh.SetIndexBufferData<ushort>(trianglesBackwards[shape], 0, 0, triangleCount, flags);
+        else mesh.SetIndexBufferData<ushort>(trianglesForwards[shape], 0, 0, triangleCount, flags);
+
+        mesh.subMeshCount = 1;
+        mesh.SetSubMesh(0, new SubMeshDescriptor(0, triangleCount), flags);
         ttriangle += sw.ElapsedMilliseconds;
         sw.Restart();
 
@@ -158,8 +173,7 @@ public abstract class IMesh {
     }
 
     public void clearMesh() {
-        this.mesh.Clear();
-        this.mesh = new Mesh();
+        mesh.Clear();
         GameObject.Destroy(go);
     }
 
@@ -172,4 +186,17 @@ public abstract class IMesh {
     public abstract Vector3 addPoint(int x, int y, geographic g, double h);
 
     public int toIndex(int x, int y) => y * shape.x + x;
+
+    public static void clearCache() {
+        foreach (var arr in trianglesBackwards.Values) arr.Dispose();
+        foreach (var arr in trianglesForwards.Values) arr.Dispose();
+
+        trianglesBackwards.Clear();
+        trianglesForwards.Clear();
+        defaultUVs.Clear();
+
+        trianglesBackwards = new Dictionary<Vector2Int, NativeArray<ushort>>();
+        trianglesForwards = new Dictionary<Vector2Int, NativeArray<ushort>>();
+        defaultUVs = new Dictionary<Vector2Int, Vector2[]>();
+    }
 }

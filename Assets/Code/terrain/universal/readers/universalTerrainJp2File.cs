@@ -153,10 +153,12 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
             new Vector2Int(end.x - start.x, end.y - start.y),
             Vector2Int.zero, Vector2Int.zero, true, meshEdgeOffset: false);
 
+        controller.meshTimerInit += sw.ElapsedMilliseconds;
         Debug.Log($"Time to init mesh: {sw.ElapsedMilliseconds}ms");
         sw.Restart();
         
         int[] heights = openJpegWrapper.requestTerrain(dataPath, start * power, end * power, res, 0);
+        controller.meshTimerRead += sw.ElapsedMilliseconds;
         Debug.Log($"Time to read {(end.y - start.y) * (end.x - start.x)} pixels: {sw.ElapsedMilliseconds}ms");
         sw.Restart();
 
@@ -188,7 +190,8 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         sw.Restart();
 
         m.forceSetAllPoints(output);
-        Debug.Log($"(cs) <color=orange>Point copying time: {sw.ElapsedMilliseconds}</color>");
+        //Debug.Log($"(cs) <color=orange>Point copying time: {sw.ElapsedMilliseconds}</color>");
+        controller.meshTimerWrite += s1 + sw.ElapsedMilliseconds;
         Debug.Log($"Total processing time: {s1 + sw.ElapsedMilliseconds}");
         sw.Stop();
 
@@ -209,19 +212,19 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
     }
 
     private Vector3[] computeShaderPoints(int[] heights, Vector2Int start, Vector2Int end, int power) {
-        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-        sw.Start();
+        //System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        //sw.Start();
 
         ComputeShader cs = Resources.Load<ComputeShader>("Materials/terrainWGSComputeSingle");
 
         Vector2Int shape = end - start;
         Vector2Int meshes = new Vector2Int(Mathf.CeilToInt((float) shape.x / 256f), Mathf.CeilToInt((float) shape.y / 256f));
-        Debug.Log($"(cs) <color=orange>Initial setup: {sw.ElapsedMilliseconds}</color>");
-        sw.Restart();
+        //Debug.Log($"(cs) <color=orange>Initial setup: {sw.ElapsedMilliseconds}</color>");
+        //sw.Restart();
 
         Vector3[] vectors = new Vector3[shape.x * shape.y];
-        Debug.Log($"(cs) <color=orange>Output array allocation time: {sw.ElapsedMilliseconds}</color>");
-        sw.Restart();
+        //Debug.Log($"(cs) <color=orange>Output array allocation time: {sw.ElapsedMilliseconds}</color>");
+        //sw.Restart();
 
         ComputeBuffer vectorBuffer = new ComputeBuffer(vectors.Length, sizeof(float) * 3);
         vectorBuffer.SetData(vectors);
@@ -232,8 +235,8 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         cs.SetBuffer(0, "vectors", vectorBuffer);
         cs.SetBuffer(0, "heights", heightBuffer);
 
-        Debug.Log($"(cs) <color=orange>Set buffers: {sw.ElapsedMilliseconds}</color>");
-        sw.Restart();
+        //Debug.Log($"(cs) <color=orange>Set buffers: {sw.ElapsedMilliseconds}</color>");
+        //sw.Restart();
 
         cs.SetInts("meshCount", new int[] {meshes.x, meshes.y});
         cs.SetInts("pointCount", new int[] {shape.x, shape.y});
@@ -246,16 +249,16 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
             (float) (start.y * cellSize * power + llCorner.lat)
         });
 
-        Debug.Log($"(cs) <color=orange>Set non-buffer variables: {sw.ElapsedMilliseconds}</color>");
-        sw.Restart();
+        //Debug.Log($"(cs) <color=orange>Set non-buffer variables: {sw.ElapsedMilliseconds}</color>");
+        //sw.Restart();
 
         cs.Dispatch(0, 2 * meshes.x * meshes.y, 1, 1);
-        Debug.Log($"(cs) <color=orange>Compute shader running time: {sw.ElapsedMilliseconds}</color>");
-        sw.Restart();
+        //Debug.Log($"(cs) <color=orange>Compute shader running time: {sw.ElapsedMilliseconds}</color>");
+        //sw.Restart();
 
         vectorBuffer.GetData(vectors);
-        Debug.Log($"(cs) <color=orange>GPU to CPU transfer time: {sw.ElapsedMilliseconds}</color>");
-        sw.Stop();
+        //Debug.Log($"(cs) <color=orange>GPU to CPU transfer time: {sw.ElapsedMilliseconds}</color>");
+        //sw.Stop();
 
         vectorBuffer.Dispose();
         heightBuffer.Dispose();
