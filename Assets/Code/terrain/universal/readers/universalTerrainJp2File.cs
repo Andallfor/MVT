@@ -32,6 +32,7 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         toCart = geographic.toCartesian;
     }
 
+    // TODO currently doesnt do anything
     public void overrideToCart(Func<geographic, double, position> f) {
         toCart = f;
     }
@@ -154,12 +155,12 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
                 return new Vector2((float) v.x / (float) (end.x - start.x), (float) v.y / (float) (end.y - start.y));
             }, meshEdgeOffset: false);
 
-        long s1 = sw.ElapsedMilliseconds;
-        Debug.Log($"Time to init mesh: {s1}ms");
+        //Debug.Log($"(init) <color=teal>Time to init mesh: {sw.ElapsedMilliseconds}ms</color>");
+        sw.Restart();
         
         int[] heights = openJpegWrapper.requestTerrain(dataPath, start * power, end * power, res, 0);
-        Debug.Log($"Time to read {(end.y - start.y) * (end.x - start.x)} pixels: {sw.ElapsedMilliseconds - s1}ms");
-        s1 = sw.ElapsedMilliseconds;
+        //Debug.Log($"(jp2) <color=olive>Time to read {(end.y - start.y) * (end.x - start.x)} pixels: {sw.ElapsedMilliseconds}ms</color>");
+        sw.Restart();
 
         //int colLen = end.x - start.x;
         //int maxHeight = (int) (nrows / power);
@@ -185,11 +186,14 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         //}
 
         Vector3[] output = computeShaderPoints(heights, start, end, power);
+        //Debug.Log($"(cs) <color=orange>Total compute shader time: {sw.ElapsedMilliseconds}</color>");
+        sw.Restart();
+
         m.forceSetAllPoints(output);
+        Debug.Log($"(cs) <color=orange>Point copying time: {sw.ElapsedMilliseconds}</color>");
+        sw.Stop();
 
-        Debug.Log($"Time to write points: {sw.ElapsedMilliseconds - s1}ms");
-
-        Debug.Log("Loaded area of " + (end.y - start.y) * (end.x - start.x) + " pixels");
+        //Debug.Log("Loaded area of " + (end.y - start.y) * (end.x - start.x) + " pixels");   
 
         return m;
     }
@@ -206,12 +210,20 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
     }
 
     private Vector3[] computeShaderPoints(int[] heights, Vector2Int start, Vector2Int end, int power) {
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        sw.Start();
+
         ComputeShader cs = Resources.Load<ComputeShader>("Materials/terrainWGSComputeSingle");
 
         Vector2Int shape = end - start;
         Vector2Int meshes = new Vector2Int(Mathf.CeilToInt((float) shape.x / 256f), Mathf.CeilToInt((float) shape.y / 256f));
+        Debug.Log($"(cs) <color=orange>Initial setup: {sw.ElapsedMilliseconds}</color>");
+        sw.Restart();
 
         Vector3[] vectors = new Vector3[shape.x * shape.y];
+        Debug.Log($"(cs) <color=orange>Output array allocation time: {sw.ElapsedMilliseconds}</color>");
+        sw.Restart();
+
         ComputeBuffer vectorBuffer = new ComputeBuffer(vectors.Length, sizeof(float) * 3);
         vectorBuffer.SetData(vectors);
 
@@ -220,6 +232,9 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
 
         cs.SetBuffer(0, "vectors", vectorBuffer);
         cs.SetBuffer(0, "heights", heightBuffer);
+
+        Debug.Log($"(cs) <color=orange>Set buffers: {sw.ElapsedMilliseconds}</color>");
+        sw.Restart();
 
         cs.SetInts("meshCount", new int[] {meshes.x, meshes.y});
         cs.SetInts("pointCount", new int[] {shape.x, shape.y});
@@ -232,8 +247,16 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
             (float) (start.y * cellSize * power + llCorner.lat)
         });
 
+        Debug.Log($"(cs) <color=orange>Set non-buffer variables: {sw.ElapsedMilliseconds}</color>");
+        sw.Restart();
+
         cs.Dispatch(0, 2 * meshes.x * meshes.y, 1, 1);
+        Debug.Log($"(cs) <color=orange>Compute shader running time: {sw.ElapsedMilliseconds}</color>");
+        sw.Restart();
+
         vectorBuffer.GetData(vectors);
+        Debug.Log($"(cs) <color=orange>GPU to CPU transfer time: {sw.ElapsedMilliseconds}</color>");
+        sw.Stop();
 
         vectorBuffer.Dispose();
         heightBuffer.Dispose();

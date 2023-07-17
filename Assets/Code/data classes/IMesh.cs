@@ -108,6 +108,50 @@ public abstract class IMesh {
         return go;
     }
 
+     public GameObject drawMeshTimed(Material mat, GameObject model, string name, Transform parent, ref long tinit, ref long ttriangle, ref long tuv, ref long tvert, ref long tnormal, ref long tinstantiate) {
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        sw.Start();
+
+        mesh = new Mesh();
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        tinit += sw.ElapsedMilliseconds;
+        sw.Restart();
+
+        mesh.vertices = verts;
+        tvert += sw.ElapsedMilliseconds;
+        sw.Restart();
+
+        if (reverse) mesh.triangles = trianglesBackwards[shape];
+        else mesh.triangles = trianglesForwards[shape];
+        ttriangle += sw.ElapsedMilliseconds;
+        sw.Restart();
+
+        if (usingCustomUV) mesh.uv = uvs;
+        else mesh.uv = defaultUVs[shape];
+        tuv += sw.ElapsedMilliseconds;
+        sw.Restart();
+
+        mesh.RecalculateNormals();
+        tnormal += sw.ElapsedMilliseconds;
+        sw.Restart();
+
+        go = GameObject.Instantiate(model);
+        go.name = name;
+        go.transform.parent = parent;
+        go.transform.localPosition = Vector3.zero;
+        go.transform.localEulerAngles = Vector3.zero;
+        
+        go.GetComponent<MeshRenderer>().material = mat;
+        go.GetComponent<MeshFilter>().mesh = mesh;
+
+        this.uvs = null;
+        this.verts = new Vector3[0];
+        tinstantiate += sw.ElapsedMilliseconds;
+        sw.Restart();
+
+        return go;
+    }
+
     public void addCollider() {
         MeshCollider mc = go.AddComponent<MeshCollider>();
         //mc.convex = true;

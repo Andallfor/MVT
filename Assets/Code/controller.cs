@@ -303,16 +303,32 @@ public class controller : MonoBehaviour
             string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth");
             string p = Directory.GetDirectories(src)[stationIndex];
             universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
-            f.overrideToCart(geographic.toCartesianWGS);
+            f.overrideToCart(geographic.toCartesianWGS); // TODO: currently doesnt do anything (we use compute shader)
             Debug.Log(p);
 
             if (prevDist != null) prevDist.clear();
             geographic offset = new geographic(1, 1);
             prevDist = f.load(f.center, 0, f.getBestResolution(f.center - offset, f.center + offset, 5_000_000), offset: 1);
+
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
-            prevDist.drawAll(earth.representation.gameObject.transform);
-            Debug.Log($"Time to draw mesh: {sw.ElapsedMilliseconds}");
+
+            Material m = new Material(resLoader.load<Material>("defaultMat"));
+            GameObject go = resLoader.load<GameObject>("terrainMesh");
+            long tinit = 0, tvert = 0, tuv = 0, tnormal = 0, ttriangle = 0, tinstantiate = 0;
+            foreach (IMesh mesh in prevDist.allMeshesOrdered) {
+                mesh.drawMeshTimed(m, go, "mesh", earth.representation.gameObject.transform, ref tinit, ref ttriangle, ref tuv, ref tvert, ref tnormal, ref tinstantiate);
+            }
+
+            Debug.Log($"(mesh) <color=red>Initialize: {tinit}</color>");
+            Debug.Log($"(mesh) <color=red>Triangles: {ttriangle}</color>");
+            Debug.Log($"(mesh) <color=red>UVs: {tuv}</color>");
+            Debug.Log($"(mesh) <color=red>Vertices: {tvert}</color>");
+            Debug.Log($"(mesh) <color=red>Normals: {tnormal}</color>");
+            Debug.Log($"(mesh) <color=red>Instantiation: {tinstantiate}</color>");
+
+            //prevDist.drawAll(earth.representation.gameObject.transform);
+            //Debug.Log($"Time to draw mesh: {sw.ElapsedMilliseconds}");
 
             stationIndex++;
 

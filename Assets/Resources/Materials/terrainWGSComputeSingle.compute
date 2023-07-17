@@ -7,8 +7,8 @@ float scale, cellsize, power, totalNRows;
 RWStructuredBuffer<int> heights;
 RWStructuredBuffer<float3> vectors;
 
-[numthreads(128,1,1)]
-void CSMain (uint3 id : SV_DispatchThreadID) {
+[numthreads(128,1,1)] // SV_GroupThreadID, int j: SV_GroupID
+void CSMain (uint3 id : SV_DispatchThreadID, uint3 threadGroupID : SV_GroupID) {
     uint threadGroup = id.x / 128;
     uint meshIndex = threadGroup / 2;
     uint meshX = meshIndex % meshCount.x;
