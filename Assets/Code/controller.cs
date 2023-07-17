@@ -293,7 +293,6 @@ public class controller : MonoBehaviour
         if (Input.GetKeyDown("k")) {
             string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan");
             var f = new universalTerrainJp2File(Path.Combine(src, "data.jp2"), Path.Combine(src, "metadata.txt"));
-            f.overrideToCart(geographic.toCartesianWGS);
 
             Material m = Resources.Load<Material>("Materials/vis/juanVis");
             f.load(Vector2.zero, Vector2.one, 0, 0, default(position)).drawAll(m, resLoader.load<GameObject>("planetMesh"), new string[0], earth.representation.gameObject.transform);
@@ -303,7 +302,6 @@ public class controller : MonoBehaviour
             string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth");
             string p = Directory.GetDirectories(src)[stationIndex];
             universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
-            f.overrideToCart(geographic.toCartesianWGS); // TODO: currently doesnt do anything (we use compute shader)
             Debug.Log(p);
 
             if (prevDist != null) prevDist.clear();
@@ -331,7 +329,6 @@ public class controller : MonoBehaviour
         yield return new WaitForSeconds(1);
         //var output = access.findTimes(new Time(2461022.77871296), new Time(2461022.78237024), 0.00069444444, 0.00001157407 / 2.0);
 
-        // 7,2461022.77871296,2461022.78237024,315.989
         //var output = access.findTimes(new Time(2461021.77854328), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
         var output = access.findTimes(new Time(2459560.84525522), new Time(2459570.27537285), 0.00069444444, 0.00001157407 / 2.0);
         //var output = access.bruteForce(new Time(2461021.77854328), new Time(2461022.93452393), 0.00001157407);

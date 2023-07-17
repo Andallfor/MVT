@@ -6,9 +6,10 @@ float scale, cellsize, power, totalNRows;
 
 RWStructuredBuffer<int> heights;
 RWStructuredBuffer<float3> vectors;
+RWStructuredBuffer<double> offsetPos;
 
 [numthreads(128,1,1)] // SV_GroupThreadID, int j: SV_GroupID
-void CSMain (uint3 id : SV_DispatchThreadID, uint3 threadGroupID : SV_GroupID) {
+void CSMain (uint3 id : SV_DispatchThreadID) {
     uint threadGroup = id.x / 128;
     uint meshIndex = threadGroup / 2;
     uint meshX = meshIndex % meshCount.x;
@@ -58,16 +59,15 @@ void CSMain (uint3 id : SV_DispatchThreadID, uint3 threadGroupID : SV_GroupID) {
         double rGs = sqrt((a + b) / (c + d));
         double nTheta = aE / sqrt(1.0 - eEsq * sinLat);
 
-        //double h = heights[idx];
         double h = (heights[ind] - 32767.0) / 1000.0;
         double gx = (nTheta + h) * cosLat * cosLon;
         double gy = (nTheta + h) * cosLat * sinLon;
         double gz = (nTheta * negEEsq + h) * sinLat;
 
         double n = sqrt(gx * gx + gy * gy + gz * gz);
-        gx = (gx / n) * (rGs + h) * downscale;
-        gy = (gy / n) * (rGs + h) * downscale;
-        gz = (gz / n) * (rGs + h) * downscale;
+        gx = ((gx / n) * (rGs + h) + offsetPos[0]) * downscale;
+        gy = ((gy / n) * (rGs + h) + offsetPos[1]) * downscale;
+        gz = ((gz / n) * (rGs + h) + offsetPos[2]) * downscale;
 
         vectors[offset + y * lx + x] = float3(gx, gz, gy);
     }

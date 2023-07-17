@@ -31,7 +31,6 @@ public class accessCallGeneratorWGS {
         unityPositionNoHeight = (Vector3) (worldPositionNoHeight.swapAxis() / master.scale);
 
         meshFile = new universalTerrainJp2File(path, false);
-        meshFile.overrideToCart(geographic.toCartesianWGS);
 
         double alt = meshFile.getHeight(pos);
         altitude = alt;
@@ -47,7 +46,7 @@ public class accessCallGeneratorWGS {
         meshDist.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
         //meshDist.drawAll(earth.representation.gameObject.transform);
         foreach (universalTerrainMesh mesh in meshDist.allMeshesOrdered) {
-            //mesh.addCollider();
+            mesh.addCollider();
             //mesh.go.transform.position = -(Vector3) ((master.currentPosition - earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis()) / master.scale);
             mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
             mesh.hide();

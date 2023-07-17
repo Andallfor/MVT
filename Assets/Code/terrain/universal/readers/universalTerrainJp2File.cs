@@ -17,25 +17,15 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
     private List<Vector2Int> accessCallGrid;
     private Vector2Int generatedStart, generatedEnd;
     private int generatedPower;
-    private Func<geographic, double, position> toCart;
 
     public universalTerrainJp2File(string dataPath, string metadataPath, bool isForAccessCalls = false) :
         base(dataPath, metadataPath, universalTerrainFileSources.jp2) {
         this.isForAccessCalls = isForAccessCalls;
-
-        toCart = geographic.toCartesian;
     }
 
     public universalTerrainJp2File(string path, bool isForAccessCalls = false) :
         base(Path.Combine(path, "data.jp2"), Path.Combine(path, "metadata.txt"), universalTerrainFileSources.jp2) {
         this.isForAccessCalls = isForAccessCalls;
-
-        toCart = geographic.toCartesian;
-    }
-
-    // TODO currently doesnt do anything
-    public void overrideToCart(Func<geographic, double, position> f) {
-        toCart = f;
     }
 
     public void consumeAccessCallData() {
@@ -176,7 +166,7 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         //    }
         //}
 
-        Vector3[] output = computeShaderPoints(heights, start, end, power);
+        Vector3[] output = computeShaderPoints(heights, start, end, power, posOffset);
         m.forceSetAllPoints(output);
 
         Debug.Log("Loaded area of " + (end.y - start.y) * (end.x - start.x) + " pixels");   
@@ -195,7 +185,7 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         src.addPoint(x, y, p.swapAxis() / master.scale);
     }
 
-    private Vector3[] computeShaderPoints(int[] heights, Vector2Int start, Vector2Int end, int power) {
+    private Vector3[] computeShaderPoints(int[] heights, Vector2Int start, Vector2Int end, int power, position offset) {
         ComputeShader cs = Resources.Load<ComputeShader>("Materials/terrainWGSComputeSingle");
 
         Vector2Int shape = end - start;
@@ -208,8 +198,12 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         ComputeBuffer heightBuffer = new ComputeBuffer(heights.Length, sizeof(int));
         heightBuffer.SetData(heights);
 
+        ComputeBuffer offsetBuffer = new ComputeBuffer(3, sizeof(double));
+        offsetBuffer.SetData(new double[] {offset.x, offset.y, offset.z});
+
         cs.SetBuffer(0, "vectors", vectorBuffer);
         cs.SetBuffer(0, "heights", heightBuffer);
+        cs.SetBuffer(0, "offsetPos", offsetBuffer);
 
         cs.SetInts("meshCount", new int[] {meshes.x, meshes.y});
         cs.SetInts("pointCount", new int[] {shape.x, shape.y});
@@ -228,6 +222,7 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
 
         vectorBuffer.Dispose();
         heightBuffer.Dispose();
+        offsetBuffer.Dispose();
 
         return vectors;
     }
