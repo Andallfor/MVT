@@ -31,7 +31,6 @@ public class accessCallGeneratorWGS {
         unityPositionNoHeight = (Vector3) (worldPositionNoHeight.swapAxis() / master.scale);
 
         meshFile = new universalTerrainJp2File(path, false);
-        meshFile.overrideToCart(geographic.toCartesianWGS);
 
         double alt = meshFile.getHeight(pos);
         altitude = alt;
@@ -46,8 +45,8 @@ public class accessCallGeneratorWGS {
         //meshDist = meshFile.load(start, end, 0, res, default(position));
         meshDist.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
         //meshDist.drawAll(earth.representation.gameObject.transform);
-        foreach (universalTerrainMesh mesh in meshDist.allMeshes) {
-            //mesh.addCollider();
+        foreach (universalTerrainMesh mesh in meshDist.allMeshesOrdered) {
+            mesh.addCollider();
             //mesh.go.transform.position = -(Vector3) ((master.currentPosition - earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis()) / master.scale);
             mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
             mesh.hide();
@@ -65,7 +64,7 @@ public class accessCallGeneratorWGS {
         }
         meshWGS.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
         //meshWGS.drawAll(earth.representation.gameObject.transform);
-        foreach (universalTerrainMesh mesh in meshWGS.allMeshes) {
+        foreach (universalTerrainMesh mesh in meshWGS.allMeshesOrdered) {
             mesh.addCollider();
             mesh.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
             mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
@@ -230,11 +229,11 @@ public class accessCallGeneratorWGS {
         Quaternion earthRot = earth.representation.gameObject.transform.rotation;
         //master.currentPosition = earthRot * (Vector3) worldPositionNoHeight; // TODO
         //master.currentPosition = ((quaternionDouble) earthRot).mult(worldPositionNoHeight.swapAxis());
-        foreach (universalTerrainMesh m in meshDist.allMeshes) {
+        foreach (universalTerrainMesh m in meshDist.allMeshesOrdered) {
             //m.go.transform.position = -(Vector3) ((master.currentPosition - earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis()) / master.scale);
             m.go.transform.rotation = earthRot;
         }
-        foreach (universalTerrainMesh m in meshWGS.allMeshes) {
+        foreach (universalTerrainMesh m in meshWGS.allMeshesOrdered) {
             m.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
             m.go.transform.rotation = earthRot;
         }

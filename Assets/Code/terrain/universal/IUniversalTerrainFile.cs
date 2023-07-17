@@ -7,6 +7,7 @@ using System;
 public abstract class IUniversalTerrainFile<T> where T : IMesh, new() {
     protected string dataPath {get; private set;}
     protected string metadataPath {get; private set;}
+    protected string folderPath {get; private set;}
     public double cellSize {get; private set;}
     public double nrows {get; private set;}
     public double ncols {get; private set;}
@@ -20,6 +21,7 @@ public abstract class IUniversalTerrainFile<T> where T : IMesh, new() {
     protected IUniversalTerrainFile(string dataPath, string metadataPath, universalTerrainFileSources src) {
         this.dataPath = dataPath;
         this.metadataPath = metadataPath;
+        this.folderPath = Path.GetDirectoryName(dataPath);
         this.src = src;
 
         loadMetadata();

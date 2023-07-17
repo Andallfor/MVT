@@ -76,3 +76,5 @@ Assets/StreamingAssets/pythonWindows/Lib/site-packages/pip.meta
 Assets/StreamingAssets/pythonWindows/Lib/site-packages/pip/_vendor.meta
 Assets/StreamingAssets/pythonWindows/Lib/site-packages/pip/_vendor/urllib3.meta
 data.txt
+*.nrm
+*.nrm.meta

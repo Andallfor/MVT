@@ -93,7 +93,7 @@ public class TimelinePosition : ITimeline
 
         double closestTime;
         int timeIndex;
-        try {
+        try { // TODO dont
             timeIndex = this.index.BinarySearch(t.julian, tlc);
             closestTime = index[timeIndex];
         } catch {

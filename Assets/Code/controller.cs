@@ -293,7 +293,6 @@ public class controller : MonoBehaviour
         if (Input.GetKeyDown("k")) {
             string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan");
             var f = new universalTerrainJp2File(Path.Combine(src, "data.jp2"), Path.Combine(src, "metadata.txt"));
-            f.overrideToCart(geographic.toCartesianWGS);
 
             Material m = Resources.Load<Material>("Materials/vis/juanVis");
             f.load(Vector2.zero, Vector2.one, 0, 0, default(position)).drawAll(m, resLoader.load<GameObject>("planetMesh"), new string[0], earth.representation.gameObject.transform);
@@ -303,16 +302,13 @@ public class controller : MonoBehaviour
             string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth");
             string p = Directory.GetDirectories(src)[stationIndex];
             universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
-            f.overrideToCart(geographic.toCartesianWGS);
             Debug.Log(p);
 
             if (prevDist != null) prevDist.clear();
             geographic offset = new geographic(1, 1);
             prevDist = f.load(f.center, 0, f.getBestResolution(f.center - offset, f.center + offset, 5_000_000), offset: 1);
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
+
             prevDist.drawAll(earth.representation.gameObject.transform);
-            Debug.Log($"Time to draw mesh: {sw.ElapsedMilliseconds}");
 
             stationIndex++;
 
@@ -326,57 +322,13 @@ public class controller : MonoBehaviour
             //var output = access.findTimes(new Time(2461021.77854328 + 0.0002), new Time(2461021.77991930), 0.00069444444, 0.00001157407 / 2.0);
             //access.saveResults(output);
             StartCoroutine(stall(access));
-            
-            /*
-            string p = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/canberra");
-            universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"));
-            f.overrideToCart(geographic.toCartesianWGS);
-
-            geographic g = new geographic(-35.398522, 148.981904);
-            double alt = f.getHeight(g);
-
-            GameObject go = resLoader.createPrefab("defaultPrefab");
-            go.transform.position = earth.representation.gameObject.transform.rotation * (Vector3) (g.toCartesianWGS(alt).swapAxis() / master.scale);
-
-            accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, g, alt, sat1);
-
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
-            meshDistributor<universalTerrainMesh> mesh = f.load(Vector2.zero, Vector2.one, 0, 2);
-            long s1 = sw.ElapsedMilliseconds;
-            Debug.Log("Time to load: " + s1);
-
-            s1 = sw.ElapsedMilliseconds;
-            mesh.drawAll(earth.representation.gameObject.transform);
-            Debug.Log("Time to draw mesh: " + (sw.ElapsedMilliseconds - s1));
-
-            s1 = sw.ElapsedMilliseconds;
-            
-            //foreach (IMesh child in mesh.allMeshes) child.addCollider();
-            //var output = access.bruteForce(new Time(2461021.77854328), new Time(2461029.93452393), 0.00001157407);
-            //var output = access.bruteForce(new Time(2461021.95), new Time(2461022.05), 0.00001157407);
-            //var output = access.bruteForce(new Time(2461026.84968476), new Time(2461026.86275181), 0.00001157407);
-            //var output = access.findTimes(new Time(2461026.92073842), new Time(2461026.93171353), 0.00069444444, 0.00001157407 / 2.0);
-            var output = access.findTimes(new Time(2461022.84641104), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
-            //var output = access.findTimes(new Time(2461026.85107154), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
-            Debug.Log("Time to generate access calls: " + (sw.ElapsedMilliseconds - s1));
-
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < output.Count; i++) {
-                accessCallTimeSpan span = output[i];
-                sb.AppendLine($"{i},{span.start},{span.end},{span.end-span.start}");
-            }
-
-            File.WriteAllText("C:/Users/leozw/Desktop/accessNew.csv", sb.ToString());
-            */
         }
     }
 
-    private IEnumerator stall(accessCallGeneratorWGS access) {
+    private IEnumerator stall(accessCallGeneratorWGS access) { // TODO: replace with a physics update call
         yield return new WaitForSeconds(1);
         //var output = access.findTimes(new Time(2461022.77871296), new Time(2461022.78237024), 0.00069444444, 0.00001157407 / 2.0);
 
-        // 7,2461022.77871296,2461022.78237024,315.989
         //var output = access.findTimes(new Time(2461021.77854328), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
         var output = access.findTimes(new Time(2459560.84525522), new Time(2459570.27537285), 0.00069444444, 0.00001157407 / 2.0);
         //var output = access.bruteForce(new Time(2461021.77854328), new Time(2461022.93452393), 0.00001157407);
@@ -731,5 +683,9 @@ public class controller : MonoBehaviour
 
         loadingController.addPercent(0.1f);
         yield return null;
+    }
+
+    public void OnApplicationQuit() {
+        IMesh.clearCache();
     }
 }
