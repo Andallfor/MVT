@@ -43,9 +43,6 @@ public class uiSettingsPanel : MonoBehaviour
 
         modeController.disableAll();
 
-        general.pt.unload();
-        general.plt.clear();
-
         master.requestScaleUpdate();
         master.clearAllLines();
         general.notifyStatusChange();

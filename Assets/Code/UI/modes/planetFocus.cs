@@ -26,9 +26,6 @@ public sealed class planetFocus : IMode {
     }
 
     protected override bool disable() {
-        general.pt.unload();
-        general.plt.clear();
-
         return true;
     }
 
@@ -80,8 +77,6 @@ public sealed class planetFocus : IMode {
     protected override void loadControls() {
         playerControls.addKey("e", conTrig.down, () => {
             modeController.toggle(planetFocus.instance);
-            general.pt.unload();
-            general.plt.clear();
         });
 
         List<IMode> w = new List<IMode>() {this};
@@ -107,34 +102,9 @@ public sealed class planetFocus : IMode {
         }, precondition: () => Input.GetMouseButton(1), whitelist: w);
 
         playerControls.addKey("", conTrig.none, () => {
-            // hi!
-            // i know you probably have questions about y tf the code below here exists
-            // well too bad
-            // if u want to fix it go ahead, otherwise its staying here
-            if (planetFocus.instance.usePoleFocus) {
-                float change = (float) (0.1 * master.scale) * Mathf.Sign(Input.mouseScrollDelta.y);
-                master.scale -= change;
-                planetFocus.instance.update();
-                master.requestPositionUpdate();
-            } else {
-                planetFocus.instance.zoom -= Input.mouseScrollDelta.y * planetFocus.instance.zoom / 10f;
-                planetFocus.instance.zoom = Mathf.Max(Mathf.Min(planetFocus.instance.zoom, 90), 0.1f);
-            }
+            planetFocus.instance.zoom -= Input.mouseScrollDelta.y * planetFocus.instance.zoom / 10f;
+            planetFocus.instance.zoom = Mathf.Max(Mathf.Min(planetFocus.instance.zoom, 90), 0.1f);
         }, precondition: () => Input.mouseScrollDelta.y != 0, whitelist: w);
-
-        playerControls.addKey("t", conTrig.down, () => {
-            planetFocus.instance.togglePoleFocus(!planetFocus.instance.usePoleFocus);
-            if (planetFocus.instance.usePoleFocus) general.plt.genMinScale();
-            else general.plt.clear();
-        }, precondition: () => !general.plt.currentlyDrawing, whitelist: w);
-
-        playerControls.addKey("-", conTrig.down, () => {
-            general.plt.decreaseScale();
-        }, precondition: () => planetFocus.instance.usePoleFocus, whitelist: w);
-
-        playerControls.addKey("=", conTrig.down, () => {
-            general.plt.increaseScale();
-        }, precondition: () => planetFocus.instance.usePoleFocus, whitelist: w);
 
         playerControls.addKey("", conTrig.none, () => update(), whitelist: w);
 

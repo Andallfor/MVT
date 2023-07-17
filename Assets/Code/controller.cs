@@ -55,8 +55,6 @@ public class controller : MonoBehaviour
         //onlyEarth();
 
         yield return new WaitForSeconds(0.1f);
-        general.pt = loadTerrain();
-        general.plt = loadPoles();
 
         master.onScaleChange += (s, e) => {
             if (general.showingTrails) {
@@ -264,8 +262,6 @@ public class controller : MonoBehaviour
                 }
             }
 
-            general.pt.updateTerrain();
-
             if (!planetOverview.instance.active) master.requestSchedulingUpdate();
             master.currentTick = tick;
 
@@ -337,48 +333,6 @@ public class controller : MonoBehaviour
 
     int stationIndex = 0;
     meshDistributor<universalTerrainMesh> prevDist;
-
-    private planetTerrain loadTerrain() {
-        planetTerrain pt = new planetTerrain(moon, "Materials/planets/moon/moon", 1737.4, 1);
-
-        string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT/terrain");
-        //string p = Path.Combine(Application.dataPath, "terrain");
-
-        pt.generateFolderInfos(new string[4] {
-            Path.Combine(p, "lunaBinary/1"),
-            Path.Combine(p, "lunaBinary/2"),
-            Path.Combine(p, "lunaBinary/3"),
-            Path.Combine(p, "lunaBinary/4")
-        });
-
-        //string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT");
-        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/1", Path.Combine(p, "1"));
-        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/2", Path.Combine(p, "2"));
-        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/3", Path.Combine(p, "3"));
-        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/4", Path.Combine(p, "4"));
-        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/5", Path.Combine(p, "5"));
-
-        //terrainProcessor.divideJpeg2000("C:/Users/leozw/Desktop/lunar", "C:/Users/leozw/Desktop/preparedLunar", new List<terrainResolution>() {
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/1", 1, 96),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/2", 1, 48),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/3", 1, 24),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/4", 1, 12),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/5", 1, 6),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/6", 4, 3),
-        //});
-
-        return pt;
-    }
-
-    private poleTerrain loadPoles() {
-        string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT/terrain");
-        //string p = Path.Combine(Application.dataPath, "terrain");
-        return new poleTerrain(new Dictionary<int, string>() {
-            {5,  Path.Combine(p, "polesBinary/25m")},
-            {10, Path.Combine(p, "polesBinary/50m")},
-            {20, Path.Combine(p, "polesBinary/100m")}
-        }, moon.representation.gameObject.transform);
-    }
 
     private IEnumerator JPL() {
         representationData rd = new representationData("planet", "defaultMat");

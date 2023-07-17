@@ -35,8 +35,6 @@ public static class general
     public static void notifyTrailsChange() {onTrailChange(null, EventArgs.Empty);}
 
     public static bool blockMainLoop = false;
-    public static planetTerrain pt;
-    public static poleTerrain plt;
     public static bool showingTrails = false;
 
     /// <summary> Parse an array of bytes into a string. </summary>

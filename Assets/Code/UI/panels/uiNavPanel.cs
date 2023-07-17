@@ -186,8 +186,6 @@ public class uiNavPanel : MonoBehaviour
         if (refFrame is planet) {
             master.requestScaleUpdate();
             modeController.toggle(planetFocus.instance);
-            general.pt.unload();
-            general.plt.clear();
             master.clearAllLines();
             general.notifyStatusChange();
             general.notifyTrailsChange();
