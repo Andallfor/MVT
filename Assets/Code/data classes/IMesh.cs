@@ -98,7 +98,7 @@ public abstract class IMesh {
         go.transform.parent = parent;
         go.transform.localPosition = Vector3.zero;
         go.transform.localEulerAngles = Vector3.zero;
-        
+
         go.GetComponent<MeshRenderer>().material = mat;
         go.GetComponent<MeshFilter>().mesh = mesh;
 
@@ -147,7 +147,7 @@ public abstract class IMesh {
         this.uvs = null;
         this.verts = new Vector3[0];
         tinstantiate += sw.ElapsedMilliseconds;
-        sw.Restart();
+        sw.Stop();
 
         return go;
     }

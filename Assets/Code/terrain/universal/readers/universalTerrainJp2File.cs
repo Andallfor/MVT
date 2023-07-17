@@ -151,15 +151,13 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
 
         meshDistributor<universalTerrainMesh> m = new meshDistributor<universalTerrainMesh>(
             new Vector2Int(end.x - start.x, end.y - start.y),
-            Vector2Int.zero, Vector2Int.zero, true, customUV: (Vector2Int v) => {
-                return new Vector2((float) v.x / (float) (end.x - start.x), (float) v.y / (float) (end.y - start.y));
-            }, meshEdgeOffset: false);
+            Vector2Int.zero, Vector2Int.zero, true, meshEdgeOffset: false);
 
-        //Debug.Log($"(init) <color=teal>Time to init mesh: {sw.ElapsedMilliseconds}ms</color>");
+        Debug.Log($"Time to init mesh: {sw.ElapsedMilliseconds}ms");
         sw.Restart();
         
         int[] heights = openJpegWrapper.requestTerrain(dataPath, start * power, end * power, res, 0);
-        //Debug.Log($"(jp2) <color=olive>Time to read {(end.y - start.y) * (end.x - start.x)} pixels: {sw.ElapsedMilliseconds}ms</color>");
+        Debug.Log($"Time to read {(end.y - start.y) * (end.x - start.x)} pixels: {sw.ElapsedMilliseconds}ms");
         sw.Restart();
 
         //int colLen = end.x - start.x;
@@ -186,11 +184,12 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         //}
 
         Vector3[] output = computeShaderPoints(heights, start, end, power);
-        //Debug.Log($"(cs) <color=orange>Total compute shader time: {sw.ElapsedMilliseconds}</color>");
+        long s1 = sw.ElapsedMilliseconds;
         sw.Restart();
 
         m.forceSetAllPoints(output);
         Debug.Log($"(cs) <color=orange>Point copying time: {sw.ElapsedMilliseconds}</color>");
+        Debug.Log($"Total processing time: {s1 + sw.ElapsedMilliseconds}");
         sw.Stop();
 
         //Debug.Log("Loaded area of " + (end.y - start.y) * (end.x - start.x) + " pixels");   

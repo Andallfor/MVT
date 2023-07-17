@@ -316,9 +316,13 @@ public class controller : MonoBehaviour
             Material m = new Material(resLoader.load<Material>("defaultMat"));
             GameObject go = resLoader.load<GameObject>("terrainMesh");
             long tinit = 0, tvert = 0, tuv = 0, tnormal = 0, ttriangle = 0, tinstantiate = 0;
+
             foreach (IMesh mesh in prevDist.allMeshesOrdered) {
                 mesh.drawMeshTimed(m, go, "mesh", earth.representation.gameObject.transform, ref tinit, ref ttriangle, ref tuv, ref tvert, ref tnormal, ref tinstantiate);
             }
+
+            //prevDist.drawAll(earth.representation.gameObject.transform);
+            sw.Stop();
 
             Debug.Log($"(mesh) <color=red>Initialize: {tinit}</color>");
             Debug.Log($"(mesh) <color=red>Triangles: {ttriangle}</color>");
@@ -326,9 +330,7 @@ public class controller : MonoBehaviour
             Debug.Log($"(mesh) <color=red>Vertices: {tvert}</color>");
             Debug.Log($"(mesh) <color=red>Normals: {tnormal}</color>");
             Debug.Log($"(mesh) <color=red>Instantiation: {tinstantiate}</color>");
-
-            //prevDist.drawAll(earth.representation.gameObject.transform);
-            //Debug.Log($"Time to draw mesh: {sw.ElapsedMilliseconds}");
+            Debug.Log($"Time to draw mesh: {sw.ElapsedMilliseconds}");
 
             stationIndex++;
 
