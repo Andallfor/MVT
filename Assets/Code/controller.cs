@@ -370,6 +370,10 @@ public class controller : MonoBehaviour
 
             meshTimerDraw += sw.ElapsedMilliseconds;
             Debug.Log($"Time to draw mesh: {sw.ElapsedMilliseconds}");
+
+            //f.writeNormals(prevDist);
+
+            Debug.Log("==========================================");
         }
 
         Debug.Log(meshTimerInit / (float) runCount);

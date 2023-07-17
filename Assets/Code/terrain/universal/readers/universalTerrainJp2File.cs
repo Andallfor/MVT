@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.IO;
+using System.Threading.Tasks;
+using System.Threading;
 
 public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMesh> {
     public bool isForAccessCalls = false;
@@ -13,7 +15,6 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
     private List<geographic> accessCallGeo;
     private List<double> accessCallHeight;
     private List<Vector2Int> accessCallGrid;
-    private geographic generatedLL, generatedUR;
     private Vector2Int generatedStart, generatedEnd;
     private int generatedPower;
     private Func<geographic, double, position> toCart;
@@ -162,6 +163,39 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         Debug.Log($"Time to read {(end.y - start.y) * (end.x - start.x)} pixels: {sw.ElapsedMilliseconds}ms");
         sw.Restart();
 
+        // so this isnt great
+        //Task.Run(() => {
+        //    foreach (universalTerrainMesh mesh in m.allMeshesOrdered) {
+        //        int hash = getMeshHash(mesh, power);
+        //        string path = Path.Combine(Application.streamingAssetsPath, folderPath, "normals", $"{hash}.nrm");
+//
+        //        if (!File.Exists(path)) continue;
+//
+        //        // is this costly? (using =>)
+        //        mesh.normalGenerator = Task.Run(() => {
+        //            // TODO: i dont like this. write normals to one massive file then read normals from there
+        //            Vector3[] norms = new Vector3[mesh.shape.x * mesh.shape.y];
+        //            using (FileStream fs = new FileStream(path, FileMode.Open)) {
+        //                using (BinaryReader br = new BinaryReader(fs)) {
+        //                    // validate that the hashes match
+        //                    int encodedHash = br.ReadInt32();
+        //                    if (encodedHash != hash) Debug.LogWarning($"Encoded hash {(encodedHash)} != given hash {(hash)}!");
+        //                    // skip metadata
+        //                    int metadataLength = sizeof(double) * 4 + sizeof(int) * 3;
+        //                    br.BaseStream.Seek(metadataLength, SeekOrigin.Begin);
+//
+        //                    int length = (int) ((br.BaseStream.Length - metadataLength) / sizeof(float) / 3);
+        //                    for (int i = 0; i < length; i++) norms[i] = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+        //                }
+        //            }
+//
+        //            // TODO: write custom shader and pass normal map in as shader parameter
+        //            // that way we are not limited by num of verts
+        //            mesh.normals = norms;
+        //        });
+        //    }
+        //});
+
         //int colLen = end.x - start.x;
         //int maxHeight = (int) (nrows / power);
         //for (int r = start.y; r < end.y; r++) {
@@ -191,6 +225,7 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
 
         m.forceSetAllPoints(output);
         //Debug.Log($"(cs) <color=orange>Point copying time: {sw.ElapsedMilliseconds}</color>");
+
         controller.meshTimerWrite += s1 + sw.ElapsedMilliseconds;
         Debug.Log($"Total processing time: {s1 + sw.ElapsedMilliseconds}");
         sw.Stop();
@@ -264,5 +299,70 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         heightBuffer.Dispose();
 
         return vectors;
+    }
+
+    [Obsolete("This functionality (and all of normal reading) is currently not fully implemented.")]
+    public void writeNormals(meshDistributor<universalTerrainMesh> m, bool erase = false) {
+        foreach (universalTerrainMesh mesh in m.allMeshesOrdered) {
+            int gridX = mesh.shape.x;
+            int gridY = mesh.shape.y;
+            double power = generatedPower;
+            double lon = mesh.initialPosition.x * cellSize * power + llCorner.lon;
+            double lat = (nrows / power - mesh.initialPosition.y) * cellSize * power + llCorner.lat;
+            int hash = getMeshHash(mesh, power);
+
+            string path = Path.Combine(Application.streamingAssetsPath, folderPath, "normals", $"{hash}.nrm");
+
+            if (!erase && File.Exists(path)) continue;
+
+            if (!Directory.Exists(Path.GetDirectoryName(path))) Directory.CreateDirectory(Path.Combine(Application.streamingAssetsPath, folderPath, "normals"));
+            using (FileStream fs = new FileStream(path, FileMode.Create)) {
+                using (BinaryWriter bw = new BinaryWriter(fs)) {
+                    // write metadata
+                    // int hash, double ll lat, double ll lon, double cell size, double power, int grid x, int grid y
+                    // float n1...
+                    bw.Write(hash);
+                    bw.Write(lat);
+                    bw.Write(lon);
+                    bw.Write(cellSize);
+                    bw.Write(power);
+                    bw.Write(gridX);
+                    bw.Write(gridY);
+
+                    Vector3[] normals = mesh.mesh.normals;
+                    for (int i = 0; i < normals.Length; i++) {
+                        Vector3 v = normals[i];
+                        float r = 255f * (v.x + 1f) / 2f;
+                        float g = 255f * (v.y + 1f) / 2f;
+                        float b = 255f * (v.z + 1f) / 2f;
+
+                        bw.Write(r);
+                        bw.Write(g);
+                        bw.Write(b);
+                    }
+                }
+            }
+        }
+    }
+
+    private int getMeshHash(universalTerrainMesh mesh, double power) {
+        // TODO: figure out how to allow mesh to pull from files that were generated with diff res but cover the same area
+        int gridX = mesh.shape.x;
+        int gridY = mesh.shape.y;
+        double lon = mesh.initialPosition.x * cellSize * power + llCorner.lon;
+        double lat = (nrows / power - mesh.initialPosition.y) * cellSize * power + llCorner.lat;
+
+        double[] idArr = new double[6] {lat, lon, cellSize, power, gridX, gridY};
+        byte[] idArrByte = new byte[sizeof(double) * idArr.Length];
+        Buffer.BlockCopy(idArr, 0, idArrByte, 0, idArrByte.Length);
+
+        unchecked {
+            // https://stackoverflow.com/questions/16340/how-do-i-generate-a-hashcode-from-a-byte-array-in-c
+            const int p = 16777619;
+            int hash = (int) 2166136261;
+
+            for (int i = 0; i < idArrByte.Length; i++) hash = (hash ^ idArrByte[i]) * p;
+            return hash;
+        }
     }
 }

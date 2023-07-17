@@ -4,11 +4,13 @@ using UnityEngine;
 using System;
 using Unity.Collections;
 using UnityEngine.Rendering;
+using System.IO;
+using System.Threading.Tasks;
 
 public abstract class IMesh {
     public Vector3[] verts;
     public Vector2[] uvs;
-    protected Mesh mesh;
+    public Mesh mesh;
     public Vector2Int shape {get; protected set;}
     protected GameObject go;
     protected bool reverse, usingCustomUV;
@@ -17,13 +19,14 @@ public abstract class IMesh {
     protected static Dictionary<Vector2Int, NativeArray<ushort>> trianglesBackwards = new Dictionary<Vector2Int, NativeArray<ushort>>();
     protected static Dictionary<Vector2Int, Vector2[]> defaultUVs = new Dictionary<Vector2Int, Vector2[]>();
 
-    private position mapSize;
+    public position mapSize, initialPosition;
 
     public void init(int cols, int rows, position initialPosition, position mapSize, bool reverse = false, Func<Vector2Int, Vector2> customUV = null) {
         shape = new Vector2Int(cols, rows);
         this.reverse = reverse;
 
         this.mapSize = mapSize;
+        this.initialPosition = initialPosition;
 
         bool trianglesSatisfied = false;
         if ((reverse && trianglesBackwards.ContainsKey(shape)) || (!reverse && trianglesForwards.ContainsKey(shape))) trianglesSatisfied = true;
@@ -117,17 +120,18 @@ public abstract class IMesh {
         return go;
     }
 
-     public GameObject drawMeshTimed(Material mat, GameObject model, string name, Transform parent, ref long tinit, ref long ttriangle, ref long tuv, ref long tvert, ref long tnormal, ref long tinstantiate) {
-        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-        sw.Start();
+    [Obsolete("Only used for debugging. Implementation may not be up to date to current drawMesh() function")]
+    public GameObject drawMeshTimed(Material mat, GameObject model, string name, Transform parent, ref long tinit, ref long ttriangle, ref long tuv, ref long tvert, ref long tnormal, ref long tinstantiate) {
+        //System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        //sw.Start();
 
         mesh = new Mesh();
-        tinit += sw.ElapsedMilliseconds;
-        sw.Restart();
+        //tinit += sw.ElapsedMilliseconds;
+        //sw.Restart();
 
         mesh.vertices = verts;
-        tvert += sw.ElapsedMilliseconds;
-        sw.Restart();
+        //tvert += sw.ElapsedMilliseconds;
+        //sw.Restart();
 
         int triangleCount = (shape.x - 1) * (shape.y - 1) * 6;
         mesh.SetIndexBufferParams(triangleCount * sizeof(ushort), UnityEngine.Rendering.IndexFormat.UInt16);
@@ -138,17 +142,17 @@ public abstract class IMesh {
 
         mesh.subMeshCount = 1;
         mesh.SetSubMesh(0, new SubMeshDescriptor(0, triangleCount), flags);
-        ttriangle += sw.ElapsedMilliseconds;
-        sw.Restart();
+        //ttriangle += sw.ElapsedMilliseconds;
+        //sw.Restart();
 
         if (usingCustomUV) mesh.uv = uvs;
         else mesh.uv = defaultUVs[shape];
-        tuv += sw.ElapsedMilliseconds;
-        sw.Restart();
+        //tuv += sw.ElapsedMilliseconds;
+        //sw.Restart();
 
         mesh.RecalculateNormals();
-        tnormal += sw.ElapsedMilliseconds;
-        sw.Restart();
+        //tnormal += sw.ElapsedMilliseconds;
+        //sw.Restart();
 
         go = GameObject.Instantiate(model);
         go.name = name;
@@ -161,8 +165,8 @@ public abstract class IMesh {
 
         this.uvs = null;
         this.verts = new Vector3[0];
-        tinstantiate += sw.ElapsedMilliseconds;
-        sw.Stop();
+        //tinstantiate += sw.ElapsedMilliseconds;
+        //sw.Stop();
 
         return go;
     }
