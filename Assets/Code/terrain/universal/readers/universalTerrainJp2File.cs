@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.IO;
+using System.Threading.Tasks;
+using System.Threading;
 
 public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMesh> {
     public bool isForAccessCalls = false;
@@ -13,27 +15,17 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
     private List<geographic> accessCallGeo;
     private List<double> accessCallHeight;
     private List<Vector2Int> accessCallGrid;
-    private geographic generatedLL, generatedUR;
     private Vector2Int generatedStart, generatedEnd;
     private int generatedPower;
-    private Func<geographic, double, position> toCart;
 
     public universalTerrainJp2File(string dataPath, string metadataPath, bool isForAccessCalls = false) :
         base(dataPath, metadataPath, universalTerrainFileSources.jp2) {
         this.isForAccessCalls = isForAccessCalls;
-
-        toCart = geographic.toCartesian;
     }
 
     public universalTerrainJp2File(string path, bool isForAccessCalls = false) :
         base(Path.Combine(path, "data.jp2"), Path.Combine(path, "metadata.txt"), universalTerrainFileSources.jp2) {
         this.isForAccessCalls = isForAccessCalls;
-
-        toCart = geographic.toCartesian;
-    }
-
-    public void overrideToCart(Func<geographic, double, position> f) {
-        toCart = f;
     }
 
     public void consumeAccessCallData() {
@@ -145,48 +137,39 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         generatedEnd = end;
         generatedPower = power;
 
-        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-        sw.Start();
-
         meshDistributor<universalTerrainMesh> m = new meshDistributor<universalTerrainMesh>(
             new Vector2Int(end.x - start.x, end.y - start.y),
-            Vector2Int.zero, Vector2Int.zero, true, customUV: (Vector2Int v) => {
-                return new Vector2((float) v.x / (float) (end.x - start.x), (float) v.y / (float) (end.y - start.y));
-            });
-
-        long s1 = sw.ElapsedMilliseconds;
-        Debug.Log($"Time to init mesh: {s1}ms");
+            Vector2Int.zero, Vector2Int.zero, true, meshEdgeOffset: false);
         
         int[] heights = openJpegWrapper.requestTerrain(dataPath, start * power, end * power, res, 0);
-        Debug.Log($"Time to read {(end.y - start.y) * (end.x - start.x)} pixels: {sw.ElapsedMilliseconds - s1}ms");
-        s1 = sw.ElapsedMilliseconds;
 
-        int colLen = end.x - start.x;
-        int maxHeight = (int) (nrows / power);
-        for (int r = start.y; r < end.y; r++) {
-            for (int c = start.x; c < end.x; c++) {
-                int x = c - start.x;
-                int y = r - start.y;
+        //int colLen = end.x - start.x;
+        //int maxHeight = (int) (nrows / power);
+        //for (int r = start.y; r < end.y; r++) {
+        //    for (int c = start.x; c < end.x; c++) {
+        //        int x = c - start.x;
+        //        int y = r - start.y;
+//
+        //        geographic g = new geographic((maxHeight - r) * cellSize * power, c * cellSize * power) + llCorner;
+        //        double height = (heights[(int) (y * colLen + x)] - 32767) / 1000.0; // +32767 bc data is offset in jp2 writer
+        //        position p = toCart(g, radius + height);
+        //        p += posOffset;
+        //        p = p.swapAxis() / master.scale;
+//
+        //        if (isForAccessCalls && height != 0) {
+        //            accessCallGeo.Add(g);
+        //            accessCallHeight.Add(height);
+        //            accessCallGrid.Add(new Vector2Int(x, y));
+        //        }
+//
+        //        m.addPoint(x, y, p);
+        //    }
+        //}
 
-                geographic g = new geographic((maxHeight - r) * cellSize * power, c * cellSize * power) + llCorner;
-                double height = (heights[(int) (y * colLen + x)] - 32767) / 1000.0; // +32767 bc data is offset in jp2 writer
-                position p = toCart(g, radius + height);
-                p += posOffset;
-                p = p.swapAxis() / master.scale;
+        Vector3[] output = computeShaderPoints(heights, start, end, power, posOffset);
+        m.forceSetAllPoints(output);
 
-                if (isForAccessCalls && height != 0) {
-                    accessCallGeo.Add(g);
-                    accessCallHeight.Add(height);
-                    accessCallGrid.Add(new Vector2Int(x, y));
-                }
-
-                m.addPoint(x, y, p);
-            }
-        }
-
-        Debug.Log($"Time to write points: {sw.ElapsedMilliseconds - s1}ms");
-
-        Debug.Log("Loaded area of " + (end.y - start.y) * (end.x - start.x) + " pixels");
+        Debug.Log("Loaded area of " + (end.y - start.y) * (end.x - start.x) + " pixels");   
 
         return m;
     }
@@ -200,5 +183,112 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         int x = (int) Math.Round(dx * ncols / generatedPower - generatedStart.x);
 
         src.addPoint(x, y, p.swapAxis() / master.scale);
+    }
+
+    private Vector3[] computeShaderPoints(int[] heights, Vector2Int start, Vector2Int end, int power, position offset) {
+        ComputeShader cs = Resources.Load<ComputeShader>("Materials/terrainWGSComputeSingle");
+
+        Vector2Int shape = end - start;
+        Vector2Int meshes = new Vector2Int(Mathf.CeilToInt((float) shape.x / 256f), Mathf.CeilToInt((float) shape.y / 256f));
+
+        Vector3[] vectors = new Vector3[shape.x * shape.y];
+        ComputeBuffer vectorBuffer = new ComputeBuffer(vectors.Length, sizeof(float) * 3);
+        vectorBuffer.SetData(vectors);
+
+        ComputeBuffer heightBuffer = new ComputeBuffer(heights.Length, sizeof(int));
+        heightBuffer.SetData(heights);
+
+        ComputeBuffer offsetBuffer = new ComputeBuffer(3, sizeof(double));
+        offsetBuffer.SetData(new double[] {offset.x, offset.y, offset.z});
+
+        cs.SetBuffer(0, "vectors", vectorBuffer);
+        cs.SetBuffer(0, "heights", heightBuffer);
+        cs.SetBuffer(0, "offsetPos", offsetBuffer);
+
+        cs.SetInts("meshCount", new int[] {meshes.x, meshes.y});
+        cs.SetInts("pointCount", new int[] {shape.x, shape.y});
+        cs.SetFloat("scale", (float) master.scale);
+        cs.SetFloat("cellsize", (float) cellSize);
+        cs.SetFloat("power", power);
+        cs.SetFloat("totalNRows", (float) nrows);
+        cs.SetFloats("llCorner", new float[2] {
+            (float) (start.x * cellSize * power + llCorner.lon),
+            (float) (start.y * cellSize * power + llCorner.lat)
+        });
+
+        cs.Dispatch(0, 2 * meshes.x * meshes.y, 1, 1);
+
+        vectorBuffer.GetData(vectors);
+
+        vectorBuffer.Dispose();
+        heightBuffer.Dispose();
+        offsetBuffer.Dispose();
+
+        return vectors;
+    }
+
+    [Obsolete("This functionality (and all of normal reading) is currently not fully implemented.")]
+    public void writeNormals(meshDistributor<universalTerrainMesh> m, bool erase = false) {
+        foreach (universalTerrainMesh mesh in m.allMeshesOrdered) {
+            int gridX = mesh.shape.x;
+            int gridY = mesh.shape.y;
+            double power = generatedPower;
+            double lon = mesh.initialPosition.x * cellSize * power + llCorner.lon;
+            double lat = (nrows / power - mesh.initialPosition.y) * cellSize * power + llCorner.lat;
+            int hash = getMeshHash(mesh, power);
+
+            string path = Path.Combine(Application.streamingAssetsPath, folderPath, "normals", $"{hash}.nrm");
+
+            if (!erase && File.Exists(path)) continue;
+
+            if (!Directory.Exists(Path.GetDirectoryName(path))) Directory.CreateDirectory(Path.Combine(Application.streamingAssetsPath, folderPath, "normals"));
+            using (FileStream fs = new FileStream(path, FileMode.Create)) {
+                using (BinaryWriter bw = new BinaryWriter(fs)) {
+                    // write metadata
+                    // int hash, double ll lat, double ll lon, double cell size, double power, int grid x, int grid y
+                    // float n1...
+                    bw.Write(hash);
+                    bw.Write(lat);
+                    bw.Write(lon);
+                    bw.Write(cellSize);
+                    bw.Write(power);
+                    bw.Write(gridX);
+                    bw.Write(gridY);
+
+                    Vector3[] normals = mesh.mesh.normals;
+                    for (int i = 0; i < normals.Length; i++) {
+                        Vector3 v = normals[i];
+                        float r = 255f * (v.x + 1f) / 2f;
+                        float g = 255f * (v.y + 1f) / 2f;
+                        float b = 255f * (v.z + 1f) / 2f;
+
+                        bw.Write(r);
+                        bw.Write(g);
+                        bw.Write(b);
+                    }
+                }
+            }
+        }
+    }
+
+    private int getMeshHash(universalTerrainMesh mesh, double power) {
+        // TODO: figure out how to allow mesh to pull from files that were generated with diff res but cover the same area
+        int gridX = mesh.shape.x;
+        int gridY = mesh.shape.y;
+        double lon = mesh.initialPosition.x * cellSize * power + llCorner.lon;
+        double lat = (nrows / power - mesh.initialPosition.y) * cellSize * power + llCorner.lat;
+
+        double[] idArr = new double[6] {lat, lon, cellSize, power, gridX, gridY};
+        byte[] idArrByte = new byte[sizeof(double) * idArr.Length];
+        Buffer.BlockCopy(idArr, 0, idArrByte, 0, idArrByte.Length);
+
+        unchecked {
+            // https://stackoverflow.com/questions/16340/how-do-i-generate-a-hashcode-from-a-byte-array-in-c
+            const int p = 16777619;
+            int hash = (int) 2166136261;
+
+            for (int i = 0; i < idArrByte.Length; i++) hash = (hash ^ idArrByte[i]) * p;
+            return hash;
+        }
     }
 }

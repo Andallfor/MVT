@@ -28,9 +28,8 @@ public static class openJpegWrapper {
         openjpeg_openjp2_opj_set_decode_area(codec, raw, (uint) start.x, (uint) start.y, (uint) end.x, (uint) end.y);
 
         openjpeg_openjp2_opj_decode(codec, stream, raw);
-
         openjpeg_openjp2_opj_end_decompress(codec, stream);
-        
+
         IntPtr imgc = openjpeg_openjp2_opj_image_t_get_comps_by_index(raw, 0);
         uint nrows = openjpeg_openjp2_opj_image_comp_t_get_h(imgc);
         uint ncols = openjpeg_openjp2_opj_image_comp_t_get_w(imgc);
@@ -42,17 +41,20 @@ public static class openJpegWrapper {
         byte[] data = new byte[len];
 
         unsafe {
-            fixed (byte* arrStart = &data[0]) {
+            fixed (byte* arrStart = &data[0]) { // TODO look into writing this pointer into a native array and then just passing that around and calling .reinterpret()
                 System.Buffer.MemoryCopy((void*) openjpeg_openjp2_opj_image_comp_t_get_data(imgc), arrStart, len, len);
             }
         }
 
+
         int[] formatted = new int[nrows * ncols];
         Buffer.BlockCopy(data, 0, formatted, 0, data.Length);
 
+        // TODO: maybe run this from thread? we dont need the recycling to happen immediately
         openjpeg_openjp2_opj_destroy_codec(codec);
         openjpeg_openjp2_opj_stream_destroy(stream);
         openjpeg_openjp2_opj_image_t_destroy(raw);
+        // TODO: if there is a memory leak, maybe it is coming from here?
 
         return formatted;
     }

@@ -3,23 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System;
+using System.Text;
+using System.Runtime.InteropServices;
 
 public class meshDistributor {
-    public const int maxVertSize = 255;
+    public const int maxVertSize = 256;
 }
 
 public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
     private Dictionary<Vector2Int, T> map = new Dictionary<Vector2Int, T>();
     public T baseType;
 
-    public List<T> allMeshes {get => map.Values.ToList();}
+    public Vector2Int shape;
+
+    public List<T> allMeshesOrdered;
     
     // try to create as many 255x255 meshes as possible
-    public meshDistributor(Vector2Int size, Vector2Int maxSize, Vector2Int offset, bool reverse = false, Func<Vector2Int, Vector2> customUV = null) {
+    public meshDistributor(Vector2Int size, Vector2Int maxSize, Vector2Int offset, bool reverse = false, Func<Vector2Int, Vector2> customUV = null, bool fastVerts = false, bool meshEdgeOffset = true) {
         baseType = new T();
 
-        for (int x = 0; x < size.x; x += maxVertSize) {
-            for (int y = 0; y < size.y; y += maxVertSize) {
+        allMeshesOrdered = new List<T>();
+
+        //long prepVerts = 0, meshInit = 0;
+
+        //System.Diagnostics.Stopwatch swVerts = new System.Diagnostics.Stopwatch();
+        //System.Diagnostics.Stopwatch swMesh = new System.Diagnostics.Stopwatch();
+
+        for (int y = 0; y < size.y; y += maxVertSize) {
+            for (int x = 0; x < size.x; x += maxVertSize) {
                 int xLeft = (x + maxVertSize >= size.x) ? size.x % maxVertSize : maxVertSize;
                 int yLeft = (y + maxVertSize >= size.y) ? size.y % maxVertSize : maxVertSize;
 
@@ -29,11 +40,38 @@ public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
                     Vector2Int _o = new Vector2Int(
                         x + maxVertSize > size.x ? 0 : 1,
                         y + maxVertSize > size.y ? 0 : 1);
+                    
+                    if (!meshEdgeOffset) _o = Vector2Int.zero;
 
+                    //swVerts.Start();
                     t.init(xLeft + _o.x, yLeft + _o.y, new position(x + offset.x, y + offset.y, 0), new position(maxSize.x, maxSize.y, 0), reverse, customUV);
+                    //prepVerts += swVerts.ElapsedMilliseconds;
+                    //swVerts.Reset();
+
+                    //swMesh.Start();
+                    if (!fastVerts) t.prepareVerts();
+                    //meshInit += swMesh.ElapsedMilliseconds;
+                    //swMesh.Reset();
+
                     map.Add(new Vector2Int(x, y), t);
+                    allMeshesOrdered.Add(t);
                 }
             }   
+        }
+
+        shape = new Vector2Int(Mathf.CeilToInt(size.x / maxVertSize), Mathf.CeilToInt(size.y / maxVertSize));
+
+        //Debug.Log($"(init) <color=teal>Initialize meshes: {meshInit}</color>");
+        //Debug.Log($"(init) <color=teal>Prepare vertices: {prepVerts}</color>");
+    }
+
+    public void forceSetAllPoints(Vector3[] arr) {
+        int offset = 0;
+        for (int i = 0; i < allMeshesOrdered.Count; i++) {
+            T m = allMeshesOrdered[i];
+            Array.Copy(arr, offset, m.verts, 0, m.verts.Length);
+
+            offset += m.verts.Length;
         }
     }
 
@@ -76,7 +114,7 @@ public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
 
     public void drawAll(Transform parent) {
         Material m = new Material(resLoader.load<Material>("defaultMat"));
-        GameObject go = resLoader.load<GameObject>("planetMesh");
+        GameObject go = resLoader.load<GameObject>("terrainMesh");
         drawAll(m, go, new string[0], parent);
     }
 
@@ -85,6 +123,9 @@ public class meshDistributor<T> : meshDistributor where T : IMesh, new() {
     }
 
     public void clear() {
-        foreach (T t in allMeshes) t.clearMesh();
+        foreach (T t in allMeshesOrdered) t.clearMesh();
+        map = null;
+        allMeshesOrdered = null;
+        shape = Vector2Int.zero;
     }
 }
