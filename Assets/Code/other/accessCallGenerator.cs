@@ -33,9 +33,10 @@ public class accessCallGeneratorWGS {
         meshFile = new universalTerrainJp2File(path, false);
 
         double alt = meshFile.getHeight(pos);
+        //double alt = 0;
         altitude = alt;
         //alt = 0.55;
-        worldPositionWithHeight = pos.toCartesianWGS(alt + 0.01);
+        worldPositionWithHeight = pos.toCartesianWGS(alt);
         unityPositionWithHeight = (Vector3) (worldPositionWithHeight.swapAxis() / master.scale);
 
         master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionWithHeight.swapAxis();
@@ -45,12 +46,13 @@ public class accessCallGeneratorWGS {
         //meshDist = meshFile.load(start, end, 0, res, default(position));
         meshDist.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
         //meshDist.drawAll(earth.representation.gameObject.transform);
-        foreach (universalTerrainMesh mesh in meshDist.allMeshesOrdered) {
+        foreach (universalTerrainMesh mesh in meshDist.allMeshes) {
             mesh.addCollider();
-            //mesh.go.transform.position = -(Vector3) ((master.currentPosition - earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis()) / master.scale);
+            mesh.go.transform.position = -(Vector3) ((master.currentPosition - earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis()) / master.scale);
             mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
             mesh.hide();
         }
+
 
         // draw wgs sphere
         int sy = 450;
@@ -91,10 +93,9 @@ public class accessCallGeneratorWGS {
             double currentIterationTime = master.time.julian;
 
             //enter code here
-            
 
-            if (Calc.topo(target.data.positions.find(master.time), pos, altitude, master.time.julian) - 5 > 0)
-            {
+
+
                 updateMeshes();
 
                 bool hit = raycast();
@@ -110,7 +111,7 @@ public class accessCallGeneratorWGS {
                     }
                     else spans.Add(new accessCallTimeSpan(master.time.julian, 0));
                 }
-            }
+
 
             master.time.addJulianTime(inc);
 
@@ -135,24 +136,174 @@ public class accessCallGeneratorWGS {
     public List<accessCallTimeSpan> findTimes(Time start, Time end, double maxInc, double minInc) {
         if (!initialized) throw new MethodAccessException("Cannot run access calls unless .initialize(...) has been called!");
 
+        bool isBlocked = true;
+        List<accessCallTimeSpan> spans = new List<accessCallTimeSpan>();
+
+        double minEl = 0;
+        double maxEl = 40;
+        double startTime = 0;
+        double endTime = 0;
+
+        bool hit = true;
+
         double initialTime = master.time.julian;
         master.time.addJulianTime(start.julian - master.time.julian);
         updateMeshes();
 
-        bool isBlocked = true;
-        List<accessCallTimeSpan> spans = new List<accessCallTimeSpan>();
+        List<double[]> minElevationTimes = ElevationCheck.elevationTimes(target.data.positions, pos, altitude, minEl, (end.julian - start.julian) * 86400, master.time.julian);
 
-        double currentInc = maxInc;
-        while (master.time.julian < end.julian) {
-            double currentIterationTime = master.time.julian;
+        if (minElevationTimes != null)
+        {
+            for (int x = 0; x < minElevationTimes.Count; x++)
+            {
+                master.time.addJulianTime(minElevationTimes[x][0] - master.time.julian);
+                updateMeshes();
+
+                double currentIterationTime = master.time.julian;
+
+                while (hit)
+                {
+                    hit = raycast();
+                    master.time.addJulianTime(.0003);
+                    updateMeshes();
+                }
+
+                startTime = master.time.julian;
+
+                master.time.addJulianTime(initialTime - master.time.julian);
+                master.time.addJulianTime(minElevationTimes[x][1] - master.time.julian);
+                updateMeshes();
+                hit = true;
+
+                while (hit)
+                {
+                    hit = raycast();
+                    master.time.addJulianTime(-.0003);
+                    updateMeshes();
+                }
+
+                endTime = master.time.julian;
+
+                spans.Add(new accessCallTimeSpan(startTime, endTime));
+            }
+        }
+
+        /*// close any remaining windows
+        if (!isBlocked)
+        {
+            accessCallTimeSpan span = spans[spans.Count - 1];
+            spans[spans.Count - 1] = new accessCallTimeSpan(span.start, master.time.julian);
+        }
+
+        // join together any spans that are closer than maxInc to each other
+        for (int i = 0; i < spans.Count - 1; i++)
+        {
+            accessCallTimeSpan current = spans[i];
+            accessCallTimeSpan next = spans[i + 1];
+            if (next.start - current.end <= maxInc)
+            {
+                Debug.LogWarning("Warning: Two spans detected that are separated by less then maxInc from each other. Joining the two spans together.");
+                spans.RemoveAt(i + 1);
+                spans[i] = new accessCallTimeSpan(current.start, next.end);
+            }
+        }
+
+        /*List<double[]> maxElevationTimes = ElevationCheck.elevationTimes(target.data.positions, pos, altitude, maxEl, end.julian - start.julian, master.time.julian);
+
+        double startmin = 0;
+        double startmax = 0;
+        double endmin = 0;
+        double endmax = 0;
+        double midpoint = 0;
+
+        double initialTime = master.time.julian;
+        master.time.addJulianTime(start.julian - master.time.julian);
+        updateMeshes();
+
+        for (int x = 0; x < minElevationTimes.Count; x++)
+        {
+            startmin = minElevationTimes[x][0];
+            startmax = maxElevationTimes[x][0];
+            endmin = minElevationTimes[x][1];
+            endmax = maxElevationTimes[x][1];
+
+            double deltaT = 1;
+            double t1 = 0;
+            midpoint = (startmin + startmax) / 2;
+
+            master.time.addJulianTime(midpoint - master.time.julian);
             updateMeshes();
 
-            bool hit = raycast();
+            //start
+            while (deltaT > .0001)
+            {
+                hit = raycast();
 
-            if (isBlocked != hit) {
+                t1 = midpoint;
+                if (hit)
+                {
+                    midpoint = (midpoint + startmax) / 2;
+                }
+                else
+                {
+                    midpoint = (midpoint + startmin) / 2;
+                }
+
+                deltaT = Math.Abs(midpoint - t1);
+                master.time.addJulianTime(midpoint - master.time.julian);
+                updateMeshes();
+            }
+
+            double startTime = midpoint;
+
+            deltaT = 1;
+            midpoint = (endmin + endmax) / 2;
+            master.time.addJulianTime(midpoint - master.time.julian);
+            updateMeshes();
+
+            while (deltaT > .0001)
+            {
+                hit = raycast();
+
+                t1 = midpoint;
+                if (hit)
+                {
+                    midpoint = (midpoint + endmax) / 2;
+                }
+                else
+                {
+                    midpoint = (midpoint + endmin) / 2;
+                }
+
+                deltaT = Math.Abs(midpoint - t1);
+                master.time.addJulianTime(midpoint - master.time.julian);
+                updateMeshes();
+            }
+
+            double endTime = midpoint;
+
+            spans.Add(new accessCallTimeSpan(startTime, endTime));
+        }
+
+
+        /*double currentInc = maxInc;
+
+        while (master.time.julian < end.julian) {
+            double currentIterationTime = master.time.julian;
+
+            updateMeshes();
+
+            if (Calc.topo(target.data.positions, pos, altitude, start.julian, master.time.julian) > 0) hit = raycast();
+            else hit = true;
+
+            hit = raycast();
+
+            if (isBlocked != hit)
+            {
                 isBlocked = hit;
 
-                if (hit) {
+                if (hit)
+                {
                     accessCallTimeSpan span = spans[spans.Count - 1];
                     spans[spans.Count - 1] = new accessCallTimeSpan(span.start, findBoundary(master.time.julian, maxInc, false, minInc));
                 }
@@ -182,6 +333,8 @@ public class accessCallGeneratorWGS {
         // reset time
         //master.time.addJulianTime(initialTime - master.time.julian);
         //master.requestPositionUpdate();
+
+        */
 
         return spans;
     }
@@ -298,7 +451,7 @@ internal struct quaternionDouble {
         double ox = (1.0 - (yy + zz)) * p.x + (xy - wz) * p.y + (xz + wy) * p.z;
         double oy = (xy + wz) * p.x + (1.0 - (xx + zz)) * p.y + (yz - wx) * p.z;
         double oz = (xz - wy) * p.x + (yz + wx) * p.y + (1.0 - (xx + yy)) * p.z;
-        
+
         return new position(ox, oy, oz);
     }
 

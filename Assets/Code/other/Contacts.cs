@@ -7,12 +7,10 @@ using System.Linq;
 
 public class Contacts
 {
-    public static List<double[]> runContacts(Kepler sat, geographic geo, double alt, double minEl, double step, double start, double duration, double tp, string gName, string sName, double jd)
+    public static List<double[]> runContacts(Timeline sat, geographic geo, double alt, double minEl, double step, double duration, double jd)
     {
         List<double> t = new List<double>();
 
-        double lat = geo.lat;
-        double lon = geo.lon;
         double time = 0;
 
         double y1 = 0;
@@ -20,38 +18,49 @@ public class Contacts
         double t1 = 0;
         double t2 = 0;
 
-        double elstart = Calc.topo(sat, lat, lon, alt, time, jd) - minEl;
+        double elstart = Calc.topo(sat, geo, alt, jd) - minEl;
 
         if (elstart > 0)
         {
             t.Add(time);
         }
 
+        //y1 = el1;
+        //t1 = time;
+
+        //time += step;
+
         double test1 = 0;
         double t3 = 0;
         double tc = 0;
+        double yhold = elstart;
+        double thold = time;
 
         while (time < duration - step)
         {
+            double el = Calc.topo(sat, geo, alt, jd + ((time + step) / 86400)) - minEl;
 
-            double el1 = Calc.topo(sat, lat, lon, alt, time, jd + (time / 86400)) - minEl;
-            double el2 = Calc.topo(sat, lat, lon, alt, time + step, jd + ((time + step) / 86400)) - minEl;
-
-            y1 = el1;
-            t1 = time;
-            y2 = el2;
+            y1 = yhold;
+            t1 = thold;
+            y2 = el;
             t2 = time + step;
+            yhold = y2;
+            thold = t2;
 
             double norp = y2 * y1;
+            //Console.WriteLine("norp: " + norp);
             if (norp < 0)
             {
                 test1 = 1;
 
                 while (test1 > 0.0001)
                 {
+                    //Console.WriteLine("Time: " + time+"\ttest1: "+test1);
                     t3 = ((t2 - t1) / (y2 - y1) * -y1) + t1;
 
-                    double var = Calc.topo(sat, lat, lon, alt, t3, jd + ((t3) / 86400));
+                    double var = Calc.topo(sat, geo, alt, jd + ((t3) / 86400));
+
+
 
                     if (var < minEl)
                     {
@@ -76,21 +85,22 @@ public class Contacts
                     tc = t1;
                 }
 
-                t.Add(tc + start);
+                t.Add(tc);
             }
 
-
+            //t1 = time;
+            //y1 = el;
             time += step;
         }
-
-        if (Calc.topo(sat, lat, lon, alt, time, jd + (time / 86400)) > 0)
+        //Console.WriteLine("After exiting the time was: " + time);
+        if (Calc.topo(sat, geo, alt, jd + (time / 86400)) > 0)
         {
-            t.Add(time + start);
+            t.Add(time);
         }
 
         if (t.Count % 2 != 0)
         {
-            t.Add(Calc.topo(sat, lat, lon, alt, time, jd + (time / 86400)));
+            t.Add(Calc.topo(sat, geo, alt, jd + (time / 86400)));
         }
 
         if (t.Any())
@@ -102,8 +112,8 @@ public class Contacts
                 if (t[x + 1] - t[x] / 60 > 5)
                 {
                     double[] arr = new double[2];
-                    arr[0] = t[x] / 86400;
-                    arr[1] = t[x + 1] / 86400;
+                    arr[0] = t[x] / 86400 + jd;
+                    arr[1] = t[x + 1] / 86400 + jd;
                     windows.Add(arr);
                 }
             }

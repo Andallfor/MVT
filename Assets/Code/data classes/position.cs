@@ -192,16 +192,18 @@ public readonly struct position
         return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
     }
 
-    public static position mult1((position,position,position) m1, position v1)
+    public static position mult1((position, position, position) m1, position v1)
     {
         return new position(mult(m1.Item1, v1), mult(m1.Item2, v1), mult(m1.Item3, v1));
     }
 
     public static (position, position, position) mult2((position, position, position) m1, (position, position, position) m2)
     {
-        return (new position(mult(m1.Item1, new position(m2.Item1.x, m2.Item2.x, m2.Item3.x)), mult(m1.Item1, new position(m2.Item1.y, m2.Item2.y, m2.Item3.y)), mult(m1.Item1, new position(m2.Item1.z, m2.Item2.z, m2.Item3.z))),
-                new position(mult(m1.Item2, new position(m2.Item1.x, m2.Item2.x, m2.Item3.x)), mult(m1.Item2, new position(m2.Item1.y, m2.Item2.y, m2.Item3.y)), mult(m1.Item2, new position(m2.Item1.z, m2.Item2.z, m2.Item3.z))),
-                new position(mult(m1.Item3, new position(m2.Item1.x, m2.Item2.x, m2.Item3.x)), mult(m1.Item3, new position(m2.Item1.y, m2.Item2.y, m2.Item3.y)), mult(m1.Item3, new position(m2.Item1.z, m2.Item2.z, m2.Item3.z))));
+        position a = new position(mult(m1.Item1, new position(m2.Item1.x, m2.Item2.x, m2.Item3.x)), mult(m1.Item1, new position(m2.Item1.y, m2.Item2.y, m2.Item3.y)), mult(m1.Item1, new position(m2.Item1.z, m2.Item2.z, m2.Item3.z)));
+        position b = new position(mult(m1.Item2, new position(m2.Item1.x, m2.Item2.x, m2.Item3.x)), mult(m1.Item2, new position(m2.Item1.y, m2.Item2.y, m2.Item3.y)), mult(m1.Item2, new position(m2.Item1.z, m2.Item2.z, m2.Item3.z)));
+        position c = new position(mult(m1.Item3, new position(m2.Item1.x, m2.Item2.x, m2.Item3.x)), mult(m1.Item3, new position(m2.Item1.y, m2.Item2.y, m2.Item3.y)), mult(m1.Item3, new position(m2.Item1.z, m2.Item2.z, m2.Item3.z)));
+
+        return (a, b, c);
     }
 
 

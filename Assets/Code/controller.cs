@@ -330,7 +330,7 @@ public class controller : MonoBehaviour
         //var output = access.findTimes(new Time(2461022.77871296), new Time(2461022.78237024), 0.00069444444, 0.00001157407 / 2.0);
 
         //var output = access.findTimes(new Time(2461021.77854328), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
-        var output = access.findTimes(new Time(2459560.84525522), new Time(2459570.27537285), 0.00069444444, 0.00001157407 / 2.0);
+        var output = access.findTimes(new Time(2459560.84525522), new Time(2459590.30013301), 0.00069444444, 0.00001157407 / 2.0);
         //var output = access.bruteForce(new Time(2461021.77854328), new Time(2461022.93452393), 0.00001157407);
         access.saveResults(output);
     }
@@ -395,7 +395,7 @@ public class controller : MonoBehaviour
         double EarthMu = 398600.0;
 
         earth = new planet(  "Earth", new planetData(6356.75, rotationType.earth,   $"CSVS/JPL/{header}/PLANETS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
-        moon =  new planet(   "Luna", new planetData(1738.1,  rotationType.moon,    $"CSVS/JPL/{header}/PLANETS/Luna",  oneHour,   planetType.moon), new representationData("planet", "moonTex"));
+        moon =  new planet(   "Luna", new planetData(1738.1,  rotationType.none,    $"CSVS/JPL/{header}/PLANETS/Luna",  oneHour,   planetType.moon), new representationData("planet", "moonTex"));
         planet mercury = new planet("Mercury", new planetData(2439.7,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/mercury", oneHour, planetType.planet), new representationData("planet", "mercuryTex"));
         planet venus = new planet(  "Venus", new planetData(6051.8,  rotationType.none,   $"CSVS/JPL/{header}/PLANETS/venus", oneHour, planetType.planet), new representationData("planet", "venusTex"));
         planet jupiter = new planet("Jupiter", new planetData( 71492,  rotationType.none, $"CSVS/JPL/{header}/PLANETS/jupiter", oneHour, planetType.planet), new representationData("planet", "jupiterTex"));
@@ -423,9 +423,7 @@ public class controller : MonoBehaviour
         master.relationshipSatellite[earth] = new List<satellite>() { sat1 };
 
         master.relationshipPlanet[earth] = new List<planet>() {moon};
-        master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/PLANETS/moon", oneMin));
-        master.rod.Add(csvParser.loadPlanetCsv("CSVS/ARTEMIS 3/SATS/v", 0.0006944444));
-
+        
 
         linkBudgeting.users.Add("Sat1", (false, 2461021.5, 2461051.5));
         linkBudgeting.providers.Add("ASF", (true, 2461021.5, 2461051.5));
