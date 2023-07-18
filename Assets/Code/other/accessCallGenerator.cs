@@ -30,9 +30,10 @@ public class accessCallGeneratorWGS {
         worldPositionNoHeight = pos.toCartesianWGS(0);
         unityPositionNoHeight = (Vector3) (worldPositionNoHeight.swapAxis() / master.scale);
 
-        meshFile = new universalTerrainJp2File(path, false);
+        //meshFile = new universalTerrainJp2File(path, false);
 
-        double alt = meshFile.getHeight(pos);
+        //double alt = meshFile.getHeight(pos);
+        double alt = 0;
         altitude = alt;
         //alt = 0.55;
         worldPositionWithHeight = pos.toCartesianWGS(alt + 0.01);
@@ -41,16 +42,14 @@ public class accessCallGeneratorWGS {
         master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionWithHeight.swapAxis();
 
         // draw terrain
-        meshDist = meshFile.load(start, end, 0, res, -worldPositionWithHeight);
-        //meshDist = meshFile.load(start, end, 0, res, default(position));
-        meshDist.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
-        //meshDist.drawAll(earth.representation.gameObject.transform);
-        foreach (universalTerrainMesh mesh in meshDist.allMeshesOrdered) {
-            mesh.addCollider();
-            //mesh.go.transform.position = -(Vector3) ((master.currentPosition - earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis()) / master.scale);
-            mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
-            mesh.hide();
-        }
+        //meshDist = meshFile.load(start, end, 0, res, -worldPositionWithHeight);
+        //meshDist.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
+        //foreach (universalTerrainMesh mesh in meshDist.allMeshesOrdered) {
+        //    mesh.addCollider();
+        //    //mesh.go.transform.position = -(Vector3) ((master.currentPosition - earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis()) / master.scale);
+        //    mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
+        //    mesh.hide();
+        //}
 
         // draw wgs sphere
         int sy = 450;
@@ -219,7 +218,6 @@ public class accessCallGeneratorWGS {
         // (0,0,0) because we center (via master.currentPosition) on the correct starting position
         // raycast instead of linecast to prevent physics from checking too much (we really only need to check whats nearby)
         bool result = Physics.Raycast(Vector3.zero, dst, 100, (1 << 6) | (1 << 7)); // terrain and planets only
-        Debug.DrawLine(Vector3.zero, dst, result ? Color.red : Color.green, 10000000);
         return result;
     }
 
@@ -229,10 +227,10 @@ public class accessCallGeneratorWGS {
         Quaternion earthRot = earth.representation.gameObject.transform.rotation;
         //master.currentPosition = earthRot * (Vector3) worldPositionNoHeight; // TODO
         //master.currentPosition = ((quaternionDouble) earthRot).mult(worldPositionNoHeight.swapAxis());
-        foreach (universalTerrainMesh m in meshDist.allMeshesOrdered) {
-            //m.go.transform.position = -(Vector3) ((master.currentPosition - earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis()) / master.scale);
-            m.go.transform.rotation = earthRot;
-        }
+        //foreach (universalTerrainMesh m in meshDist.allMeshesOrdered) {
+        //    //m.go.transform.position = -(Vector3) ((master.currentPosition - earth.representation.gameObject.transform.rotation * (Vector3) worldPositionNoHeight.swapAxis()) / master.scale);
+        //    m.go.transform.rotation = earthRot;
+        //}
         foreach (universalTerrainMesh m in meshWGS.allMeshesOrdered) {
             m.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
             m.go.transform.rotation = earthRot;
@@ -250,8 +248,12 @@ public class accessCallGeneratorWGS {
             sb.AppendLine($"{i},{span.start},{span.end},{span.end-span.start}");
         }
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+        webGLConnection.BrowserTextDownload("accessNew.txt", sb.ToString());
+#else
         string path = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "accessNew.txt");
         File.WriteAllText(path, sb.ToString());
+#endif
     }
 }
 
