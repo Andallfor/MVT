@@ -33,7 +33,7 @@ public class controller : MonoBehaviour
         resLoader.initialize();
 
         //master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/ARTEMIS 3/PLANETS/sun", 0.0416666665, planetType.planet),
-        master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/JPL/sep2027/PLANETS/sun", 0.0416666665, planetType.planet),
+        master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/JPL/dec2025/PLANETS/sun", 0.0416666665, planetType.planet),
             new representationData("planet", "sunTex"));
 
         loadingController.start(new Dictionary<float, string>() {
@@ -343,8 +343,6 @@ public class controller : MonoBehaviour
         double oneHour = 0.0416666667;
 
         string header = "dec2025";
-        //string header = "jul2026";
-        //string header = "sep2027";
 
         double EarthMu = 398600.0;
 

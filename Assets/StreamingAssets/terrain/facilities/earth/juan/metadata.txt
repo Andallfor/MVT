@@ -1,7 +1,0 @@
-ncols 838
-nrows 465
-xllcorner -78.972361111098
-yllcorner -33.724861111124
-cellsize 0.000277777778
-NODATA_value -32768
-res 5
