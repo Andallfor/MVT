@@ -15,6 +15,7 @@ public class accessCallGeneratorWGS {
     private meshDistributor<universalTerrainMesh> meshDist, meshWGS;
     private universalTerrainJp2File meshFile;
     private double altitude;
+    public bool usingTerrain {get; private set;}
 
     public accessCallGeneratorWGS(planet earth, geographic pos, satellite target) {
         this.target = target;
@@ -24,30 +25,19 @@ public class accessCallGeneratorWGS {
 
     public void initialize(string path, uint res) {initialize(path, Vector2.zero, Vector2.one, res);}
     public void initialize(string path, Vector2 start, Vector2 end, uint res) {
+        initialize();
+        drawTerrain(path, start, end, res);
+
+        usingTerrain = true;
+    }
+
+    public void initialize() {
+        usingTerrain = false;
         initialized = true;
 
         master.scale = 1;
         worldPositionNoHeight = pos.toCartesianWGS(0);
         unityPositionNoHeight = (Vector3) (worldPositionNoHeight.swapAxis() / master.scale);
-
-        meshFile = new universalTerrainJp2File(path, false);
-
-        double alt = meshFile.getHeight(pos);
-        altitude = alt;
-        worldPositionWithHeight = pos.toCartesianWGS(alt + 0.01);
-        unityPositionWithHeight = (Vector3) (worldPositionWithHeight.swapAxis() / master.scale);
-
-        master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionWithHeight.swapAxis();
-
-        // draw terrain
-        meshDist = meshFile.load(start, end, 0, res, -worldPositionWithHeight);
-        meshDist.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
-        foreach (universalTerrainMesh mesh in meshDist.allMeshesOrdered) {
-            mesh.addCollider();
-            mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
-            mesh.hide();
-        }
-
 
         // draw wgs sphere
         int sy = 450;
@@ -60,7 +50,6 @@ public class accessCallGeneratorWGS {
             }
         }
         meshWGS.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
-        //meshWGS.drawAll(earth.representation.gameObject.transform);
         foreach (universalTerrainMesh mesh in meshWGS.allMeshesOrdered) {
             mesh.addCollider();
             mesh.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
@@ -71,6 +60,25 @@ public class accessCallGeneratorWGS {
         master.requestScaleUpdate();
         master.requestPositionUpdate();
         updateMeshes();
+    }
+
+    private void drawTerrain(string path, Vector2 start, Vector2 end, uint res) {
+        meshFile = new universalTerrainJp2File(path, false);
+
+        altitude = meshFile.getHeight(pos);
+        worldPositionWithHeight = pos.toCartesianWGS(altitude + 0.01);
+        unityPositionWithHeight = (Vector3) (worldPositionWithHeight.swapAxis() / master.scale);
+
+        master.currentPosition = earth.representation.gameObject.transform.rotation * (Vector3) worldPositionWithHeight.swapAxis();
+
+        // draw terrain
+        meshDist = meshFile.load(start, end, 0, res, -worldPositionWithHeight);
+        meshDist.drawAll(GameObject.FindGameObjectWithTag("fakeMeshParent").transform);
+        foreach (universalTerrainMesh mesh in meshDist.allMeshesOrdered) {
+            mesh.addCollider();
+            mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
+            mesh.hide();
+        }
     }
 
     public List<accessCallTimeSpan> bruteForce(Time start, Time end, double inc) {
@@ -86,27 +94,19 @@ public class accessCallGeneratorWGS {
         int iterations = 0;
         while (master.time.julian < end.julian) {
             double currentIterationTime = master.time.julian;
+            updateMeshes();
 
-            //enter code here
+            bool hit = raycast();
 
+            if (isBlocked != hit) {
+                isBlocked = hit;
 
-
-                updateMeshes();
-
-                bool hit = raycast();
-
-                if (isBlocked != hit)
-                {
-                    isBlocked = hit;
-
-                    if (hit)
-                    {
-                        accessCallTimeSpan span = spans[spans.Count - 1];
-                        spans[spans.Count - 1] = new accessCallTimeSpan(span.start, master.time.julian - inc);
-                    }
-                    else spans.Add(new accessCallTimeSpan(master.time.julian, 0));
+                if (hit) {
+                    accessCallTimeSpan span = spans[spans.Count - 1];
+                    spans[spans.Count - 1] = new accessCallTimeSpan(span.start, master.time.julian - inc);
                 }
-
+                else spans.Add(new accessCallTimeSpan(master.time.julian, 0));
+            }
 
             master.time.addJulianTime(inc);
 
@@ -375,7 +375,9 @@ public class accessCallGeneratorWGS {
         Quaternion earthRot = earth.representation.gameObject.transform.rotation;
         master.currentPosition = earthRot * (Vector3) worldPositionWithHeight.swapAxis();
         
-        foreach (universalTerrainMesh m in meshDist.allMeshesOrdered) m.go.transform.rotation = earthRot;
+        if (usingTerrain) {
+            foreach (universalTerrainMesh m in meshDist.allMeshesOrdered) m.go.transform.rotation = earthRot;
+        }
         foreach (universalTerrainMesh m in meshWGS.allMeshesOrdered) {
             m.go.transform.position = -(Vector3) (master.currentPosition / master.scale);
             m.go.transform.rotation = earthRot;
