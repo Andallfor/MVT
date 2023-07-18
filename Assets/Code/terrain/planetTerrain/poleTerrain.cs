@@ -4,7 +4,6 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.IO;
-using NumSharp;
 using System.Threading.Tasks;
 using UnityEditor;
 using System.Diagnostics;
@@ -12,6 +11,10 @@ using B83.MeshTools;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Threading;
+
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
+using NumSharp;
+#endif
 
 
 public class poleTerrain {
@@ -43,6 +46,7 @@ public class poleTerrain {
     }
 
     private async void generateScale(int scale) {
+        if (!planetFocus.instance.lunarTerrainFilesExist) return;
         currentlyDrawing = true;
         savedPositions = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long[]>>>(
             File.ReadAllText(Path.Combine(scaleKey[scale], "data.json")));
@@ -188,6 +192,9 @@ public class poleTerrainFile {
     public void clear() {GameObject.Destroy(go);}
 
     public void saveMesh(string path) {
+#if UNITY_WEBGL
+        throw new NotImplementedException("Numpy is not accessible on webgl");
+#else
         NDArray data = np.load(filePath);
         poleTerrainMesh ptm = new poleTerrainMesh(
             data.shape[1], data.shape[0],
@@ -211,6 +218,7 @@ public class poleTerrainFile {
         File.WriteAllBytes(path, MeshSerializer.SerializeMesh(go.GetComponent<MeshFilter>().mesh, name, ref poleTerrain.savedPositions));
 
         GameObject.Destroy(go);
+#endif        
     }
 
     private geographic cartToGeo(position p) {

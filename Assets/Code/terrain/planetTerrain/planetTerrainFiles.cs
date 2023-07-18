@@ -4,7 +4,9 @@ using UnityEngine;
 using System.Linq;
 using System.IO;
 using System;
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
 using NumSharp;
+#endif
 
 public class planetTerrainFile
 {
@@ -14,9 +16,12 @@ public class planetTerrainFile
     public planetTerrainFolderInfo ptfi;
     public double ncols, nrows;
     public terrainFileType fileType;
-    private NDArray npData;
     private string[] txtData;
     public bool preloaded {get; private set;} = false;
+
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
+    private NDArray npData;
+#endif
 
     public planetTerrainFile(string path, planetTerrainFolderInfo ptfi, terrainFileType tft) {
         this.fileType = tft;
@@ -50,7 +55,13 @@ public class planetTerrainFile
         if (preloaded) return;
         preloaded = true;
 
-        if (fileType == terrainFileType.npy) npData = np.load(path);
+        if (fileType == terrainFileType.npy) {
+#if UNITY_WEBGL
+            throw new NotImplementedException("Numpy is not accessible on webgl");
+#else
+            npData = np.load(path);
+#endif
+        }
         else txtData = File.ReadAllLines(path).Skip(6).ToArray();
     }
 
@@ -60,6 +71,9 @@ public class planetTerrainFile
     }
 
     private void generateNpy(planetTerrainMesh m) {
+#if UNITY_WEBGL
+        throw new NotImplementedException("Numpy is not accessible on webgl");
+#else
         NDArray data = preloaded ? npData : np.load(path);
 
         // TODO: this seems to be a major slowdown-> thread it or move to gpu?
@@ -71,6 +85,7 @@ public class planetTerrainFile
         }
 
         m.drawBoundaries("");
+#endif
     }
 
     private void generateTxt(planetTerrainMesh m) {

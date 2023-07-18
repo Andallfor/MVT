@@ -5,16 +5,18 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using NumSharp;
 using Newtonsoft.Json;
+
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
+using NumSharp;
+#endif
 
 public static class terrainProcessor
 {
     private static Vector2[] dir = new Vector2[8] {new Vector2(-1, 1), new Vector2(0, 1), new Vector2(1, 1),
                                                    new Vector2(-1, 0),                    new Vector2(1, 0),
                                                    new Vector2(-1,-1), new Vector2(0,-1), new Vector2(1,-1)};
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
     public static void divideGebco(string folder, List<terrainResolution> resolutions)
     {
         List<string> files = Directory.GetFiles(folder).ToList();
@@ -356,6 +358,7 @@ public static class terrainProcessor
 
         return new geographic(lat, lon);
     }
+#endif
 
     public static string fileName(geographic pos, geographic inc, string ending = "txt") => $"lat={Math.Round(pos.lat, 2).ToString()}_lon={Math.Round(pos.lon, 2).ToString()}_+({inc.lat.ToString()}_{inc.lon.ToString()}).{ending}";
     public static string fileBoundaryName(geographic pos, geographic inc, string ending = "txt") => fileName(pos, inc).Replace(".txt", $"_boundary.{ending}");

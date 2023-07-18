@@ -1,10 +1,13 @@
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
 using System.Collections.Generic;
+using System;
 using NumSharp;
 
 public class npyParser
 {
     public static Timeline loadNpy(string path, double timestep)
     {
+        throw new NotImplementedException("Numpy is not accessible on webgl");
         Dictionary<Time, position> processed = new Dictionary<Time, position>();
 
         var py = np.Load<double[,]>(path);
@@ -29,3 +32,4 @@ public class npyParser
         return new Timeline(processed, timestep);
     }
 }
+#endif

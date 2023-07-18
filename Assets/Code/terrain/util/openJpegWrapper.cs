@@ -7,6 +7,10 @@ using System.Text;
 
 public static class openJpegWrapper {
     public static int[] requestTerrain(string file, Vector2Int start, Vector2Int end, uint res, uint quality) {
+#if UNITY_WEBGL
+        throw new NotImplementedException("JP2 is not accessible on webgl");
+#else
+
         // TODO: add error checking
         // TODO: test across a lot of systems to ensure endianess is respected!
         IntPtr dparam = openjpeg_openjp2_opj_dparameters_t_new();
@@ -57,12 +61,16 @@ public static class openJpegWrapper {
         // TODO: if there is a memory leak, maybe it is coming from here?
 
         return formatted;
+#endif
     }
-    #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+
+#if !UNITY_WEBGL
+
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
     private const string lib = "OpenJpegDotNetNativeWindows";
-    #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+#elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
     private const string lib = "OpenJpegDotNetNativeMac";
-    #endif
+#endif
     private const CallingConvention ccon = CallingConvention.Cdecl;
 
     [DllImport(lib, CallingConvention = ccon)] private static extern IntPtr openjpeg_openjp2_opj_dparameters_t_new();
@@ -88,6 +96,7 @@ public static class openJpegWrapper {
     [DllImport(lib, CallingConvention = ccon)] [return: MarshalAs(UnmanagedType.U1)] private static extern bool openjpeg_openjp2_opj_set_decode_area(IntPtr p_codec, IntPtr p_image, uint sx, uint sy, uint ex, uint ey);
     [DllImport(lib, CallingConvention = ccon)] [return: MarshalAs(UnmanagedType.U1)] private static extern bool openjpeg_openjp2_opj_decode(IntPtr p_codec, IntPtr p_stream, IntPtr p_image);
     [DllImport(lib, CallingConvention = ccon)] [return: MarshalAs(UnmanagedType.U1)] private static extern bool openjpeg_openjp2_opj_end_decompress(IntPtr p_codec, IntPtr p_stream);
+#endif
 }
 
 public struct decompTerrainData {

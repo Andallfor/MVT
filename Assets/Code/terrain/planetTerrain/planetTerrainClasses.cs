@@ -5,7 +5,6 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System;
 using System.IO;
-using NumSharp;
 
 public class planetTerrainMesh : IMesh
 {
@@ -64,6 +63,9 @@ public class planetTerrainMesh : IMesh
     }
 
     private void drawBoundariesNpy() {
+#if UNITY_WEBGL
+        throw new NotImplementedException("Numpy is not accessible on webgl");
+#else
         for (int x = 0; x < (int) ptf.ncols + 2; x++) {
             geographic north = ptf.cartToGeo(x - 1, (int) ptf.nrows);
             addPoint(x, (int) ptf.nrows + 1, north, getHeight(this.verts[toIndex(x, (int) ptf.nrows)]));
@@ -79,6 +81,7 @@ public class planetTerrainMesh : IMesh
             geographic west = ptf.cartToGeo(-1, y);
             addPoint(0, y, west, getHeight(this.verts[toIndex(1, y)]));
         }
+#endif
     }
 
     private double getHeight(Vector3 v) => Math.Round(((position.distance(((position) v * master.scale).swapAxis(), new position(0, 0, 0)) - pt.radius) * 1000.0) / pt.heightMulti);

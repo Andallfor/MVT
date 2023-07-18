@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.IO;
 
 public sealed class planetFocus : IMode {
     public Vector3 rotation;
@@ -10,6 +11,7 @@ public sealed class planetFocus : IMode {
 
     public planet focus {get; private set;}
     public position movementOffset;
+    public bool lunarTerrainFilesExist {get; private set;}
 
     protected override IModeParameters modePara => new planetFocusParameters();
 
@@ -26,8 +28,10 @@ public sealed class planetFocus : IMode {
     }
 
     protected override bool disable() {
-        general.pt.unload();
-        general.plt.clear();
+        if (lunarTerrainFilesExist) {
+            general.pt.unload();
+            general.plt.clear();
+        }
 
         return true;
     }
@@ -37,6 +41,8 @@ public sealed class planetFocus : IMode {
     }
 
     public void togglePoleFocus(bool use) {
+        if (!lunarTerrainFilesExist) return;
+
         if (focus.name != "Luna") {
             usePoleFocus = false;
             return;
@@ -53,6 +59,14 @@ public sealed class planetFocus : IMode {
             master.scale = focus.radius / (0.6 * -general.defaultCameraPosition.z);
             focus.representation.forceHide = false;
         }
+    }
+
+    protected override void _initialize() {
+        string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT/terrain");
+        if (File.Exists(p)) lunarTerrainFilesExist = true;
+
+        toggle(true, true);
+        toggle(false, true);
     }
 
     public void reset() {
@@ -80,8 +94,10 @@ public sealed class planetFocus : IMode {
     protected override void loadControls() {
         playerControls.addKey("e", conTrig.down, () => {
             modeController.toggle(planetFocus.instance);
-            general.pt.unload();
-            general.plt.clear();
+            if (lunarTerrainFilesExist) {
+                general.pt.unload();
+                general.plt.clear();
+            }
         });
 
         List<IMode> w = new List<IMode>() {this};
@@ -111,7 +127,7 @@ public sealed class planetFocus : IMode {
             // i know you probably have questions about y tf the code below here exists
             // well too bad
             // if u want to fix it go ahead, otherwise its staying here
-            if (planetFocus.instance.usePoleFocus) {
+            if (planetFocus.instance.usePoleFocus && lunarTerrainFilesExist) {
                 float change = (float) (0.1 * master.scale) * Mathf.Sign(Input.mouseScrollDelta.y);
                 master.scale -= change;
                 planetFocus.instance.update();
@@ -123,16 +139,19 @@ public sealed class planetFocus : IMode {
         }, precondition: () => Input.mouseScrollDelta.y != 0, whitelist: w);
 
         playerControls.addKey("t", conTrig.down, () => {
+            if (!lunarTerrainFilesExist) return;
             planetFocus.instance.togglePoleFocus(!planetFocus.instance.usePoleFocus);
             if (planetFocus.instance.usePoleFocus) general.plt.genMinScale();
             else general.plt.clear();
         }, precondition: () => !general.plt.currentlyDrawing, whitelist: w);
 
         playerControls.addKey("-", conTrig.down, () => {
+            if (!lunarTerrainFilesExist) return;
             general.plt.decreaseScale();
         }, precondition: () => planetFocus.instance.usePoleFocus, whitelist: w);
 
         playerControls.addKey("=", conTrig.down, () => {
+            if (!lunarTerrainFilesExist) return;
             general.plt.increaseScale();
         }, precondition: () => planetFocus.instance.usePoleFocus, whitelist: w);
 
