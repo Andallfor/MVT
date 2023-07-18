@@ -6,7 +6,7 @@ float scale, cellsize, power, totalNRows;
 
 RWStructuredBuffer<int> heights;
 RWStructuredBuffer<float3> vectors;
-RWStructuredBuffer<double> offsetPos;
+RWStructuredBuffer<float> offsetPos;
 
 [numthreads(128,1,1)] // SV_GroupThreadID, int j: SV_GroupID
 void CSMain (uint3 id : SV_DispatchThreadID) {
@@ -27,44 +27,44 @@ void CSMain (uint3 id : SV_DispatchThreadID) {
     uint ly = min(pointCount.y - sy, 256);
     uint offset = sy * pointCount.x + sx * ly;
 
-    const double deg2rad = 3.14159265359 / 180.0;
-    const double rad2deg = 180.0 / 3.14159265359;
-    const double rEq = 6378.14;
-    const double rPol = 6356.75;
-    const double aE = 6378.137;
-    const double eEsq = 0.00669437888014;
-    const double negEEsq = 0.99330562111986;
-    const double rEqXrEq = rEq * rEq;
-    const double rPolXrPol = rPol * rPol;
-    const double downscale = 1.0 / scale;
+    const float deg2rad = 3.14159265359 / 180.0;
+    const float rad2deg = 180.0 / 3.14159265359;
+    const float rEq = 6378.14;
+    const float rPol = 6356.75;
+    const float aE = 6378.137;
+    const float eEsq = 0.00669437888014;
+    const float negEEsq = 0.99330562111986;
+    const float rEqXrEq = rEq * rEq;
+    const float rPolXrPol = rPol * rPol;
+    const float downscale = 1.0 / scale;
 
     // todo: check cost of casting these vars
     for (uint x = 0; x < lx; x++) {
-        double tx = sx + x - meshX;
-        double ty = sy + y - meshY;
+        float tx = sx + x - meshX;
+        float ty = sy + y - meshY;
         uint ind = ty * pointCount.x + tx;
 
-        double2 g = double2(tx * cellsize * power + llCorner.x, (totalNRows - ty * power) * cellsize + llCorner.y);
-        g = double2(g.x * deg2rad, g.y * deg2rad);
+        float2 g = float2(tx * cellsize * power + llCorner.x, (totalNRows - ty * power) * cellsize + llCorner.y);
+        g = float2(g.x * deg2rad, g.y * deg2rad);
 
-        double cosLat = cos(g.y);
-        double cosLon = cos(g.x);
-        double sinLat = sin(g.y);
-        double sinLon = sin(g.x);
-        double a = (rEqXrEq * cosLat) * (rEqXrEq * cosLat);
-        double b = (rPolXrPol * sinLat) * (rPolXrPol * sinLat);
-        double c = (rEq * cosLat) * (rEq * cosLat);
-        double d = (rPol * sinLat) * (rPol * sinLat);
+        float cosLat = cos(g.y);
+        float cosLon = cos(g.x);
+        float sinLat = sin(g.y);
+        float sinLon = sin(g.x);
+        float a = (rEqXrEq * cosLat) * (rEqXrEq * cosLat);
+        float b = (rPolXrPol * sinLat) * (rPolXrPol * sinLat);
+        float c = (rEq * cosLat) * (rEq * cosLat);
+        float d = (rPol * sinLat) * (rPol * sinLat);
 
-        double rGs = sqrt((a + b) / (c + d));
-        double nTheta = aE / sqrt(1.0 - eEsq * sinLat);
+        float rGs = sqrt((a + b) / (c + d));
+        float nTheta = aE / sqrt(1.0 - eEsq * sinLat);
 
-        double h = (heights[ind] - 32767.0) / 1000.0;
-        double gx = (nTheta + h) * cosLat * cosLon;
-        double gy = (nTheta + h) * cosLat * sinLon;
-        double gz = (nTheta * negEEsq + h) * sinLat;
+        float h = (heights[ind] - 32767.0) / 1000.0;
+        float gx = (nTheta + h) * cosLat * cosLon;
+        float gy = (nTheta + h) * cosLat * sinLon;
+        float gz = (nTheta * negEEsq + h) * sinLat;
 
-        double n = sqrt(gx * gx + gy * gy + gz * gz);
+        float n = sqrt(gx * gx + gy * gy + gz * gz);
         gx = ((gx / n) * (rGs + h) + offsetPos[0]) * downscale;
         gy = ((gy / n) * (rGs + h) + offsetPos[1]) * downscale;
         gz = ((gz / n) * (rGs + h) + offsetPos[2]) * downscale;

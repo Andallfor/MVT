@@ -48,7 +48,8 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         Vector2 percent = new Vector2((float) (_g.lon / deltaX), 1f - (float) (_g.lat / deltaY));
         Vector2Int point = new Vector2Int((int) (percent.x * ncols), (int) (percent.y * nrows));
 
-        int[] heights = openJpegWrapper.requestTerrain(dataPath, point, point + Vector2Int.one, 0, 0);
+        //int[] heights = openJpegWrapper.requestTerrain(dataPath, point, point + Vector2Int.one, 0, 0);
+        int[] heights = new int[] {0};
 
         return (heights[0] - 32767.0) / 1000.0;
     }
@@ -141,7 +142,8 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
             new Vector2Int(end.x - start.x, end.y - start.y),
             Vector2Int.zero, Vector2Int.zero, true, meshEdgeOffset: false);
         
-        int[] heights = openJpegWrapper.requestTerrain(dataPath, start * power, end * power, res, 0);
+        //int[] heights = openJpegWrapper.requestTerrain(dataPath, start * power, end * power, res, 0);
+        int[] heights = new int[(end.x - start.x) * (end.y - start.y)];
 
         //int colLen = end.x - start.x;
         //int maxHeight = (int) (nrows / power);
