@@ -320,8 +320,8 @@ public class controller : MonoBehaviour
 
         if (Input.GetKeyDown("y")) {
             accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, new geographic(-35.398522, 148.981904), sat1);
-            access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/canberra"), 2);
-            //access.initialize();
+            //access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/canberra"), 2);
+            access.initialize();
             //var output = access.findTimes(new Time(2461021.77854328), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
             //var output = access.findTimes(new Time(2461021.77854328 + 0.0002), new Time(2461021.77991930), 0.00069444444, 0.00001157407 / 2.0);
             //access.saveResults(output);

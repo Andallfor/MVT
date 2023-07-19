@@ -394,9 +394,12 @@ public class accessCallGeneratorWGS {
             accessCallTimeSpan span = spans[i];
             sb.AppendLine($"{i},{span.start},{span.end},{span.end-span.start}");
         }
-
+#if UNITY_EDITOR || UNITY_STANDALONE
         string path = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "accessNew.txt");
         File.WriteAllText(path, sb.ToString());
+#elif UNITY_WEBGL
+        webglBridge.BrowserTextDownload("accessNew.txt", sb.ToString());
+#endif
     }
 }
 
