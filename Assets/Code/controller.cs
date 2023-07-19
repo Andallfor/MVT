@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine.EventSystems;
 using System.IO;
 using System.Text;
+using Newtonsoft.Json;
 
 public class controller : MonoBehaviour
 {
@@ -35,6 +36,26 @@ public class controller : MonoBehaviour
         //master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/ARTEMIS 3/PLANETS/sun", 0.0416666665, planetType.planet),
         master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/sun", 0.0416666665, planetType.planet),
             new representationData("planet", "sunTex"));
+
+                    string date = DateTime.Now.ToString("MM-dd_hhmm");
+        //testing git on reset computer
+        
+        if(!File.Exists(@"Assets\Code\parsing\main.db"))
+        {
+            Debug.Log("Generating main.db");
+            System.Diagnostics.Process.Start(@"Assets\Code\parsing\ExcelParser.exe", @"Assets\Code\parsing\2023EarthAssets.xlsx Assets\Code\parsing\main.db").WaitForExit();  
+        }
+        var missionStructure = DBReader.getData();
+        System.IO.Directory.CreateDirectory($"Assets/Code/scheduler/{date}");
+        string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
+        System.IO.File.WriteAllText (@$"Assets/Code/scheduler/{date}/MissionStructure_2023.txt", json);       
+        Debug.Log("Generating windows.....");
+        ScheduleStructGenerator.genDB(missionStructure, "EarthTest", "windowsEarthComplex.json", date, "PreconWindows");
+        Debug.Log("Generating conflict list.....");
+        ScheduleStructGenerator.createConflictList(date);
+        ScheduleStructGenerator.genDBNoJSON(missionStructure, date, "cut1Windows");
+        Debug.Log("Doing DFS.....");
+        ScheduleStructGenerator.doDFS(date);
 
         loadingController.start(new Dictionary<float, string>() {
             {0, "Generating Planets"},

@@ -1,0 +1,20 @@
+{
+	"epochTime": "12-Dec-2025",
+	"fileGenDate": "06-29_1154",
+	"windows": [
+		{
+			"frequency": "Ka Band",
+			"source": "Sat1",
+			"destination": "ASF",
+			"rate": 0.02,
+			"windows": [				
+				[
+					0,0.5
+				],
+				[
+					0.4,0.8
+				]
+			]
+		}
+	]
+}

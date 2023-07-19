@@ -15,8 +15,7 @@ public static class DBReader
     {
 
         Dictionary<string, (string epoch, Dictionary<string, dynamic> satellites)> missions = new  Dictionary<string, (string epoch, Dictionary<string, dynamic> satellites)>();
-        using (var connection = new SqliteConnection($"URI=file:{ScheduleStructGenerator.path("main.db")};New=False"))
-        //using (var connection = new SqliteConnection("URI=file:Assets/Code/parsing/main.db;New=False"))
+        using (var connection = new SqliteConnection("URI=file:Assets/Code/parsing/main.db;New=False"))
         {
             connection.Open();
             List<(string epochDate, string missionName)> tables = new List<(string epochDate, string missionName)>();
@@ -102,10 +101,6 @@ public static class DBReader
             //foreach(KeyValuePair<string, dynamic> kvp in sats) Debug.Log($"Key: {kvp.Key}\t\tValue:{kvp.Value}");
 
         }
-
-        if (missions.Count == 0) Debug.LogWarning("Database file was empty!");
         return missions;
     }
 }   
-
-

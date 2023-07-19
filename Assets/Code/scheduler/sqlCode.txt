@@ -1,0 +1,37 @@
+Select Source, Destination, Start, Stop, Frequency, Schedule_Priority, Ground_Priority from Windows_data
+ORDER by 
+	Schedule_Priority ASC,
+	Ground_Priority ASC;
+------------------------------------------------------------------
+create table if not exists variable(var INTEGER);
+Insert into variable (var) values (6);
+CREATE TABLE if not exists TimeFiltered AS SELECT * FROM Windows WHERE 0;
+
+Insert into TimeFiltered
+Select * from Windows
+WHERE Not exists (Select * from TimeFiltered) and(
+(Start BETWEEN (Select Start from Windows where ID =(select var from variable)) AND (Select Stop from Windows where ID=(select var from variable))) OR
+(Stop BETWEEN (Select Start from Windows where ID =(select var from variable)) AND (Select Stop from Windows where ID=(select var from variable))) OR
+(Start <=  (Select Start from Windows where ID =(select var from variable)) AND Stop >= (Select Stop from Windows where ID=(select var from variable))));
+drop table variable
+
+-----------------------------------------------------------------------------------------------
+create table if not exists variable(var INTEGER);
+Insert into variable (var) values (6);
+
+
+Select * from TimeFiltered
+WHERE ID=(select var from variable) OR
+(
+	(
+		Source = (select Source from TimeFiltered where ID=(select var from variable)) or 
+		Destination = (select Destination from TimeFiltered where ID=(select var from variable))
+	)
+	AND NOT
+	(
+		Source = (select Source from TimeFiltered where ID=(select var from variable)) and
+		Destination = (select Destination from TimeFiltered where ID=(select var from variable))
+	)
+)
+
+--------------------------------------------------------------
