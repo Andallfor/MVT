@@ -18,16 +18,15 @@ using static UnityEngine.GraphicsBuffer;
 public static class ScheduleStructGenerator
 {
     public static Scenario scenario = new Scenario();
-    public static void genDB(dynamic missionStructure, string misName, string JSONPath, string date, string dbName)
+    public static void genDB(dynamic missionStructure, string misName, string JSONPath, string dbName)
     {
         //Select * from Windows_data where Source="HLS-Surface" and Destination="LCN-12hourfrozen-1-LowPower" and Frequency="Ka Band" order by Start ASC
         scenario.users.Clear();
-        if (File.Exists(@$"Assets/Code/scheduler/{date}/{dbName}_{date}.db"))
-        {
-            File.Delete(@$"Assets/Code/scheduler/{date}/{dbName}_{date}.db");
-        }
+        string newDBPath = DBReader.output.getDB(dbName);
+        if (File.Exists(newDBPath)) File.Delete(newDBPath);
+
         bool fileExists = false;
-        SqliteConnection connection = new SqliteConnection($"URI=file:Assets/Code/scheduler/{date}/{dbName}_{date}.db;New=False");
+        SqliteConnection connection = new SqliteConnection(DBReader.getDBConnection(newDBPath));
         if (!fileExists)
         {
             connection.Open();
@@ -49,9 +48,9 @@ public static class ScheduleStructGenerator
             createCommand.ExecuteNonQuery();
             Debug.Log("Created DB");
         }
-        string restrictionPath = $"Assets/Code/scheduler/restrictions2023.json";
+        string restrictionPath = DBReader.data.get("restrictions2023.json");
         JObject restrictionJson = JObject.Parse(File.ReadAllText(restrictionPath));
-        string filePath = $"Assets/Resources/SchedulingJSONS/{JSONPath}";
+        string filePath = DBReader.data.get($"schedulingJSONs/{JSONPath}");
         JObject json = JObject.Parse(File.ReadAllText(filePath));
         scenario.epochTime = (string)json["epochTime"];
         scenario.fileGenDate = (string)json["fileGenDate"];
@@ -232,7 +231,7 @@ public static class ScheduleStructGenerator
         }
         scenario.windows = windList.OrderBy(s => s.Schedule_Priority).ThenBy(s => s.Ground_Priority).ThenBy(s => s.Freq_Priority).ThenByDescending(s => s.duration).ToList();
         string debugJson = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
-        System.IO.File.WriteAllText($"PreDFSUsers.txt", debugJson);
+        DBReader.output.write("PreDFSUsers.txt", debugJson);
         //Debug.Log($@"ID: {scenario.windows[0].ID}\tSource:{scenario.windows[0].source}\tDestination{scenario.windows[0].destination}
         //\tschedPrio: {scenario.windows[0].Schedule_Priority}\tGroundPrio: {scenario.windows[0].Ground_Priority}\tFreq_Prio: {scenario.windows[0].Freq_Priority}\tDuration: {scenario.windows[0].duration}");
         /*foreach (var printWindow in scenario.windows)
@@ -245,16 +244,14 @@ public static class ScheduleStructGenerator
     //Ka - highest priority
     //X
     //s - lowest priority
-    public static void genDBNoJSON(dynamic missionStructure, string date, string dbName)
+    public static void genDBNoJSON(dynamic missionStructure, string dbName)
     {
         //Select * from Windows_data where Source="HLS-Surface" and Destination="LCN-12hourfrozen-1-LowPower" and Frequency="Ka Band" order by Start ASC
         //scenario.users.Clear();
-        if (File.Exists(@$"Assets/Code/scheduler/{date}/{dbName}_{date}.db"))
-        {
-            File.Delete(@$"Assets/Code/scheduler/{date}/{dbName}_{date}.db");
-        }
+        string newDBPath = DBReader.output.getDB(dbName);
+        if (File.Exists(newDBPath)) File.Delete(newDBPath);
         bool fileExists = false;
-        SqliteConnection connection = new SqliteConnection($"URI=file:Assets/Code/scheduler/{date}/{dbName}_{date}.db;New=False");
+        SqliteConnection connection = new SqliteConnection(DBReader.getDBConnection(newDBPath));
         if (!fileExists)
         {
             connection.Open();
@@ -303,7 +300,7 @@ public static class ScheduleStructGenerator
             connection.Close();
         }
         string debugJson = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
-        System.IO.File.WriteAllText($"PreDFSUsers.txt", debugJson);
+        DBReader.output.write("PreDFSUsers.txt", debugJson);
         //Debug.Log($@"ID: {scenario.windows[0].ID}\tSource:{scenario.windows[0].source}\tDestination{scenario.windows[0].destination}
         //\tschedPrio: {scenario.windows[0].Schedule_Priority}\tGroundPrio: {scenario.windows[0].Ground_Priority}\tFreq_Prio: {scenario.windows[0].Freq_Priority}\tDuration: {scenario.windows[0].duration}");
         /*foreach (var printWindow in scenario.windows)
@@ -313,9 +310,10 @@ public static class ScheduleStructGenerator
         }*/
         connection.Close();
     }
-    public static void createConflictList(string date)
-    {
-        SqliteConnection connection = new SqliteConnection($"URI=file:Assets/Code/scheduler/{date}/PreconWindows_{date}.db;New=False");
+    public static void createConflictList() {
+        string uri = DBReader.getDBConnection(DBReader.output.getDB($"PreconWindows"));
+        Debug.Log(uri);
+        SqliteConnection connection = new SqliteConnection(uri);
         connection.Open();
         var command = connection.CreateCommand();
         command.CommandText = "BEGIN;";
@@ -578,18 +576,18 @@ public static class ScheduleStructGenerator
         //Debug.Log("got here 4");
         scenario.users.ToList();
         string json = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
-        System.IO.File.WriteAllText(@$"PostDFSUsers.txt", json);
+        DBReader.output.write("PostDFSUsers.txt", json);
 
         List<int> ScheduleIDs = (from x in scenario.schedule select x.ID).ToList();
         Debug.Log(string.Join(", ", ScheduleIDs));
 
         json = JsonConvert.SerializeObject(scenario.schedule, Formatting.Indented);
-        System.IO.File.WriteAllText(@$"Schedule.txt", json);
-        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\json2csv.exe", $"Schedule.txt Assets/Code/scheduler/{date}/ScheduleCSV_{date}.csv").WaitForExit();
+        DBReader.output.write("Schedule.txt", json);
+        System.Diagnostics.Process.Start(DBReader.apps.json2csv, $"{DBReader.output.getClean("Schedule.txt")} {DBReader.output.get("ScheduleCSV", "csv")}").WaitForExit();
 
         json = JsonConvert.SerializeObject(scenario.windows, Formatting.Indented);
-        System.IO.File.WriteAllText(@$"FinalWindows.txt", json);
-        System.Diagnostics.Process.Start(@"Assets\Code\scheduler\json2csv.exe", $"FinalWindows.txt Assets/Code/scheduler/{date}/FinalWindowsCSV_{date}.csv").WaitForExit();
+        DBReader.output.write("FinalWindows.txt", json);
+        System.Diagnostics.Process.Start(DBReader.apps.json2csv, $"{DBReader.output.getClean("FinalWindows.txt")} {DBReader.output.get("FinalWindowsCSV", "csv")}").WaitForExit();
         //Debug.Log("Got here 5");
     }
 

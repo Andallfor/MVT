@@ -9,13 +9,49 @@ using System;
 using System.Data;
 using Mono.Data.Sqlite;
 
-public static class DBReader
-{
+public static class DBReader {
+    public static readonly string mainDBPath = new Uri(Path.Combine(Application.streamingAssetsPath, "scheduling/main.db")).AbsolutePath;
+    public static readonly string mainDBConnection = getDBConnection(mainDBPath);
+
+    public static string getDBConnection(string path) => $"URI=file:{path};New=False";
+
+    public struct apps {
+        public static readonly string folder = Path.Combine(Application.streamingAssetsPath, "scheduling/apps");
+        public static readonly string excelParser = Path.Combine(folder, "ExcelParser.exe");
+        public static readonly string json2csv = Path.Combine(folder, "json2csv.exe");
+    }
+
+    public struct data {
+        public static readonly string folder = Path.Combine(Application.streamingAssetsPath, "scheduling/data");
+
+        public static string get(string name) => Path.Combine(folder, name);
+    }
+
+    public struct output {
+        public static void setOutputFolder(string path) {
+            folder = path;
+            id = new DirectoryInfo(path).Name;
+            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+        }
+
+        public static void write(string name, string text) {
+            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+            File.WriteAllText(Path.Combine(folder, name), text);
+        }
+
+        public static string getDB(string name) => Path.Combine(folder, $"{name}_{id}.db");
+        public static string get(string name, string ext) => Path.Combine(folder, $"{name}_{id}.{ext}");
+        public static string getClean(string name) => Path.Combine(folder, name);
+
+        public static string folder {get; private set;} = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "scheduling_output");
+        public static string id {get; private set;} = "scheduling_output";
+    }
+
     public static Dictionary<string, (string epoch, Dictionary<string, dynamic> satellites)> getData()
     {
-
+        Debug.Log(mainDBConnection); // no idea if this works
         Dictionary<string, (string epoch, Dictionary<string, dynamic> satellites)> missions = new  Dictionary<string, (string epoch, Dictionary<string, dynamic> satellites)>();
-        using (var connection = new SqliteConnection("URI=file:Assets/Code/parsing/main.db;New=False"))
+        using (var connection = new SqliteConnection(mainDBConnection))
         {
             connection.Open();
             List<(string epochDate, string missionName)> tables = new List<(string epochDate, string missionName)>();

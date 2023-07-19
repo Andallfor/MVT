@@ -35,23 +35,21 @@ public class controller : MonoBehaviour
         master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/sun", 0.0416666665, planetType.planet),
             new representationData("planet", "sunTex"));
 
-                    string date = DateTime.Now.ToString("MM-dd_hhmm");
-        //testing git on reset computer
-        
-        if(!File.Exists(@"Assets\Code\parsing\main.db"))
-        {
+        string date = DateTime.Now.ToString("MM-dd_hhmm");
+        if(!File.Exists(DBReader.mainDBPath)) {
             Debug.Log("Generating main.db");
-            System.Diagnostics.Process.Start(@"Assets\Code\parsing\ExcelParser.exe", @"Assets\Code\parsing\2023EarthAssets.xlsx Assets\Code\parsing\main.db").WaitForExit();  
+            System.Diagnostics.Process.Start(DBReader.apps.excelParser, $"{DBReader.data.get("2023EarthAssets")} {DBReader.mainDBPath}").WaitForExit();  
         }
         var missionStructure = DBReader.getData();
-        System.IO.Directory.CreateDirectory($"Assets/Code/scheduler/{date}");
+        // TODO: centralize downloading
+        DBReader.output.setOutputFolder(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), date));
         string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
-        System.IO.File.WriteAllText (@$"Assets/Code/scheduler/{date}/MissionStructure_2023.txt", json);       
+        DBReader.output.write("MissionStructure_2023.txt", json);
         Debug.Log("Generating windows.....");
-        ScheduleStructGenerator.genDB(missionStructure, "EarthTest", "windowsEarthComplex.json", date, "PreconWindows");
+        ScheduleStructGenerator.genDB(missionStructure, "EarthTest", "windowsEarthComplex.json", "PreconWindows");
         Debug.Log("Generating conflict list.....");
-        ScheduleStructGenerator.createConflictList(date);
-        ScheduleStructGenerator.genDBNoJSON(missionStructure, date, "cut1Windows");
+        ScheduleStructGenerator.createConflictList();
+        ScheduleStructGenerator.genDBNoJSON(missionStructure, "cut1Windows");
         Debug.Log("Doing DFS.....");
         ScheduleStructGenerator.doDFS(date);
 
