@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
-using UnityEngine.EventSystems;
 using System.IO;
-using System.Text;
 using Newtonsoft.Json;
 
 public class controller : MonoBehaviour

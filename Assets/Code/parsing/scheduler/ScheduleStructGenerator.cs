@@ -592,6 +592,7 @@ public static class ScheduleStructGenerator
         System.Diagnostics.Process.Start(@"Assets\Code\scheduler\json2csv.exe", $"FinalWindows.txt Assets/Code/scheduler/{date}/FinalWindowsCSV_{date}.csv").WaitForExit();
         //Debug.Log("Got here 5");
     }
+
     private static (bool, int, int) stillConflict(Window og, Window possCon)
     {
         (bool, int, int) ret = (false, -1, -1);
