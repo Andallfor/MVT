@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using System.Text;
 using System.IO;
+using System.Diagnostics;
 
 public class accessCallGeneratorWGS {
     private satellite target;
@@ -119,7 +120,7 @@ public class accessCallGeneratorWGS {
             spans[spans.Count - 1] = new accessCallTimeSpan(span.start, master.time.julian);
         }
 
-        Debug.Log($"Total of {iterations} iterations for brute force access calls");
+        UnityEngine.Debug.Log($"Total of {iterations} iterations for brute force access calls");
 
         // reset time
         //master.time.addJulianTime(initialTime - master.time.julian);
@@ -140,10 +141,16 @@ public class accessCallGeneratorWGS {
         double endTime = 0;
 
         bool hit = true;
+        bool noPass = true;
 
         double initialTime = master.time.julian;
         master.time.addJulianTime(start.julian - master.time.julian);
         updateMeshes();
+
+        Stopwatch stopWatch = new Stopwatch();
+        stopWatch.Start();
+
+
 
         List<double[]> minElevationTimes = ElevationCheck.elevationTimes(target.data.positions, pos, altitude, minEl, (end.julian - start.julian) * 86400, master.time.julian);
 
@@ -151,6 +158,8 @@ public class accessCallGeneratorWGS {
         {
             for (int x = 0; x < minElevationTimes.Count; x++)
             {
+                noPass = false;
+                hit = true;
                 master.time.addJulianTime(minElevationTimes[x][0] - master.time.julian);
                 updateMeshes();
 
@@ -158,32 +167,50 @@ public class accessCallGeneratorWGS {
 
                 while (hit)
                 {
+                    if (end.julian - master.time.julian < .0035)
+                    {
+                        noPass = true;
+                        break;
+                    }
                     hit = raycast();
                     master.time.addJulianTime(.0003);
                     updateMeshes();
+
                 }
 
                 startTime = master.time.julian;
 
-                master.time.addJulianTime(initialTime - master.time.julian);
-                master.time.addJulianTime(minElevationTimes[x][1] - master.time.julian);
-                updateMeshes();
-                hit = true;
-
-                while (hit)
+                if (noPass == false)
                 {
-                    hit = raycast();
-                    master.time.addJulianTime(-.0003);
+
+                    master.time.addJulianTime(initialTime - master.time.julian);
+                    master.time.addJulianTime(minElevationTimes[x][1] - master.time.julian);
                     updateMeshes();
+                    hit = true;
+
+                    while (hit)
+                    {
+                        if (master.time.julian - start.julian < .0035)
+                        {
+                            noPass = true;
+                            break;
+                        }
+                        hit = raycast();
+                        master.time.addJulianTime(-.0003);
+                        updateMeshes();
+                    }
+
+                    endTime = master.time.julian;
+
+                    if (noPass == false && startTime < endTime)
+                    {
+                        spans.Add(new accessCallTimeSpan(startTime, endTime));
+                    }
                 }
-
-                endTime = master.time.julian;
-
-                spans.Add(new accessCallTimeSpan(startTime, endTime));
             }
         }
 
-        /*// close any remaining windows
+        /* close any remaining windows
         if (!isBlocked)
         {
             accessCallTimeSpan span = spans[spans.Count - 1];
@@ -330,6 +357,16 @@ public class accessCallGeneratorWGS {
         //master.requestPositionUpdate();
 
         */
+
+        stopWatch.Stop();
+
+        TimeSpan ts = stopWatch.Elapsed;
+
+        // Format and display the TimeSpan value.
+        string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+            ts.Hours, ts.Minutes, ts.Seconds,
+            ts.Milliseconds / 10);
+        UnityEngine.Debug.Log("RunTime " + elapsedTime);
 
         return spans;
     }
