@@ -622,6 +622,7 @@ public static class ScheduleStructGenerator
         return ret;
     }
 
+    public static string path(string name) => Path.Combine(Application.streamingAssetsPath, name);
 
     public class Scenario
     {
