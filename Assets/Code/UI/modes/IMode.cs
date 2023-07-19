@@ -28,7 +28,7 @@ public abstract class IMode {
     public virtual void toggle() {toggle(!active);}
     protected virtual void callback() {}
 
-    private bool initialized = false;
+    public bool initialized {get; private set;} = false;
     public void initialize() {
         if (initialized) {
             Debug.LogWarning(this.ToString() + " has already been initialized.");
@@ -64,14 +64,16 @@ public static class modeController {
         initialized = true;
 
         modes.Add(defaultMode.instance);
-        foreach (IMode mode in modes) mode.initialize();
+        foreach (IMode mode in modes) {
+            if (!mode.initialized) mode.initialize();
+        }
 
         defaultMode.instance.toggle(true);
     }
 
     public static void registerMode(IMode m) {
         modes.Add(m);
-        if (initialized) m.initialize();
+        if (!m.initialized) m.initialize();
     }
 
     public static void enable(IMode target) {

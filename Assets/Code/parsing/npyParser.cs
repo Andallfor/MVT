@@ -5,9 +5,10 @@ using NumSharp;
 
 public class npyParser
 {
-    public static Timeline loadNpy(string path, double timestep)
-    {
+    public static Timeline loadNpy(string path, double timestep) {
+#if UNITY_WEBGL
         throw new NotImplementedException("Numpy is not accessible on webgl");
+#endif
         Dictionary<Time, position> processed = new Dictionary<Time, position>();
 
         var py = np.Load<double[,]>(path);

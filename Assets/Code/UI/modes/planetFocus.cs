@@ -29,8 +29,8 @@ public sealed class planetFocus : IMode {
 
     protected override bool disable() {
         if (lunarTerrainFilesExist) {
-            general.pt.unload();
-            general.plt.clear();
+            if (general.pt != null) general.pt.unload();
+            if (general.plt != null) general.plt.clear();
         }
 
         return true;
@@ -63,10 +63,9 @@ public sealed class planetFocus : IMode {
 
     protected override void _initialize() {
         string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT/terrain");
-        if (File.Exists(p)) lunarTerrainFilesExist = true;
+        if (Directory.Exists(p)) lunarTerrainFilesExist = true;
 
-        toggle(true, true);
-        toggle(false, true);
+        base._initialize();
     }
 
     public void reset() {

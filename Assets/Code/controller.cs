@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
-using UnityEngine.EventSystems;
 using System.IO;
-using System.Text;
+using Newtonsoft.Json;
 
 public class controller : MonoBehaviour
 {
@@ -35,6 +34,24 @@ public class controller : MonoBehaviour
         //master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/ARTEMIS 3/PLANETS/sun", 0.0416666665, planetType.planet),
         master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/sun", 0.0416666665, planetType.planet),
             new representationData("planet", "sunTex"));
+
+        /*
+        string date = DateTime.Now.ToString("MM-dd_hhmm");
+        if(!File.Exists(DBReader.mainDBPath)) {
+            Debug.Log("Generating main.db");
+            System.Diagnostics.Process.Start(DBReader.apps.excelParser, $"{DBReader.data.get("2023EarthAssets")} {DBReader.mainDBPath}").WaitForExit();  
+        }
+        var missionStructure = DBReader.getData();
+        DBReader.output.setOutputFolder(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), date));
+        string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
+        DBReader.output.write("MissionStructure_2023.txt", json);
+        Debug.Log("Generating windows.....");
+        ScheduleStructGenerator.genDB(missionStructure, "EarthTest", "windowsEarthComplex.json", "PreconWindows");
+        Debug.Log("Generating conflict list.....");
+        ScheduleStructGenerator.createConflictList();
+        ScheduleStructGenerator.genDBNoJSON(missionStructure, "cut1Windows");
+        Debug.Log("Doing DFS.....");
+        ScheduleStructGenerator.doDFS(date);*/
 
         loadingController.start(new Dictionary<float, string>() {
             {0, "Generating Planets"},
@@ -216,39 +233,6 @@ public class controller : MonoBehaviour
         }
 
         visibility.raycastTerrain(providers, users, master.time.julian, master.time.julian + 30, speed, options, false);
-    }
-
-    private void runScheduling() {
-        string date = DateTime.Now.ToString("MM-dd_hhmm");
-        //testing git on reset computer
-
-        if (!File.Exists(ScheduleStructGenerator.path("main.db"))) {
-            Debug.Log("Generating main.db");
-            ScheduleStructGenerator.runExe(
-                "parser.exe",
-                $"{ScheduleStructGenerator.path("ScenarioAssetsSTK_2_w_pivot.xlsx")} {ScheduleStructGenerator.path("main.db")}",
-                true);
-        }
-
-        var missionStructure = DBReader.getData();
-        System.IO.Directory.CreateDirectory(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), date));
-        //string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
-        //System.IO.File.WriteAllText (@"NewMissionStructure.txt", json
-        Debug.Log("Generating windows.....");
-        ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", ScheduleStructGenerator.path("LunarWindows-RAC2_1_07_19_22.json"), date, "PreconWindows");
-        Debug.Log("Generating conflict list.....");
-        ScheduleStructGenerator.createConflictList(date);
-        //Debug.Log("Regenerating windows");
-        //ScheduleStructGenerator.genDB(missionStructure, "RAC_2-1", "LunarWindows-RAC2_1_07_19_22.json", date, "PostconWindows");
-        Debug.Log("Doing DFS.....");
-        ScheduleStructGenerator.doDFS(date);
-        ScheduleStructGenerator.runExe(
-            "heatmap.exe",
-            $"{ScheduleStructGenerator.output("PreDFSUsers.txt", date)} {ScheduleStructGenerator.output($"PreDFSUsers_{date}.png", date)}");
-        ScheduleStructGenerator.runExe(
-            "heatmap.exe",
-            $"{ScheduleStructGenerator.output("PostDFSUsers.txt", date)} {ScheduleStructGenerator.output($"PostDFSUsers_{date}.png", date)}",
-            callback: () => Debug.Log("Scheduling finished"));
     }
 
     public void startMainLoop(bool force = false) {
