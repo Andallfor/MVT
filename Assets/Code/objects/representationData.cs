@@ -11,10 +11,21 @@ public class representationData
 
     public representationData(string model, string material)
     {
-        this.model = Resources.Load(model) as GameObject;
-        this.material = Resources.Load(material) as Material;
+        if (resLoader.containsName(model)) {
+            this.modelPath = resLoader.getPath(model);
+            this.model = resLoader.load<GameObject>(model);
+        } else {
+            this.modelPath = model;
+            this.model = Resources.Load(model) as GameObject;
+        }
 
-        this.modelPath = model;
-        this.materialPath = material;
+        if (resLoader.containsName(material)) {
+            this.materialPath = resLoader.getPath(material);
+            this.material = resLoader.load<Material>(material);
+        }
+        else {
+            this.materialPath = material;
+            this.material = Resources.Load(material) as Material;
+        }
     }
 }

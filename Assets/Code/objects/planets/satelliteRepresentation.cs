@@ -5,9 +5,10 @@ using System;
 using System.Linq;
 using TMPro;
 
-public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStruct>
+public class satelliteRepresentation
 {
     private GameObject canvas, planetParent;
+    public planet parent;
     private TextMeshProUGUI shownName;
     private representationData data;
     public static readonly float minScale = 0.05f;
@@ -15,6 +16,7 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
     private MeshRenderer mrSelf;
     private string shownNameText;
     private string name;
+    private trailRenderer tr;
     public GameObject gameObject;
 
     public satelliteRepresentation(string name, representationData data) {
@@ -22,6 +24,7 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
         gameObject.GetComponent<MeshRenderer>().material = data.material;
         gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
         gameObject.name = name;
+        gameObject.GetComponent<SphereCollider>().enabled = false;
 
         this.name = name;
         this.shownNameText = name;
@@ -29,7 +32,7 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
         this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
 
         this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(this.canvas.transform, false);
+        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
         shownName.fontSize = 20;
         shownName.text = name;
 
@@ -38,41 +41,17 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
         planetParent = GameObject.FindGameObjectWithTag("planet/parent");
     }
 
-    public void regenerate() {
-        if (gameObject != null) GameObject.Destroy(gameObject);
-        if (shownName != null) GameObject.Destroy(shownName.gameObject);
-
-        gameObject = GameObject.Instantiate(data.model);
-        gameObject.GetComponent<MeshRenderer>().material = data.material;
-        gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
-        gameObject.name = name;
-        mrSelf = gameObject.GetComponent<MeshRenderer>();
-
-        this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
-
-        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(this.canvas.transform, false);
-        shownName.fontSize = 20;
-        shownName.text = name;
-    }
+    public void setRelationshipParent() {parent = master.relationshipSatellite.First(x => x.Value.Exists(y => y.name == name)).Key;}
 
     public void setPosition(position pos, bool forceHide = false)
     {
-        if (forceHide) {
-            mrSelf.enabled = false;
-            shownName.text = "";
-            return;
-        }
+        if (uiMap.instance.active) return;
 
-        if (planetOverview.usePlanetOverview) {
-            if (!planetOverview.obeyingSatellites.Exists(x => x.name == name)) {
-                mrSelf.enabled = false;
-                shownName.text = "";
-                return;
-            }
+        if (forceHide) {hide(); return;}
 
-            pos = planetOverview.planetOverviewPosition(pos - planetOverview.focus.pos + master.currentPosition + master.referenceFrame);
-            
+        if (planetOverview.instance.active) {
+            if (!planetOverview.instance.obeyingSatellites.Exists(x => x.name == name)) {hide(); return;}
+            pos = planetOverview.instance.planetOverviewPosition(pos - planetOverview.instance.focus.pos + master.currentPosition + master.referenceFrame);
         }
 
         Vector3 p = new Vector3(
@@ -80,7 +59,7 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
             (float) (pos.y / master.scale),
             (float) (pos.z / master.scale));
 
-        if (Vector3.Distance(p, Vector3.zero) > 1000f) mrSelf.enabled = false;
+        if (Vector3.Distance(p, Vector3.zero) > 10000f) mrSelf.enabled = false;
         else
         {
             if (!gameObject.activeSelf) gameObject.SetActive(true);
@@ -89,12 +68,14 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
 
             float distance = Vector3.Distance(Vector3.zero, this.gameObject.transform.position);
             float scale = 0.01f * distance + 0;
-            float r = Mathf.Max(Mathf.Min(this.gameObject.transform.localScale.x, planetOverview.usePlanetOverview ? _r : minScale), scale);
+            float r = Mathf.Max(Mathf.Min(this.gameObject.transform.localScale.x, planetOverview.instance.active ? _r : minScale), scale);
             gameObject.transform.localScale = new Vector3(r, r, r);
+
+            if (!(parent is null)) gameObject.transform.LookAt(parent.representation.gameObject.transform.position);
         }
 
         RaycastHit hit;
-        if (Physics.Raycast(Camera.main.transform.position, p - Camera.main.transform.position, out hit, Vector3.Distance(p, Camera.main.transform.position), 1 << 6)) shownName.text = "";
+        if (Physics.Raycast(Camera.main.transform.position, p - Camera.main.transform.position, out hit, Vector3.Distance(p, Camera.main.transform.position), (1 << 6) | (1 << 7))) shownName.text = "";
         else {
             shownName.text = shownNameText;
             Vector3 rot = planetParent.transform.rotation.eulerAngles * Mathf.Deg2Rad;
@@ -103,16 +84,14 @@ public class satelliteRepresentation : IJsonFile<jsonSatelliteRepresentationStru
         }
     }
 
-    public jsonSatelliteRepresentationStruct requestJsonFile()
-    {
-        return new jsonSatelliteRepresentationStruct() {
-            modelPath = data.modelPath,
-            materialPath = data.materialPath};
+    private void hide() {
+        mrSelf.enabled = false;
+        shownName.text = "";
     }
 
     public void setRadius(double radius)
     {
-        _r = ((float) Math.Max((radius * 2) / master.scale, 0.05));
+        _r = ((float) Math.Max((radius * 2) / master.scale, 0.00001));
         gameObject.transform.localScale = new Vector3(_r, _r, _r);
     }
 }

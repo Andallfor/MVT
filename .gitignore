@@ -60,3 +60,21 @@ crashlytics-build.properties
 
 # MacOS
 **/.DS_Store
+Assets/StreamingAssets/pythonMac.meta
+Assets/StreamingAssets/pythonMac/lib.meta
+Assets/StreamingAssets/pythonMac/lib/python3.10.meta
+Assets/StreamingAssets/pythonMac/lib/python3.10/site-packages.meta
+Assets/StreamingAssets/pythonMac/lib/python3.10/site-packages/numpy.meta
+Assets/StreamingAssets/pythonMac/lib/python3.10/site-packages/pip.meta
+Assets/StreamingAssets/pythonMac/lib/python3.10/site-packages/pip/_vendor.meta
+Assets/StreamingAssets/pythonMac/lib/python3.10/site-packages/pip/_vendor/urllib3.meta
+Assets/StreamingAssets/pythonWindows.meta
+Assets/StreamingAssets/pythonWindows/Lib.meta
+Assets/StreamingAssets/pythonWindows/Lib/site-packages.meta
+Assets/StreamingAssets/pythonWindows/Lib/site-packages/numpy.meta
+Assets/StreamingAssets/pythonWindows/Lib/site-packages/pip.meta
+Assets/StreamingAssets/pythonWindows/Lib/site-packages/pip/_vendor.meta
+Assets/StreamingAssets/pythonWindows/Lib/site-packages/pip/_vendor/urllib3.meta
+data.txt
+*.nrm
+*.nrm.meta

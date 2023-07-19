@@ -14,10 +14,10 @@ public abstract class body
     public event EventHandler onPositionUpdate = delegate {};
     public Timeline positions {get; protected set;} = null;
 
-    public body parent {get; protected set;} = null;
+    public planet parent {get; protected set;} = null;
     public List<body> children {get; protected set;} = new List<body>();
 
-    public static void addFamilyNode(body parent, body child)
+    public static void addFamilyNode(planet parent, body child)
     {
         master.time.onChange -= parent.updatePosition;
         master.time.onChange -= child.updatePosition;
@@ -39,19 +39,6 @@ public abstract class body
         child.parent = null;
     }
 
-    public jsonBodyStruct requestJsonFile()
-    {
-        List<string> d = new List<string>();
-        foreach (planet p in children)
-        {
-            d.Add(p.name);
-        }
-
-        return new jsonBodyStruct() {
-            parent = (ReferenceEquals(parent, null)) ? "" : parent.name,
-            children = d.ToArray()};
-    }
-
     public abstract void updatePosition(object sender, EventArgs args);
     public abstract void updateScale(object sender, EventArgs args);
     public abstract position requestPosition(Time t);
@@ -68,4 +55,9 @@ public abstract class body
     }
 
     public override int GetHashCode() => name.GetHashCode();
+    public override bool Equals(object obj)
+    {
+        if (!(obj is body)) return false;
+        return ((body) obj).GetHashCode() == this.GetHashCode();
+    }
 }

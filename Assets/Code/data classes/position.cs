@@ -65,7 +65,185 @@ public readonly struct position
             z / l);
     }
 
-    public jsonPositionStruct requestJsonFile() => new jsonPositionStruct() {x=x, y=y, z=z};
+    public static double dotProductTheta(position vector1, position vector2)
+    {
+        double dot = vector2.x * vector1.x + vector2.y * vector1.y + vector2.z * vector1.z;
+        double abs1 = Math.Sqrt(vector2.x * vector2.x + vector2.y * vector2.y + vector2.z * vector2.z);
+        double abs2 = Math.Sqrt(vector1.x * vector1.x + vector1.y * vector1.y + vector1.z * vector1.z);
+
+        double theta = Math.Acos(dot/(abs1 * abs2)); // 180 / Math.PI;
+
+        return theta;
+    }
+
+    public static position ECI2ECEF(position p, double jd)
+    {
+        double T = (jd - 2451545.0) / 36525.0;
+        double a0 = -0.641 * T;
+        double d0 = -0.557 * T;
+
+        double DegToRad = Math.PI / 180.0;
+
+        double G = 0.0;
+        double p1 = (876600.0 * 60.0 * 60.0 + 8640184.812866) * T;
+        double p2 = 0.093104 * (T * T);
+        double p3 = (0.0000062) * (T * T * T);
+
+        G = 67310.54841 + p1 + p2 - p3;
+
+        double sec = G % 86400.0;
+
+        double GST = sec / 240.0;
+
+        (position, position, position) A = R3(a0 * DegToRad);
+        (position, position, position) B = R1(-d0 * DegToRad);
+        (position, position, position) C = R3((GST + a0 * Math.Cos(d0 * DegToRad)) * DegToRad); // <---BEST APPROXIMATION
+
+        (position, position, position) AB = mult2(A, B);
+        (position, position, position) ABC = mult2(AB, C);
+
+        return mult1(ABC, p);
+    }
+
+    public static (position, position, position) R1(double x)
+    {
+        double ct = Math.Cos(x);
+        double st = Math.Sin(x);
+        return (new position(1, 0, 0),
+                new position(0, ct, st),
+                new position(0, -st, ct));
+    }
+
+    public static (position, position, position) R2(double x)
+    {
+        double ct = Math.Cos(x);
+        double st = Math.Sin(x);
+        return (new position(ct, 0, -st),
+                new position(0, 1, 0),
+                new position(st, 0, ct));
+    }
+
+    public static (position, position, position) R3(double x)
+    {
+        double ct = Math.Cos(x);
+        double st = Math.Sin(x);
+        return (new position(ct, st, 0),
+                new position(-st, ct, 0),
+                new position(0, 0, 1));
+    }
+
+    public static double dotProduct(position vector1, position vector2) => vector2.x * vector1.x + vector2.y * vector1.y + vector2.z * vector1.z;
+
+    // https://stackoverflow.com/questions/5883169/intersection-between-a-line-and-a-sphere
+    public static List<position> lineSphereInteresection(position linePoint1, position linePoint2, position circleCenter, double radius) {
+        double cx = circleCenter.x;
+        double cy = circleCenter.y;
+        double cz = circleCenter.z;
+
+        double px = linePoint1.x;
+        double py = linePoint1.y;
+        double pz = linePoint1.z;
+
+        double vx = linePoint2.x - px;
+        double vy = linePoint2.y - py;
+        double vz = linePoint2.z - pz;
+
+        double A = vx * vx + vy * vy + vz * vz;
+        double B = 2.0 * (px * vx + py * vy + pz * vz - vx * cx - vy * cy - vz * cz);
+        double C = px * px - 2 * px * cx + cx * cx + py * py - 2 * py * cy + cy * cy +
+                   pz * pz - 2 * pz * cz + cz * cz - radius * radius;
+
+        // discriminant
+        double D = B * B - 4 * A * C;
+
+        if ( D < 0 ) return new List<position>();
+
+        double t1 = ( -B - Math.Sqrt ( D ) ) / ( 2.0 * A );
+
+        position solution1 = new position(linePoint1.x * ( 1 - t1 ) + t1 * linePoint2.x,
+                                          linePoint1.y * ( 1 - t1 ) + t1 * linePoint2.y,
+                                          linePoint1.z * ( 1 - t1 ) + t1 * linePoint2.z );
+        if ( D == 0 ) return new List<position>() {solution1};
+
+        double t2 = ( -B + Math.Sqrt( D ) ) / ( 2.0 * A );
+        position solution2 = new position(linePoint1.x * ( 1 - t2 ) + t2 * linePoint2.x,
+                                          linePoint1.y * ( 1 - t2 ) + t2 * linePoint2.y,
+                                          linePoint1.z * ( 1 - t2 ) + t2 * linePoint2.z );
+
+        // prefer a solution that's on the line segment itself
+
+        if ( Math.Abs( t1 - 0.5 ) < Math.Abs( t2 - 0.5 ) ) return new List<position>() {solution1, solution2};
+        return new List<position>() {solution2, solution1};
+    }
+
+    public static double norm(position p)
+    {
+        return Math.Sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
+    }
+
+    public static position cross(position v1, position v2)
+    {
+        position p1 = new position(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v1.x);
+        return p1;
+    }
+
+    public static double mult(position v1, position v2)
+    {
+        return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+    }
+
+    public static position mult1((position, position, position) m1, position v1)
+    {
+        return new position(mult(m1.Item1, v1), mult(m1.Item2, v1), mult(m1.Item3, v1));
+    }
+
+    public static (position, position, position) mult2((position, position, position) m1, (position, position, position) m2)
+    {
+        position a = new position(mult(m1.Item1, new position(m2.Item1.x, m2.Item2.x, m2.Item3.x)), mult(m1.Item1, new position(m2.Item1.y, m2.Item2.y, m2.Item3.y)), mult(m1.Item1, new position(m2.Item1.z, m2.Item2.z, m2.Item3.z)));
+        position b = new position(mult(m1.Item2, new position(m2.Item1.x, m2.Item2.x, m2.Item3.x)), mult(m1.Item2, new position(m2.Item1.y, m2.Item2.y, m2.Item3.y)), mult(m1.Item2, new position(m2.Item1.z, m2.Item2.z, m2.Item3.z)));
+        position c = new position(mult(m1.Item3, new position(m2.Item1.x, m2.Item2.x, m2.Item3.x)), mult(m1.Item3, new position(m2.Item1.y, m2.Item2.y, m2.Item3.y)), mult(m1.Item3, new position(m2.Item1.z, m2.Item2.z, m2.Item3.z)));
+
+        return (a, b, c);
+    }
+
+
+    public static List<(double, position)> J2000(position moon1, position velocity1, position sat)
+    {
+        List<(double, position)> returnList = new List<(double, position)>();
+        position j2000_x = new position(1, 0, 0).swapAxis();
+        position j2000_y = new position(0, 1, 0).swapAxis();
+        position Earth_j2000 = new position(0, 0, 0);
+
+        position moon = moon1.swapAxis();
+        position velocity = velocity1.swapAxis();
+
+        //calculate moonfixed_x in j2000
+        position M_x_j2000 = Earth_j2000 - moon;
+
+        //calculate adjusted y axis
+        position k3 = cross(M_x_j2000, velocity);
+        position M_y_j2000 = cross(k3, M_x_j2000);
+
+        //calculate angle and rotation
+        double angle = dotProductTheta(M_x_j2000, j2000_x);
+ 
+        position k = cross(j2000_x, M_x_j2000);
+
+
+        position yprime=velocity*Math.Cos(angle)+cross(k,velocity)*Math.Sin(angle)+k*(dotProduct(k,M_y_j2000))*(1-Math.Cos(angle));
+
+        //  need to caluclate y offset and rotate around x
+        double angle2 = dotProductTheta(yprime, j2000_y);
+        position k2 = cross(j2000_y, M_y_j2000);
+
+        /*position output1 = sat * (Math.Cos(angle2)) + cross(k2,sat) * Math.Sin(angle2) + k2 * (dotProduct(k2,sat)) * (1-Math.Cos(angle2));
+        position output2 = output1 * Math.Cos(angle) + cross(k,output1)*Math.Sin(angle)+k*(dotProduct(k,output1))*(1-Math.Cos(angle));*/
+
+        returnList.Add((angle2, k2));
+        returnList.Add((angle, k));
+
+        return returnList;
+    }
 
     public double length() => Math.Sqrt(x * x + y * y + z * z);
 
@@ -80,6 +258,7 @@ public readonly struct position
         p1.x - p2.x,
         p1.y - p2.y,
         p1.z - p2.z);
+    public static position operator-(position p) => new position(-p.x, -p.y, -p.z);
     public static position operator*(position p1, double d) => new position(
         p1.x * d,
         p1.y * d,

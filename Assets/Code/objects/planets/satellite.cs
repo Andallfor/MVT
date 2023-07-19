@@ -3,14 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class satellite : body, IJsonFile<jsonSatelliteStruct>
+public class satellite : body
 {
     public satelliteRepresentation representation {get; private set;}
-    private satelliteData data;
+    public satelliteData data;
     public trailRenderer tr;
 
-    public satellite(string name, satelliteData data, representationData rData)
-    {
+    public satellite(string name, satelliteData data, representationData rData) {
+        if (master.allSatellites.Exists(x => x.name == name)) Debug.LogWarning("Duplicate satellite detected");
+
         base.name = name;
         base.positions = data.positions;
         this.data = data;
@@ -30,7 +31,7 @@ public class satellite : body, IJsonFile<jsonSatelliteStruct>
         if (!ReferenceEquals(parent, null)) pos += parent.pos;
 
         representation.setPosition(pos - master.currentPosition - master.referenceFrame, !data.positions.exists(master.time));
-        if (planetOverview.usePlanetOverview) representation.setRadius((master.scale / 2.0) / 8.0);
+        if (planetOverview.instance.active) representation.setRadius(general.camera.orthographicSize * 0.2f * (master.scale / 2.0) / 4.0);
 
         base.updateChildren();
     }
@@ -41,15 +42,6 @@ public class satellite : body, IJsonFile<jsonSatelliteStruct>
         return p;
     }
     public override void updateScale(object sender, EventArgs args) {}
-
-    public new jsonSatelliteStruct requestJsonFile()
-    {
-        return new jsonSatelliteStruct() {
-            name = this.name,
-            positions = data.positions.requestJsonFile(),
-            representation = representation.requestJsonFile(),
-            bodyData = base.requestJsonFile()};
-    }
 }
 
 public class satelliteData

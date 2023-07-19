@@ -11,9 +11,9 @@ public static class general
     /// <remarks> Use this instead of <see cref="Camera.main"/> as this is much more efficient. </remarks>
     public static Camera camera;
     /// <summary> The Canvas for the UI. </summary>
-    public static Canvas canvas = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<Canvas>();
+    public static Canvas canvas;
     /// <summary> Reference to the gameObject that holds all the planets. </summary>
-    public static GameObject planetParent = GameObject.FindGameObjectWithTag("planet/parent");
+    public static GameObject planetParent;
 
     /// <summary> Default position of the camera. </summary>
     public static Vector3 defaultCameraPosition = new Vector3(0, 0, -10);
@@ -21,7 +21,23 @@ public static class general
     /// <summary> Default FOV of camera. </summary>
     public static float defaultCameraFOV = 60;
     public static event EventHandler onStatusChange = delegate {};
-    public static void notifyStatusChange() {onStatusChange(null, EventArgs.Empty);}
+    public static void notifyStatusChange() {
+        onStatusChange(null, EventArgs.Empty); 
+        showingTrails = false;
+        notifyTrailsChange();
+
+        if (master.finishedInitializing) {
+            master.requestScaleUpdate();
+            master.requestPositionUpdate();
+        }
+    }
+    public static event EventHandler onTrailChange = delegate {};
+    public static void notifyTrailsChange() {onTrailChange(null, EventArgs.Empty);}
+
+    public static bool blockMainLoop = false;
+    public static planetTerrain pt;
+    public static poleTerrain plt;
+    public static bool showingTrails = false;
 
     /// <summary> Parse an array of bytes into a string. </summary>
     public static string parseByteArray(byte[] data) {
@@ -49,6 +65,9 @@ public static class general
 
         while (tickCount < requestedTicks)
         {
+            // this was getting annoying lmao
+            //if (1.0f / UnityEngine.Time.smoothDeltaTime < 60f) Debug.LogWarning("Program is lagging and may not be able to stay up to date!");
+
             tickBucket += UnityEngine.Time.deltaTime * 1000f;
             int ticks = (int) Math.Round((tickBucket - (tickBucket % timePerTick)) / timePerTick);
             tickBucket -= ticks *  timePerTick;
