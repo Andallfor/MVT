@@ -323,7 +323,7 @@ public class controller : MonoBehaviour
         //var output = access.findTimes(new Time(2461022.77871296), new Time(2461022.78237024), 0.00069444444, 0.00001157407 / 2.0);
 
         //var output = access.findTimes(new Time(2461021.77854328), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
-        var output = access.findTimes(new Time(2459560.84525522), new Time(2459560.84525522 + 30), 0.00069444444, 0.00001157407 / 2.0);
+        var output = access.findTimes(new Time(2459560.84525522), new Time(2459560.84525522 + 1000), 0.00069444444, 0.00001157407 / 2.0);
         //var output = access.bruteForce(new Time(2461021.77854328), new Time(2461022.93452393), 0.00001157407);
         access.saveResults(output);
     }

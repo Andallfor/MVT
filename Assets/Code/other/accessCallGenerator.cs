@@ -133,230 +133,46 @@ public class accessCallGeneratorWGS {
         if (!initialized) throw new MethodAccessException("Cannot run access calls unless .initialize(...) has been called!");
 
         bool isBlocked = true;
-        List<accessCallTimeSpan> spans = new List<accessCallTimeSpan>();
 
         double minEl = 0;
-        double maxEl = 40;
         double startTime = 0;
         double endTime = 0;
+        double time = 0;
 
         bool hit = true;
-        bool noPass = true;
 
-        double initialTime = master.time.julian;
-        master.time.addJulianTime(start.julian - master.time.julian);
-        updateMeshes();
 
         Stopwatch stopWatch = new Stopwatch();
         stopWatch.Start();
 
-
-
-        List<double[]> minElevationTimes = ElevationCheck.elevationTimes(target.data.positions, pos, altitude, minEl, (end.julian - start.julian) * 86400, master.time.julian);
+        List<double[]> minElevationTimes = ElevationCheck.elevationTimes(target.data.positions, pos, altitude, minEl, (end.julian - start.julian) * 86400, start.julian);
+        List<accessCallTimeSpan> spans = new List<accessCallTimeSpan>();
 
         if (minElevationTimes != null)
         {
+            //may change later if it works 
+            earth.representation.gameObject.transform.rotation = new Quaternion(0f, 0f, 0f, 1);
+
             for (int x = 0; x < minElevationTimes.Count; x++)
             {
-                noPass = false;
-                hit = true;
-                master.time.addJulianTime(minElevationTimes[x][0] - master.time.julian);
-                updateMeshes();
+                //start
+                time = minElevationTimes[x][0];
+                hit = raycastNoUpdate(time);
+                if (hit) startTime = findBoundaryNoUpdate(time, maxInc, false, minInc);
+                else startTime = time;
 
-                double currentIterationTime = master.time.julian;
+                //end
+                time = minElevationTimes[x][1];
+                hit = raycastNoUpdate(time);
+                if (hit) endTime = findBoundaryNoUpdate(time, maxInc, false, minInc);
+                else endTime = time;
 
-                while (hit)
+                if (endTime - startTime > .0035)
                 {
-                    if (end.julian - master.time.julian < .0035)
-                    {
-                        noPass = true;
-                        break;
-                    }
-                    hit = raycast();
-                    master.time.addJulianTime(.0003);
-                    updateMeshes();
-
-                }
-
-                startTime = master.time.julian;
-
-                if (noPass == false)
-                {
-
-                    master.time.addJulianTime(initialTime - master.time.julian);
-                    master.time.addJulianTime(minElevationTimes[x][1] - master.time.julian);
-                    updateMeshes();
-                    hit = true;
-
-                    while (hit)
-                    {
-                        if (master.time.julian - start.julian < .0035)
-                        {
-                            noPass = true;
-                            break;
-                        }
-                        hit = raycast();
-                        master.time.addJulianTime(-.0003);
-                        updateMeshes();
-                    }
-
-                    endTime = master.time.julian;
-
-                    if (noPass == false && startTime < endTime)
-                    {
-                        spans.Add(new accessCallTimeSpan(startTime, endTime));
-                    }
+                    spans.Add(new accessCallTimeSpan(startTime, endTime));
                 }
             }
         }
-
-        /* close any remaining windows
-        if (!isBlocked)
-        {
-            accessCallTimeSpan span = spans[spans.Count - 1];
-            spans[spans.Count - 1] = new accessCallTimeSpan(span.start, master.time.julian);
-        }
-
-        // join together any spans that are closer than maxInc to each other
-        for (int i = 0; i < spans.Count - 1; i++)
-        {
-            accessCallTimeSpan current = spans[i];
-            accessCallTimeSpan next = spans[i + 1];
-            if (next.start - current.end <= maxInc)
-            {
-                Debug.LogWarning("Warning: Two spans detected that are separated by less then maxInc from each other. Joining the two spans together.");
-                spans.RemoveAt(i + 1);
-                spans[i] = new accessCallTimeSpan(current.start, next.end);
-            }
-        }
-
-        /*List<double[]> maxElevationTimes = ElevationCheck.elevationTimes(target.data.positions, pos, altitude, maxEl, end.julian - start.julian, master.time.julian);
-
-        double startmin = 0;
-        double startmax = 0;
-        double endmin = 0;
-        double endmax = 0;
-        double midpoint = 0;
-
-        double initialTime = master.time.julian;
-        master.time.addJulianTime(start.julian - master.time.julian);
-        updateMeshes();
-
-        for (int x = 0; x < minElevationTimes.Count; x++)
-        {
-            startmin = minElevationTimes[x][0];
-            startmax = maxElevationTimes[x][0];
-            endmin = minElevationTimes[x][1];
-            endmax = maxElevationTimes[x][1];
-
-            double deltaT = 1;
-            double t1 = 0;
-            midpoint = (startmin + startmax) / 2;
-
-            master.time.addJulianTime(midpoint - master.time.julian);
-            updateMeshes();
-
-            //start
-            while (deltaT > .0001)
-            {
-                hit = raycast();
-
-                t1 = midpoint;
-                if (hit)
-                {
-                    midpoint = (midpoint + startmax) / 2;
-                }
-                else
-                {
-                    midpoint = (midpoint + startmin) / 2;
-                }
-
-                deltaT = Math.Abs(midpoint - t1);
-                master.time.addJulianTime(midpoint - master.time.julian);
-                updateMeshes();
-            }
-
-            double startTime = midpoint;
-
-            deltaT = 1;
-            midpoint = (endmin + endmax) / 2;
-            master.time.addJulianTime(midpoint - master.time.julian);
-            updateMeshes();
-
-            while (deltaT > .0001)
-            {
-                hit = raycast();
-
-                t1 = midpoint;
-                if (hit)
-                {
-                    midpoint = (midpoint + endmax) / 2;
-                }
-                else
-                {
-                    midpoint = (midpoint + endmin) / 2;
-                }
-
-                deltaT = Math.Abs(midpoint - t1);
-                master.time.addJulianTime(midpoint - master.time.julian);
-                updateMeshes();
-            }
-
-            double endTime = midpoint;
-
-            spans.Add(new accessCallTimeSpan(startTime, endTime));
-        }
-
-
-        /*double currentInc = maxInc;
-
-        while (master.time.julian < end.julian) {
-            double currentIterationTime = master.time.julian;
-
-            updateMeshes();
-
-            if (Calc.topo(target.data.positions, pos, altitude, start.julian, master.time.julian) > 0) hit = raycast();
-            else hit = true;
-
-            hit = raycast();
-
-            if (isBlocked != hit)
-            {
-                isBlocked = hit;
-
-                if (hit)
-                {
-                    accessCallTimeSpan span = spans[spans.Count - 1];
-                    spans[spans.Count - 1] = new accessCallTimeSpan(span.start, findBoundary(master.time.julian, maxInc, false, minInc));
-                }
-                else spans.Add(new accessCallTimeSpan(findBoundary(master.time.julian, maxInc, true, minInc) + minInc, 0));
-            }
-
-            master.time.addJulianTime((currentIterationTime + maxInc) - master.time.julian);
-        }
-
-        // close any remaining windows
-        if (!isBlocked) {
-            accessCallTimeSpan span = spans[spans.Count - 1];
-            spans[spans.Count - 1] = new accessCallTimeSpan(span.start, master.time.julian);
-        }
-
-        // join together any spans that are closer than maxInc to each other
-        for (int i = 0; i < spans.Count - 1; i++) {
-            accessCallTimeSpan current = spans[i];
-            accessCallTimeSpan next = spans[i + 1];
-            if (next.start - current.end <= maxInc) {
-                Debug.LogWarning("Warning: Two spans detected that are separated by less then maxInc from each other. Joining the two spans together.");
-                spans.RemoveAt(i + 1);
-                spans[i] = new accessCallTimeSpan(current.start, next.end);
-            }
-        }
-
-        // reset time
-        //master.time.addJulianTime(initialTime - master.time.julian);
-        //master.requestPositionUpdate();
-
-        */
 
         stopWatch.Stop();
 
@@ -383,20 +199,47 @@ public class accessCallGeneratorWGS {
         return findBoundary(time + inc / 2.0, inc / 2.0, targetStart, minInc);
     }
 
-    public bool raycast(double time, bool reset = true) {
+    public bool raycast(double time, bool reset = true)
+    {
         double initialTime = master.time.julian;
         master.time.addJulianTime(time - master.time.julian);
         updateMeshes();
 
         bool result = raycast();
 
-        if (reset) {
+        if (reset)
+        {
             master.time.addJulianTime(initialTime - master.time.julian);
             updateMeshes();
         }
 
         return result;
     }
+
+    private double findBoundaryNoUpdate(double time, double inc, bool targetStart, double minInc)
+    {
+        // termination condition- original, !original (separated by minInc)
+        if (inc <= minInc) return time;
+
+        bool originalHit = raycastNoUpdate(time);
+        if (originalHit != targetStart) return findBoundaryNoUpdate(time - inc / 2.0, inc / 2.0, targetStart, minInc);
+
+        bool next = raycastNoUpdate(time + minInc);
+        if (next != targetStart) return time;
+        return findBoundaryNoUpdate(time + inc / 2.0, inc / 2.0, targetStart, minInc);
+    }
+
+    public bool raycastNoUpdate(double time)
+    {
+        Vector3 dst = (Vector3)((target.data.positions.find(new Time(time)).ECI2ECEF(time) - master.referenceFrame - master.currentPosition) / master.scale);
+
+        // (0,0,0) because we center (via master.currentPosition) on the correct starting position
+        // raycast instead of linecast to prevent physics from checking too much (we really only need to check whats nearby)
+
+        return Physics.Raycast(Vector3.zero, dst, 100, (1 << 6) | (1 << 7)); // terrain and planets only
+        ;
+    }
+
 
     private bool raycast() {
         Vector3 dst = (Vector3) ((target.pos - master.referenceFrame - master.currentPosition) / master.scale);

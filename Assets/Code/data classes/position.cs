@@ -76,6 +76,8 @@ public readonly struct position
         return theta;
     }
 
+    public position ECI2ECEF(double time) => ECI2ECEF(this, time);
+
     public static position ECI2ECEF(position p, double jd)
     {
         double T = (jd - 2451545.0) / 36525.0;
