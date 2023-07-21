@@ -40,7 +40,8 @@ public class controller : MonoBehaviour
         string date = DateTime.Now.ToString("MM-dd_hhmm");
         if(!File.Exists(DBReader.mainDBPath)) {
             Debug.Log("Generating main.db");
-            System.Diagnostics.Process.Start(DBReader.apps.excelParser, $"{DBReader.data.get("2023EarthAssets")} {DBReader.mainDBPath}").WaitForExit();  
+            Debug.Log("command: " + $"{DBReader.data.get("2023EarthAssets")} {DBReader.mainDBPath}");
+            System.Diagnostics.Process.Start(DBReader.apps.excelParser, $"{DBReader.data.get("2023EarthAssets.xlsx")} {DBReader.mainDBPath}").WaitForExit();  
         }
         var missionStructure = DBReader.getData();
         DBReader.output.setOutputFolder(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), date));
@@ -55,10 +56,9 @@ public class controller : MonoBehaviour
         Debug.Log("Doing DFS.....");
         ScheduleStructGenerator.doDFS(date);
         Debug.Log(DBReader.output.getClean("PostDFSUsers.txt"));
-        System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 1");
-        //System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmapVerbose.exe", $"PreDFSUsers.txt Assets/Code/scheduler/{date}/PreDFSUsers_{date}.png 0 1");
-        //System.Diagnostics.Process.Start(@"Assets\Code\scheduler\ScheduleDiagramGen.exe", $"Assets/Code/scheduler/{date}/ScheduleCSV_{date}.csv source destination 0 1 Assets/Code/scheduler/{date}/sched_{date}.png 0");
-
+        System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 1 6");
+        //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PreDFSUsers.txt")} {DBReader.output.get("PreDFSUsers", "png")} 0 1 6");
+        System.Diagnostics.Process.Start(DBReader.apps.schedGen, $"{DBReader.output.get("ScheduleCSV", "csv")} source destination 0 1 {DBReader.output.get("sched", "png")} 0");
         loadingController.start(new Dictionary<float, string>() {
             {0, "Generating Planets"},
             {0.10f, "Generating Satellites"},

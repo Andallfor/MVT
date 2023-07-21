@@ -75,7 +75,7 @@ public static class ScheduleStructGenerator
             }
             catch (KeyNotFoundException)
             {
-                //Debug.Log($"Either satellite: {wind.source} or Service Level didn't exist");
+                Debug.Log($"Either satellite: {source} or Service Level didn't exist");
             }
             try
             {
@@ -668,8 +668,8 @@ public static class ScheduleStructGenerator
     {
         public string epochTime;
         public string fileGenDate;
-        public double minWinTime = 0;
-        //public double minWinTime = 0.00347222;
+        //public double minWinTime = 0;
+        public double minWinTime = 0.00347222;
         public List<int> totalConflicts = new List<int>();
         public List<Window> windows;
         public List<Window> schedule = new List<Window>();
