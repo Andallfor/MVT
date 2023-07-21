@@ -21,9 +21,10 @@ public class controller : MonoBehaviour
 
     public static float _logBase = 35;
 
-    private void Awake() {self = this;}
+    private void Awake() { self = this; }
 
-    private void Start() {
+    private void Start()
+    {
         general.canvas = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<Canvas>();
         general.planetParent = GameObject.FindGameObjectWithTag("planet/parent");
         uiHelper.canvas = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<Canvas>();
@@ -35,7 +36,7 @@ public class controller : MonoBehaviour
         master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/sun", 0.0416666665, planetType.planet),
             new representationData("planet", "sunTex"));
 
-        /*
+        
         string date = DateTime.Now.ToString("MM-dd_hhmm");
         if(!File.Exists(DBReader.mainDBPath)) {
             Debug.Log("Generating main.db");
@@ -46,12 +47,17 @@ public class controller : MonoBehaviour
         string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
         DBReader.output.write("MissionStructure_2023.txt", json);
         Debug.Log("Generating windows.....");
-        ScheduleStructGenerator.genDB(missionStructure, "EarthTest", "windowsEarthComplex.json", "PreconWindows");
+        ScheduleStructGenerator.genDB(missionStructure, "EarthTest", "windowsEarthComplex.json", date, "PreconWindows");
         Debug.Log("Generating conflict list.....");
-        ScheduleStructGenerator.createConflictList();
-        ScheduleStructGenerator.genDBNoJSON(missionStructure, "cut1Windows");
+        ScheduleStructGenerator.createConflictList(date);
+        ScheduleStructGenerator.genDBNoJSON(missionStructure, date, "cut1Windows");
+        ScheduleStructGenerator.createConflictList(date);
         Debug.Log("Doing DFS.....");
-        ScheduleStructGenerator.doDFS(date);*/
+        ScheduleStructGenerator.doDFS(date);
+        Debug.Log(DBReader.output.getClean("PostDFSUsers.txt"));
+        System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 1");
+        //System.Diagnostics.Process.Start(@"Assets\Code\scheduler\heatmapVerbose.exe", $"PreDFSUsers.txt Assets/Code/scheduler/{date}/PreDFSUsers_{date}.png 0 1");
+        //System.Diagnostics.Process.Start(@"Assets\Code\scheduler\ScheduleDiagramGen.exe", $"Assets/Code/scheduler/{date}/ScheduleCSV_{date}.csv source destination 0 1 Assets/Code/scheduler/{date}/sched_{date}.png 0");
 
         loadingController.start(new Dictionary<float, string>() {
             {0, "Generating Planets"},
@@ -74,7 +80,8 @@ public class controller : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
 
         master.onScaleChange += (s, e) => {
-            if (general.showingTrails) {
+            if (general.showingTrails)
+            {
                 foreach (planet p in master.allPlanets) p.tr.enable();
                 trailRenderer.drawAllSatelliteTrails(master.allSatellites);
             }
@@ -102,7 +109,8 @@ public class controller : MonoBehaviour
 
         modeController.disableAll();
 
-        if (planetFocus.instance.lunarTerrainFilesExist) {
+        if (planetFocus.instance.lunarTerrainFilesExist)
+        {
             general.pt = loadTerrain();
             general.plt = loadPoles();
         }
@@ -182,7 +190,8 @@ public class controller : MonoBehaviour
         visibility.raycastTerrain(users, providers, master.time.julian, master.time.julian + 1, speed, options, true);
     }
 
-    public static void runDynamicLink() {
+    public static void runDynamicLink()
+    {
         master.time.addJulianTime((double)2461021.5 - (double)master.time.julian);
         master.requestPositionUpdate();
         dynamicLinkOptions options = new dynamicLinkOptions();
@@ -205,7 +214,7 @@ public class controller : MonoBehaviour
                         final.Add("Time:" + time[x] + " Distance: " + distance[x]);
                     }
 
-                    System.IO.File.WriteAllLines(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads)) + "/Access Call Results/" + provider.Key + " to " + user.Key +".txt", final);
+                    System.IO.File.WriteAllLines(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads)) + "/Access Call Results/" + provider.Key + " to " + user.Key + ".txt", final);
                 }
             }
         };
@@ -235,15 +244,20 @@ public class controller : MonoBehaviour
         visibility.raycastTerrain(providers, users, master.time.julian, master.time.julian + 30, speed, options, false);
     }
 
-    public void startMainLoop(bool force = false) {
+    public void startMainLoop(bool force = false)
+    {
         if (loop != null && force == false) return;
 
         loop = StartCoroutine(general.internalClock(tickrate, int.MaxValue, (tick) => {
-            if (!general.blockMainLoop) {
-                if (master.pause) {
+            if (!general.blockMainLoop)
+            {
+                if (master.pause)
+                {
                     master.tickStart(master.time);
                     master.time.addJulianTime(0);
-                } else {
+                }
+                else
+                {
                     Time t = new Time(master.time.julian);
                     t.addJulianTime(speed);
                     master.tickStart(t);
@@ -260,24 +274,28 @@ public class controller : MonoBehaviour
         }, null));
     }
 
-    public void LateUpdate() {
+    public void LateUpdate()
+    {
         playerControls.lastMousePos = Input.mousePosition;
     }
 
-    public void Update() {
+    public void Update()
+    {
         playerControls.update();
 
-        if (Input.GetKeyDown("o")) {
-            Vector3 v1 = (Vector3) (geographic.toCartesian(new geographic(0, 0), earth.radius).swapAxis());
-            Vector3 v2 = (Vector3) (geographic.toCartesianWGS(new geographic(0, 0), 0).swapAxis());
+        if (Input.GetKeyDown("o"))
+        {
+            Vector3 v1 = (Vector3)(geographic.toCartesian(new geographic(0, 0), earth.radius).swapAxis());
+            Vector3 v2 = (Vector3)(geographic.toCartesianWGS(new geographic(0, 0), 0).swapAxis());
 
             Debug.Log("regular: " + v1);
             Debug.Log("wgs: " + v2);
 
             runWindowsNoRate();
         }
-        
-        if (Input.GetKeyDown("k")) {
+
+        if (Input.GetKeyDown("k"))
+        {
             string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/juan");
             var f = new universalTerrainJp2File(Path.Combine(src, "data.jp2"), Path.Combine(src, "metadata.txt"));
 
@@ -285,7 +303,8 @@ public class controller : MonoBehaviour
             f.load(Vector2.zero, Vector2.one, 0, 0, default(position)).drawAll(m, resLoader.load<GameObject>("planetMesh"), new string[0], earth.representation.gameObject.transform);
         }
 
-        if (Input.GetKeyDown("g")) {
+        if (Input.GetKeyDown("g"))
+        {
             string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth");
             string p = Directory.GetDirectories(src)[stationIndex];
             universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
@@ -302,7 +321,8 @@ public class controller : MonoBehaviour
             if (stationIndex >= 20) stationIndex = 0;
         }
 
-        if (Input.GetKeyDown("y")) {
+        if (Input.GetKeyDown("y"))
+        {
             accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, new geographic(-35.398522, 148.981904), sat1);
             //access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/canberra"), 2);
             access.initialize();
@@ -313,7 +333,8 @@ public class controller : MonoBehaviour
         }
     }
 
-    private IEnumerator stall(accessCallGeneratorWGS access) { // TODO: replace with a physics update call
+    private IEnumerator stall(accessCallGeneratorWGS access)
+    { // TODO: replace with a physics update call
         yield return new WaitForSeconds(1);
         //var output = access.findTimes(new Time(2461022.77871296), new Time(2461022.78237024), 0.00069444444, 0.00001157407 / 2.0);
 
@@ -326,7 +347,8 @@ public class controller : MonoBehaviour
     int stationIndex = 0;
     meshDistributor<universalTerrainMesh> prevDist;
 
-    private planetTerrain loadTerrain() {
+    private planetTerrain loadTerrain()
+    {
         planetTerrain pt = new planetTerrain(moon, "Materials/planets/moon/moon", 1737.4, 1);
 
         string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT/terrain");
@@ -358,7 +380,8 @@ public class controller : MonoBehaviour
         return pt;
     }
 
-    private poleTerrain loadPoles() {
+    private poleTerrain loadPoles()
+    {
         string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT/terrain");
         //string p = Path.Combine(Application.dataPath, "terrain");
         return new poleTerrain(new Dictionary<int, string>() {
@@ -368,22 +391,23 @@ public class controller : MonoBehaviour
         }, moon.representation.gameObject.transform);
     }
 
-    private IEnumerator JPL() {
+    private IEnumerator JPL()
+    {
         representationData rd = new representationData("planet", "defaultMat");
         representationData frd = new representationData("facility", "defaultMat");
 
         double oneHour = 0.0416666667;
         double EarthMu = 398600.0;
 
-        earth =          new planet(  "Earth", new planetData(6356.75, rotationType.earth, $"CSVS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
-        moon =           new planet(   "Luna", new planetData(1738.1,  rotationType.none,  $"CSVS/Luna",  oneHour,   planetType.moon), new representationData("planet", "moonTex"));
-        planet mercury = new planet("Mercury", new planetData(2439.7,  rotationType.none,  $"CSVS/mercury", oneHour, planetType.planet), new representationData("planet", "mercuryTex"));
-        planet venus =   new planet(  "Venus", new planetData(6051.8,  rotationType.none,  $"CSVS/venus", oneHour, planetType.planet), new representationData("planet", "venusTex"));
-        planet jupiter = new planet("Jupiter", new planetData( 71492,  rotationType.none,  $"CSVS/jupiter", oneHour, planetType.planet), new representationData("planet", "jupiterTex"));
-        planet saturn =  new planet( "Saturn", new planetData( 60268,  rotationType.none,  $"CSVS/saturn", oneHour, planetType.planet), new representationData("planet", "saturnTex"));
-        planet uranus =  new planet( "Uranus", new planetData( 25559,  rotationType.none,  $"CSVS/uranus", oneHour, planetType.planet), new representationData("planet", "uranusTex"));
-        planet neptune = new planet("Neptune", new planetData( 24764,  rotationType.none,  $"CSVS/neptune", oneHour, planetType.planet), new representationData("planet", "neptuneTex"));
-        planet mars =    new planet(   "Mars", new planetData(3389.92, rotationType.none,  $"CSVS/mars", oneHour, planetType.planet), new representationData("planet", "marsTex"));
+        earth = new planet("Earth", new planetData(6356.75, rotationType.earth, $"CSVS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
+        moon = new planet("Luna", new planetData(1738.1, rotationType.none, $"CSVS/Luna", oneHour, planetType.moon), new representationData("planet", "moonTex"));
+        planet mercury = new planet("Mercury", new planetData(2439.7, rotationType.none, $"CSVS/mercury", oneHour, planetType.planet), new representationData("planet", "mercuryTex"));
+        planet venus = new planet("Venus", new planetData(6051.8, rotationType.none, $"CSVS/venus", oneHour, planetType.planet), new representationData("planet", "venusTex"));
+        planet jupiter = new planet("Jupiter", new planetData(71492, rotationType.none, $"CSVS/jupiter", oneHour, planetType.planet), new representationData("planet", "jupiterTex"));
+        planet saturn = new planet("Saturn", new planetData(60268, rotationType.none, $"CSVS/saturn", oneHour, planetType.planet), new representationData("planet", "saturnTex"));
+        planet uranus = new planet("Uranus", new planetData(25559, rotationType.none, $"CSVS/uranus", oneHour, planetType.planet), new representationData("planet", "uranusTex"));
+        planet neptune = new planet("Neptune", new planetData(24764, rotationType.none, $"CSVS/neptune", oneHour, planetType.planet), new representationData("planet", "neptuneTex"));
+        planet mars = new planet("Mars", new planetData(3389.92, rotationType.none, $"CSVS/mars", oneHour, planetType.planet), new representationData("planet", "marsTex"));
 
         planet.addFamilyNode(earth, moon);
 
@@ -401,7 +425,7 @@ public class controller : MonoBehaviour
         body.addFamilyNode(earth, moon);
 
         master.relationshipSatellite[earth] = new List<satellite>() { sat1 };
-        master.relationshipPlanet[earth] = new List<planet>() {moon};
+        master.relationshipPlanet[earth] = new List<planet>() { moon };
 
         linkBudgeting.users.Add("Sat1", (false, 2461021.5, 2461051.5));
         linkBudgeting.providers.Add("ASF", (true, 2461021.5, 2461051.5));
@@ -411,7 +435,8 @@ public class controller : MonoBehaviour
         loadingController.addPercent(1);
     }
 
-    public void OnApplicationQuit() {
+    public void OnApplicationQuit()
+    {
         IMesh.clearCache();
     }
 }
