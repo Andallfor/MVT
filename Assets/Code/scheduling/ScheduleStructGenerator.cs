@@ -482,25 +482,11 @@ public static class ScheduleStructGenerator
                 Debug.Log("too small, cut");
                 continue;
             }
-            //if(curBlock.ID == 375)
-            //{
-            //    Debug.Log("375");
-            //}
-            if (scenario.totalConflicts.Contains(curBlock.ID)) continue;
-            for (int i = 0; i < curBlock.days.Count; i++)
+            if(curBlock.source=="THEMIS_C")
             {
-                if (scenario.users[curBlock.source].blockedDays.Contains(curBlock.days[i])) continue;
-                try
-                {
-                    if (scenario.users[curBlock.source].boxes[curBlock.days[i]] <= 0) continue;
-                }
-                catch
-                {
-                    Debug.Log($"Error with checking 0: source: {curBlock.source}, i: {i}, curBlock.days[i]: {curBlock.days[i]}");
-                }
-                if (scenario.users[curBlock.source].boxes[curBlock.days[i]] <= 0)
-                    continue;
+                Debug.Log("1361");
             }
+            if (scenario.totalConflicts.Contains(curBlock.ID)) continue;
             for (int i = 0; i < curBlock.conflicts.Count(); i++)
             {
 
@@ -576,19 +562,25 @@ public static class ScheduleStructGenerator
                 if (scenario.users[curBlock.source].blockedDays.Contains(curBlock.days[i])) continue;
                 try
                 {
-                    if (scenario.users[curBlock.source].boxes[curBlock.days[i]] <= 0) continue;
+                    if (scenario.users[curBlock.source].boxes[curBlock.days[i]] <= -1.1*scenario.minWinTime) continue;
                 }
                 catch
                 {
                     Debug.Log($"Error with checking 0: source: {curBlock.source}, i: {i}, curBlock.days[i]: {curBlock.days[i]}");
                 }
-                if (scenario.users[curBlock.source].boxes[curBlock.days[i]] <= scenario.minWinTime)
+                if (scenario.users[curBlock.source].boxes[curBlock.days[i]] <= 0)
                     continue;
                 if (scenario.users[curBlock.source].boxes[curBlock.days[i]] - curBlock.timeSpentInDay[i] < 0)
                 {
-                    curBlock.stop = curBlock.start + scenario.users[curBlock.source].boxes[curBlock.days[i]];
-                    //curBlock.stop = curBlock.days[i] + scenario.users[curBlock.source].boxes[curBlock.days[i]];
-
+                    if (scenario.users[curBlock.source].boxes[curBlock.days[i]] >= scenario.minWinTime)
+                    {
+                        curBlock.stop = curBlock.start + scenario.users[curBlock.source].boxes[curBlock.days[i]];
+                        //curBlock.stop = curBlock.days[i] + scenario.users[curBlock.source].boxes[curBlock.days[i]];
+                    }
+                    else
+                    {
+                        curBlock.stop = curBlock.start + scenario.minWinTime;
+                    }
 
                     curBlock.duration = curBlock.stop - curBlock.start;
                     curBlock.days = Enumerable.Range((int)Math.Floor(curBlock.start), (int)Math.Floor(curBlock.stop) - (int)Math.Floor(curBlock.start) + 1).ToList();
@@ -600,6 +592,9 @@ public static class ScheduleStructGenerator
                         curBlock.timeSpentInDay.Add(curBlock.stop - curBlock.days[curBlock.days.Count - 1]);
                     }
                     else curBlock.timeSpentInDay.Add(curBlock.duration);
+                    scenario.users[curBlock.source].blockedDays.Add(curBlock.days[i]);
+
+                    
                 }
                 try
                 {
@@ -610,7 +605,7 @@ public static class ScheduleStructGenerator
                     Debug.Log($"ERROR: Source: {curBlock.source}, i: {i}");
                 }
                 if (!scenario.schedule.Contains(curBlock)) scenario.schedule.Add(curBlock);
-                if (scenario.users[curBlock.source].boxes[curBlock.days[i]] <= scenario.minWinTime)
+                if (scenario.users[curBlock.source].boxes[curBlock.days[i]] <= -1.1*scenario.minWinTime)
                 {
                     scenario.users[curBlock.source].blockedDays.Add(curBlock.days[i]);
                 }
