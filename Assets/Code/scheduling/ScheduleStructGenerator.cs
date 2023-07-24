@@ -3,23 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System;
 using System.Data;
+using System.Net;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Mono.Data.Sqlite;
-
+using TreeEditor;
+using static UnityEngine.GraphicsBuffer;
+using UnityEditor.Experimental.GraphView;
 
 public static class ScheduleStructGenerator
 {
     public static Scenario scenario = new Scenario();
-    public static void genDB(dynamic missionStructure, string misName, string JSONPath, string dbName)
+    public static void genDB(dynamic missionStructure, string misName, string JSONPath, string date, string dbName)
     {
         //Select * from Windows_data where Source="HLS-Surface" and Destination="LCN-12hourfrozen-1-LowPower" and Frequency="Ka Band" order by Start ASC
         scenario.users.Clear();
         string newDBPath = DBReader.output.getDB(dbName);
         if (File.Exists(newDBPath)) File.Delete(newDBPath);
-
         bool fileExists = false;
         SqliteConnection connection = new SqliteConnection(DBReader.getDBConnection(newDBPath));
         if (!fileExists)
@@ -71,7 +75,7 @@ public static class ScheduleStructGenerator
             }
             catch (KeyNotFoundException)
             {
-                //Debug.Log($"Either satellite: {wind.source} or Service Level didn't exist");
+                Debug.Log($"Either satellite: {source} or Service Level didn't exist");
             }
             try
             {
@@ -239,12 +243,13 @@ public static class ScheduleStructGenerator
     //Ka - highest priority
     //X
     //s - lowest priority
-    public static void genDBNoJSON(dynamic missionStructure, string dbName)
+    public static void genDBNoJSON(dynamic missionStructure, string date, string dbName)
     {
         //Select * from Windows_data where Source="HLS-Surface" and Destination="LCN-12hourfrozen-1-LowPower" and Frequency="Ka Band" order by Start ASC
         //scenario.users.Clear();
         string newDBPath = DBReader.output.getDB(dbName);
         if (File.Exists(newDBPath)) File.Delete(newDBPath);
+
         bool fileExists = false;
         SqliteConnection connection = new SqliteConnection(DBReader.getDBConnection(newDBPath));
         if (!fileExists)
@@ -274,7 +279,7 @@ public static class ScheduleStructGenerator
             command.CommandText = "BEGIN;";
             command.ExecuteNonQuery();
         }
-        Debug.Log("WinLength: "+ scenario.windows.Count());
+        Debug.Log("WinLength: " + scenario.windows.Count());
         foreach (Window w in scenario.windows)
         {
             if (!fileExists)
@@ -305,7 +310,8 @@ public static class ScheduleStructGenerator
         }*/
         connection.Close();
     }
-    public static void createConflictList() {
+    public static void createConflictList(string date)
+    {
         string uri = DBReader.getDBConnection(DBReader.output.getDB($"PreconWindows"));
         Debug.Log(uri);
         SqliteConnection connection = new SqliteConnection(uri);
@@ -357,9 +363,11 @@ public static class ScheduleStructGenerator
             while (reader.Read())
             {
                 int conID = reader.GetInt32(0);
+                //double conStart = scenario.windows.Find(i => i.ID == conID).start;
                 bool itemExists = scenario.windows.Any(obj => obj.ID == conID);
                 if (!itemExists) continue;
-                double conStart = 0;
+                double conStart = scenario.windows.Find(i => i.ID == conID).start;
+                //double conStart = 0;
                 /*try
                 { conStart = scenario.windows.Find(i => i.ID == conID).start; }
                 catch
@@ -379,10 +387,11 @@ public static class ScheduleStructGenerator
                     conCase = 1;
                 else if (block.start < conStart && conStart < block.stop && block.start < conStop && conStop < block.stop)
                 {
+                    //Debug.Log("concase 3");
                     conCase = 3;
-                    if (conSchedPrio < block.Schedule_Priority || (conSchedPrio==block.Schedule_Priority && conGroundPrio < block.Ground_Priority))
+                    if (conSchedPrio < block.Schedule_Priority || (conSchedPrio == block.Schedule_Priority && conGroundPrio < block.Ground_Priority))
                     {
-                        Debug.Log("Deleting index "+i);
+                        //Debug.Log("Deleting index "+i);
                         Window block1 = block.ShallowCopy();
                         Window block2 = block.ShallowCopy();
                         int maxID = scenario.windows.Max(obj => obj.ID);
@@ -412,10 +421,14 @@ public static class ScheduleStructGenerator
                             block2.timeSpentInDay.Add(block2.stop - block2.days[block2.days.Count - 1]);
                         }
                         else block2.timeSpentInDay.Add(block2.duration);
-                        scenario.windows.Add(block1);
-                        scenario.windows.Add(block2);
-                        scenario.windows.Remove(block);
-                        i--;
+
+                        if (block1.duration > scenario.minWinTime && block2.duration > scenario.minWinTime)
+                        {
+                            scenario.windows.Add(block1);
+                            scenario.windows.Add(block2);
+                            scenario.windows.Remove(block);
+                            i--;
+                        }
                         break;
                     }
                 }
@@ -450,29 +463,54 @@ public static class ScheduleStructGenerator
         command.ExecuteNonQuery();
         connection.Close();
         Debug.Log("after conflict, winLength=" + scenario.windows.Count());
+        List<Window> tempWins = scenario.windows.OrderBy(s => s.Schedule_Priority).ThenBy(s => s.Ground_Priority).ThenBy(s => s.Freq_Priority).ThenByDescending(s => s.duration).ToList();
+        scenario.windows = tempWins;
+        string debugJson = JsonConvert.SerializeObject(scenario.windows, Formatting.Indented);
+        DBReader.output.write("WindowsSorted.txt", debugJson);
+
     }
 
     public static void doDFS(string date)
     {
-        List<int> totalConflicts = new List<int>();
+
+
         for (int w = 0; w < scenario.windows.Count(); w++)
         {
             Window curBlock = scenario.windows[w];
+            if (curBlock.duration <= scenario.minWinTime)
+            {
+                Debug.Log("too small, cut");
+                continue;
+            }
             //if(curBlock.ID == 375)
             //{
             //    Debug.Log("375");
-           //}
-            if (totalConflicts.Contains(curBlock.ID)) continue;
+            //}
+            if (scenario.totalConflicts.Contains(curBlock.ID)) continue;
+            for (int i = 0; i < curBlock.days.Count; i++)
+            {
+                if (scenario.users[curBlock.source].blockedDays.Contains(curBlock.days[i])) continue;
+                try
+                {
+                    if (scenario.users[curBlock.source].boxes[curBlock.days[i]] <= 0) continue;
+                }
+                catch
+                {
+                    Debug.Log($"Error with checking 0: source: {curBlock.source}, i: {i}, curBlock.days[i]: {curBlock.days[i]}");
+                }
+                if (scenario.users[curBlock.source].boxes[curBlock.days[i]] <= 0)
+                    continue;
+            }
             for (int i = 0; i < curBlock.conflicts.Count(); i++)
             {
-                
+
                 (int, int) con = curBlock.conflicts[i];
                 int conWinIndex = scenario.windows.FindIndex(i => i.ID == con.Item1);
                 Window conWin = scenario.windows[conWinIndex];
-               // if (conWin.ID == 375)
-               // {
-               //     Debug.Log("conflic 375");
-               // }
+                // if (conWin.ID == 375)
+                // {
+                //     Debug.Log("conflic 375");
+                // }
                 if (conWin.Schedule_Priority < curBlock.Schedule_Priority) continue;
                 else if (conWin.Schedule_Priority == curBlock.Schedule_Priority && conWin.Ground_Priority < curBlock.Ground_Priority) continue;
                 (bool, int, int) ST = stillConflict(curBlock, conWin);
@@ -483,6 +521,10 @@ public static class ScheduleStructGenerator
                     case 1:
                         conWin.stop = Math.Min(curBlock.start, conWin.stop);
                         conWin.duration = conWin.stop - conWin.start;
+                        if (conWin.duration <= scenario.minWinTime)
+                        {
+                            scenario.totalConflicts.Add(conWin.ID); break;
+                        }
                         conWin.days = Enumerable.Range((int)Math.Floor(conWin.start), (int)Math.Floor(conWin.stop) - (int)Math.Floor(conWin.start) + 1).ToList();
                         conWin.timeSpentInDay = new List<double>();
                         if (conWin.days.Count > 1)
@@ -497,6 +539,10 @@ public static class ScheduleStructGenerator
                     case 2:
                         conWin.start = Math.Max(curBlock.stop, conWin.start);
                         conWin.duration = conWin.stop - conWin.start;
+                        if (conWin.duration <= scenario.minWinTime)
+                        {
+                            scenario.totalConflicts.Add(conWin.ID); break;
+                        }
                         conWin.days = Enumerable.Range((int)Math.Floor(conWin.start), (int)Math.Floor(conWin.stop) - (int)Math.Floor(conWin.start) + 1).ToList();
                         conWin.timeSpentInDay = new List<double>();
                         if (conWin.days.Count > 1)
@@ -509,18 +555,18 @@ public static class ScheduleStructGenerator
                         scenario.windows[conWinIndex] = conWin;
                         break;
                     case 3:
-                        totalConflicts.Add(con.Item1);
+                        scenario.totalConflicts.Add(con.Item1);
                         break;
                     case 4:
-                        totalConflicts.Add(con.Item1);
+                        scenario.totalConflicts.Add(con.Item1);
                         break;
                     case 5:
-                        totalConflicts.Add(con.Item1);
+                        scenario.totalConflicts.Add(con.Item1);
                         break;
                     case 6:
                     case 7:
                     default:
-                        totalConflicts.Add(con.Item1);
+                        scenario.totalConflicts.Add(con.Item1);
                         break;
 
                 }
@@ -536,9 +582,11 @@ public static class ScheduleStructGenerator
                 {
                     Debug.Log($"Error with checking 0: source: {curBlock.source}, i: {i}, curBlock.days[i]: {curBlock.days[i]}");
                 }
+                if (scenario.users[curBlock.source].boxes[curBlock.days[i]] <= scenario.minWinTime)
+                    continue;
                 if (scenario.users[curBlock.source].boxes[curBlock.days[i]] - curBlock.timeSpentInDay[i] < 0)
                 {
-                    curBlock.stop = curBlock.start+scenario.users[curBlock.source].boxes[curBlock.days[i]];
+                    curBlock.stop = curBlock.start + scenario.users[curBlock.source].boxes[curBlock.days[i]];
                     //curBlock.stop = curBlock.days[i] + scenario.users[curBlock.source].boxes[curBlock.days[i]];
 
 
@@ -562,7 +610,7 @@ public static class ScheduleStructGenerator
                     Debug.Log($"ERROR: Source: {curBlock.source}, i: {i}");
                 }
                 if (!scenario.schedule.Contains(curBlock)) scenario.schedule.Add(curBlock);
-                if (scenario.users[curBlock.source].boxes[curBlock.days[i]] <= 0)
+                if (scenario.users[curBlock.source].boxes[curBlock.days[i]] <= scenario.minWinTime)
                 {
                     scenario.users[curBlock.source].blockedDays.Add(curBlock.days[i]);
                 }
@@ -585,7 +633,6 @@ public static class ScheduleStructGenerator
         System.Diagnostics.Process.Start(DBReader.apps.json2csv, $"{DBReader.output.getClean("FinalWindows.txt")} {DBReader.output.get("FinalWindowsCSV", "csv")}").WaitForExit();
         //Debug.Log("Got here 5");
     }
-
     private static (bool, int, int) stillConflict(Window og, Window possCon)
     {
         (bool, int, int) ret = (false, -1, -1);
@@ -621,6 +668,9 @@ public static class ScheduleStructGenerator
     {
         public string epochTime;
         public string fileGenDate;
+        //public double minWinTime = 0;
+        public double minWinTime = 0.00347222;
+        public List<int> totalConflicts = new List<int>();
         public List<Window> windows;
         public List<Window> schedule = new List<Window>();
         public Dictionary<string, User> users = new Dictionary<string, User>();
