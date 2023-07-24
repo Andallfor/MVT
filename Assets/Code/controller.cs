@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.IO;
+using Newtonsoft.Json;
 
 public class controller : MonoBehaviour
 {
@@ -37,6 +38,7 @@ public class controller : MonoBehaviour
             new representationData("planet", "sunTex"));
 
         
+        /*
         string date = DateTime.Now.ToString("MM-dd_hhmm");
         if(!File.Exists(DBReader.mainDBPath)) {
             Debug.Log("Generating main.db");
@@ -59,6 +61,8 @@ public class controller : MonoBehaviour
         System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 1 6");
         //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PreDFSUsers.txt")} {DBReader.output.get("PreDFSUsers", "png")} 0 1 6");
         System.Diagnostics.Process.Start(DBReader.apps.schedGen, $"{DBReader.output.get("ScheduleCSV", "csv")} source destination 0 1 {DBReader.output.get("sched", "png")} 0");
+        */
+
         loadingController.start(new Dictionary<float, string>() {
             {0, "Generating Planets"},
             {0.10f, "Generating Satellites"},
