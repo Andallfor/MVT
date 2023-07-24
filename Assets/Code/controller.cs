@@ -34,11 +34,6 @@ public class controller : MonoBehaviour
         //master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/ARTEMIS 3/PLANETS/sun", 0.0416666665, planetType.planet),
         master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/sun", 0.0416666665, planetType.planet),
             new representationData("planet", "sunTex"));
-        
-        var db = DBReader.getData();
-        string s = "";
-        foreach (string key in db.Keys) s += key + " ";
-        Debug.Log(s);
 
         /*
         string date = DateTime.Now.ToString("MM-dd_hhmm");

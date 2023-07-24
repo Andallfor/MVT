@@ -47,9 +47,7 @@ public static class DBReader {
         public static string id {get; private set;} = "scheduling_output";
     }
 
-    public static Dictionary<string, (string epoch, Dictionary<string, dynamic> satellites)> getData()
-    {
-        Debug.Log(mainDBConnection); // no idea if this works
+    public static Dictionary<string, (string epoch, Dictionary<string, dynamic> satellites)> getData() {
         Dictionary<string, (string epoch, Dictionary<string, dynamic> satellites)> missions = new  Dictionary<string, (string epoch, Dictionary<string, dynamic> satellites)>();
         using (var connection = new SqliteConnection(mainDBConnection))
         {
