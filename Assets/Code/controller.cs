@@ -4,7 +4,6 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.IO;
-using Newtonsoft.Json;
 
 public class controller : MonoBehaviour
 {
@@ -30,6 +29,7 @@ public class controller : MonoBehaviour
         general.camera = Camera.main;
 
         resLoader.initialize();
+        web.initialize();
 
         //master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/ARTEMIS 3/PLANETS/sun", 0.0416666665, planetType.planet),
         master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/sun", 0.0416666665, planetType.planet),
@@ -310,6 +310,10 @@ public class controller : MonoBehaviour
             //var output = access.findTimes(new Time(2461021.77854328 + 0.0002), new Time(2461021.77991930), 0.00069444444, 0.00001157407 / 2.0);
             //access.saveResults(output);
             StartCoroutine(stall(access));
+        }
+
+        if (Input.GetKeyDown("b")) {
+            web.sendMessage((byte) constantWebHandles.ping, new byte[] {15});
         }
     }
 

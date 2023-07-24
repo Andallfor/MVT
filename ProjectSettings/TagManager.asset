@@ -28,6 +28,7 @@ TagManager:
   - ui/loading
   - ui/planetOverview/lines
   - fakeMeshParent
+  - network/playerConnection
   layers:
   - Default
   - TransparentFX
