@@ -43,14 +43,15 @@ public class controller : MonoBehaviour
         if(!File.Exists(DBReader.mainDBPath)) {
             Debug.Log("Generating main.db");
             Debug.Log("command: " + $"{DBReader.data.get("2023EarthAssets")} {DBReader.mainDBPath}");
-            System.Diagnostics.Process.Start(DBReader.apps.excelParser, $"{DBReader.data.get("2023EarthAssets.xlsx")} {DBReader.mainDBPath}").WaitForExit();  
+            System.Diagnostics.Process.Start(DBReader.apps.excelParser, $"{DBReader.data.get("2023EarthAssetsWithOrbits.xlsx")} {DBReader.mainDBPath}").WaitForExit();  
         }
         var missionStructure = DBReader.getData();
+        Debug.Log("epoch: " + missionStructure["EarthTest"].epoch);
         DBReader.output.setOutputFolder(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), date));
         string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
         DBReader.output.write("MissionStructure_2023.txt", json);
         Debug.Log("Generating windows.....");
-        ScheduleStructGenerator.genDB(missionStructure, "EarthTest", "windowsEarthComplex.json", date, "PreconWindows");
+        ScheduleStructGenerator.genDB(missionStructure, "EarthTest", "DFSTestwindows.json", date, "PreconWindows");
         Debug.Log("Generating conflict list.....");
         ScheduleStructGenerator.createConflictList(date);
         ScheduleStructGenerator.genDBNoJSON(missionStructure, date, "cut1Windows");
@@ -58,7 +59,7 @@ public class controller : MonoBehaviour
         Debug.Log("Doing DFS.....");
         ScheduleStructGenerator.doDFS(date);
         Debug.Log(DBReader.output.getClean("PostDFSUsers.txt"));
-        System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 1 6");
+        //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 1 6");
         //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PreDFSUsers.txt")} {DBReader.output.get("PreDFSUsers", "png")} 0 1 6");
         System.Diagnostics.Process.Start(DBReader.apps.schedGen, $"{DBReader.output.get("ScheduleCSV", "csv")} source destination 0 1 {DBReader.output.get("sched", "png")} 0");
         
