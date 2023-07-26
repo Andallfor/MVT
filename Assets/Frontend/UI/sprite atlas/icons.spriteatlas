@@ -87,6 +87,7 @@ SpriteAtlas:
     - 9e217475c9cf3ac42869cbfc4be90100: 21300000
     - fec106751d2b669469731cbe420b82d4: 21300000
     - caab1c95e29a7cf41a48b6ee9029b4f4: 21300000
+    - 1e7fa8c53411d0545b069ece1217e89a: 21300000
     - bcf039c505dca334c98d7cca75b9f4b4: 21300000
     - 19b46a06aa201c64e953fd3768491519: 21300000
     - d85d1e06068bd594d8e3078a16a3fd29: 21300000
@@ -194,6 +195,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 9e217475c9cf3ac42869cbfc4be90100, type: 3}
   - {fileID: 21300000, guid: fec106751d2b669469731cbe420b82d4, type: 3}
   - {fileID: 21300000, guid: caab1c95e29a7cf41a48b6ee9029b4f4, type: 3}
+  - {fileID: 21300000, guid: 1e7fa8c53411d0545b069ece1217e89a, type: 3}
   - {fileID: 21300000, guid: bcf039c505dca334c98d7cca75b9f4b4, type: 3}
   - {fileID: 21300000, guid: 19b46a06aa201c64e953fd3768491519, type: 3}
   - {fileID: 21300000, guid: d85d1e06068bd594d8e3078a16a3fd29, type: 3}
@@ -300,6 +302,7 @@ SpriteAtlas:
   - siganl1
   - cross
   - exclamation
+  - radar-fill
   - buttonStart
   - phone
   - gamepad3

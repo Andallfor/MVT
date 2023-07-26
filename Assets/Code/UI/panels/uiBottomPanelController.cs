@@ -22,7 +22,7 @@ public class uiBottomPanelController : MonoBehaviour
     public void hide() {
         if (!visible) return;
         visible = false;
-        rt.anchoredPosition = new Vector2(-161.8f * rt.localScale.x, 0.9f);
+        rt.anchoredPosition = new Vector2(-190.8f * rt.localScale.x, 0.9f);
         arrow.localEulerAngles = new Vector3(0, 0, 180);
 
         foreach (GameObject go in GameObject.FindGameObjectsWithTag("ui/bottomBar/defaultPanel")) {
