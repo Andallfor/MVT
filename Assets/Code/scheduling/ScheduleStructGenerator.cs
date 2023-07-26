@@ -71,6 +71,7 @@ public static class ScheduleStructGenerator
             double groundPrio = 0;
             try
             {
+                Debug.Log(source + misName + missionStructure[misName].Item2[source]["Service_Level"]);
                 service_Level = (double)missionStructure[misName].Item2[source]["Service_Level"];
             }
             catch (KeyNotFoundException)
