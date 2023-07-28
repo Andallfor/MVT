@@ -157,7 +157,7 @@ public class TimelineKepler : ITimeline
         double EA = meanAnom;
 
         double k = 1;
-        double error = .00000000001;
+        double error = .000001;
 
         double y = 0;
 

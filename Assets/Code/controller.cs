@@ -11,7 +11,7 @@ public class controller : MonoBehaviour
     public static planet earth, moon;
     public static planet mars;
     public static planet defaultReferenceFrame;
-    public static double speed = 0.0000116 * 60;
+    public static double speed = 0.0000116;
     public static int tickrate = 7200;
     private Vector3 planetFocusMousePosition, planetFocusMousePosition1, facilityFocusMousePosition, facilityFocusMousePosition1;
     private Coroutine loop;
@@ -468,7 +468,7 @@ public class controller : MonoBehaviour
                 if (dict["MeanAnomaly"] is string) M = Double.Parse(dict["MeanAnomaly"], System.Globalization.NumberStyles.Any);
                 else M = (double)dict["MeanAnomaly"];
 
-                /*if (dict["CentralBody"] == "Moon")
+                if (dict["CentralBody"] == "Moon")
                 {
                     sat = new satellite(x.Key, new satelliteData(new Timeline(A, E, I, W, RAAN, M, 1, Time.strDateToJulian(dict["OrbitEpoch"]), moonMu)), rd);
                     satellite.addFamilyNode(moon, sat);
@@ -479,7 +479,7 @@ public class controller : MonoBehaviour
                     sat = new satellite(x.Key, new satelliteData(new Timeline(A, E, I, W, RAAN, M, 1, Time.strDateToJulian(dict["OrbitEpoch"]), EarthMu)), rd);
                     satellite.addFamilyNode(earth, sat);
                     earthSats.Add(sat);
-                }*/
+                }
 
                 if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (false, startTime + start, startTime + stop));
                 if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (false, startTime + start, startTime + stop));
