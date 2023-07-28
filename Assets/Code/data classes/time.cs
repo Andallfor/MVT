@@ -86,29 +86,14 @@ public class Time
     public static double strDateToJulian(string date)
     {
 
-        string[] splitDate = date.Split(new Char[] { ' ', ':'} , System.StringSplitOptions.RemoveEmptyEntries);
-
-        double month = 0;
-        if (splitDate[1] == "Jan") month = 1.0;
-        if (splitDate[1] == "Feb") month = 2.0;
-        if (splitDate[1] == "Mar") month = 3.0;
-        if (splitDate[1] == "Apr") month = 4.0;
-        if (splitDate[1] == "May") month = 5.0;
-        if (splitDate[1] == "Jun") month = 6.0;
-        if (splitDate[1] == "Jul") month = 7.0;
-        if (splitDate[1] == "Aug") month = 8.0;
-        if (splitDate[1] == "Sep") month = 9.0;
-        if (splitDate[1] == "Oct") month = 10.0;
-        if (splitDate[1] == "Nov") month = 11.0;
-        if (splitDate[1] == "Dec") month = 12.0;
-
-
-        double Y = Double.Parse(splitDate[2]);
-        double M = month;
-        double D = Double.Parse(splitDate[0]);
-        double H = Double.Parse(splitDate[3]);
+        string[] splitDate = date.Split(new Char[] {'_', ':', ' ', '-'} , System.StringSplitOptions.RemoveEmptyEntries);
+        
+        double Y = Double.Parse(splitDate[0]); ;
+        double M = Double.Parse(splitDate[1]); ;
+        double D = Double.Parse(splitDate[2]); ;
+        double H = Double.Parse(splitDate[3]); ;
         double Min = Double.Parse(splitDate[4]);
-        double S = Double.Parse(splitDate[5]);
+        double S = Double.Parse(splitDate[5]); ;
 
         double JDN = 367 * Y - (int)((7 * (Y + (int)((M + 9) / 12.0))) / 4.0) + (int)((275 * M) / 9.0) + D + 1721013.5 +
           (H + Min / 60.0 + S / Math.Pow(60, 2)) / 24.0 - 0.5 * copySign(1, (100 * Y + M - 190002.5)) + 0.5;

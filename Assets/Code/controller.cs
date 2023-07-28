@@ -50,7 +50,7 @@ public class controller : MonoBehaviour
         DBReader.output.setOutputFolder(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), date));
         string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
         DBReader.output.write("MissionStructure_2023.txt", json);
-        Debug.Log("Generating windows.....");
+        /*Debug.Log("Generating windows.....");
         ScheduleStructGenerator.genDB(missionStructure, "EarthTest", "DFSTestwindows.json", date, "PreconWindows");
         Debug.Log("Generating conflict list.....");
         ScheduleStructGenerator.createConflictList(date);
@@ -62,7 +62,7 @@ public class controller : MonoBehaviour
         //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 1 6");
         //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PreDFSUsers.txt")} {DBReader.output.get("PreDFSUsers", "png")} 0 1 6");
         System.Diagnostics.Process.Start(DBReader.apps.schedGen, $"{DBReader.output.get("ScheduleCSV", "csv")} source destination 0 1 {DBReader.output.get("sched", "png")} 0");
-
+        */
 
         loadingController.start(new Dictionary<float, string>() {
             {0, "Generating Planets"},
@@ -72,7 +72,7 @@ public class controller : MonoBehaviour
 
         StartCoroutine(start());
 
-        csvParser.loadAndCreateFacilities("CSVS/stationlist", earth);
+        //csvParser.loadAndCreateFacilities("CSVS/stationlist", earth);
     }
 
     IEnumerator start()
@@ -407,6 +407,8 @@ public class controller : MonoBehaviour
       var data = DBReader.getData();
 
       double prevTime = master.time.julian;
+      double startTime = Time.strDateToJulian(data["EarthTest"].epoch);
+      Debug.Log(startTime);
       master.time.addJulianTime(Time.strDateToJulian(data["EarthTest"].epoch)-prevTime);
 
       double oneHour = 0.0416666667;
@@ -429,71 +431,159 @@ public class controller : MonoBehaviour
 
       planet.addFamilyNode(earth, moon);
 
-      yield return new WaitForSeconds(0.1f);
-      loadingController.addPercent(0.11f);
+        /*yield return new WaitForSeconds(0.1f);
+        loadingController.addPercent(0.11f);*/
 
 
-      foreach (KeyValuePair<string, dynamic> x in data["EarthTest"].satellites) {
-          var dict = data["EarthTest"].satellites[x.Key];
+        foreach (KeyValuePair<string, dynamic> x in data["EarthTest"].satellites)
+        {
+            var dict = data["EarthTest"].satellites[x.Key];
+            if (x.Key == "My Satellite") continue;
 
-          if (dict["Type"] == "Satellite") {
-              if (dict["user_provider"] == "user/provider" || dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
-              if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+            Debug.Log(x.Key);
 
-              satellite sat = null;
+            double start = 0, stop = 0;
+            if (dict["TimeInterval_start"] is string) start = Double.Parse(dict["TimeInterval_start"], System.Globalization.NumberStyles.Any);
+            else start = (double)dict["TimeInterval_start"];
+
+            if (dict["TimeInterval_stop"] is string) stop = Double.Parse(dict["TimeInterval_stop"], System.Globalization.NumberStyles.Any);
+            else stop = (double)dict["TimeInterval_stop"];
+
+            if (dict["Type"] == "Satellite") 
+            {
+                satellite sat = null;
+
+                double A = 0, E = 0, I = 0, RAAN = 0, W = 0, M=0;
+
+                if (dict["SemimajorAxis"] is string) A = Double.Parse(dict["SemimajorAxis"], System.Globalization.NumberStyles.Any);
+                else A = (double)dict["SemimajorAxis"];
+                if (dict["Eccentricity"] is string) E = Double.Parse(dict["Eccentricity"], System.Globalization.NumberStyles.Any);
+                else E = (double)dict["Eccentricity"];
+                if (dict["Inclination"] is string) I = Double.Parse(dict["Inclination"], System.Globalization.NumberStyles.Any);
+                else I = (double)dict["Inclination"];
+                if (dict["Arg_of_Perigee"] is string) W = Double.Parse(dict["Arg_of_Perigee"], System.Globalization.NumberStyles.Any);
+                else W = (double)dict["Arg_of_Perigee"];
+                if (dict["RAAN"] is string) RAAN = Double.Parse(dict["RAAN"], System.Globalization.NumberStyles.Any);
+                else RAAN = (double)dict["RAAN"];
+                if (dict["MeanAnomaly"] is string) M = Double.Parse(dict["MeanAnomaly"], System.Globalization.NumberStyles.Any);
+                else M = (double)dict["MeanAnomaly"];
+
+                /*if (dict["CentralBody"] == "Moon")
+                {
+                    sat = new satellite(x.Key, new satelliteData(new Timeline(A, E, I, W, RAAN, M, 1, Time.strDateToJulian(dict["OrbitEpoch"]), moonMu)), rd);
+                    satellite.addFamilyNode(moon, sat);
+                    moonSats.Add(sat);
+                }
+                else if (dict["CentralBody"] == "Earth")
+                {
+                    sat = new satellite(x.Key, new satelliteData(new Timeline(A, E, I, W, RAAN, M, 1, Time.strDateToJulian(dict["OrbitEpoch"]), EarthMu)), rd);
+                    satellite.addFamilyNode(earth, sat);
+                    earthSats.Add(sat);
+                }*/
+
+                if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (false, startTime + start, startTime + stop));
+                if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (false, startTime + start, startTime + stop));
+                if (dict["user_provider"] == "user/provider")
+                {
+                    linkBudgeting.users.Add(x.Key, (false, startTime + start, startTime + stop));
+                    linkBudgeting.providers.Add(x.Key, (false, startTime + start, startTime + stop));
+                }
+            }
+            else if (dict["Type"] == "Facility")
+            {
+                double lat = 0, lon = 0, alt = 0;
+                if (dict["Lat"] is string) lat = Double.Parse(dict["Lat"], System.Globalization.NumberStyles.Any);
+                else lat = (double)dict["Lat"];
+                if (dict["Long"] is string) lon = Double.Parse(dict["Long"], System.Globalization.NumberStyles.Any);
+                else lon = (double)dict["Long"];
+                if (dict["AltitudeConstraint"] is string) alt = Double.Parse(dict["AltitudeConstraint"], System.Globalization.NumberStyles.Any);
+                else alt = (double)dict["AltitudeConstraint"];
+
+
+                if (dict["CentralBody"] == "Moon")
+                {
+                    facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(lat, lon), alt, new List<antennaData>(), new Time(startTime + start), new Time(startTime + stop)), frd);
+
+                }
+                else if (dict["CentralBody"] == "Earth")
+                {
+                    facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(lat, lon), alt, new List<antennaData>(), new Time(startTime + start), new Time(startTime + stop)), frd);
+
+                }
+
+                if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, startTime + start, startTime + stop));
+                if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, startTime + start, startTime + stop));
+                if (dict["user_provider"] == "user/provider")
+                {
+                    linkBudgeting.users.Add(x.Key, (true, startTime + start, startTime + stop));
+                    linkBudgeting.providers.Add(x.Key, (true, startTime + start, startTime + stop));
+                }
+            }
+
+            /*if (dict["Type"] == "Satellite") {
+                if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, startTime + start, startTime + stop));
+                if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, startTime + start, startTime + stop));
+                if (dict["user_provider"] == "user/provider")
+                {
+                    linkBudgeting.users.Add(x.Key, (true, startTime, startTime + 30));
+                    linkBudgeting.providers.Add(x.Key, (true, startTime, startTime + 30));
+                }
+
+                satellite sat = null;
 
 
               if (dict["CentralBody"] == "Moon") {
                 if (dict.ContainsKey("RAAN")) {
-                    sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"] / 1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), moonMu)),rd);
+                        Debug.Log(dict["OrbitEpoch"]);
+                    sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"], dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), moonMu)),rd);
                 }
                   satellite.addFamilyNode(moon, sat);
                   moonSats.Add(sat);
-              } else if (dict["CentralBody"] == "Earth") {
+              } 
+              else if (dict["CentralBody"] == "Earth")
+              { 
                 if (dict.ContainsKey("RAAN")) {
-                    sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"] / 1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), EarthMu)), rd);
+                    sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"], dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), EarthMu)), rd);
                 }
                   satellite.addFamilyNode(earth, sat);
                   earthSats.Add(sat);
               }
-          } else if (dict["Type"] == "Facility") {
+          } 
+          else if (dict["Type"] == "Facility") 
+            {
               if (dict["CentralBody"] == "Moon")
               {
-                  double start = 0, stop = 0;
-                  if (dict["TimeInterval_start"] is string) start = Double.Parse(dict["TimeInterval_start"], System.Globalization.NumberStyles.Any);
-                  else start = (double) dict["TimeInterval_start"];
 
-                  if (dict["TimeInterval_stop"] is string) stop = Double.Parse(dict["TimeInterval_stop"], System.Globalization.NumberStyles.Any);
-                  else stop = (double) dict["TimeInterval_stop"];
+                  facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), dict["AltitudeConstraint"], new List<antennaData>(), new Time(startTime + start), new Time(startTime + stop)), frd);
 
-                  facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), .01, new List<antennaData>(), new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);
-
-                  //facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna), frd);
-
-
-                  if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
-                  if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
+                  if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, startTime, startTime + 30));
+                  if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, startTime, startTime + 30));
                   if (dict["user_provider"] == "user/provider") {
-                      linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
-                      linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
-                  }
-                }
-                else {
-                  facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), .01, new List<antennaData>()), frd);
-
-                  if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
-                  if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
-                  if (dict["user_provider"] == "user/provider") {
-                      linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
-                      linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
+                      linkBudgeting.users.Add(x.Key, (true, startTime, startTime + 30));
+                      linkBudgeting.providers.Add(x.Key, (true, startTime, startTime + 30));
                   }
               }
-          }
-          master.relationshipSatellite[earth] = earthSats;
-          master.relationshipSatellite[moon] = moonSats;
+              else
+              { 
+                  facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), dict["AltitudeConstraint"], new List<antennaData>()), frd);
 
-      loadingController.addPercent(1);
-    }
+                  if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, startTime, startTime + 30));
+                  if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, startTime, startTime + 30));
+                  if (dict["user_provider"] == "user/provider") {
+                      linkBudgeting.users.Add(x.Key, (true, startTime, startTime + 30));
+                      linkBudgeting.providers.Add(x.Key, (true, startTime, startTime + 30));
+                  }
+              }
+          }*/
+
+        }
+        master.relationshipSatellite[earth] = earthSats;
+        master.relationshipSatellite[moon] = moonSats;
+
+            yield return new WaitForSeconds(0.1f);
+            loadingController.addPercent(0.11f);
+            loadingController.addPercent(1);
+
   }
 
     public void OnApplicationQuit()
