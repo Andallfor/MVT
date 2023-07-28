@@ -17,7 +17,7 @@ public class controller : MonoBehaviour
     private Coroutine loop;
     public static bool useTerrainVisibility = false;
     public static controller self;
-    private satellite sat1;
+
 
     public static float _logBase = 35;
 
@@ -37,13 +37,13 @@ public class controller : MonoBehaviour
         master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/sun", 0.0416666665, planetType.planet),
             new representationData("planet", "sunTex"));
 
-        
-        
+
+
         string date = DateTime.Now.ToString("MM-dd_hhmm");
         if(!File.Exists(DBReader.mainDBPath)) {
             Debug.Log("Generating main.db");
             Debug.Log("command: " + $"{DBReader.data.get("2023EarthAssets")} {DBReader.mainDBPath}");
-            System.Diagnostics.Process.Start(DBReader.apps.excelParser, $"{DBReader.data.get("2023EarthAssetsWithOrbits.xlsx")} {DBReader.mainDBPath}").WaitForExit();  
+            System.Diagnostics.Process.Start(DBReader.apps.excelParser, $"{DBReader.data.get("2023EarthAssetsWithOrbits.xlsx")} {DBReader.mainDBPath}").WaitForExit();
         }
         var missionStructure = DBReader.getData();
         Debug.Log("epoch: " + missionStructure["EarthTest"].epoch);
@@ -62,7 +62,7 @@ public class controller : MonoBehaviour
         //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 1 6");
         //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PreDFSUsers.txt")} {DBReader.output.get("PreDFSUsers", "png")} 0 1 6");
         System.Diagnostics.Process.Start(DBReader.apps.schedGen, $"{DBReader.output.get("ScheduleCSV", "csv")} source destination 0 1 {DBReader.output.get("sched", "png")} 0");
-        
+
 
         loadingController.start(new Dictionary<float, string>() {
             {0, "Generating Planets"},
@@ -328,13 +328,13 @@ public class controller : MonoBehaviour
 
         if (Input.GetKeyDown("y"))
         {
-            accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, new geographic(-35.398522, 148.981904), sat1);
+            //accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, new geographic(-35.398522, 148.981904), sat1);
             //access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/canberra"), 2);
-            access.initialize();
+            //access.initialize();
             //var output = access.findTimes(new Time(2461021.77854328), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
             //var output = access.findTimes(new Time(2461021.77854328 + 0.0002), new Time(2461021.77991930), 0.00069444444, 0.00001157407 / 2.0);
             //access.saveResults(output);
-            StartCoroutine(stall(access));
+            //StartCoroutine(stall(access));
         }
 
         if (Input.GetKeyDown("b")) {
@@ -400,49 +400,101 @@ public class controller : MonoBehaviour
         }, moon.representation.gameObject.transform);
     }
 
-    private IEnumerator JPL()
-    {
-        representationData rd = new representationData("planet", "defaultMat");
-        representationData frd = new representationData("facility", "defaultMat");
+    private IEnumerator JPL() {
+      representationData rd = new representationData("planet", "defaultMat");
+      representationData frd = new representationData("facility", "defaultMat");
 
-        double oneHour = 0.0416666667;
-        double EarthMu = 398600.0;
+      var data = DBReader.getData();
 
-        earth = new planet("Earth", new planetData(6356.75, rotationType.earth, $"CSVS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
-        moon = new planet("Luna", new planetData(1738.1, rotationType.none, $"CSVS/Luna", oneHour, planetType.moon), new representationData("planet", "moonTex"));
-        planet mercury = new planet("Mercury", new planetData(2439.7, rotationType.none, $"CSVS/mercury", oneHour, planetType.planet), new representationData("planet", "mercuryTex"));
-        planet venus = new planet("Venus", new planetData(6051.8, rotationType.none, $"CSVS/venus", oneHour, planetType.planet), new representationData("planet", "venusTex"));
-        planet jupiter = new planet("Jupiter", new planetData(71492, rotationType.none, $"CSVS/jupiter", oneHour, planetType.planet), new representationData("planet", "jupiterTex"));
-        planet saturn = new planet("Saturn", new planetData(60268, rotationType.none, $"CSVS/saturn", oneHour, planetType.planet), new representationData("planet", "saturnTex"));
-        planet uranus = new planet("Uranus", new planetData(25559, rotationType.none, $"CSVS/uranus", oneHour, planetType.planet), new representationData("planet", "uranusTex"));
-        planet neptune = new planet("Neptune", new planetData(24764, rotationType.none, $"CSVS/neptune", oneHour, planetType.planet), new representationData("planet", "neptuneTex"));
-        planet mars = new planet("Mars", new planetData(3389.92, rotationType.none, $"CSVS/mars", oneHour, planetType.planet), new representationData("planet", "marsTex"));
+      double prevTime = master.time.julian;
+      master.time.addJulianTime(Time.strDateToJulian(data["EarthTest"].epoch)-prevTime);
 
-        planet.addFamilyNode(earth, moon);
+      double oneHour = 0.0416666667;
+      double EarthMu = 398600.0;
+      double moonMu = 4900.0;
 
-        yield return new WaitForSeconds(0.1f);
-        loadingController.addPercent(0.11f);
+      List<satellite> earthSats = new List<satellite>();
+      List<satellite> moonSats = new List<satellite>();
 
-        facility svalbard = new facility("Svalbard", earth, new facilityData("Svalbard", new geographic(77.875, 20.9752), .001, new List<antennaData>()), new representationData("facility", "defaultMat"));
-        facility ASF = new facility("ASF", earth, new facilityData("ASF", new geographic(64.8401, -147.72), .001, new List<antennaData>()), new representationData("facility", "defaultMat"));
-        sat1 = new satellite("Sat1", new satelliteData(new Timeline(6378.1 + 900, 0, 98, 0, 0, 0, 0, 2461021.5, EarthMu)), rd);
 
-        facility np = new facility("North Pole", earth, new facilityData("North Pole", new geographic(90, 0), 0, new List<antennaData>()), new representationData("facility", "defaultMat"));
-        facility eq = new facility("Equator", earth, new facilityData("Equator", new geographic(0, 0), .001, new List<antennaData>()), new representationData("facility", "defaultMat"));
+      earth =          new planet(  "Earth", new planetData(6356.75, rotationType.earth, $"CSVS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
+      moon =           new planet(   "Luna", new planetData(1738.1,  rotationType.none,  $"CSVS/Luna",  oneHour,   planetType.moon), new representationData("planet", "moonTex"));
+      planet mercury = new planet("Mercury", new planetData(2439.7,  rotationType.none,  $"CSVS/mercury", oneHour, planetType.planet), new representationData("planet", "mercuryTex"));
+      planet venus =   new planet(  "Venus", new planetData(6051.8,  rotationType.none,  $"CSVS/venus", oneHour, planetType.planet), new representationData("planet", "venusTex"));
+      planet jupiter = new planet("Jupiter", new planetData( 71492,  rotationType.none,  $"CSVS/jupiter", oneHour, planetType.planet), new representationData("planet", "jupiterTex"));
+      planet saturn =  new planet( "Saturn", new planetData( 60268,  rotationType.none,  $"CSVS/saturn", oneHour, planetType.planet), new representationData("planet", "saturnTex"));
+      planet uranus =  new planet( "Uranus", new planetData( 25559,  rotationType.none,  $"CSVS/uranus", oneHour, planetType.planet), new representationData("planet", "uranusTex"));
+      planet neptune = new planet("Neptune", new planetData( 24764,  rotationType.none,  $"CSVS/neptune", oneHour, planetType.planet), new representationData("planet", "neptuneTex"));
+      planet mars =    new planet(   "Mars", new planetData(3389.92, rotationType.none,  $"CSVS/mars", oneHour, planetType.planet), new representationData("planet", "marsTex"));
 
-        body.addFamilyNode(earth, sat1);
-        body.addFamilyNode(earth, moon);
+      planet.addFamilyNode(earth, moon);
 
-        master.relationshipSatellite[earth] = new List<satellite>() { sat1 };
-        master.relationshipPlanet[earth] = new List<planet>() { moon };
+      yield return new WaitForSeconds(0.1f);
+      loadingController.addPercent(0.11f);
 
-        linkBudgeting.users.Add("Sat1", (false, 2461021.5, 2461051.5));
-        linkBudgeting.providers.Add("ASF", (true, 2461021.5, 2461051.5));
-        linkBudgeting.providers.Add("Svalbard", (true, 2461021.5, 2461051.5));
-        linkBudgeting.providers.Add("Equator", (true, 2461021.5, 2461051.5));
 
-        loadingController.addPercent(1);
+      foreach (KeyValuePair<string, dynamic> x in data["EarthTest"].satellites) {
+          var dict = data["EarthTest"].satellites[x.Key];
+
+          if (dict["Type"] == "Satellite") {
+              if (dict["user_provider"] == "user/provider" || dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+              if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (false, 2460806.5 + dict["TimeInterval_start"], 2460806.5 + dict["TimeInterval_stop"]));
+
+              satellite sat = null;
+
+
+              if (dict["CentralBody"] == "Moon") {
+                if (dict.ContainsKey("RAAN")) {
+                    sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"] / 1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), moonMu)),rd);
+                }
+                  satellite.addFamilyNode(moon, sat);
+                  moonSats.Add(sat);
+              } else if (dict["CentralBody"] == "Earth") {
+                if (dict.ContainsKey("RAAN")) {
+                    sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"] / 1000, dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), EarthMu)), rd);
+                }
+                  satellite.addFamilyNode(earth, sat);
+                  earthSats.Add(sat);
+              }
+          } else if (dict["Type"] == "Facility") {
+              if (dict["CentralBody"] == "Moon")
+              {
+                  double start = 0, stop = 0;
+                  if (dict["TimeInterval_start"] is string) start = Double.Parse(dict["TimeInterval_start"], System.Globalization.NumberStyles.Any);
+                  else start = (double) dict["TimeInterval_start"];
+
+                  if (dict["TimeInterval_stop"] is string) stop = Double.Parse(dict["TimeInterval_stop"], System.Globalization.NumberStyles.Any);
+                  else stop = (double) dict["TimeInterval_stop"];
+
+                  facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), .01, new List<antennaData>(), new Time(2460806.5 + start), new Time(2460806.5 + stop)), frd);
+
+                  //facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), antenna), frd);
+
+
+                  if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
+                  if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
+                  if (dict["user_provider"] == "user/provider") {
+                      linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
+                      linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
+                  }
+                }
+                else {
+                  facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), .01, new List<antennaData>()), frd);
+
+                  if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
+                  if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
+                  if (dict["user_provider"] == "user/provider") {
+                      linkBudgeting.users.Add(x.Key, (true, 2460806.5, 2460836.5));
+                      linkBudgeting.providers.Add(x.Key, (true, 2460806.5, 2460836.5));
+                  }
+              }
+          }
+          master.relationshipSatellite[earth] = earthSats;
+          master.relationshipSatellite[moon] = moonSats;
+
+      loadingController.addPercent(1);
     }
+  }
 
     public void OnApplicationQuit()
     {
