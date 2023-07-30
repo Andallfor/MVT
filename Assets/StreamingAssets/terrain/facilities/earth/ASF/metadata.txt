@@ -1,7 +1,7 @@
-ncols 43783
-nrows 13169
-xllcorner -149.087222222299
-yllcorner 64.167222222423
+ncols 4571
+nrows 1942
+xllcorner -148.068611111783
+yllcorner 64.76870370387
 cellsize 9.2592593e-05
 NODATA_value -999999
 res 5
