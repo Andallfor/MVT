@@ -1,10 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using System;
-using System.Linq;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using UnityEngine;
 using Newtonsoft.Json;
+using System.Diagnostics;
 
 public class controller : MonoBehaviour
 {
@@ -17,6 +19,8 @@ public class controller : MonoBehaviour
     private Coroutine loop;
     public static bool useTerrainVisibility = false;
     public static controller self;
+    public static double scenarioStart;
+    public static bool accessRunning = false;
 
 
     public static float _logBase = 35;
@@ -40,17 +44,18 @@ public class controller : MonoBehaviour
 
 
         string date = DateTime.Now.ToString("MM-dd_hhmm");
-        if(!File.Exists(DBReader.mainDBPath)) {
-            Debug.Log("Generating main.db");
-            Debug.Log("command: " + $"{DBReader.data.get("2023EarthAssets")} {DBReader.mainDBPath}");
+        if (!File.Exists(DBReader.mainDBPath))
+        {
+            UnityEngine.Debug.Log("Generating main.db");
+            UnityEngine.Debug.Log("command: " + $"{DBReader.data.get("2023EarthAssets")} {DBReader.mainDBPath}");
             System.Diagnostics.Process.Start(DBReader.apps.excelParser, $"{DBReader.data.get("2023EarthAssetsWithOrbits.xlsx")} {DBReader.mainDBPath}").WaitForExit();
         }
-        var missionStructure = DBReader.getData();
+        /*var missionStructure = DBReader.getData();
         Debug.Log("epoch: " + missionStructure["EarthTest"].epoch);
         DBReader.output.setOutputFolder(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), date));
         string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
         DBReader.output.write("MissionStructure_2023.txt", json);
-        /*Debug.Log("Generating windows.....");
+        Debug.Log("Generating windows.....");
         ScheduleStructGenerator.genDB(missionStructure, "EarthTest", "DFSTestwindows.json", date, "PreconWindows");
         Debug.Log("Generating conflict list.....");
         ScheduleStructGenerator.createConflictList(date);
@@ -84,7 +89,8 @@ public class controller : MonoBehaviour
 
         yield return new WaitForSeconds(0.1f);
 
-        master.onScaleChange += (s, e) => {
+        master.onScaleChange += (s, e) =>
+        {
             if (general.showingTrails)
             {
                 foreach (planet p in master.allPlanets) p.tr.enable();
@@ -131,7 +137,8 @@ public class controller : MonoBehaviour
         master.time.addJulianTime((double)2461021.5 - (double)master.time.julian);
         master.requestPositionUpdate();
         dynamicLinkOptions options = new dynamicLinkOptions();
-        options.callback = (data) => {
+        options.callback = (data) =>
+        {
             //windows.jsonWindows(data);
             windows.jsonWindows(data);
         };
@@ -167,7 +174,8 @@ public class controller : MonoBehaviour
         master.time.addJulianTime((double)2461021.5 - (double)master.time.julian);
         master.requestPositionUpdate();
         dynamicLinkOptions options = new dynamicLinkOptions();
-        options.callback = (data) => {
+        options.callback = (data) =>
+        {
             WNRs.jsonWindows(data);
         };
         options.debug = true;
@@ -253,7 +261,8 @@ public class controller : MonoBehaviour
     {
         if (loop != null && force == false) return;
 
-        loop = StartCoroutine(general.internalClock(tickrate, int.MaxValue, (tick) => {
+        loop = StartCoroutine(general.internalClock(tickrate, int.MaxValue, (tick) =>
+        {
             if (!general.blockMainLoop)
             {
                 if (master.pause)
@@ -293,8 +302,8 @@ public class controller : MonoBehaviour
             Vector3 v1 = (Vector3)(geographic.toCartesian(new geographic(0, 0), earth.radius).swapAxis());
             Vector3 v2 = (Vector3)(geographic.toCartesianWGS(new geographic(0, 0), 0).swapAxis());
 
-            Debug.Log("regular: " + v1);
-            Debug.Log("wgs: " + v2);
+            UnityEngine.Debug.Log("regular: " + v1);
+            UnityEngine.Debug.Log("wgs: " + v2);
 
             runWindowsNoRate();
         }
@@ -313,7 +322,7 @@ public class controller : MonoBehaviour
             string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth");
             string p = Directory.GetDirectories(src)[stationIndex];
             universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
-            Debug.Log(p);
+            UnityEngine.Debug.Log(p);
 
             if (prevDist != null) prevDist.clear();
             geographic offset = new geographic(1, 1);
@@ -334,11 +343,44 @@ public class controller : MonoBehaviour
             //var output = access.findTimes(new Time(2461021.77854328), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
             //var output = access.findTimes(new Time(2461021.77854328 + 0.0002), new Time(2461021.77991930), 0.00069444444, 0.00001157407 / 2.0);
             //access.saveResults(output);
-            //StartCoroutine(stall(access));
+            if (accessRunning == false)
+            {
+                accessRunning = true;
+                List<satellite> users = new List<satellite>();
+
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+
+                foreach (var u in linkBudgeting.users)
+                {
+                    users.Add(master.allSatellites.Find(x => x.name == u.Key));
+                }
+
+                foreach (var p in linkBudgeting.providers)
+                {
+                    facility provider = master.allFacilities.Find(x => x.name == p.Key);
+                    
+                    accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, provider.geo, users, p.Key);
+                    access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/" + p.Key), 2);
+                    var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 30), 0.00069444444, 0.00001157407 / 2.0);
+                    //StartCoroutine(stall(access));                   
+                }
+                accessRunning = false;
+                stopWatch.Stop();
+
+                TimeSpan ts = stopWatch.Elapsed;
+
+                // Format and display the TimeSpan value.
+                string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                    ts.Hours, ts.Minutes, ts.Seconds,
+                    ts.Milliseconds / 10);
+                UnityEngine.Debug.Log("RunTime " + elapsedTime);
+            }
         }
 
-        if (Input.GetKeyDown("b")) {
-            web.sendMessage((byte) constantWebHandles.ping, new byte[] {15});
+        if (Input.GetKeyDown("b"))
+        {
+            web.sendMessage((byte)constantWebHandles.ping, new byte[] { 15 });
         }
     }
 
@@ -346,11 +388,12 @@ public class controller : MonoBehaviour
     { // TODO: replace with a physics update call
         yield return new WaitForSeconds(1);
         //var output = access.findTimes(new Time(2461022.77871296), new Time(2461022.78237024), 0.00069444444, 0.00001157407 / 2.0);
-
+        
         //var output = access.findTimes(new Time(2461021.77854328), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
         var output = access.findTimes(new Time(2459560.84525522), new Time(2459560.84525522 + 1000), 0.00069444444, 0.00001157407 / 2.0);
         //var output = access.bruteForce(new Time(2461021.77854328), new Time(2461022.93452393), 0.00001157407);
-        access.saveResults(output);
+        // access.saveResults(output);
+        //Debug.Log("done");
     }
 
     int stationIndex = 0;
@@ -400,47 +443,46 @@ public class controller : MonoBehaviour
         }, moon.representation.gameObject.transform);
     }
 
-    private IEnumerator JPL() {
-      representationData rd = new representationData("planet", "defaultMat");
-      representationData frd = new representationData("facility", "defaultMat");
+    private IEnumerator JPL()
+    {
+        representationData rd = new representationData("planet", "defaultMat");
+        representationData frd = new representationData("facility", "defaultMat");
 
-      var data = DBReader.getData();
+        var data = DBReader.getData();
 
-      double prevTime = master.time.julian;
-      double startTime = Time.strDateToJulian(data["EarthTest"].epoch);
-      Debug.Log(startTime);
-      master.time.addJulianTime(Time.strDateToJulian(data["EarthTest"].epoch)-prevTime);
+        double prevTime = master.time.julian;
+        double startTime = Time.strDateToJulian(data["EarthTest"].epoch);
+        scenarioStart = startTime;
+        master.time.addJulianTime(Time.strDateToJulian(data["EarthTest"].epoch) - prevTime);
 
-      double oneHour = 0.0416666667;
-      double EarthMu = 398600.0;
-      double moonMu = 4900.0;
+        double oneHour = 0.0416666667;
+        double EarthMu = 398600.0;
+        double moonMu = 4900.0;
 
-      List<satellite> earthSats = new List<satellite>();
-      List<satellite> moonSats = new List<satellite>();
+        List<satellite> earthSats = new List<satellite>();
+        List<satellite> moonSats = new List<satellite>();
 
 
-      earth =          new planet(  "Earth", new planetData(6356.75, rotationType.earth, $"CSVS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
-      moon =           new planet(   "Luna", new planetData(1738.1,  rotationType.none,  $"CSVS/Luna",  oneHour,   planetType.moon), new representationData("planet", "moonTex"));
-      planet mercury = new planet("Mercury", new planetData(2439.7,  rotationType.none,  $"CSVS/mercury", oneHour, planetType.planet), new representationData("planet", "mercuryTex"));
-      planet venus =   new planet(  "Venus", new planetData(6051.8,  rotationType.none,  $"CSVS/venus", oneHour, planetType.planet), new representationData("planet", "venusTex"));
-      planet jupiter = new planet("Jupiter", new planetData( 71492,  rotationType.none,  $"CSVS/jupiter", oneHour, planetType.planet), new representationData("planet", "jupiterTex"));
-      planet saturn =  new planet( "Saturn", new planetData( 60268,  rotationType.none,  $"CSVS/saturn", oneHour, planetType.planet), new representationData("planet", "saturnTex"));
-      planet uranus =  new planet( "Uranus", new planetData( 25559,  rotationType.none,  $"CSVS/uranus", oneHour, planetType.planet), new representationData("planet", "uranusTex"));
-      planet neptune = new planet("Neptune", new planetData( 24764,  rotationType.none,  $"CSVS/neptune", oneHour, planetType.planet), new representationData("planet", "neptuneTex"));
-      planet mars =    new planet(   "Mars", new planetData(3389.92, rotationType.none,  $"CSVS/mars", oneHour, planetType.planet), new representationData("planet", "marsTex"));
+        earth = new planet("Earth", new planetData(6356.75, rotationType.earth, $"CSVS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
+        moon = new planet("Luna", new planetData(1738.1, rotationType.none, $"CSVS/Luna", oneHour, planetType.moon), new representationData("planet", "moonTex"));
+        planet mercury = new planet("Mercury", new planetData(2439.7, rotationType.none, $"CSVS/mercury", oneHour, planetType.planet), new representationData("planet", "mercuryTex"));
+        planet venus = new planet("Venus", new planetData(6051.8, rotationType.none, $"CSVS/venus", oneHour, planetType.planet), new representationData("planet", "venusTex"));
+        planet jupiter = new planet("Jupiter", new planetData(71492, rotationType.none, $"CSVS/jupiter", oneHour, planetType.planet), new representationData("planet", "jupiterTex"));
+        planet saturn = new planet("Saturn", new planetData(60268, rotationType.none, $"CSVS/saturn", oneHour, planetType.planet), new representationData("planet", "saturnTex"));
+        planet uranus = new planet("Uranus", new planetData(25559, rotationType.none, $"CSVS/uranus", oneHour, planetType.planet), new representationData("planet", "uranusTex"));
+        planet neptune = new planet("Neptune", new planetData(24764, rotationType.none, $"CSVS/neptune", oneHour, planetType.planet), new representationData("planet", "neptuneTex"));
+        planet mars = new planet("Mars", new planetData(3389.92, rotationType.none, $"CSVS/mars", oneHour, planetType.planet), new representationData("planet", "marsTex"));
 
-      planet.addFamilyNode(earth, moon);
+        planet.addFamilyNode(earth, moon);
 
         /*yield return new WaitForSeconds(0.1f);
         loadingController.addPercent(0.11f);*/
-
+        List<string> facs = new List<string>();
 
         foreach (KeyValuePair<string, dynamic> x in data["EarthTest"].satellites)
         {
             var dict = data["EarthTest"].satellites[x.Key];
             if (x.Key == "My Satellite") continue;
-
-            Debug.Log(x.Key);
 
             double start = 0, stop = 0;
             if (dict["TimeInterval_start"] is string) start = Double.Parse(dict["TimeInterval_start"], System.Globalization.NumberStyles.Any);
@@ -449,11 +491,11 @@ public class controller : MonoBehaviour
             if (dict["TimeInterval_stop"] is string) stop = Double.Parse(dict["TimeInterval_stop"], System.Globalization.NumberStyles.Any);
             else stop = (double)dict["TimeInterval_stop"];
 
-            if (dict["Type"] == "Satellite") 
+            if (dict["Type"] == "Satellite")
             {
                 satellite sat = null;
 
-                double A = 0, E = 0, I = 0, RAAN = 0, W = 0, M=0;
+                double A = 0, E = 0, I = 0, RAAN = 0, W = 0, M = 0;
 
                 if (dict["SemimajorAxis"] is string) A = Double.Parse(dict["SemimajorAxis"], System.Globalization.NumberStyles.Any);
                 else A = (double)dict["SemimajorAxis"];
@@ -481,13 +523,13 @@ public class controller : MonoBehaviour
                     earthSats.Add(sat);
                 }
 
-                if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (false, startTime + start, startTime + stop));
-                if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (false, startTime + start, startTime + stop));
+                if (dict["user_provider"] == "user" || dict["user_provider"] == "user/provider") linkBudgeting.users.Add(x.Key, (false, startTime + start, startTime + stop));
+                /*if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (false, startTime + start, startTime + stop));
                 if (dict["user_provider"] == "user/provider")
                 {
                     linkBudgeting.users.Add(x.Key, (false, startTime + start, startTime + stop));
                     linkBudgeting.providers.Add(x.Key, (false, startTime + start, startTime + stop));
-                }
+                }*/
             }
             else if (dict["Type"] == "Facility")
             {
@@ -499,92 +541,44 @@ public class controller : MonoBehaviour
                 if (dict["AltitudeConstraint"] is string) alt = Double.Parse(dict["AltitudeConstraint"], System.Globalization.NumberStyles.Any);
                 else alt = (double)dict["AltitudeConstraint"];
 
+                string facilityName = Regex.Replace(x.Key, @"[\d]", String.Empty);
+                if (facilityName == "SGKa") facilityName = "SG";
 
                 if (dict["CentralBody"] == "Moon")
                 {
-                    facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(lat, lon), alt, new List<antennaData>(), new Time(startTime + start), new Time(startTime + stop)), frd);
-
+                    if (!facs.Contains(facilityName))
+                    {
+                        facility fd = new facility(facilityName, moon, new facilityData(facilityName, new geographic(lat, lon), alt, new List<antennaData>(), new Time(startTime + start), new Time(startTime + stop)), frd);
+                        facs.Add(facilityName);
+                        if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(facilityName, (true, startTime + start, startTime + stop));
+                    }
                 }
                 else if (dict["CentralBody"] == "Earth")
                 {
-                    facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(lat, lon), alt, new List<antennaData>(), new Time(startTime + start), new Time(startTime + stop)), frd);
-
+                    if (!facs.Contains(facilityName))
+                    {
+                        facility fd = new facility(facilityName, earth, new facilityData(facilityName, new geographic(lat, lon), alt, new List<antennaData>(), new Time(startTime + start), new Time(startTime + stop)), frd);
+                        facs.Add(facilityName);
+                        if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(facilityName, (true, startTime + start, startTime + stop));
+                    }
                 }
 
-                if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, startTime + start, startTime + stop));
-                if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, startTime + start, startTime + stop));
-                if (dict["user_provider"] == "user/provider")
+                //if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, startTime + start, startTime + stop));
+                /*if (dict["user_provider"] == "user/provider")
                 {
                     linkBudgeting.users.Add(x.Key, (true, startTime + start, startTime + stop));
                     linkBudgeting.providers.Add(x.Key, (true, startTime + start, startTime + stop));
-                }
+                }*/
             }
-
-            /*if (dict["Type"] == "Satellite") {
-                if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, startTime + start, startTime + stop));
-                if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, startTime + start, startTime + stop));
-                if (dict["user_provider"] == "user/provider")
-                {
-                    linkBudgeting.users.Add(x.Key, (true, startTime, startTime + 30));
-                    linkBudgeting.providers.Add(x.Key, (true, startTime, startTime + 30));
-                }
-
-                satellite sat = null;
-
-
-              if (dict["CentralBody"] == "Moon") {
-                if (dict.ContainsKey("RAAN")) {
-                        Debug.Log(dict["OrbitEpoch"]);
-                    sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"], dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), moonMu)),rd);
-                }
-                  satellite.addFamilyNode(moon, sat);
-                  moonSats.Add(sat);
-              } 
-              else if (dict["CentralBody"] == "Earth")
-              { 
-                if (dict.ContainsKey("RAAN")) {
-                    sat = new satellite(x.Key, new satelliteData(new Timeline(dict["SemimajorAxis"], dict["Eccentricity"], dict["Inclination"], dict["Arg_of_Perigee"], dict["RAAN"], dict["MeanAnomaly"], 1, Time.strDateToJulian(dict["OrbitEpoch"]), EarthMu)), rd);
-                }
-                  satellite.addFamilyNode(earth, sat);
-                  earthSats.Add(sat);
-              }
-          } 
-          else if (dict["Type"] == "Facility") 
-            {
-              if (dict["CentralBody"] == "Moon")
-              {
-
-                  facility fd = new facility(x.Key, moon, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), dict["AltitudeConstraint"], new List<antennaData>(), new Time(startTime + start), new Time(startTime + stop)), frd);
-
-                  if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, startTime, startTime + 30));
-                  if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, startTime, startTime + 30));
-                  if (dict["user_provider"] == "user/provider") {
-                      linkBudgeting.users.Add(x.Key, (true, startTime, startTime + 30));
-                      linkBudgeting.providers.Add(x.Key, (true, startTime, startTime + 30));
-                  }
-              }
-              else
-              { 
-                  facility fd = new facility(x.Key, earth, new facilityData(x.Key, new geographic(dict["Lat"], dict["Long"]), dict["AltitudeConstraint"], new List<antennaData>()), frd);
-
-                  if (dict["user_provider"] == "user") linkBudgeting.users.Add(x.Key, (true, startTime, startTime + 30));
-                  if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(x.Key, (true, startTime, startTime + 30));
-                  if (dict["user_provider"] == "user/provider") {
-                      linkBudgeting.users.Add(x.Key, (true, startTime, startTime + 30));
-                      linkBudgeting.providers.Add(x.Key, (true, startTime, startTime + 30));
-                  }
-              }
-          }*/
-
         }
         master.relationshipSatellite[earth] = earthSats;
         master.relationshipSatellite[moon] = moonSats;
 
-            yield return new WaitForSeconds(0.1f);
-            loadingController.addPercent(0.11f);
-            loadingController.addPercent(1);
+        yield return new WaitForSeconds(0.1f);
+        loadingController.addPercent(0.11f);
+        loadingController.addPercent(1);
 
-  }
+    }
 
     public void OnApplicationQuit()
     {

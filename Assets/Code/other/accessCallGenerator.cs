@@ -7,9 +7,10 @@ using System.IO;
 using System.Diagnostics;
 
 public class accessCallGeneratorWGS {
-    private satellite target;
+    private List<satellite> satList;
     private geographic pos;
     private planet earth;
+    private string provider;
     private position worldPositionNoHeight, worldPositionWithHeight;
     private Vector3 unityPositionWithHeight, unityPositionNoHeight;
     private bool initialized = false;
@@ -18,10 +19,11 @@ public class accessCallGeneratorWGS {
     private double altitude;
     public bool usingTerrain {get; private set;}
 
-    public accessCallGeneratorWGS(planet earth, geographic pos, satellite target) {
-        this.target = target;
+    public accessCallGeneratorWGS(planet earth, geographic pos, List<satellite> satList, string provider) {
+        this.satList = satList;
         this.pos = pos;
         this.earth = earth;
+        this.provider = provider;
     }
 
     public void initialize(string path, uint res) {initialize(path, Vector2.zero, Vector2.one, res);}
@@ -129,7 +131,7 @@ public class accessCallGeneratorWGS {
         return spans;
     }
 
-    public List<accessCallTimeSpan> findTimes(Time start, Time end, double maxInc, double minInc) {
+    public List<ScheduleStructGenerator.Window.window> findTimes(Time start, Time end, double maxInc, double minInc) {
         if (!initialized) throw new MethodAccessException("Cannot run access calls unless .initialize(...) has been called!");
 
         bool isBlocked = true;
@@ -140,52 +142,67 @@ public class accessCallGeneratorWGS {
         double time = 0;
 
         bool hit = true;
+        int cnt = 0;
 
+        List<ScheduleStructGenerator.Window.window> spans = new List<ScheduleStructGenerator.Window.window>();
 
-        Stopwatch stopWatch = new Stopwatch();
-        stopWatch.Start();
-
-        List<double[]> minElevationTimes = ElevationCheck.elevationTimes(target.data.positions, pos, altitude, minEl, (end.julian - start.julian) * 86400, start.julian);
-        List<accessCallTimeSpan> spans = new List<accessCallTimeSpan>();
-
-        if (minElevationTimes != null)
+        //Stopwatch stopWatch = new Stopwatch();
+        //stopWatch.Start();
+        foreach (satellite target in satList)
         {
-            //may change later if it works 
-            earth.representation.gameObject.transform.rotation = new Quaternion(0f, 0f, 0f, 1);
+            List<double[]> minElevationTimes = ElevationCheck.elevationTimes(target.data.positions, pos, altitude, minEl, (end.julian - start.julian) * 86400, start.julian);
 
-            for (int x = 0; x < minElevationTimes.Count; x++)
+            if (minElevationTimes != null)
             {
-                //start
-                time = minElevationTimes[x][0];
-                hit = raycastNoUpdate(time);
-                if (hit) startTime = findBoundaryNoUpdate(time, maxInc, false, minInc);
-                else startTime = time;
+                //may change later if it works 
+                earth.representation.gameObject.transform.rotation = new Quaternion(0f, 0f, 0f, 1);
 
-                //end
-                time = minElevationTimes[x][1];
-                hit = raycastNoUpdate(time);
-                if (hit) endTime = findBoundaryNoUpdate(time, maxInc, false, minInc);
-                else endTime = time;
-
-                if (endTime - startTime > .0035)
+                for (int x = 0; x < minElevationTimes.Count; x++)
                 {
-                    spans.Add(new accessCallTimeSpan(startTime, endTime));
+                    //start
+                    time = minElevationTimes[x][0];
+                    hit = raycastNoUpdate(target, time);
+                    if (hit) startTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
+                    else startTime = time;
+
+                    //end
+                    time = minElevationTimes[x][1];
+                    hit = raycastNoUpdate(target, time);
+                    if (hit) endTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
+                    else endTime = time;
+
+                    if (endTime - startTime > .0035)
+                    {
+                        ScheduleStructGenerator.Window.window window = new ScheduleStructGenerator.Window.window();
+                        window.ID = cnt;
+                        window.frequency = "KaBand";
+                        window.source = target.name; //user
+                        window.destination = provider;
+                        window.start = startTime;
+                        window.stop = endTime;
+                        window.duration = endTime - startTime;
+                        spans.Add(window);
+                        cnt++;
+                    }
                 }
             }
         }
 
-        stopWatch.Stop();
+        //stopWatch.Stop();
 
-        TimeSpan ts = stopWatch.Elapsed;
+        /*TimeSpan ts = stopWatch.Elapsed;
 
         // Format and display the TimeSpan value.
         string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
             ts.Hours, ts.Minutes, ts.Seconds,
             ts.Milliseconds / 10);
-        UnityEngine.Debug.Log("RunTime " + elapsedTime);
-
+        UnityEngine.Debug.Log("RunTime " + elapsedTime);*/
+        meshDist.clear();
+        meshWGS.clear();
         return spans;
     }
+
+
 
     private double findBoundary(double time, double inc, bool targetStart, double minInc) {
         // termination condition- original, !original (separated by minInc)
@@ -216,20 +233,20 @@ public class accessCallGeneratorWGS {
         return result;
     }
 
-    private double findBoundaryNoUpdate(double time, double inc, bool targetStart, double minInc)
+    private double findBoundaryNoUpdate(satellite target, double time, double inc, bool targetStart, double minInc)
     {
         // termination condition- original, !original (separated by minInc)
         if (inc <= minInc) return time;
 
-        bool originalHit = raycastNoUpdate(time);
-        if (originalHit != targetStart) return findBoundaryNoUpdate(time - inc / 2.0, inc / 2.0, targetStart, minInc);
+        bool originalHit = raycastNoUpdate(target, time);
+        if (originalHit != targetStart) return findBoundaryNoUpdate(target, time - inc / 2.0, inc / 2.0, targetStart, minInc);
 
-        bool next = raycastNoUpdate(time + minInc);
+        bool next = raycastNoUpdate(target, time + minInc);
         if (next != targetStart) return time;
-        return findBoundaryNoUpdate(time + inc / 2.0, inc / 2.0, targetStart, minInc);
+        return findBoundaryNoUpdate(target, time + inc / 2.0, inc / 2.0, targetStart, minInc);
     }
 
-    public bool raycastNoUpdate(double time)
+    public bool raycastNoUpdate(satellite target, double time)
     {
         Vector3 dst = (Vector3)((target.data.positions.find(new Time(time)).ECI2ECEF(time) - master.referenceFrame - master.currentPosition) / master.scale);
 
@@ -242,13 +259,13 @@ public class accessCallGeneratorWGS {
 
 
     private bool raycast() {
-        Vector3 dst = (Vector3) ((target.pos - master.referenceFrame - master.currentPosition) / master.scale);
+        //Vector3 dst = (Vector3) ((target.pos - master.referenceFrame - master.currentPosition) / master.scale);
 
         // (0,0,0) because we center (via master.currentPosition) on the correct starting position
         // raycast instead of linecast to prevent physics from checking too much (we really only need to check whats nearby)
-        bool result = Physics.Raycast(Vector3.zero, dst, 100, (1 << 6) | (1 << 7)); // terrain and planets only
+        //bool result = Physics.Raycast(Vector3.zero, dst, 100, (1 << 6) | (1 << 7)); // terrain and planets only
         //Debug.DrawLine(Vector3.zero, dst, result ? Color.red : Color.green, 10000000);
-        return result;
+        return true;
     }
 
     private void updateMeshes() {

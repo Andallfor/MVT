@@ -698,6 +698,17 @@ public static class ScheduleStructGenerator
         {
             return (Window)this.MemberwiseClone();
         }
+
+        public struct window
+        {
+            public int ID;
+            public string frequency;
+            public string source; //user
+            public string destination;
+            public double start;
+            public double stop;
+            public double duration;
+        }
     }
 
     public class User

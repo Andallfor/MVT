@@ -53,14 +53,12 @@ public class Contacts
             {
                 test1 = 1;
 
-                while (test1 > 0.0001)
+                while (test1 > 0.01)
                 {
                     //Console.WriteLine("Time: " + time+"\ttest1: "+test1);
                     t3 = ((t2 - t1) / (y2 - y1) * -y1) + t1;
 
                     double var = Calc.topo(sat, geo, alt, jd + ((t3) / 86400));
-
-
 
                     if (var < minEl)
                     {
