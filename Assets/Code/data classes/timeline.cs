@@ -48,6 +48,18 @@ public class Timeline : ITimeline
         else return tk.find(t);
     }
 
+    public double findOrbitalPeriod()
+    {
+        if (selection == TimelineSelection.positions) return tp.findOrbitalPeriod();
+        else return tk.findOrbitalPeriod();
+    }
+
+    public double returnSemiMajorAxis()
+    {
+        if (selection == TimelineSelection.positions) return -1;
+        else return tk.returnSemiMajorAxis();
+    }
+
     public bool exists(Time t) {
         if (selection == TimelineSelection.positions) return tp.exists(t);
         else return tk.exists(t);
@@ -84,6 +96,12 @@ public class TimelinePosition : ITimeline
         this.first = index.First();
         this.last = index.Last();
     }
+
+    public double findOrbitalPeriod()
+    {
+        return 1;
+    }
+
 
     public position find(Time t)
     {
@@ -141,6 +159,16 @@ public class TimelineKepler : ITimeline
 
     private const double degToRad = Math.PI / 180.0;
     private const double radToDeg = 180.0 / Math.PI;
+
+    public double findOrbitalPeriod()
+    {
+        return Math.Sqrt(Math.Pow(semiMajorAxis / 149597870.69099998, 3)) * 365.25 * 580;
+    }
+
+    public double returnSemiMajorAxis()
+    {
+        return semiMajorAxis;
+    }
 
     public position find(Time t)
     {

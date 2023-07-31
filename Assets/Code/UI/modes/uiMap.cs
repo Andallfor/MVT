@@ -106,7 +106,7 @@ public sealed class uiMap : IMode {
     }
 
     private void generateTrails(List<satellite> ss, List<int> r) {
-        double totalTime = 1;
+        double totalTime = 0;
         int resolution = 360;
         double increment = totalTime / (double) resolution;
 

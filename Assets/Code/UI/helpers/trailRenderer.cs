@@ -98,25 +98,25 @@ public class trailRenderer
     public static void drawAllSatelliteTrails(List<satellite> _desired) {
         Dictionary<satellite, List<Vector3>> output = new Dictionary<satellite, List<Vector3>>();
 
+
         List<satellite> desired = new List<satellite>();
+        List<satellite> LEO = new List<satellite>();
         foreach (satellite s in _desired) {
             if (s.name == master.requestReferenceFrame().name) continue;
             if (!s.tr.transform.gameObject.GetComponent<MeshRenderer>().enabled) continue;
 
-            desired.Add(s);
+            if (s.positions.returnSemiMajorAxis() - 6356.75 < 2000) LEO.Add(s);
+            else desired.Add(s);
+
             output[s] = new List<Vector3>();
         }
 
-        double totalTime = 1; // TODO: dont use this
-        double increment = totalTime / (double) resolution;
-        double checkpoint = master.time.julian;
-
-        master.time.addJulianTime(-totalTime * 0.5);
 
         for (int i = 0; i < resolution + 1; i++) {
-            position refPos = master.requestReferenceFrame().pos;
             foreach (satellite s in desired) {
                 if (!s.positions.exists(master.time)) continue;
+                master.time.addJulianTime((s.positions.findOrbitalPeriod() / (double) resolution) * i);
+                position refPos = master.requestReferenceFrame().pos;
 
                 position p = s.pos;
                 if (planetOverview.instance.active) p = planetOverview.instance.planetOverviewPosition(p - planetOverview.instance.focus.pos);
@@ -125,6 +125,30 @@ public class trailRenderer
                 p /= master.scale;
 
                 output[s].Add((Vector3) p);
+                master.time.addJulianTime(-(s.positions.findOrbitalPeriod() / (double) resolution) * i);
+            }
+        }
+
+        double totalTime = 0.0705663076161; // TODO: dont use this
+        double increment = totalTime / (double)resolution;
+        double checkpoint = master.time.julian;
+
+        master.time.addJulianTime(-totalTime * 0.5);
+
+        for (int i = 0; i < resolution + 1; i++)
+        {
+            position refPos = master.requestReferenceFrame().pos;
+            foreach (satellite s in LEO)
+            {
+                if (!s.positions.exists(master.time)) continue;
+
+                position p = s.pos;
+                if (planetOverview.instance.active) p = planetOverview.instance.planetOverviewPosition(p - planetOverview.instance.focus.pos);
+                else p -= refPos;
+
+                p /= master.scale;
+
+                output[s].Add((Vector3)p);
             }
 
             master.time.addJulianTime(increment);
@@ -133,6 +157,14 @@ public class trailRenderer
         master.time.addJulianTime(checkpoint - master.time.julian);
 
         foreach (satellite s in desired) {
+            s.tr.lr.positionCount = 0;
+            s.tr.setPositions(output[s]);
+            s.tr.enabled = true;
+            s.tr.update(null, EventArgs.Empty);
+        }
+
+        foreach (satellite s in LEO)
+        {
             s.tr.lr.positionCount = 0;
             s.tr.setPositions(output[s]);
             s.tr.enabled = true;

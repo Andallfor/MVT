@@ -482,6 +482,7 @@ public class controller : MonoBehaviour
         /*yield return new WaitForSeconds(0.1f);
         loadingController.addPercent(0.11f);*/
         List<string> facs = new List<string>();
+        List<facility> earthfacs = new List<facility>();
 
         foreach (KeyValuePair<string, dynamic> x in data["EarthTest"].satellites)
         {
@@ -563,6 +564,7 @@ public class controller : MonoBehaviour
                     {
                         facility fd = new facility(facilityName, earth, new facilityData(facilityName, new geographic(lat, lon), alt, new List<antennaData>(), new Time(startTime + start), new Time(startTime + stop)), frd);
                         facs.Add(facilityName);
+                        earthfacs.Add(fd);
                         if (dict["user_provider"] == "provider") linkBudgeting.providers.Add(facilityName, (true, startTime + start, startTime + stop));
                     }
                 }
@@ -577,6 +579,7 @@ public class controller : MonoBehaviour
         }
         master.relationshipSatellite[earth] = earthSats;
         master.relationshipSatellite[moon] = moonSats;
+        master.relationshipFacility[earth] = earthfacs;
 
         yield return new WaitForSeconds(0.1f);
         loadingController.addPercent(0.11f);
