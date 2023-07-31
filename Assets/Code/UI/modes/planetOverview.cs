@@ -253,7 +253,7 @@ public sealed class planetOverview : IMode {
 
         double adjustedRatio = 0.25 * Math.Log(ratio + 0.01, controller._logBase) + 0.5;
 
-        return p.swapAxis() * adjustedRatio * master.scale * displayScale;
+        return p * adjustedRatio * master.scale * displayScale;     
     }
 
     private void backCallback() {

@@ -458,22 +458,26 @@ public class controller : MonoBehaviour
         double oneHour = 0.0416666667;
         double EarthMu = 398600.0;
         double moonMu = 4900.0;
+        double sunMu = 132712e+6;
+        double epoch = 2459945.5000000;
 
         List<satellite> earthSats = new List<satellite>();
         List<satellite> moonSats = new List<satellite>();
 
 
-        earth = new planet("Earth", new planetData(6356.75, rotationType.earth, $"CSVS/earth", oneHour, planetType.planet), new representationData("planet", "earthTex"));
-        moon = new planet("Luna", new planetData(1738.1, rotationType.none, $"CSVS/Luna", oneHour, planetType.moon), new representationData("planet", "moonTex"));
-        planet mercury = new planet("Mercury", new planetData(2439.7, rotationType.none, $"CSVS/mercury", oneHour, planetType.planet), new representationData("planet", "mercuryTex"));
-        planet venus = new planet("Venus", new planetData(6051.8, rotationType.none, $"CSVS/venus", oneHour, planetType.planet), new representationData("planet", "venusTex"));
-        planet jupiter = new planet("Jupiter", new planetData(71492, rotationType.none, $"CSVS/jupiter", oneHour, planetType.planet), new representationData("planet", "jupiterTex"));
-        planet saturn = new planet("Saturn", new planetData(60268, rotationType.none, $"CSVS/saturn", oneHour, planetType.planet), new representationData("planet", "saturnTex"));
-        planet uranus = new planet("Uranus", new planetData(25559, rotationType.none, $"CSVS/uranus", oneHour, planetType.planet), new representationData("planet", "uranusTex"));
-        planet neptune = new planet("Neptune", new planetData(24764, rotationType.none, $"CSVS/neptune", oneHour, planetType.planet), new representationData("planet", "neptuneTex"));
-        planet mars = new planet("Mars", new planetData(3389.92, rotationType.none, $"CSVS/mars", oneHour, planetType.planet), new representationData("planet", "marsTex"));
+        earth = new planet("Earth", new planetData(6356.75, rotationType.earth, new Timeline(149548442.3703442, 1.638666603580831e-02, 3.094435789048925e-03, 2.514080725047589e+02, 2.130422595065601e+02, 3.556650570783973e+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "earthTex"));
+        moon = new planet("Luna", new planetData(1738.1, rotationType.none, new Timeline(3.809339850602024E+05, 5.715270081780017E-02, 5.100092074801750, 2.355576097735322E+02, 4.145906044051883E+01, 1.102875277317696E+02, 1, epoch, EarthMu), planetType.moon), new representationData("planet", "moonTex"));
+        planet mercury = new planet("Mercury", new planetData(2439.7, rotationType.none, new Timeline(5.790908989105575E+07, 2.056261098757466E-01, 7.003572595914431, 2.919239643694458E+01, 4.830139915269011E+01, 3.524475388676764E+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "mercuryTex"));
+        planet venus = new planet("Venus", new planetData(6051.8, rotationType.none, new Timeline(1.082084649394783E+08, 6.763554426926404E-03, 3.394414241082599, 5.465872015572022E+01, 7.661682984113415E+01, 1.894020065218014E+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "venusTex"));
+        planet jupiter = new planet("Jupiter", new planetData(71492, rotationType.none, new Timeline(7.784060565591711E+08, 4.849069877916937E-02, 1.303574691375196, 2.734684496159951E+02, 1.005141062239384E+02, 3.583753533457323E+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "jupiterTex"));
+        planet saturn = new planet("Saturn", new planetData(60268, rotationType.none, new Timeline(1.432942173696950E+09, 5.347693294083503E-02, 2.486204025043723, 3.351085660472628E+02, 1.135934765410469E+02, 2.425433471952230E+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "saturnTex"));
+        planet uranus = new planet("Uranus", new planetData(25559, rotationType.none, new Timeline(2.884647050482038E+09, 4.382306037308097E-02, 7.711154256612637E-01, 9.259562572483993E+01, 7.406386852962497E+01, 2.449588470478398E+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "uranusTex")); 
+        planet neptune = new planet("Neptune", new planetData(24764, rotationType.none, new Timeline(4.533353284339735E+09, 1.474287247824008E-02, 1.768865936090221, 2.519545559747149E+02, 1.317418592957744E+02, 3.314896534126764E+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "neptuneTex"));
+        planet pluto = new planet("Pluto", new planetData(1188.3, rotationType.none, new Timeline(5.921110734220912E+09, 2.497736459257524E-01, 1.734771133563329E+01, 1.140877773351901E+02, 1.104098121556590E+02, 4.784240505983976E+01, 1, epoch, sunMu), planetType.planet), new representationData("planet", "moonTex"));
+        planet mars = new planet("Mars", new planetData(3389.92, rotationType.none, new Timeline(2.279254603773820E+08, 9.344918986180577E-02, 1.847925718684767, 2.866284864604108E+02, 4.948907666319641E+01, 1.014635329635219E+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "marsTex"));
 
         planet.addFamilyNode(earth, moon);
+        master.relationshipPlanet[earth] = new List<planet>() { moon };
 
         /*yield return new WaitForSeconds(0.1f);
         loadingController.addPercent(0.11f);*/

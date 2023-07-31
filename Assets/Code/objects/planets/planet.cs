@@ -286,7 +286,7 @@ public class planetData
         positions = csvParser.loadPlanetCsv(positionAsset, timestep);
     }
 
-    public planetData(double radius, rotationType rotate, Timeline positions, double timestep, planetType pType)
+    public planetData(double radius, rotationType rotate, Timeline positions, planetType pType)
     {
         this.radius = radius;
         this.pType = pType;
