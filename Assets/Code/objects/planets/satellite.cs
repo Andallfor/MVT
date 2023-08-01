@@ -35,10 +35,11 @@ public class satellite : body
 
         base.updateChildren();
     }
-    public override position requestPosition(Time t)
-    {
-        position p = data.positions.find(t);
-        if (!ReferenceEquals(parent, null)) p += parent.requestPosition(t);
+    public override position requestPosition(Time t) => requestPosition(t.julian);
+
+    public override position requestPosition(double julian) {
+        position p = data.positions.find(julian);
+        if (!ReferenceEquals(parent, null)) p += parent.requestPosition(julian);
         return p;
     }
     public override void updateScale(object sender, EventArgs args) {}

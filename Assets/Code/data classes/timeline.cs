@@ -44,19 +44,24 @@ public class Timeline : ITimeline
 
     public position find(Time t)
     {
-        if (selection == TimelineSelection.positions) return tp.find(t);
-        else return tk.find(t);
+        if (selection == TimelineSelection.positions) return tp.find(t.julian);
+        else return tk.find(t.julian);
+    }
+
+    public position find(double julian) {
+        if (selection == TimelineSelection.positions) return tp.find(julian);
+        else return tk.find(julian);
     }
 
     public double findOrbitalPeriod()
     {
-        if (selection == TimelineSelection.positions) return tp.findOrbitalPeriod();
+        if (selection == TimelineSelection.positions) throw new NotImplementedException("Cannot query orbital period for positional timeline");
         else return tk.findOrbitalPeriod();
     }
 
     public double returnSemiMajorAxis()
     {
-        if (selection == TimelineSelection.positions) return -1;
+        if (selection == TimelineSelection.positions) throw new NotImplementedException("Cannot query semi major axis for positional timeline");
         else return tk.returnSemiMajorAxis();
     }
 
@@ -67,11 +72,11 @@ public class Timeline : ITimeline
 
     public double tryGetStartTime() {
         if (selection == TimelineSelection.positions) return tp.first;
-        else return 0;
+        else throw new NotImplementedException("Cannot query start time for kepler timeline");
     }
     public double tryGetEndTime() {
         if (selection == TimelineSelection.positions) return tp.last;
-        else return 0;
+        else throw new NotImplementedException("Cannot query end time for kepler timeline");
     }
 }
 
@@ -97,33 +102,28 @@ public class TimelinePosition : ITimeline
         this.last = index.Last();
     }
 
-    public double findOrbitalPeriod()
-    {
-        return 1;
-    }
 
-
-    public position find(Time t)
+    public position find(double julian)
     {
-        if (data.ContainsKey(t.julian)) return data[t.julian];
-        if (t.julian <= first) return data[index[0]];
-        if (t.julian >= last) return data[index[index.Count - 1]];
+        if (data.ContainsKey(julian)) return data[julian];
+        if (julian <= first) return data[index[0]];
+        if (julian >= last) return data[index[index.Count - 1]];
 
         double closestTime;
         int timeIndex;
         try { // TODO dont
-            timeIndex = this.index.BinarySearch(t.julian, tlc);
+            timeIndex = this.index.BinarySearch(julian, tlc);
             closestTime = index[timeIndex];
         } catch {
-            timeIndex = this.index.BinarySearch(t.julian, tlc);
-            Debug.Log(t.julian);
+            timeIndex = this.index.BinarySearch(julian, tlc);
+            Debug.Log(julian);
             Debug.Log(timeIndex);
             Debug.Log(index.Count);
             closestTime = index[timeIndex];
         }
 
 
-        double difference = t.julian - closestTime;
+        double difference = julian - closestTime;
         double percent = Math.Abs(difference) / (timestep);
 
         if (difference < 0) return position.interpLinear(data[index[timeIndex - 1]], data[closestTime], 1 - percent);
@@ -170,17 +170,11 @@ public class TimelineKepler : ITimeline
         return semiMajorAxis;
     }
 
-    public position find(Time t)
-    {
-        // https://drive.google.com/file/d/1so93guuhCO94PEU8vFvDLv_-k9vJBcFs/view
-        // offset by elevation angle, in order to make the kepler and earth share the same up direction
-        //double meanAnom = (controller.earth.representation.gameObject.transform.eulerAngles.x + startingMeanAnom - 360.0 * (meanAngularMotion * (master.time.julian - this.startingEpoch))) * degToRad;
-
+    public position find(double julian) {
         double meanAnom = startingMeanAnom;
 
-
-        if (t.julian == startingEpoch) meanAnom = startingMeanAnom;
-        else meanAnom = startingMeanAnom + 86400.0 * (t.julian - startingEpoch) * Math.Sqrt((mu / Math.Pow(semiMajorAxis, 3)));
+        if (julian == startingEpoch) meanAnom = startingMeanAnom;
+        else meanAnom = startingMeanAnom + 86400.0 * (julian - startingEpoch) * Math.Sqrt((mu / Math.Pow(semiMajorAxis, 3)));
 
         double EA = meanAnom;
 
@@ -189,8 +183,7 @@ public class TimelineKepler : ITimeline
 
         double y = 0;
 
-        while (k > error)
-        {
+        while (k > error) {
           y = meanAnom + eccentricity * Math.Sin(EA);
           k = Math.Abs(Math.Abs(EA) - Math.Abs(y));
           EA = y;
@@ -209,38 +202,10 @@ public class TimelineKepler : ITimeline
         double yp = radius * Math.Sin(theta);
 
         position pos = new position(
-        xp * Math.Cos(longOfAscNode) - yp * Math.Cos(inclination) * Math.Sin(longOfAscNode),
-        xp * Math.Sin(longOfAscNode) + yp * Math.Cos(inclination) * Math.Cos(longOfAscNode),
-        yp * Math.Sin(inclination));
+            xp * Math.Cos(longOfAscNode) - yp * Math.Cos(inclination) * Math.Sin(longOfAscNode),
+            xp * Math.Sin(longOfAscNode) + yp * Math.Cos(inclination) * Math.Cos(longOfAscNode),
+            yp * Math.Sin(inclination));
 
-        /*position pos = new position(
-          o.x * (Math.Cos(argOfPerigee) * Math.Cos(longOfAscNode) - Math.Sin(argOfPerigee) * Math.Cos(inclination) * Math.Sin(longOfAscNode) - o.y * (Math.Sin(argOfPerigee) * Math.Cos(longOfAscNode) + Math.Cos(argOfPerigee) * Math.Cos(inclination) * Math.Sin(longOfAscNode))),
-          o.x * (Math.Cos(argOfPerigee) * Math.Sin(longOfAscNode) - Math.Sin(argOfPerigee) * Math.Cos(inclination) * Math.Cos(longOfAscNode) - o.y * (Math.Cos(argOfPerigee) * Math.Cos(inclination) * Math.Cos(longOfAscNode) - Math.Sin(argOfPerigee) * Math.Sin(longOfAscNode))),
-          o.x * (Math.Sin(argOfPerigee) * Math.Sin(inclination)) + o.y * (Math.Cos(argOfPerigee) * Math.Sin(inclination)));*/
-
-        /*double trueAnom = 2.0 * Math.Atan(Math.Sqrt((1.0 + eccentricity) / (1.0 - eccentricity)) * Math.Tan(EA / 2.0));
-
-        double radius = (semiMajorAxis * (1 - eccentricity * eccentricity)) / (1 + eccentricity * Math.Cos(trueAnom));
-        double p = semiMajorAxis * (1 - eccentricity * eccentricity);
-        double h = Math.Sqrt(mu * semiMajorAxis * (1 - eccentricity * eccentricity));
-
-        position pos = new position(
-            radius * (Math.Cos(longOfAscNode) * Math.Cos(argOfPerigee + trueAnom) - Math.Sin(longOfAscNode) * Math.Sin(argOfPerigee + trueAnom) * Math.Cos(inclination)),
-            radius * (Math.Sin(longOfAscNode) * Math.Cos(argOfPerigee + trueAnom) + Math.Cos(longOfAscNode) * Math.Sin(argOfPerigee + trueAnom) * Math.Cos(inclination)),
-            radius * (Math.Sin(inclination) * Math.Sin(argOfPerigee + trueAnom)));
-
-        position vel = new position(
-            ((pos.x * h * eccentricity) / (radius * p)) * Math.Sin(trueAnom) - (h / radius) * (Math.Cos(longOfAscNode) * Math.Sin(argOfPerigee + trueAnom) + Math.Sin(longOfAscNode) * Math.Cos(argOfPerigee + trueAnom) * Math.Cos(inclination)),
-            ((pos.y * h * eccentricity) / (radius * p)) * Math.Sin(trueAnom) - (h / radius) * (Math.Sin(longOfAscNode) * Math.Sin(argOfPerigee + trueAnom) - Math.Cos(longOfAscNode) * Math.Cos(argOfPerigee + trueAnom) * Math.Cos(inclination)),
-            ((pos.z * h * eccentricity) / (radius * p)) * Math.Sin(trueAnom) + (h / radius) * (Math.Sin(inclination) * Math.Cos(argOfPerigee + trueAnom)));
-
-        if (double.IsNaN(pos.x)) return new position(0, 0, 0);
-
-        position rot = controller.earth.representation.gameObject.transform.eulerAngles;
-        return (pos.rotate(rot.y * degToRad, 0, 0));*/
-        //position moon = master.rod[0].find(t);
-        //position v = master.rod[1].find(t);
-        //return position.J2000(moon, v, pos);
         return pos.swapAxis();
     }
 
@@ -284,7 +249,7 @@ public class TimelineKepler : ITimeline
 
 public interface ITimeline
 {
-    position find(Time t);
+    position find(double julian);
 }
 
 public enum TimelineSelection

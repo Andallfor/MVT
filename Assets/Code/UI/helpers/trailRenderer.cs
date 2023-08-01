@@ -9,8 +9,8 @@ public class trailRenderer
     private LineRenderer lr;
     private string name;
     private body b;
-    private double orbitalPeriod = 0;
-    private Transform transform, parentTransform;
+    private Transform transform;
+    private static Transform trailParent;
 
     public const int resolution = 180;
     public bool enabled {get; private set;} = false;
@@ -20,7 +20,6 @@ public class trailRenderer
         this.b = b;
         this.transform = go.transform;
 
-        if (master.orbitalPeriods.ContainsKey(name)) orbitalPeriod = master.orbitalPeriods[name];
         lr = GameObject.Instantiate(Resources.Load("Prefabs/simpleLine") as GameObject).GetComponent<LineRenderer>();
         lr.gameObject.name = $"{name} trail";
 
@@ -29,56 +28,43 @@ public class trailRenderer
         lr.endWidth = 0.015f;
 
         general.onStatusChange += disableWrapper;
-        master.onFinalSetup += (s, e) => master.onCurrentPositionChange += update;
-        master.onScaleChange += update;
         master.onReferenceFrameChange += (s, e) => disable();
-    }
-
-    private void update(object sender, EventArgs e) {
-        if (planetOverview.instance.active) return;
-        body bb = master.requestReferenceFrame();
-        GameObject go = null;
-        if (bb is planet) go = ((planet) bb).representation.gameObject;
-        else go = ((satellite) bb).representation.gameObject;
-        lr.gameObject.transform.position = go.transform.position;
     }
 
     public void enable() {
         if (!transform.gameObject.GetComponent<MeshRenderer>().enabled) return;
+        if (name == master.requestReferenceFrame().name) return;
+        if (enabled) return;
 
-        enabled = true;
-        lr.positionCount = 0;
+        disable();
 
-        if (orbitalPeriod == 0) Debug.LogWarning($"No orbital period found for {name}");
-        else { // we know the orbital period, so draw the orbit
-            if (planetOverview.instance.active && planetOverview.instance.focus.name == name) return;
-            if (!planetOverview.instance.active && master.requestReferenceFrame().name == name) return;
+        Vector3[] points = new Vector3[resolution];
+        double step = 0;
+        if (b.positions.selection == TimelineSelection.kepler) {
+            double period = b.positions.findOrbitalPeriod();
+            step = period / (double) resolution;
+        } else if (master.orbitalPeriods.ContainsKey(name)) {
+            double period = master.orbitalPeriods[name];
+            step = period / (double) resolution;
+        } else step = 1.0 / (double) resolution;
 
-            double checkpoint = master.time.julian;
-            master.time.addJulianTime(-orbitalPeriod * 0.5);
-            double increment = orbitalPeriod / (double) resolution;
+        for (int i = 0; i < resolution; i++) {
+            double time = master.time.julian + i * step;
+            position p = b.requestPosition(time);
 
-            List<Vector3> positions = new List<Vector3>();
-            for (int i = 0; i < resolution + 1; i++) {
-                position pos = b.pos;
-                if (planetOverview.instance.active) pos = planetOverview.instance.planetOverviewPosition(pos - planetOverview.instance.focus.pos);
-                else pos -= master.requestReferenceFrame().pos;
-                pos /= master.scale;
+            p -= master.requestReferenceFrame().requestPosition(time);
+            p /= master.scale;
 
-                positions.Add((Vector3) pos);
-                master.time.addJulianTime(increment * 2.0);
-            }
-
-            master.time.addJulianTime(checkpoint - master.time.julian);
-
-            setPositions(positions);
+            points[i] = (Vector3) p;
         }
+
+        setPositions(points);
     }
 
-    public void setPositions(List<Vector3> v) {
-        lr.positionCount = v.Count;
-        lr.SetPositions(v.ToArray());
-        update(null, EventArgs.Empty);
+    private void setPositions(Vector3[] v) {
+        lr.positionCount = v.Length;
+        lr.SetPositions(v);
+        enabled = true;
     }
 
     public void disable() {
@@ -88,87 +74,20 @@ public class trailRenderer
 
     private void disableWrapper(object sender, EventArgs e) {disable();}
 
-    public void enable(bool value) {
-        if (!value) disable();
-        else enable();
-
-        update(null, EventArgs.Empty);
+    public static void enableAll() {
+        foreach (satellite s in master.allSatellites) s.tr.enable();
+        foreach (planet p in master.allPlanets) p.tr.enable();
     }
 
-    public static void drawAllSatelliteTrails(List<satellite> _desired) {
-        Dictionary<satellite, List<Vector3>> output = new Dictionary<satellite, List<Vector3>>();
+    public static void disableAll() {
+        foreach (satellite s in master.allSatellites) s.tr.disable();
+        foreach (planet p in master.allPlanets) p.tr.disable();
+    }
 
+    public static void update() {
+        if (trailParent == default(Transform)) trailParent = GameObject.FindGameObjectWithTag("planet/trails").transform;
 
-        List<satellite> desired = new List<satellite>();
-        List<satellite> LEO = new List<satellite>();
-        foreach (satellite s in _desired) {
-            if (s.name == master.requestReferenceFrame().name) continue;
-            if (!s.tr.transform.gameObject.GetComponent<MeshRenderer>().enabled) continue;
-
-            if (s.positions.returnSemiMajorAxis() - 6356.75 < 2000) LEO.Add(s);
-            else desired.Add(s);
-
-            output[s] = new List<Vector3>();
-        }
-
-
-        for (int i = 0; i < resolution + 1; i++) {
-            foreach (satellite s in desired) {
-                if (!s.positions.exists(master.time)) continue;
-                master.time.addJulianTime((s.positions.findOrbitalPeriod() / (double) resolution) * i);
-                position refPos = master.requestReferenceFrame().pos;
-
-                position p = s.pos;
-                if (planetOverview.instance.active) p = planetOverview.instance.planetOverviewPosition(p - planetOverview.instance.focus.pos);
-                else p -= refPos;
-
-                p /= master.scale;
-
-                output[s].Add((Vector3) p);
-                master.time.addJulianTime(-(s.positions.findOrbitalPeriod() / (double) resolution) * i);
-            }
-        }
-
-        double totalTime = 0.0705663076161; // TODO: dont use this
-        double increment = totalTime / (double)resolution;
-        double checkpoint = master.time.julian;
-
-        master.time.addJulianTime(-totalTime * 0.5);
-
-        for (int i = 0; i < resolution + 1; i++)
-        {
-            position refPos = master.requestReferenceFrame().pos;
-            foreach (satellite s in LEO)
-            {
-                if (!s.positions.exists(master.time)) continue;
-
-                position p = s.pos;
-                if (planetOverview.instance.active) p = planetOverview.instance.planetOverviewPosition(p - planetOverview.instance.focus.pos);
-                else p -= refPos;
-
-                p /= master.scale;
-
-                output[s].Add((Vector3)p);
-            }
-
-            master.time.addJulianTime(increment);
-        }
-
-        master.time.addJulianTime(checkpoint - master.time.julian);
-
-        foreach (satellite s in desired) {
-            s.tr.lr.positionCount = 0;
-            s.tr.setPositions(output[s]);
-            s.tr.enabled = true;
-            s.tr.update(null, EventArgs.Empty);
-        }
-
-        foreach (satellite s in LEO)
-        {
-            s.tr.lr.positionCount = 0;
-            s.tr.setPositions(output[s]);
-            s.tr.enabled = true;
-            s.tr.update(null, EventArgs.Empty);
-        }
+        if (planetOverview.instance.active) trailParent.position = Vector3.zero;
+        else trailParent.position = -(Vector3) (master.currentPosition / master.scale);
     }
 }

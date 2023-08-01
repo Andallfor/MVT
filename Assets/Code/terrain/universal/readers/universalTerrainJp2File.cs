@@ -143,29 +143,6 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
         
         int[] heights = openJpegWrapper.requestTerrain(dataPath, start * power, end * power, res, 0);
 
-        //int colLen = end.x - start.x;
-        //int maxHeight = (int) (nrows / power);
-        //for (int r = start.y; r < end.y; r++) {
-        //    for (int c = start.x; c < end.x; c++) {
-        //        int x = c - start.x;
-        //        int y = r - start.y;
-//
-        //        geographic g = new geographic((maxHeight - r) * cellSize * power, c * cellSize * power) + llCorner;
-        //        double height = (heights[(int) (y * colLen + x)] - 32767) / 1000.0; // +32767 bc data is offset in jp2 writer
-        //        position p = toCart(g, radius + height);
-        //        p += posOffset;
-        //        p = p.swapAxis() / master.scale;
-//
-        //        if (isForAccessCalls && height != 0) {
-        //            accessCallGeo.Add(g);
-        //            accessCallHeight.Add(height);
-        //            accessCallGrid.Add(new Vector2Int(x, y));
-        //        }
-//
-        //        m.addPoint(x, y, p);
-        //    }
-        //}
-
         Vector3[] output = computeShaderPoints(heights, start, end, power, posOffset);
         m.forceSetAllPoints(output);
 

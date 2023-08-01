@@ -17,6 +17,7 @@ public sealed class planetFocus : IMode {
 
     protected override bool enable() {
         reset();
+        master.currentPosition = new position(0, 0, 0);
         if (master.requestReferenceFrame() is planet) {
             // we want planet to take up about 60%
             focus = (planet) master.requestReferenceFrame();
@@ -155,8 +156,6 @@ public sealed class planetFocus : IMode {
         }, precondition: () => planetFocus.instance.usePoleFocus, whitelist: w);
 
         playerControls.addKey("", conTrig.none, () => update(), whitelist: w);
-
-        //playerControls
     }
 
     private planetFocus() {}

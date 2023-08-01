@@ -55,6 +55,7 @@ public sealed class planetOverview : IMode {
         calculateDefaultMaxDist();
         general.camera.transform.LookAt(Vector3.zero);
         rotationalOffset = 0;
+        lastRotationalOffset = 0;
 
         planetOverviewUI parent = GameObject.FindGameObjectWithTag("ui/planetOverview/parent").GetComponent<planetOverviewUI>();
 
@@ -84,6 +85,9 @@ public sealed class planetOverview : IMode {
         maxDist = 0;
         focus = master.sun;
         obeyingPlanets = new List<planet>();
+
+        rotationalOffset = 0;
+        lastRotationalOffset = 0;
 
         disclaimer.SetActive(false);
 

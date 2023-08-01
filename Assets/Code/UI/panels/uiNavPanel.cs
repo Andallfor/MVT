@@ -175,10 +175,7 @@ public class uiNavPanel : MonoBehaviour
 
             modeController.disableAll();
 
-            if (general.showingTrails) {
-                foreach (planet p in master.allPlanets) p.tr.enable();
-                trailRenderer.drawAllSatelliteTrails(master.allSatellites);
-            }
+            if (general.showingTrails) trailRenderer.enableAll();
         }
     }
 
@@ -257,9 +254,8 @@ public class uiNavPanel : MonoBehaviour
     }
 
     public void trails() {
-        foreach (planet p in master.allPlanets) p.tr.enable(!general.showingTrails);
-        if (!general.showingTrails) trailRenderer.drawAllSatelliteTrails(master.allSatellites);
-        else foreach (satellite s in master.allSatellites) s.tr.disable();
+        if (general.showingTrails) trailRenderer.disableAll();
+        else trailRenderer.enableAll();
 
         general.showingTrails = !general.showingTrails;
         general.notifyTrailsChange();

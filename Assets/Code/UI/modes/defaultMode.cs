@@ -36,13 +36,12 @@ public sealed class defaultMode : IMode {
            whitelist: w);
         
         playerControls.addKey("z", conTrig.down, () => {
-            foreach (planet p in master.allPlanets) p.tr.enable(!general.showingTrails);
-            if (!general.showingTrails) trailRenderer.drawAllSatelliteTrails(master.allSatellites);
-            else foreach (satellite s in master.allSatellites) s.tr.disable();
+            if (general.showingTrails) trailRenderer.disableAll();
+            else trailRenderer.enableAll();
 
             general.showingTrails = !general.showingTrails;
             general.notifyTrailsChange();
-        });
+        }, whitelist: new List<IMode>() {this, planetFocus.instance});
     }
 
     private defaultMode() {}

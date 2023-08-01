@@ -41,15 +41,14 @@ public class controller : MonoBehaviour
         master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/sun", 0.0416666665, planetType.planet),
             new representationData("planet", "sunTex"));
 
-
-
+        /*
         string date = DateTime.Now.ToString("MM-dd_hhmm");
         if (!File.Exists(DBReader.mainDBPath))
         {
             UnityEngine.Debug.Log("Generating main.db");
             UnityEngine.Debug.Log("command: " + $"{DBReader.data.get("2023EarthAssets")} {DBReader.mainDBPath}");
             System.Diagnostics.Process.Start(DBReader.apps.excelParser, $"{DBReader.data.get("2023EarthAssetsWithOrbits.xlsx")} {DBReader.mainDBPath}").WaitForExit();
-        }
+        }*/
         /*var missionStructure = DBReader.getData();
         Debug.Log("epoch: " + missionStructure["EarthTest"].epoch);
         DBReader.output.setOutputFolder(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), date));
@@ -88,15 +87,6 @@ public class controller : MonoBehaviour
         //onlyEarth();
 
         yield return new WaitForSeconds(0.1f);
-
-        master.onScaleChange += (s, e) =>
-        {
-            if (general.showingTrails)
-            {
-                foreach (planet p in master.allPlanets) p.tr.enable();
-                trailRenderer.drawAllSatelliteTrails(master.allSatellites);
-            }
-        };
 
         //runScheduling();
         //csvParser.loadScheduling("CSVS/SCHEDULING/July 2021 NSN DTE Schedule");
@@ -288,14 +278,13 @@ public class controller : MonoBehaviour
         }, null));
     }
 
-    public void LateUpdate()
-    {
+    public void LateUpdate() {
         playerControls.lastMousePos = Input.mousePosition;
     }
 
-    public void Update()
-    {
+    public void Update() {
         playerControls.update();
+        trailRenderer.update();
 
         if (Input.GetKeyDown("o"))
         {
@@ -399,12 +388,10 @@ public class controller : MonoBehaviour
     int stationIndex = 0;
     meshDistributor<universalTerrainMesh> prevDist;
 
-    private planetTerrain loadTerrain()
-    {
+    private planetTerrain loadTerrain() {
         planetTerrain pt = new planetTerrain(moon, "Materials/planets/moon/moon", 1737.4, 1);
 
         string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT/terrain");
-        //string p = Path.Combine(Application.dataPath, "terrain");
 
         pt.generateFolderInfos(new string[4] {
             Path.Combine(p, "lunaBinary/1"),
@@ -412,22 +399,6 @@ public class controller : MonoBehaviour
             Path.Combine(p, "lunaBinary/3"),
             Path.Combine(p, "lunaBinary/4")
         });
-
-        //string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MVT");
-        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/1", Path.Combine(p, "1"));
-        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/2", Path.Combine(p, "2"));
-        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/3", Path.Combine(p, "3"));
-        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/4", Path.Combine(p, "4"));
-        //pt.save("C:/Users/leozw/Desktop/terrain/lunaBinary/5", Path.Combine(p, "5"));
-
-        //terrainProcessor.divideJpeg2000("C:/Users/leozw/Desktop/lunar", "C:/Users/leozw/Desktop/preparedLunar", new List<terrainResolution>() {
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/1", 1, 96),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/2", 1, 48),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/3", 1, 24),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/4", 1, 12),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/5", 1, 6),
-        //    new terrainResolution("C:/Users/leozw/Desktop/preparedLunar/6", 4, 3),
-        //});
 
         return pt;
     }
@@ -455,7 +426,6 @@ public class controller : MonoBehaviour
         scenarioStart = startTime;
         master.time.addJulianTime(Time.strDateToJulian(data["EarthTest"].epoch) - prevTime);
 
-        double oneHour = 0.0416666667;
         double EarthMu = 398600.0;
         double moonMu = 4900.0;
         double sunMu = 132712e+6;

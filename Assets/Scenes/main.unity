@@ -8067,7 +8067,6 @@ GameObject:
   - component: {fileID: 1059641644}
   - component: {fileID: 1059641646}
   - component: {fileID: 1059641645}
-  - component: {fileID: 1059641647}
   m_Layer: 5
   m_Name: FileDrop
   m_TagString: Untagged
@@ -8133,18 +8132,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1059641643}
   m_CullTransparentMesh: 1
---- !u!114 &1059641647
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1059641643}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5afe6a2af6ed89448790a77f113cbd3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1067009675
 GameObject:
   m_ObjectHideFlags: 0
