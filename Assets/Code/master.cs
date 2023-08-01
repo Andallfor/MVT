@@ -11,9 +11,11 @@ public static class master
     public static planet sun;
 
     /// <summary> The current scale used by the game, in km. Calls <see cref="onScaleChange"/> when changed.</summary>
-    public static double scale {
-        get {return _scale;}
-        set {
+    public static double scale
+    {
+        get { return _scale; }
+        set
+        {
             _scale = value;
             onScaleChange(null, EventArgs.Empty);
         }
@@ -27,30 +29,39 @@ public static class master
     public static int currentTick = 0;
 
     /// <summary> The players current position, in km. </summary>
-    public static position currentPosition {get => _currentPosLast; set {
-        _currentPosLast = value;
-        if (alreadyStarted) master.requestPositionUpdate();
-        onCurrentPositionChange(null, EventArgs.Empty);
-    }}
+    public static position currentPosition
+    {
+        get => _currentPosLast; set
+        {
+            _currentPosLast = value;
+            if (alreadyStarted) master.requestPositionUpdate();
+            onCurrentPositionChange(null, EventArgs.Empty);
+        }
+    }
 
     /// <summary> The current position of the reference frame relative to the sun. See also <see cref="requestReferenceFrame"/>. </summary>
-    public static position referenceFrame {
-        get {
+    public static position referenceFrame
+    {
+        get
+        {
             if (ReferenceEquals(_referenceFrame, null)) return new position(0, 0, 0);
             else return _refFrameLast;
         }
     }
 
     /// <summary> The current body that is the reference frame. See also <see cref="referenceFrame"/>. </summary>
-    public static body requestReferenceFrame() {
+    public static body requestReferenceFrame()
+    {
         if (_referenceFrame is null) return master.sun;
         return _referenceFrame;
     }
 
     /// <summary> Control whether or not the game is paused. Calls <see cref="onPauseChange"/> when changed. </summary>
-    public static bool pause {
-        get {return _pause;}
-        set {
+    public static bool pause
+    {
+        get { return _pause; }
+        set
+        {
             _pause = value;
             onPauseChange(null, EventArgs.Empty);
         }
@@ -66,47 +77,48 @@ public static class master
 
 
     /// <summary> Event that is called when <see cref="scale"/> is changed or <see cref="requestScaleUpdate"/> is called. </summary>
-    public static event EventHandler onScaleChange = delegate {};
+    public static event EventHandler onScaleChange = delegate { };
 
     /// <summary> Event that is called when <see cref="pause"/> is changed. </summary>
-    public static event EventHandler onPauseChange = delegate {};
+    public static event EventHandler onPauseChange = delegate { };
     /// <summary> Event that is called when <see cref="referenceFrame"/> is changed via calling <see cref="setReferenceFrame"/>. </summary>
-    public static event EventHandler onReferenceFrameChange = delegate {};
+    public static event EventHandler onReferenceFrameChange = delegate { };
     /// <summary> Event that is called the moment before the main loop is about to start. </summary>
-    public static event EventHandler onFinalSetup = delegate {};
+    public static event EventHandler onFinalSetup = delegate { };
 
-    public static event EventHandler onCurrentPositionChange = delegate {};
+    public static event EventHandler onCurrentPositionChange = delegate { };
 
 
     /// <summary> Event that will update the positions of any class derived from <see cref="body"/>. Called when <see cref="requestPositionUpdate"/> is called. </summary>
-    public static event EventHandler updatePositions = delegate {};
+    public static event EventHandler updatePositions = delegate { };
 
     /// <summary> Event that will update the scheduling for all Facilities and their connecting satellites. Called when <see cref="requestSchedulingUpdate"/> is called. </summary>
-    public static event EventHandler updateScheduling = delegate {};
+    public static event EventHandler updateScheduling = delegate { };
 
     /// <summary> Event that will update the planet/system loading queue（see <see cref="jsonParser.updateQueue"/>). Called when <see cref="requestJsonQueueUpdate"/> is called. </summary>
-    public static event EventHandler updateJsonQueue = delegate {};
+    public static event EventHandler updateJsonQueue = delegate { };
 
     /// <summary> Event that is called at the end of each tick (frame). Called when <see cref="markTickFinished"/> is called. </summary>
-    public static event EventHandler finishTick = delegate {};
+    public static event EventHandler finishTick = delegate { };
 
 
     /// <summary> Calls <see cref="updatePositions"/>. </summary>
-    public static void requestPositionUpdate() {
+    public static void requestPositionUpdate()
+    {
         updatePositions(null, EventArgs.Empty);
         _refFrameLast = _referenceFrame.pos;
     }
 
     /// <summary> Calls <see cref="updateScheduling"/>. </summary>
-    public static void requestSchedulingUpdate() {updateScheduling(null, EventArgs.Empty);}
+    public static void requestSchedulingUpdate() { updateScheduling(null, EventArgs.Empty); }
 
     /// <summary> Calls <see cref="onScaleChange"/>. </summary>
-    public static void requestScaleUpdate() {onScaleChange(null, EventArgs.Empty);}
+    public static void requestScaleUpdate() { onScaleChange(null, EventArgs.Empty); }
 
     /// <summary> Calls <see cref="updateJsonQueue"/>. </summary>
-    public static void requestJsonQueueUpdate() {updateJsonQueue(null, EventArgs.Empty);}
+    public static void requestJsonQueueUpdate() { updateJsonQueue(null, EventArgs.Empty); }
     /// <summary> Calls <see cref="finishTick"/>. </summary>
-    public static void markTickFinished() {finishTick(null, EventArgs.Empty);}
+    public static void markTickFinished() { finishTick(null, EventArgs.Empty); }
 
     /// <summary> List of all <see cref="planet"/> currently loaded. </summary>
     public static List<planet> allPlanets = new List<planet>();
@@ -149,7 +161,8 @@ public static class master
     /// <remarks><paramref name="b"/> The body to become the reference frame. </remarks>
     public static void setReferenceFrame(body b)
     {
-        if (alreadyStarted) {
+        if (alreadyStarted)
+        {
             modeController.disableAll();
             master.clearAllLines();
         }
@@ -165,7 +178,8 @@ public static class master
 
     private static bool alreadyStarted = false;
     /// <summary> Tell the program that the simulation is about ready to start. Calls <see cref="onFinalSetup"/>. </summary>
-    public static void markStartOfSimulation() {
+    public static void markStartOfSimulation()
+    {
         if (alreadyStarted) return;
         alreadyStarted = true;
 
@@ -173,7 +187,8 @@ public static class master
     }
 
     /// <summary> Remove a facility from the scene </summary>
-    public static void removeFacility(facility f) {
+    public static void removeFacility(facility f)
+    {
         master.allFacilities.Remove(f);
         f.destroy();
     }
@@ -188,6 +203,8 @@ public static class master
     public static Dictionary<planet, List<satellite>> relationshipSatellite = new Dictionary<planet, List<satellite>>();
     /// <summary> Determines relationship between bodies (parent, child, etc) in the form parent, List(child) </summary>
     public static Dictionary<planet, List<facility>> relationshipFacility = new Dictionary<planet, List<facility>>();
+
+    public static Dictionary<string, List<string>> fac2ant = new Dictionary<string, List<string>>();
 
     /// <summary> Stores the orbital periods of bodies in julian. </summary>
     /// <remarks> Find a better way to do this. </remarks>
@@ -235,5 +252,38 @@ public static class master
         {"PSP", 62},
         {"Lucy", 62},
         {"STP Sat 5", 0.001}
+    };
+
+    public static int ID = 0;
+
+    public static Dictionary<string, List<string>> compatibilityMatrix = new Dictionary<string, List<string>>() {
+        { "ASF1", new List<string> { "AIM", "AQUA", "AURA", "ICESAT-2", "IRIS", "LRO", "OCO-2", "SCISAT-1", "SMAP", "GRACE-FO1", "GRACE-FO2", "TERRA" } },
+        { "ASF2", new List<string> { "AIM", "AQUA", "AURA", "ICESAT-2", "LRO", "OCO-2", "SCISAT-1", "SMAP", "TERRA" } },
+        { "ASF3", new List<string> { "AIM", "AQUA", "AURA", "ICESAT-2", "IRIS", "LRO", "OCO-2", "SCISAT-1", "SEAHAWK", "SMAP", "GRACE-FO1", "GRACE-FO2", "TERRA" } },
+        { "MG1", new List<string> { "AIM", "ICESAT-2", "IRIS", "LANDSAT-7", "METOP-B", "Solar-B", "LANDSAT-9", "GRACE-FO1", "GRACE-FO2", "LANDSAT-8", "TERRA" } },
+        { "WG1", new List<string> { "AIM", "AQUA", "AURA", "CYGNUS", "DSCOVR", "ICESAT-2", "ICON", "IRIS", "LANDSAT-7", "LRO", "OCO-2", "SCISAT-1", "SEAHAWK", "SMAP", "SOLAR-B", "STPSAT-6", "SWIFT", "GRACE-FO1", "GRACE-FO2", "TERRA", "THEMIS_A", "THEMIS_B", "THEMIS_C", "THEMIS_D", "THEMIS_E", "LANDSAT-9", "GOES18", "petitSat", "GOES (Prof.)", "GOES-16", "GOES-17", "HST", "LANDSAT-18", "TDRS" } },
+        { "WG2", new List<string> { "CYGNUS", "ISS", "STPSat-6", "SWIFT", "petitSat" } },
+        { "WS1", new List<string> { "DSCOVR", "ICON", "LRO", "STPSat-6", "SWIFT", "THEMIS_A", "THEMIS_B", "THEMIS_C", "THEMIS_D", "THEMIS_E", "GOES-18", "CLICK-A", "petitSat", "ACE", "GOES-16", "GOES-17", "HST" } },
+        { "SG1", new List<string> { "AIM", "AQUA", "AURA", "ICESAT-2", "IRIS", "LANDSAT-7", "SMAP", "GRACE-FO1", "GRACE-FO2", "TERRA"} },
+        { "SG2", new List<string> { "AIM", "AQUA", "AURA", "ICESAT-2", "SMAP", "GRACE-FO1", "GRACE-FO2", "TERRA"} },
+        { "SG3", new List<string> { } },
+        { "SG12", new List<string> { "AIM", "AQUA", "AURA", } },
+        { "SING", new List<string> { "ICON", "IXPE", "NUSTAR", "SWIFT", "GOES-18", "GOES-16" } },
+        { "TR2", new List<string> { "AIM", "AQUA", "AURA", "OCO-2", "SMAP"} },
+        { "TR3", new List<string> { "AIM", "AQUA", "AURA", "OCO-2", "SMAP"} },
+        { "PA1", new List<string> { "AIM", "CLICK-A" } },
+        { "USA1", new List<string> { } },
+        { "USA3", new List<string> { "AQUA", "AURA", "LANDSAT-7"  } },
+        { "USA4", new List<string> { "AQUA", "AURA", "LANDSAT-7"  } },
+        { "USA5", new List<string> { "AIM", "AQUA", "AURA", "OCO-2", "SMAP", "TERRA"  } },
+        { "USH1", new List<string> { "DSCOVR", "ICON", "LRO", "NUSTAR", "SMAP", "SWIFT", "THEMIS_A", "THEMIS_B", "THEMIS_C", "THEMIS_D", "THEMIS_E", "GOES-18", "FGST", "GOES-16", "GOES-17", "HST", "MMS", "TDRS" } },
+        { "USH2", new List<string> { "DSCOVR", "ICON", "LRO", "NUSTAR", "SMAP", "SWIFT", "THEMIS_A", "THEMIS_B", "THEMIS_C", "THEMIS_D", "THEMIS_E", "GOES-18", "FGST", "GOES-16", "GOES-17", "HST", "MMS", "TDRS" } },
+        { "SA1", new List<string> { "DSCOVR", "ICON", "SWIFT", "THEMIS_A", "THEMIS_B", "THEMIS_C", "THEMIS_D", "THEMIS_E", "GOES-18", "ACE", "GOES-16", "GOES-17", "HST", "MMS", "TDRS" } },
+        { "SA2", new List<string> { "DSCOVR", "SWIFT", "THEMIS_A", "THEMIS_B", "THEMIS_C", "THEMIS_D", "THEMIS_E", "GOES-18", "ACE", "HST", "MMS", "TDRS" } },
+        { "USD1", new List<string> { "DSCOVR", "ICON", "LRO", "SWIFT", "THEMIS_A", "THEMIS_B", "THEMIS_C", "THEMIS_D", "THEMIS_E", "GOES-18", "FGST", "GOES-16", "GOES-17", "HST", "MMS", "TDRS" } },
+        { "KIR", new List<string> { "LRO", "GPM_CORE", "MMS" } },
+        { "HBK", new List<string> { "ICON", "THEMIS_A", "THEMIS_B", "THEMIS_C", "THEMIS_D", "THEMIS_E", "GOES-18", "GOES-16", "GOES-17", "MMS" } },
+        { "GLC", new List<string> { "AQUA", "AURA" } },
+        {"BGS", new List<string> { } }
     };
 }

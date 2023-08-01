@@ -326,14 +326,9 @@ public class controller : MonoBehaviour
 
         if (Input.GetKeyDown("y"))
         {
-            //accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, new geographic(-35.398522, 148.981904), sat1);
-            //access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/canberra"), 2);
-            //access.initialize();
-            //var output = access.findTimes(new Time(2461021.77854328), new Time(2461029.93452393), 0.00069444444, 0.00001157407 / 2.0);
-            //var output = access.findTimes(new Time(2461021.77854328 + 0.0002), new Time(2461021.77991930), 0.00069444444, 0.00001157407 / 2.0);
-            //access.saveResults(output);
             if (accessRunning == false)
             {
+                master.ID = 0;
                 accessRunning = true;
                 List<satellite> users = new List<satellite>();
 
@@ -348,12 +343,13 @@ public class controller : MonoBehaviour
                 foreach (var p in linkBudgeting.providers)
                 {
                     facility provider = master.allFacilities.Find(x => x.name == p.Key);
-                    
+
                     accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, provider.geo, users, p.Key);
                     access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/" + p.Key), 2);
-                    var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 30), 0.00069444444, 0.00001157407 / 2.0);
+                    var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 30), 0.00069444444, 0.00001157407 / 2.0, true); // ADD TO WINDOWS LIST HERE
                     //StartCoroutine(stall(access));                   
                 }
+                master.ID = 0;
                 accessRunning = false;
                 stopWatch.Stop();
 
@@ -373,7 +369,7 @@ public class controller : MonoBehaviour
         }
     }
 
-    private IEnumerator stall(accessCallGeneratorWGS access)
+    /*private IEnumerator stall(accessCallGeneratorWGS access)
     { // TODO: replace with a physics update call
         yield return new WaitForSeconds(1);
         //var output = access.findTimes(new Time(2461022.77871296), new Time(2461022.78237024), 0.00069444444, 0.00001157407 / 2.0);
@@ -383,7 +379,7 @@ public class controller : MonoBehaviour
         //var output = access.bruteForce(new Time(2461021.77854328), new Time(2461022.93452393), 0.00001157407);
         // access.saveResults(output);
         //Debug.Log("done");
-    }
+    }*/
 
     int stationIndex = 0;
     meshDistributor<universalTerrainMesh> prevDist;
@@ -517,7 +513,10 @@ public class controller : MonoBehaviour
                 else alt = (double)dict["AltitudeConstraint"];
 
                 string facilityName = Regex.Replace(x.Key, @"[\d]", String.Empty);
-                if (facilityName == "SGKa") facilityName = "SG";
+
+                if (master.fac2ant.ContainsKey(facilityName)) master.fac2ant[facilityName].Add(x.Key);
+                else master.fac2ant[facilityName] = new List<string> { x.Key };
+
 
                 if (dict["CentralBody"] == "Moon")
                 {
