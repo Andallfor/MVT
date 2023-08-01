@@ -5,16 +5,14 @@ using System;
 using System.Linq;
 using TMPro;
 
-public class satelliteRepresentation
-{
+public class satelliteRepresentation {
+    private objectName uiName;
     private GameObject canvas, planetParent;
     public planet parent;
-    private TextMeshProUGUI shownName;
     private representationData data;
     public static readonly float minScale = 0.05f;
     private float _r = minScale;
     private MeshRenderer mrSelf;
-    private string shownNameText;
     private string name;
     private trailRenderer tr;
     public GameObject gameObject;
@@ -27,14 +25,10 @@ public class satelliteRepresentation
         gameObject.GetComponent<SphereCollider>().enabled = false;
 
         this.name = name;
-        this.shownNameText = name;
         this.data = data;
         this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
 
-        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
-        shownName.fontSize = 20;
-        shownName.text = name;
+        uiName = new objectName(gameObject, objectNameType.satellite, name);
 
         mrSelf = gameObject.GetComponent<MeshRenderer>();
 
@@ -74,19 +68,12 @@ public class satelliteRepresentation
             if (!(parent is null)) gameObject.transform.LookAt(parent.representation.gameObject.transform.position);
         }
 
-        RaycastHit hit;
-        if (Physics.Raycast(Camera.main.transform.position, p - Camera.main.transform.position, out hit, Vector3.Distance(p, Camera.main.transform.position), (1 << 6) | (1 << 7))) shownName.text = "";
-        else {
-            shownName.text = shownNameText;
-            Vector3 rot = planetParent.transform.rotation.eulerAngles * Mathf.Deg2Rad;
-            Vector3 rotatedPoint = uiHelper.vRotate(rot.y, rot.x, rot.z, p);
-            uiHelper.drawTextOverObject(shownName, rotatedPoint);
-        }
+        uiName.tryDraw();
     }
 
     private void hide() {
         mrSelf.enabled = false;
-        shownName.text = "";
+        uiName.hide();
     }
 
     public void setRadius(double radius)

@@ -9,12 +9,12 @@ public class facilityRepresentation
     private planet parent;
     private representationData data;
     private geographic geo;
-    private TextMeshProUGUI shownName;
     private LineRenderer lr;
     private List<antennaRepresentation> antennas;
+    private objectName uiName;
     public MeshRenderer mr {get; private set;}
     public GameObject gameObject;
-    private string shownNameText, name;
+    private string name;
     private float r;
     public bool selected {get; private set;}
     public bool planetFocusHidden {get; private set;}
@@ -37,12 +37,12 @@ public class facilityRepresentation
         gameObject.transform.parent = parent.representation.gameObject.transform;
 
         this.gameObject.name = name;
-        this.shownNameText = name;
         this.parent = parent;
         this.geo = geo;
         this.name = name;
         this.data = data;
         this.antennas = new List<antennaRepresentation>();
+        uiName = new objectName(gameObject, objectNameType.facility, name);
 
         initDebugger();
 
@@ -59,12 +59,6 @@ public class facilityRepresentation
         lr.positionCount = 2;
         mr = gameObject.GetComponent<MeshRenderer>();
         mr.enabled = false;
-
-        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
-        shownName.fontSize = 28;
-        shownName.text = name;
-        shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
     }
 
     public void addAntennaFromParent(antennaData ad) {
@@ -77,7 +71,7 @@ public class facilityRepresentation
 
         if (forceHide || planetOverview.instance.active || position.distance(parent.pos, master.referenceFrame + master.currentPosition) > master.scale * 1000.0) {
             gameObject.SetActive(false);
-            shownName.text = "";
+            uiName.hide();
             foreach (antennaRepresentation ar in antennas) ar.hideName();
             return;
         }
@@ -93,14 +87,13 @@ public class facilityRepresentation
                 if (Physics.Raycast(general.camera.transform.position,
                     this.gameObject.transform.position - general.camera.transform.position, out hit,
                     Vector3.Distance(this.gameObject.transform.position, general.camera.transform.position), (1 << 6) | (1 << 7))) {
-                    shownName.text = "";
+                    uiName.hide();
                 } else {
-                    shownName.text = shownNameText;
-                    uiHelper.drawTextOverObject(shownName, this.gameObject.transform.position);
+                    uiName.tryDraw();
                     gameObject.SetActive(true);
                 }
-            } else {shownName.text = ""; gameObject.SetActive(false);}
-        } else {shownName.text = ""; gameObject.SetActive(false);}
+            } else {uiName.hide(); gameObject.SetActive(false);}
+        } else {uiName.hide(); gameObject.SetActive(false);}
 
 
     }
@@ -114,14 +107,11 @@ public class facilityRepresentation
         }
     }
 
-    public void setNameFont(TMP_FontAsset font) {
-        shownName.font = font;
-    }
-
     public void setActive(bool b)
     {
         this.gameObject.SetActive(b);
-        this.shownName.gameObject.SetActive(b);
+        if (b) uiName.show();
+        else uiName.hide();
     }
 
     public void select(bool s, bool hide = false) {
@@ -142,7 +132,7 @@ public class facilityRepresentation
     }
 
     public void destroy() {
-        GameObject.Destroy(shownName.gameObject);
+        uiName.destroy();
         GameObject.Destroy(gameObject);
     }
 }

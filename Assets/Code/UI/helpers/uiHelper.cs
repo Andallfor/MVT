@@ -7,13 +7,16 @@ using UnityEngine.UI;
 public static class uiHelper
 {
     public static Canvas canvas = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<Canvas>();
-    public static void drawTextOverObject(TextMeshProUGUI text, Vector3 dest)
+    public static RectTransform canvasRect = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<RectTransform>();
+    public static bool drawTextOverObject(TextMeshProUGUI text, Vector3 dest)
     {
         Vector3 p = getScreenPosition(dest);
         text.rectTransform.anchoredPosition = p;
 
         if (p.z < 0) text.enabled = false;
         else if (!text.enabled) text.enabled = true;
+
+        return text.enabled;
     }
 
     public static Vector3 getScreenPosition(Vector3 pos) {

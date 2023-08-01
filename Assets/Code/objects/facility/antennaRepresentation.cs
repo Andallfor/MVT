@@ -7,11 +7,10 @@ public class antennaRepresentation
 {
     public antennaData data;
     public string name;
-    private string shownNameText;
+    private objectName uiName;
     private GameObject gameObject, parent;
     private LineRenderer lr;
     private MeshRenderer mr;
-    private TextMeshProUGUI shownName;
 
     public antennaRepresentation(antennaData ad, GameObject parent) {
         gameObject = GameObject.Instantiate(Resources.Load("Prefabs/antenna") as GameObject);
@@ -23,13 +22,7 @@ public class antennaRepresentation
         mr.enabled = false;
         gameObject.transform.parent = parent.transform;
         gameObject.name = ad.name;
-
-        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
-        shownName.fontSize = 28;
-        shownNameText = name;
-        shownName.text = name;
-        shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
+        uiName = new objectName(gameObject, objectNameType.antenna, ad.name);
     }
 
     public void drawSchedulingConnections(List<scheduling> ss) {
@@ -56,8 +49,7 @@ public class antennaRepresentation
         if (mr.enabled) mr.enabled = false;
 
         if (planetOverview.instance.active) {
-            Debug.Log("passed");
-            shownName.text = "";
+            uiName.hide();
             return;
         }
 
@@ -69,13 +61,12 @@ public class antennaRepresentation
             if (Physics.Raycast(general.camera.transform.position,
                 this.gameObject.transform.position - general.camera.transform.position, out hit, 
                 Vector3.Distance(this.gameObject.transform.position, general.camera.transform.position), (1 << 6) | (1 << 7))) {
-                shownName.text = "";
+                uiName.hide();
             } else {
-                shownName.text = shownNameText;
-                uiHelper.drawTextOverObject(shownName, this.gameObject.transform.position);
+                uiName.tryDraw();
             }
-        } else shownName.text = "";
+        } else uiName.hide();
     }
 
-    public void hideName() {shownName.text = "";}
+    public void hideName() {uiName.hide();}
 }
