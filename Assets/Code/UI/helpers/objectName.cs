@@ -20,7 +20,7 @@ public class objectName {
     private string text, group;
     private objectNameType type;
     private int priority = 0; // higher is better
-    private float opacity = 1;
+    private float opacity = 1, opacityTarget = 1, maxOpacity = 1;
     private bool isCovered = false;
     
     public bool isHidden {get; private set;}
@@ -82,13 +82,24 @@ public class objectName {
     public void tryDraw() {
         updateCovers();
 
+        // lerp opacity to opacityTarget
+        if (opacityTarget != opacity) {
+            if (Math.Abs(opacityTarget - opacity) < 0.01f) opacity = opacityTarget;
+            else {
+                float change = (opacityTarget - opacity) * 30f * UnityEngine.Time.deltaTime;
+                opacity += change;
+            }
+        }
+
         // update covers depends on all text boxes being in their correct positions
-        if (!src.activeSelf || isObscured()) hide();
-        else if (isCovered) {
+        if (!src.activeSelf) hide();
+        else if (isCovered || isObscured()) {
             isHidden = true;
-            if (opacity < 0.25f) hide();
-            else tmp.color = new Color(tmp.color.r, tmp.color.g, tmp.color.b, opacity);
+            opacityTarget = 0;
+            if (opacity < 0.01f) hide();
         } else show();
+
+        if (tmp.color.a != opacity) tmp.color = new Color(tmp.color.r, tmp.color.g, tmp.color.b, opacity);
 
         Vector3 screenPoint = general.camera.WorldToScreenPoint(src.transform.position);
         if (screenPoint.z < 0) hide();
@@ -107,8 +118,6 @@ public class objectName {
     }
 
     public void show() {
-        if (tmp.color.a != opacity) tmp.color = new Color(tmp.color.r, tmp.color.g, tmp.color.b, opacity);
-
         if (tmp.enabled && !isHidden) return;
         isHidden = false;
 
@@ -187,9 +196,6 @@ public class objectName {
                 if (seen.Contains(target.text)) continue;
 
                 Rect tr = uiHelper.rectToWorld(target.tmp.rectTransform);
-                // cant do this optimization because this operation needs to be deterministic, otherwise it causes flickering
-                // maybe we can cache what it covers and then just re-set them? to simulate it running
-                //if (target.isHidden && !target.isHiddenFromCovered) target.isCovered = false;
                 if (cr.Overlaps(tr)) {
                     //toCheck.RemoveAt(j);
                     seen.Add(target.text);
@@ -202,12 +208,13 @@ public class objectName {
                     float y2 = Mathf.Max(tr.yMin, cr.yMin);
                     float area = (x1 - x2) * (y1 - y2);
 
-                    float percent = 10f * (area / (cr.width * cr.height));
-                    percent = Mathf.Min(percent, 1);
-                    target.opacity = 1f - percent;
+                    float percent = 7f * (area / (cr.width * cr.height));
+                    percent = 1f - Mathf.Min(percent, 1);
+
+                    target.opacityTarget = percent;
                 } else {
                     target.isCovered = false;
-                    target.opacity = 1;
+                    target.opacityTarget = target.maxOpacity;
                 }
             }
         }

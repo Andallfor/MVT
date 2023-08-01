@@ -66,8 +66,10 @@ public sealed class defaultMode : IMode {
 
         general.camera.transform.rotation *= Quaternion.AngleAxis(rotation.z, Vector3.forward);
 
+        // use interp because mouse movement is continuous stop and start; user is not spamming clicking
         if (rotationInterp.isRunning) rotation = rotationInterp.get();
         
+        // use buffer system for scale because there are constant starts and stops (since scrolling is not smooth)
         if (scaleChange != 0) {
             double c = scaleChange * UnityEngine.Time.deltaTime * 10.0;
             if (Math.Abs(c) < 0.1) scaleChange = 0;
