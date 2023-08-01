@@ -27,7 +27,7 @@ public sealed class defaultMode : IMode {
         // middle click + drag- pan camera- this should scale as well
         // wasd doesnt do anything
 
-        if (Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0)) {
+        if (Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0) && !EventSystem.current.IsPointerOverGameObject()) {
             // we want the drag to match how much it looks like it should drag on screen
             Vector3 difference = Input.mousePosition - playerControls.lastMousePos;
 
@@ -41,13 +41,24 @@ public sealed class defaultMode : IMode {
             rotationInterp.stop();
         }
 
-        if (Input.GetMouseButtonUp(0)) {
+        if (Input.GetMouseButtonUp(0) && !EventSystem.current.IsPointerOverGameObject()) {
             rotationInterp.stop();
             rotationInterp.mark(rotation, Vector3.zero);
         }
 
-        if (Input.mouseScrollDelta.y != 0) {
+        if (Input.mouseScrollDelta.y != 0 && !EventSystem.current.IsPointerOverGameObject()) {
             scaleChange += -(0.1 * master.scale) * Mathf.Sign(Input.mouseScrollDelta.y);
+
+            // dont let the user scroll into the reference frame
+            // can cache this value for performance
+            float d = general.camera.transform.position.magnitude;
+            body b = master.requestReferenceFrame();
+            double radius = (b is planet) ? ((planet) b).radius : 1;
+
+            double minScale = (radius * 1.01) / d;
+            if (master.scale + scaleChange <= minScale) {
+                scaleChange = minScale - master.scale;
+            }
         }
 
         general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, rotation.x);
