@@ -176,28 +176,36 @@ public class accessCallGeneratorWGS {
 
                     //end
                     time = minElevationTimes[x][1];
-                    hit = raycastNoUpdate(target, time);
-                    if (hit) endTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
-                    else endTime = time;
+                    if (time - startTime > .0035)
+                    {
+                        hit = raycastNoUpdate(target, time);
+                        if (hit) endTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
+                        else endTime = time;
+                    }
 
                     if (endTime - startTime > .0035)
                     {
-                        ScheduleStructGenerator.Window.window window = new ScheduleStructGenerator.Window.window();
-                        window.ID = master.ID;
-                        window.frequency = "KaBand";
-                        window.source = target.name; //user
-                        window.destination = provider;
-                        window.start = startTime;
-                        window.stop = endTime;
-                        window.duration = endTime - startTime;
-                        spans.Add(window);
-                        master.ID++;
+                        foreach (string fac in master.fac2ant[provider])
+                        {
+                            if (master.compatibilityMatrix[fac].Contains(target.name))
+                            {
+                                ScheduleStructGenerator.Window.window window = new ScheduleStructGenerator.Window.window();
+                                window.ID = master.ID;
+                                window.frequency = "KaBand";
+                                window.source = target.name; //user
+                                window.destination = fac;
+                                window.start = startTime;
+                                window.stop = endTime;
+                                window.duration = endTime - startTime;
+                                spans.Add(window);
+                                master.ID++;
+                            }
+                        }
                     }
                 }
             }
         }
 
-      
         meshDist.clear();
         meshWGS.clear();
         return spans;

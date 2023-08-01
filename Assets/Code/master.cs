@@ -284,6 +284,6 @@ public static class master
         { "KIR", new List<string> { "LRO", "GPM_CORE", "MMS" } },
         { "HBK", new List<string> { "ICON", "THEMIS_A", "THEMIS_B", "THEMIS_C", "THEMIS_D", "THEMIS_E", "GOES-18", "GOES-16", "GOES-17", "MMS" } },
         { "GLC", new List<string> { "AQUA", "AURA" } },
-        {"BGS", new List<string> { } }
+        {"BGS", new List<string> { "ICON "} }
     };
 }
