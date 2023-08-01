@@ -27,7 +27,7 @@ public sealed class facilityFocus : IMode {
                 new List<antennaData>()),
                 new representationData("facility", "defaultMat"));
 
-            focus.representation.setNameFont(Resources.Load<TMP_FontAsset>("Fonts/inter/Inter-Light SDF"));
+            //focus.representation.setNameFont(Resources.Load<TMP_FontAsset>("Fonts/inter/Inter-Light SDF"));
         } else {
             querySuccess = false;
             return;

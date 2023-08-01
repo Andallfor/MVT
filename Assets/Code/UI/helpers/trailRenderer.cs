@@ -10,9 +10,11 @@ public class trailRenderer
     private string name;
     private body b;
     private Transform transform;
-    private static Transform trailParent;
+    private static Transform trailParent, trailSatellite, trailPlanet;
+    private static Dictionary<planet, Transform> trailSatelliteByParent = new Dictionary<planet, Transform>();
+    private static double initialScale;
 
-    public const int resolution = 180;
+    public const int resolution = 360;
     public bool enabled {get; private set;} = false;
 
     public trailRenderer(string name, GameObject go, Timeline positions, body b) {
@@ -23,36 +25,69 @@ public class trailRenderer
         lr = GameObject.Instantiate(Resources.Load("Prefabs/simpleLine") as GameObject).GetComponent<LineRenderer>();
         lr.gameObject.name = $"{name} trail";
 
-        lr.transform.parent = GameObject.FindGameObjectWithTag("planet/trails").transform;
+        if (b is satellite || (b as planet).pType == planetType.moon) {
+            if (!trailSatelliteByParent.ContainsKey(b.parent)) {
+                GameObject sp = resLoader.createPrefab("empty");
+                sp.transform.parent = GameObject.FindGameObjectWithTag("planet/trails/keplerSatellite").transform;
+                sp.name = b.parent.name + " trails";
+
+                trailSatelliteByParent[b.parent] = sp.transform;
+            }
+
+            lr.transform.parent = trailSatelliteByParent[b.parent];
+
+            if (b is satellite) {
+                lr.startColor = new Color(0.9f, 0.9f, 0.9f, 0.75f);
+                lr.endColor = lr.startColor;
+            }
+        } else {
+            lr.transform.parent = GameObject.FindGameObjectWithTag("planet/trails/keplerPlanet").transform;
+            lr.loop = true;
+        }
+
+        if (trailColors.ContainsKey(b.name)) {
+            lr.startColor = trailColors[b.name];
+            lr.endColor = lr.startColor;
+        }
+        
         lr.startWidth = 0.015f;
         lr.endWidth = 0.015f;
 
         general.onStatusChange += disableWrapper;
         master.onReferenceFrameChange += (s, e) => disable();
+
+        disable();
     }
 
     public void enable() {
-        if (!transform.gameObject.GetComponent<MeshRenderer>().enabled) return;
-        if (name == master.requestReferenceFrame().name) return;
         if (enabled) return;
+        if (name == master.sun.name) return;
+
+        initialScale = master.scale;
 
         disable();
 
+        // really should cache these values
         Vector3[] points = new Vector3[resolution];
         double step = 0;
-        if (b.positions.selection == TimelineSelection.kepler) {
-            double period = b.positions.findOrbitalPeriod();
-            step = period / (double) resolution;
-        } else if (master.orbitalPeriods.ContainsKey(name)) {
+        if (master.orbitalPeriods.ContainsKey(name)) {
             double period = master.orbitalPeriods[name];
             step = period / (double) resolution;
-        } else step = 1.0 / (double) resolution;
+        } else if (b.positions.selection == TimelineSelection.kepler) {
+            double period = b.positions.findOrbitalPeriod();
+            step = period / (double) resolution;
+        } else {
+            // cant do positional because we assume what the parents are below, namely to parent/sun
+            // positional can be parented to literally anything
+            Debug.LogWarning("Unable to display trail for non-keplerian orbit!");
+            return;
+        }
 
         for (int i = 0; i < resolution; i++) {
             double time = master.time.julian + i * step;
-            position p = b.requestPosition(time);
+            position p = b.positions.find(time);
 
-            p -= master.requestReferenceFrame().requestPosition(time);
+            // satellites should be relative to parent, planets relative to sun
             p /= master.scale;
 
             points[i] = (Vector3) p;
@@ -65,9 +100,11 @@ public class trailRenderer
         lr.positionCount = v.Length;
         lr.SetPositions(v);
         enabled = true;
+        lr.gameObject.SetActive(true);
     }
 
     public void disable() {
+        lr.gameObject.SetActive(false);
         enabled = false;
         lr.positionCount = 0;
     }
@@ -85,9 +122,34 @@ public class trailRenderer
     }
 
     public static void update() {
+        if (!general.showingTrails) return;
         if (trailParent == default(Transform)) trailParent = GameObject.FindGameObjectWithTag("planet/trails").transform;
+        if (trailSatellite == default(Transform)) trailSatellite = GameObject.FindGameObjectWithTag("planet/trails/keplerSatellite").transform;
+        if (trailPlanet == default(Transform)) trailPlanet = GameObject.FindGameObjectWithTag("planet/trails/keplerPlanet").transform;
 
-        if (planetOverview.instance.active) trailParent.position = Vector3.zero;
-        else trailParent.position = -(Vector3) (master.currentPosition / master.scale);
+        //if (planetOverview.instance.active) trailParent.position = Vector3.zero;
+        //else trailParent.position = -(Vector3) (master.currentPosition / master.scale);
+
+        // TODO: add in fancy code to determine if we can see trail renderer or not. currently it just pretends this isnt an issue
+        float scale = (float) (initialScale / master.scale);
+        trailParent.localScale = new Vector3(scale, scale, scale);
+
+        trailPlanet.position = -(Vector3) (master.referenceFrame / master.scale);
+        foreach (planet p in trailSatelliteByParent.Keys) {
+            Transform parent = trailSatelliteByParent[p];
+            parent.position = (Vector3) ((p.pos - master.referenceFrame) / master.scale);
+        }
     }
+
+    public static Dictionary<string, Color> trailColors = new Dictionary<string, Color>() {
+        {"Earth", new Color32(81, 207, 108, 255)},
+        {"Pluto", new Color32(102, 85, 112, 255)},
+        {"Luna", new Color32(137, 153, 163, 255)},
+        {"Mars", new Color32(173, 68, 26, 255)},
+        {"Mercury", new Color32(171, 100, 72, 255)},
+        {"Venus", new Color32(177, 167, 57, 255)},
+        {"Uranus", new Color32(102, 208, 204, 255)},
+        {"Jupiter", new Color32(199, 78, 78, 255)},
+        {"Saturn", new Color32(201, 171, 129, 255)}
+    };
 }

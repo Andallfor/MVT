@@ -284,7 +284,7 @@ public class controller : MonoBehaviour
 
     public void Update() {
         playerControls.update();
-        trailRenderer.update();
+        modeController.update();
 
         if (Input.GetKeyDown("o"))
         {
@@ -437,7 +437,7 @@ public class controller : MonoBehaviour
 
 
         earth = new planet("Earth", new planetData(6356.75, rotationType.earth, new Timeline(149548442.3703442, 1.638666603580831e-02, 3.094435789048925e-03, 2.514080725047589e+02, 2.130422595065601e+02, 3.556650570783973e+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "earthTex"));
-        moon = new planet("Luna", new planetData(1738.1, rotationType.none, new Timeline(3.809339850602024E+05, 5.715270081780017E-02, 5.100092074801750, 2.355576097735322E+02, 4.145906044051883E+01, 1.102875277317696E+02, 1, epoch, EarthMu), planetType.moon), new representationData("planet", "moonTex"));
+        moon = new planet("Luna", new planetData(1738.1, rotationType.none, new Timeline(3.809339850602024E+05, 5.715270081780017E-02, 5.100092074801750, 2.355576097735322E+02, 4.145906044051883E+01, 1.102875277317696E+02, 1, epoch, EarthMu), planetType.moon), new representationData("planet", "moonTex"), earth);
         planet mercury = new planet("Mercury", new planetData(2439.7, rotationType.none, new Timeline(5.790908989105575E+07, 2.056261098757466E-01, 7.003572595914431, 2.919239643694458E+01, 4.830139915269011E+01, 3.524475388676764E+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "mercuryTex"));
         planet venus = new planet("Venus", new planetData(6051.8, rotationType.none, new Timeline(1.082084649394783E+08, 6.763554426926404E-03, 3.394414241082599, 5.465872015572022E+01, 7.661682984113415E+01, 1.894020065218014E+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "venusTex"));
         planet jupiter = new planet("Jupiter", new planetData(71492, rotationType.none, new Timeline(7.784060565591711E+08, 4.849069877916937E-02, 1.303574691375196, 2.734684496159951E+02, 1.005141062239384E+02, 3.583753533457323E+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "jupiterTex"));
@@ -447,7 +447,6 @@ public class controller : MonoBehaviour
         planet pluto = new planet("Pluto", new planetData(1188.3, rotationType.none, new Timeline(5.921110734220912E+09, 2.497736459257524E-01, 1.734771133563329E+01, 1.140877773351901E+02, 1.104098121556590E+02, 4.784240505983976E+01, 1, epoch, sunMu), planetType.planet), new representationData("planet", "moonTex"));
         planet mars = new planet("Mars", new planetData(3389.92, rotationType.none, new Timeline(2.279254603773820E+08, 9.344918986180577E-02, 1.847925718684767, 2.866284864604108E+02, 4.948907666319641E+01, 1.014635329635219E+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "marsTex"));
 
-        planet.addFamilyNode(earth, moon);
         master.relationshipPlanet[earth] = new List<planet>() { moon };
 
         /*yield return new WaitForSeconds(0.1f);
@@ -488,14 +487,14 @@ public class controller : MonoBehaviour
 
                 if (dict["CentralBody"] == "Moon")
                 {
-                    sat = new satellite(x.Key, new satelliteData(new Timeline(A, E, I, W, RAAN, M, 1, Time.strDateToJulian(dict["OrbitEpoch"]), moonMu)), rd);
-                    satellite.addFamilyNode(moon, sat);
+                    sat = new satellite(x.Key, new satelliteData(new Timeline(A, E, I, W, RAAN, M, 1, Time.strDateToJulian(dict["OrbitEpoch"]), moonMu)), rd, moon);
+                    //satellite.addFamilyNode(moon, sat);
                     moonSats.Add(sat);
                 }
                 else if (dict["CentralBody"] == "Earth")
                 {
-                    sat = new satellite(x.Key, new satelliteData(new Timeline(A, E, I, W, RAAN, M, 1, Time.strDateToJulian(dict["OrbitEpoch"]), EarthMu)), rd);
-                    satellite.addFamilyNode(earth, sat);
+                    sat = new satellite(x.Key, new satelliteData(new Timeline(A, E, I, W, RAAN, M, 1, Time.strDateToJulian(dict["OrbitEpoch"]), EarthMu)), rd, earth);
+                    //satellite.addFamilyNode(earth, sat);
                     earthSats.Add(sat);
                 }
 

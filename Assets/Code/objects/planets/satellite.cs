@@ -9,7 +9,7 @@ public class satellite : body
     public satelliteData data;
     public trailRenderer tr;
 
-    public satellite(string name, satelliteData data, representationData rData) {
+    public satellite(string name, satelliteData data, representationData rData, planet parent = null) {
         if (master.allSatellites.Exists(x => x.name == name)) Debug.LogWarning("Duplicate satellite detected");
 
         base.name = name;
@@ -20,10 +20,12 @@ public class satellite : body
         master.allSatellites.Add(this);
         master.requestJsonQueueUpdate();
 
+        if (parent != null) body.addFamilyNode(parent, this);
+
         tr = new trailRenderer(name, representation.gameObject, positions, this);
     }
 
-    private protected override void loadPhysicalData(representationData rData) {representation = new satelliteRepresentation(name, rData);}
+    private protected override void loadPhysicalData(representationData rData) {representation = new satelliteRepresentation(name, rData, this);}
 
     public override void updatePosition(object sender, EventArgs args)
     {

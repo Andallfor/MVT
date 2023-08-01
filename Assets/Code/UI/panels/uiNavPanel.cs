@@ -96,13 +96,13 @@ public class uiNavPanel : MonoBehaviour
         foreach (satellite s in master.allSatellites) {
             if (!s.positions.exists(master.time)) continue;
             if (!all && !(s == master.requestReferenceFrame())) {
-                if (s.representation.parent == master.requestReferenceFrame()) {
+                if (s.representation.parent.parent == master.requestReferenceFrame()) {
                     options.Add(new TMP_Dropdown.OptionData(s.name));
                     continue;
                 }
 
                 if (master.requestReferenceFrame() is satellite) {
-                    planet p = ((satellite) (master.requestReferenceFrame())).representation.parent;
+                    planet p = ((satellite) (master.requestReferenceFrame())).representation.parent.parent;
                     if (master.relationshipSatellite[p].Exists(x => x.name == s.name)) options.Add(new TMP_Dropdown.OptionData(s.name));
                 }
             } else options.Add(new TMP_Dropdown.OptionData(s.name));

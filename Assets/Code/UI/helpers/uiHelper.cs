@@ -7,13 +7,32 @@ using UnityEngine.UI;
 public static class uiHelper
 {
     public static Canvas canvas = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<Canvas>();
-    public static void drawTextOverObject(TextMeshProUGUI text, Vector3 dest)
+    public static RectTransform canvasRect = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<RectTransform>();
+    public static bool drawTextOverObject(TextMeshProUGUI text, Vector3 dest)
     {
         Vector3 p = getScreenPosition(dest);
         text.rectTransform.anchoredPosition = p;
 
         if (p.z < 0) text.enabled = false;
         else if (!text.enabled) text.enabled = true;
+
+        return text.enabled;
+    }
+
+    public static Rect rectToWorld(RectTransform rect) {
+        // https://stackoverflow.com/questions/42043017/check-if-ui-elements-recttransform-are-overlapping
+        Vector2 sizeDelta = rect.sizeDelta;
+        Vector2 pivot = rect.pivot;
+        
+        float rectTransformWidth = sizeDelta.x * rect.lossyScale.x;
+        float rectTransformHeight = sizeDelta.y * rect.lossyScale.y;
+
+        //With this it works even if the pivot is not at the center
+        Vector3 position = rect.TransformPoint(rect.rect.center);
+        float x = position.x - rectTransformWidth * 0.5f;
+        float y = position.y - rectTransformHeight * 0.5f;
+        
+        return new Rect(x,y, rectTransformWidth, rectTransformHeight);
     }
 
     public static Vector3 getScreenPosition(Vector3 pos) {

@@ -7,13 +7,13 @@ using TMPro;
 public class planetRepresentation
 {
     private float _r;
-    private TextMeshProUGUI shownName;
     private planetType pType;
     private GameObject canvas, planetParent;
     public GameObject gameObject;
     public MeshRenderer mrSelf;
     public SphereCollider hitbox;
-    private string shownNameText, name;
+    private objectName uiName;
+    private string name;
     private double radius;
 
     private representationData data;
@@ -25,7 +25,6 @@ public class planetRepresentation
         gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
         gameObject.name = name;
 
-        this.shownNameText = name;
         this.radius = radius;
         this.setRadius(radius);
         this.data = data;
@@ -35,25 +34,18 @@ public class planetRepresentation
         this.hitbox = gameObject.GetComponent<SphereCollider>();
         this.hitbox.radius = .497f;
         this.name = name;
-
-        this.shownName = resLoader.createPrefab("bodyName").GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
-        shownName.fontSize = 25;
-        shownName.text = name;
-        shownName.fontStyle = FontStyles.SmallCaps | FontStyles.Bold | FontStyles.Italic;
+        this.uiName = new objectName(gameObject, pType == planetType.planet ? objectNameType.planet : objectNameType.moon, name);
 
         planetParent = GameObject.FindGameObjectWithTag("planet/parent");
     }
   
-    // updating shown values
     public void setPosition(position pos)
     {
         if (uiMap.instance.active) return;
 
-        bool endDisable = false;
         if (planetOverview.instance.active) {
             if (!planetOverview.instance.obeyingPlanets.Exists(x => x.name == name)) {
-                shownName.text = "";
+                uiName.hide();
                 mrSelf.enabled = false;
                 return;
             }
@@ -67,44 +59,51 @@ public class planetRepresentation
             (float) (pos.x / master.scale),
             (float) (pos.y / master.scale),
             (float) (pos.z / master.scale));
+        
+        gameObject.transform.localPosition = p;
 
-        if (Vector3.Distance(p, Vector3.zero) - radius / master.scale > 1000f) endDisable = false; // hide if too far away
-        else {
-            endDisable = true;
-            gameObject.transform.localPosition = p;
+        uiName.tryDraw();
 
-            if (master.requestReferenceFrame().name != name || planetOverview.instance.active) {
-                if (shownName.text == "") shownName.text = shownNameText;
-            } else shownName.text = "";
+        if (uiName.isHidden || uiMap.instance.active || forceHide || isTooSmall()) hide();
+        else show();
 
-            // scale far away planets so they can be seen better
-            //float distance = Vector3.Distance(Vector3.zero, gameObject.transform.position);
-            //float scale = 0.01f * distance;
-            //float r = Mathf.Max(Mathf.Min(gameObject.transform.localScale.x, _r), scale);
-            //gameObject.transform.localScale = new Vector3(r, r, r);
-        }
+        if (forceDisable) disable();
+        else enable();
 
-        // position the name of the planet so that it is over the displayed position
-        // rotate point since this is the localPosition point, and does not account for possible
-        // rotations of its parent
-        // if we are in planet overview, position text to the side
-        if (planetOverview.instance.active) {
-            shownName.alignment = TextAlignmentOptions.Left;
-            shownName.rectTransform.pivot = new Vector2(-0.05f, 0.5f);
-        } else {
-            shownName.alignment = TextAlignmentOptions.Center;
-            shownName.rectTransform.pivot = new Vector2(0.5f, 0.5f);
-        }
-
-        Vector3 rot = planetParent.transform.rotation.eulerAngles * Mathf.Deg2Rad;
-        Vector3 rotatedPoint = uiHelper.vRotate(rot.y, rot.x, rot.z, p);
-        uiHelper.drawTextOverObject(shownName, rotatedPoint);
-
-        if (forceDisable && gameObject.activeSelf) gameObject.SetActive(false);
-        else if (!forceDisable && gameObject.activeSelf != endDisable) gameObject.SetActive(endDisable);
-        if (forceHide && mrSelf.enabled) mrSelf.enabled = false;
-        else if (!forceHide && !mrSelf.enabled) mrSelf.enabled = true;
+        if (forceHide) hide();
+        else show();
     }
+
+    private bool isTooSmall() {
+        if (gameObject.transform.lossyScale.x < 0.01f) return true;
+
+        // check screen size
+        float f = uiHelper.screenSize(mrSelf, gameObject.transform.position);
+        if (f < 1) return true;
+
+        return false;
+    }
+    
+    private void hide() {
+        if (mrSelf.enabled) mrSelf.enabled = false;
+        //if (!uiName.isHidden) uiName.hide();
+    }
+
+    private void show() {
+        if (!mrSelf.enabled) mrSelf.enabled = true;
+        //if (uiName.isHidden) uiName.show();
+    }
+
+    private void disable() {
+        if (gameObject.activeSelf) gameObject.SetActive(false);
+        //if (!uiName.isHidden) uiName.hide();
+    }
+
+    private void enable() {
+        if (!gameObject.activeSelf) gameObject.SetActive(true);
+        //if (uiName.isHidden) uiName.show();
+    }
+
     public Vector3 rotate(position p)
     {
         gameObject.transform.localEulerAngles = new Vector3((float) p.y, (float) p.x, 0);

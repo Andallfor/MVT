@@ -211,9 +211,9 @@ public static class master
     public static Dictionary<string, double> orbitalPeriods = new Dictionary<string, double>() {
         {"Earth", 365.25},
         {"Luna", 27.322},
-        {"Mercury", 115.88},
-        {"Venus", 583.92},
-        {"Mars", 779.94},
+        {"Mercury", 88},
+        {"Venus", 225},
+        {"Mars", 687},
         {"Jupiter", 4335.22274111},
         {"Saturn", 10827.9216305},
         {"Uranus", 30927.2376018},

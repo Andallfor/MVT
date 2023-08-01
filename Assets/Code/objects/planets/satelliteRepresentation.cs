@@ -5,21 +5,19 @@ using System;
 using System.Linq;
 using TMPro;
 
-public class satelliteRepresentation
-{
+public class satelliteRepresentation {
+    private objectName uiName;
     private GameObject canvas, planetParent;
-    public planet parent;
-    private TextMeshProUGUI shownName;
+    public satellite parent;
     private representationData data;
     public static readonly float minScale = 0.05f;
     private float _r = minScale;
     private MeshRenderer mrSelf;
-    private string shownNameText;
     private string name;
     private trailRenderer tr;
     public GameObject gameObject;
 
-    public satelliteRepresentation(string name, representationData data) {
+    public satelliteRepresentation(string name, representationData data, satellite parent) {
         gameObject = GameObject.Instantiate(data.model);
         gameObject.GetComponent<MeshRenderer>().material = data.material;
         gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
@@ -27,28 +25,18 @@ public class satelliteRepresentation
         gameObject.GetComponent<SphereCollider>().enabled = false;
 
         this.name = name;
-        this.shownNameText = name;
         this.data = data;
         this.canvas = GameObject.FindGameObjectWithTag("ui/canvas");
+        this.parent = parent;
 
-        this.shownName = GameObject.Instantiate(Resources.Load("Prefabs/bodyName") as GameObject).GetComponent<TextMeshProUGUI>();
-        shownName.gameObject.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
-        shownName.fontSize = 20;
-        shownName.text = name;
+        uiName = new objectName(gameObject, objectNameType.satellite, name);
 
         mrSelf = gameObject.GetComponent<MeshRenderer>();
 
         planetParent = GameObject.FindGameObjectWithTag("planet/parent");
     }
 
-    public void setRelationshipParent() {parent = master.relationshipSatellite.First(x => x.Value.Exists(y => y.name == name)).Key;}
-
-    public void setPosition(position pos, bool forceHide = false)
-    {
-        if (uiMap.instance.active) return;
-
-        if (forceHide) {hide(); return;}
-
+    public void setPosition(position pos, bool forceHide = false) {
         if (planetOverview.instance.active) {
             if (!planetOverview.instance.obeyingSatellites.Exists(x => x.name == name)) {hide(); return;}
             pos = planetOverview.instance.planetOverviewPosition(pos - planetOverview.instance.focus.pos + master.currentPosition + master.referenceFrame);
@@ -58,40 +46,42 @@ public class satelliteRepresentation
             (float) (pos.x / master.scale),
             (float) (pos.y / master.scale),
             (float) (pos.z / master.scale));
+        
+        gameObject.transform.localPosition = p;
 
-        if (Vector3.Distance(p, Vector3.zero) > 10000f) mrSelf.enabled = false;
-        else
-        {
-            if (!gameObject.activeSelf) gameObject.SetActive(true);
-            if (!mrSelf.enabled) mrSelf.enabled = true;
-            gameObject.transform.localPosition = p;
+        uiName.tryDraw();
 
-            float distance = Vector3.Distance(Vector3.zero, this.gameObject.transform.position);
-            float scale = 0.01f * distance + 0;
-            float r = Mathf.Max(Mathf.Min(this.gameObject.transform.localScale.x, planetOverview.instance.active ? _r : minScale), scale);
-            gameObject.transform.localScale = new Vector3(r, r, r);
+        if (uiName.isHidden || uiMap.instance.active || forceHide || isTooSmall()) hide();
+        else show();
+    }
 
-            if (!(parent is null)) gameObject.transform.LookAt(parent.representation.gameObject.transform.position);
-        }
+    private bool isTooSmall() {
+        float parentScale = 1;
+        if (parent.parent != default(planet)) parentScale = parent.parent.representation.gameObject.transform.localScale.x;
+        if (gameObject.transform.localScale.x * parentScale < 0.0001f) return true;
 
-        RaycastHit hit;
-        if (Physics.Raycast(Camera.main.transform.position, p - Camera.main.transform.position, out hit, Vector3.Distance(p, Camera.main.transform.position), (1 << 6) | (1 << 7))) shownName.text = "";
-        else {
-            shownName.text = shownNameText;
-            Vector3 rot = planetParent.transform.rotation.eulerAngles * Mathf.Deg2Rad;
-            Vector3 rotatedPoint = uiHelper.vRotate(rot.y, rot.x, rot.z, p);
-            uiHelper.drawTextOverObject(shownName, rotatedPoint);
-        }
+        // check screen size
+        float f = uiHelper.screenSize(mrSelf, gameObject.transform.position);
+        if (f < 1) return true;
+
+        return false;
     }
 
     private void hide() {
-        mrSelf.enabled = false;
-        shownName.text = "";
+        if (gameObject.activeSelf) gameObject.SetActive(false);
+
+        // there may be an animation going on, only hide if the uiName is fully shown
+        if (!uiName.isHidden) uiName.hide();
+    }
+
+    private void show() {
+        if (!gameObject.activeSelf) gameObject.SetActive(true);
+        uiName.show();
     }
 
     public void setRadius(double radius)
     {
-        _r = ((float) Math.Max((radius * 2) / master.scale, 0.00001));
+        _r = ((float) Math.Max((radius * 2) / master.scale, 0.03));
         gameObject.transform.localScale = new Vector3(_r, _r, _r);
     }
 }

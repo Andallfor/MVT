@@ -35,3 +35,4 @@ uiLine: Prefabs/uilr
 facility: Prefabs/Facility
 planet: Prefabs/Planet
 terrainMesh: Prefabs/terrainMesh
+empty: Prefabs/empty

@@ -26,6 +26,7 @@ public abstract class IMode {
         this.active = active;
     }
     public virtual void toggle() {toggle(!active);}
+    public virtual void update() {}
     protected virtual void callback() {}
 
     public bool initialized {get; private set;} = false;
@@ -55,6 +56,7 @@ public abstract class IMode {
 public static class modeController {
     private static List<IMode> modes = new List<IMode>();
     private static bool initialized = false;
+    private static IMode activeMode;
 
     public static void initialize() {
         if (initialized) {
@@ -69,6 +71,7 @@ public static class modeController {
         }
 
         defaultMode.instance.toggle(true);
+        activeMode = defaultMode.instance;
     }
 
     public static void registerMode(IMode m) {
@@ -79,6 +82,8 @@ public static class modeController {
     public static void enable(IMode target) {
         foreach (IMode m in modes) m.toggle(false);
         target.toggle(true);
+
+        activeMode = target;
     }
 
     public static void disableAll() {
@@ -96,6 +101,13 @@ public static class modeController {
         master.clearAllLines();
         general.notifyStatusChange();
 
-        if (state == true) defaultMode.instance.toggle(true);
+        if (state == true) {
+            defaultMode.instance.toggle(true);
+            activeMode = defaultMode.instance;
+        } else activeMode = target;
+    }
+
+    public static void update() {
+        if (activeMode != default(IMode)) activeMode.update();
     }
 }
