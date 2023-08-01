@@ -35,7 +35,20 @@ public class trailRenderer
             }
 
             lr.transform.parent = trailSatelliteByParent[b.parent];
-        } else lr.transform.parent = GameObject.FindGameObjectWithTag("planet/trails/keplerPlanet").transform;
+
+            if (b is satellite) {
+                lr.startColor = new Color(0.9f, 0.9f, 0.9f, 0.75f);
+                lr.endColor = lr.startColor;
+            }
+        } else {
+            lr.transform.parent = GameObject.FindGameObjectWithTag("planet/trails/keplerPlanet").transform;
+            lr.loop = true;
+        }
+
+        if (trailColors.ContainsKey(b.name)) {
+            lr.startColor = trailColors[b.name];
+            lr.endColor = lr.startColor;
+        }
         
         lr.startWidth = 0.015f;
         lr.endWidth = 0.015f;
@@ -55,7 +68,7 @@ public class trailRenderer
         disable();
 
         // really should cache these values
-        Vector3[] points = new Vector3[resolution + 1];
+        Vector3[] points = new Vector3[resolution];
         double step = 0;
         if (master.orbitalPeriods.ContainsKey(name)) {
             double period = master.orbitalPeriods[name];
@@ -70,7 +83,7 @@ public class trailRenderer
             return;
         }
 
-        for (int i = 0; i < resolution + 1; i++) {
+        for (int i = 0; i < resolution; i++) {
             double time = master.time.julian + i * step;
             position p = b.positions.find(time);
 
@@ -127,4 +140,16 @@ public class trailRenderer
             parent.position = (Vector3) ((p.pos - master.referenceFrame) / master.scale);
         }
     }
+
+    public static Dictionary<string, Color> trailColors = new Dictionary<string, Color>() {
+        {"Earth", new Color32(81, 207, 108, 255)},
+        {"Pluto", new Color32(102, 85, 112, 255)},
+        {"Luna", new Color32(137, 153, 163, 255)},
+        {"Mars", new Color32(173, 68, 26, 255)},
+        {"Mercury", new Color32(171, 100, 72, 255)},
+        {"Venus", new Color32(177, 167, 57, 255)},
+        {"Uranus", new Color32(102, 208, 204, 255)},
+        {"Jupiter", new Color32(199, 78, 78, 255)},
+        {"Saturn", new Color32(201, 171, 129, 255)}
+    };
 }
