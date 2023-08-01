@@ -29,6 +29,8 @@ TagManager:
   - ui/planetOverview/lines
   - fakeMeshParent
   - network/playerConnection
+  - planet/trails/keplerSatellite
+  - planet/trails/keplerPlanet
   layers:
   - Default
   - TransparentFX

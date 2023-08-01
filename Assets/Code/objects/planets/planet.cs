@@ -17,7 +17,7 @@ public class planet : body
     public double secd = 0;
     public double p2check;
 
-    public planet(string name, planetData data, representationData rData) {
+    public planet(string name, planetData data, representationData rData, planet parent = null) {
         if (master.allPlanets.Exists(x => x.name == name)) Debug.LogWarning("Duplicate planet detected");
 
         base.name = name;
@@ -27,6 +27,8 @@ public class planet : body
 
         master.allPlanets.Add(this);
         master.requestJsonQueueUpdate();
+
+        if (parent != null) body.addFamilyNode(parent, this);
 
         tr = new trailRenderer(name, representation.gameObject, positions, this);
     }
