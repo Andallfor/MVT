@@ -331,7 +331,7 @@ public class controller : MonoBehaviour
                 master.ID = 0;
                 accessRunning = true;
                 List<satellite> users = new List<satellite>();
-                List<ScheduleStructGenerator.Window.window> windows = new List<ScheduleStructGenerator.Window.window>();
+                List<ScheduleStructGenerator.Window> windows = new List<ScheduleStructGenerator.Window>();
 
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
@@ -349,11 +349,12 @@ public class controller : MonoBehaviour
                     access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/" + p.Key), 2);
                     var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 30), 0.00069444444, 0.00001157407 / 2.0, true); // ADD TO WINDOWS LIST HERE
                     //StartCoroutine(stall(access));
-                    foreach (ScheduleStructGenerator.Window.window w in output)
+                    foreach (ScheduleStructGenerator.Window w in output)
                     {
                         windows.Add(w);
                     }
                 }
+                ScheduleStructGenerator.scenario.aryasWindows = windows;
                 master.ID = 0;
                 accessRunning = false;
                 stopWatch.Stop();

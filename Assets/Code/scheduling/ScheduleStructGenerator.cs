@@ -665,6 +665,7 @@ public static class ScheduleStructGenerator
         public string epochTime;
         public string fileGenDate;
         //public double minWinTime = 0;
+        public List<Window> aryasWindows;
         public double minWinTime = 0.00347222;
         public List<int> totalConflicts = new List<int>();
         public List<Window> windows;
@@ -699,15 +700,24 @@ public static class ScheduleStructGenerator
             return (Window)this.MemberwiseClone();
         }
 
-        public struct window
+        public Window()
         {
-            public int ID;
-            public string frequency;
-            public string source; //user
-            public string destination;
-            public double start;
-            public double stop;
-            public double duration;
+            this.ID = 0;
+            this.frequency = "";
+            this.destination = "";
+            this.start = 0;
+            this.stop = 0;
+            this.duration = 0;
+        }
+
+        public Window(int ID, string frequency, string source, string desitnation, double start, double stop, double duration)
+        {
+            this.ID = ID;
+            this.frequency = frequency;
+            this.destination = destination;
+            this.start = start;
+            this.stop = stop;
+            this.duration = duration;
         }
     }
 
