@@ -22,6 +22,7 @@ public class objectName {
     private int priority = 0; // higher is better
     private float opacity = 1, opacityTarget = 1, maxOpacity = 1;
     private bool isCovered = false;
+    private float cachedSortingDistance;
     
     public bool isHidden {get; private set;}
 
@@ -102,12 +103,15 @@ public class objectName {
         if (tmp.color.a != opacity) tmp.color = new Color(tmp.color.r, tmp.color.g, tmp.color.b, opacity);
 
         Vector3 screenPoint = general.camera.WorldToScreenPoint(src.transform.position);
-        if (screenPoint.z < 0) hide();
+        if (!isOnScreen(screenPoint)) hide();
 
+        // unfortunately we have to keep names synced always
         Vector2 p;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(uiHelper.canvasRect, screenPoint, null, out p);
 
         tmpGo.transform.localPosition = p;
+
+        cachedSortingDistance = Vector3.Distance(general.camera.transform.position, src.transform.position);
     }
 
     public void hide() {
@@ -170,7 +174,13 @@ public class objectName {
 
         // higher priority gets rendered above lower priority TODO: consider distance to camera as well?
         toCheck.Sort((a, b) => {
-            if (a.priority == b.priority) return 0;
+            if (a.priority == b.priority) {
+                float am = a.cachedSortingDistance;
+                float bm = b.cachedSortingDistance;
+                if (am == bm) return 0;
+                if (am < bm) return 1;
+                return -1;
+            }
             if (a.priority < b.priority) return -1;
             return 1;
         });
@@ -218,6 +228,15 @@ public class objectName {
                 }
             }
         }
+    }
+
+    private bool isOnScreen(Vector3 v) {
+        if (v.z <= 0) return false;
+
+        if (v.x < 0 || v.y < 0) return false;
+        if (v.x > Screen.width || v.y > Screen.height) return false;
+
+        return true;
     }
 }
 

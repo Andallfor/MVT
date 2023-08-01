@@ -37,12 +37,7 @@ public class satelliteRepresentation {
 
     public void setRelationshipParent() {parent = master.relationshipSatellite.First(x => x.Value.Exists(y => y.name == name)).Key;}
 
-    public void setPosition(position pos, bool forceHide = false)
-    {
-        if (uiMap.instance.active) return;
-
-        if (forceHide) {hide(); return;}
-
+    public void setPosition(position pos, bool forceHide = false) {
         if (planetOverview.instance.active) {
             if (!planetOverview.instance.obeyingSatellites.Exists(x => x.name == name)) {hide(); return;}
             pos = planetOverview.instance.planetOverviewPosition(pos - planetOverview.instance.focus.pos + master.currentPosition + master.referenceFrame);
@@ -52,33 +47,40 @@ public class satelliteRepresentation {
             (float) (pos.x / master.scale),
             (float) (pos.y / master.scale),
             (float) (pos.z / master.scale));
-
-        if (Vector3.Distance(p, Vector3.zero) > 10000f) mrSelf.enabled = false;
-        else
-        {
-            if (!gameObject.activeSelf) gameObject.SetActive(true);
-            if (!mrSelf.enabled) mrSelf.enabled = true;
-            gameObject.transform.localPosition = p;
-
-            float distance = Vector3.Distance(Vector3.zero, this.gameObject.transform.position);
-            float scale = 0.01f * distance + 0;
-            float r = Mathf.Max(Mathf.Min(this.gameObject.transform.localScale.x, planetOverview.instance.active ? _r : minScale), scale);
-            gameObject.transform.localScale = new Vector3(r, r, r);
-
-            if (!(parent is null)) gameObject.transform.LookAt(parent.representation.gameObject.transform.position);
-        }
+        
+        gameObject.transform.localPosition = p;
 
         uiName.tryDraw();
+
+        if (uiName.isHidden || uiMap.instance.active || forceHide || isTooSmall()) hide();    
+        else show();
+    }
+
+    private bool isTooSmall() {
+        if (gameObject.transform.lossyScale.x < 0.01f) return true;
+
+        // check screen size
+        float f = uiHelper.screenSize(mrSelf, gameObject.transform.position);
+        if (f < 1) return true;
+
+        return false;
     }
 
     private void hide() {
-        mrSelf.enabled = false;
-        uiName.hide();
+        if (mrSelf.enabled) mrSelf.enabled = false;
+
+        // there may be an animation going on, only hide if the uiName is fully shown
+        if (!uiName.isHidden) uiName.hide();
+    }
+
+    private void show() {
+        if (!mrSelf.enabled) mrSelf.enabled = true;
+        uiName.show();
     }
 
     public void setRadius(double radius)
     {
-        _r = ((float) Math.Max((radius * 2) / master.scale, 0.00001));
+        _r = ((float) Math.Max((radius * 2) / master.scale, 0.03));
         gameObject.transform.localScale = new Vector3(_r, _r, _r);
     }
 }
