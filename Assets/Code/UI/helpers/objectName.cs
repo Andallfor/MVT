@@ -47,15 +47,15 @@ public class objectName {
                 priority = 30;
                 tmp.fontSize = 25;
                 tmp.fontStyle = FontStyles.SmallCaps | FontStyles.Bold | FontStyles.Italic;
-                //tmp.alignment = TextAlignmentOptions.Left;
-                //tmp.rectTransform.pivot = new Vector2(-0.05f, 0.5f);
+                tmp.alignment = TextAlignmentOptions.Left;
+                tmp.rectTransform.pivot = new Vector2(-0.05f, 0.5f);
                 break;
             case objectNameType.moon:
                 priority = 25;
                 tmp.fontSize = 25;
                 tmp.fontStyle = FontStyles.SmallCaps | FontStyles.Bold | FontStyles.Italic;
-                //tmp.alignment = TextAlignmentOptions.Left;
-                //tmp.rectTransform.pivot = new Vector2(-0.05f, 0.5f);
+                tmp.alignment = TextAlignmentOptions.Left;
+                tmp.rectTransform.pivot = new Vector2(-0.05f, 0.5f);
                 break;
             case objectNameType.satellite:
                 priority = 20;

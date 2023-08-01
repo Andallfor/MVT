@@ -14,7 +14,7 @@ public class trailRenderer
     private static Dictionary<planet, Transform> trailSatelliteByParent = new Dictionary<planet, Transform>();
     private static double initialScale;
 
-    public const int resolution = 180;
+    public const int resolution = 360;
     public bool enabled {get; private set;} = false;
 
     public trailRenderer(string name, GameObject go, Timeline positions, body b) {

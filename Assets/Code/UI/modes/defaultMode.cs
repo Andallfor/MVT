@@ -27,6 +27,15 @@ public sealed class defaultMode : IMode {
         // middle click + drag- pan camera- this should scale as well
         // wasd doesnt do anything
 
+        if (Input.GetMouseButton(1) && !Input.GetMouseButtonUp(1) && !EventSystem.current.IsPointerOverGameObject()) {
+            Vector3 difference = Input.mousePosition - playerControls.lastMousePos;
+
+            float adjustedDifference = (difference.x / Screen.width) * 75f;
+            rotation.z = adjustedDifference;
+
+            rotationInterp.stop();
+        }
+
         if (Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0) && !EventSystem.current.IsPointerOverGameObject()) {
             // we want the drag to match how much it looks like it should drag on screen
             Vector3 difference = Input.mousePosition - playerControls.lastMousePos;
@@ -36,12 +45,11 @@ public sealed class defaultMode : IMode {
 
             rotation.x = adjustedDifference.x;
             rotation.y = adjustedDifference.y;
-            rotation.z = 0;
 
             rotationInterp.stop();
         }
 
-        if (Input.GetMouseButtonUp(0) && !EventSystem.current.IsPointerOverGameObject()) {
+        if ((Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1)) && !EventSystem.current.IsPointerOverGameObject()) {
             rotationInterp.stop();
             rotationInterp.mark(rotation, Vector3.zero);
         }
