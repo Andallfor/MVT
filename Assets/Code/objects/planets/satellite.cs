@@ -23,7 +23,7 @@ public class satellite : body
         tr = new trailRenderer(name, representation.gameObject, positions, this);
     }
 
-    private protected override void loadPhysicalData(representationData rData) {representation = new satelliteRepresentation(name, rData);}
+    private protected override void loadPhysicalData(representationData rData) {representation = new satelliteRepresentation(name, rData, this);}
 
     public override void updatePosition(object sender, EventArgs args)
     {

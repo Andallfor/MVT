@@ -34,17 +34,15 @@ public class planetRepresentation
         this.hitbox = gameObject.GetComponent<SphereCollider>();
         this.hitbox.radius = .497f;
         this.name = name;
-        this.uiName = new objectName(gameObject, objectNameType.planet, name);
+        this.uiName = new objectName(gameObject, pType == planetType.planet ? objectNameType.planet : objectNameType.moon, name);
 
         planetParent = GameObject.FindGameObjectWithTag("planet/parent");
     }
   
-    // updating shown values
     public void setPosition(position pos)
     {
         if (uiMap.instance.active) return;
 
-        bool endDisable = false;
         if (planetOverview.instance.active) {
             if (!planetOverview.instance.obeyingPlanets.Exists(x => x.name == name)) {
                 uiName.hide();
@@ -61,23 +59,51 @@ public class planetRepresentation
             (float) (pos.x / master.scale),
             (float) (pos.y / master.scale),
             (float) (pos.z / master.scale));
-
-        if (Vector3.Distance(p, Vector3.zero) - radius / master.scale > 1000f) endDisable = false; // hide if too far away
-        else {
-            endDisable = true;
-            gameObject.transform.localPosition = p;
-
-            if (planetOverview.instance.active) uiName.show();
-            else uiName.hide();
-        }
+        
+        gameObject.transform.localPosition = p;
 
         uiName.tryDraw();
 
-        if (forceDisable && gameObject.activeSelf) gameObject.SetActive(false);
-        else if (!forceDisable && gameObject.activeSelf != endDisable) gameObject.SetActive(endDisable);
-        if (forceHide && mrSelf.enabled) mrSelf.enabled = false;
-        else if (!forceHide && !mrSelf.enabled) mrSelf.enabled = true;
+        if (uiName.isHidden || uiMap.instance.active || forceHide || isTooSmall()) hide();
+        else show();
+
+        if (forceDisable) disable();
+        else enable();
+
+        if (forceHide) hide();
+        else show();
     }
+
+    private bool isTooSmall() {
+        if (gameObject.transform.lossyScale.x < 0.01f) return true;
+
+        // check screen size
+        float f = uiHelper.screenSize(mrSelf, gameObject.transform.position);
+        if (f < 1) return true;
+
+        return false;
+    }
+    
+    private void hide() {
+        if (mrSelf.enabled) mrSelf.enabled = false;
+        //if (!uiName.isHidden) uiName.hide();
+    }
+
+    private void show() {
+        if (!mrSelf.enabled) mrSelf.enabled = true;
+        //if (uiName.isHidden) uiName.show();
+    }
+
+    private void disable() {
+        if (gameObject.activeSelf) gameObject.SetActive(false);
+        //if (!uiName.isHidden) uiName.hide();
+    }
+
+    private void enable() {
+        if (!gameObject.activeSelf) gameObject.SetActive(true);
+        //if (uiName.isHidden) uiName.show();
+    }
+
     public Vector3 rotate(position p)
     {
         gameObject.transform.localEulerAngles = new Vector3((float) p.y, (float) p.x, 0);

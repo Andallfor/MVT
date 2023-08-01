@@ -76,6 +76,8 @@ public sealed class defaultMode : IMode {
             else scaleChange -= c;
             master.scale += c;
         }
+
+        trailRenderer.update();
     }
 
     protected override void loadControls() {
@@ -102,7 +104,7 @@ public sealed class defaultMode : IMode {
             c.localEulerAngles = new Vector3(c.localEulerAngles.x, c.localEulerAngles.y, 0);
         }, precondition: () => Input.GetMouseButton(1) && !EventSystem.current.IsPointerOverGameObject(),
            whitelist: w);
-        
+        */
         playerControls.addKey("z", conTrig.down, () => {
             if (general.showingTrails) trailRenderer.disableAll();
             else trailRenderer.enableAll();
@@ -110,7 +112,6 @@ public sealed class defaultMode : IMode {
             general.showingTrails = !general.showingTrails;
             general.notifyTrailsChange();
         }, whitelist: new List<IMode>() {this, planetFocus.instance});
-        */
     }
 
     private defaultMode() {}

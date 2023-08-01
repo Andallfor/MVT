@@ -25,6 +25,7 @@ public class objectName {
     private float cachedSortingDistance;
     
     public bool isHidden {get; private set;}
+    public bool isOpacityChanging {get => opacityTarget == opacity;}
 
     public objectName(GameObject src, objectNameType type, string text, string group = "unsorted") {
         this.text = text;
@@ -46,8 +47,15 @@ public class objectName {
                 priority = 30;
                 tmp.fontSize = 25;
                 tmp.fontStyle = FontStyles.SmallCaps | FontStyles.Bold | FontStyles.Italic;
-                tmp.alignment = TextAlignmentOptions.Left;
-                tmp.rectTransform.pivot = new Vector2(-0.05f, 0.5f);
+                //tmp.alignment = TextAlignmentOptions.Left;
+                //tmp.rectTransform.pivot = new Vector2(-0.05f, 0.5f);
+                break;
+            case objectNameType.moon:
+                priority = 25;
+                tmp.fontSize = 25;
+                tmp.fontStyle = FontStyles.SmallCaps | FontStyles.Bold | FontStyles.Italic;
+                //tmp.alignment = TextAlignmentOptions.Left;
+                //tmp.rectTransform.pivot = new Vector2(-0.05f, 0.5f);
                 break;
             case objectNameType.satellite:
                 priority = 20;
@@ -75,7 +83,7 @@ public class objectName {
 
     /// <summary> Check if text is hidden by another physical object </summary>
     public bool isObscured(int layerMask = (1 << 6) | (1 << 7)) {
-        if (type == objectNameType.planet) return false;
+        if (type == objectNameType.planet || type == objectNameType.moon) return false;
         bool r = Physics.Linecast(general.camera.transform.position, src.transform.position, layerMask);
         return r;
     }
@@ -93,8 +101,7 @@ public class objectName {
         }
 
         // update covers depends on all text boxes being in their correct positions
-        if (!src.activeSelf) hide();
-        else if (isCovered || isObscured()) {
+        if (isCovered || isObscured()) {
             isHidden = true;
             opacityTarget = 0;
             if (opacity < 0.01f) hide();
@@ -118,13 +125,16 @@ public class objectName {
         if (!tmp.enabled && isHidden) return;
         isHidden = true;
 
+        tmpGo.SetActive(false);
         tmp.enabled = false;
     }
 
     public void show() {
         if (tmp.enabled && !isHidden) return;
+        opacityTarget = 1;
         isHidden = false;
 
+        tmpGo.SetActive(true);
         tmp.enabled = true;
     }
 
@@ -211,17 +221,7 @@ public class objectName {
                     seen.Add(target.text);
                     target.isCovered = true;
 
-                    // get area of which they intersect, this is used to control the opacity of the text
-                    float x1 = Mathf.Min(tr.xMax, cr.xMax);
-                    float x2 = Mathf.Max(tr.xMin, cr.xMin);
-                    float y1 = Mathf.Min(tr.yMax, cr.yMax);
-                    float y2 = Mathf.Max(tr.yMin, cr.yMin);
-                    float area = (x1 - x2) * (y1 - y2);
-
-                    float percent = 7f * (area / (cr.width * cr.height));
-                    percent = 1f - Mathf.Min(percent, 1);
-
-                    target.opacityTarget = percent;
+                    target.opacityTarget = 0;
                 } else {
                     target.isCovered = false;
                     target.opacityTarget = target.maxOpacity;
@@ -241,5 +241,5 @@ public class objectName {
 }
 
 public enum objectNameType {
-    planet, satellite, facility, antenna
+    planet, moon, satellite, facility, antenna
 }

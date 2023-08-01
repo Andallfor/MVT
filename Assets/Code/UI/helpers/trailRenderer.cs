@@ -11,8 +11,9 @@ public class trailRenderer
     private body b;
     private Transform transform;
     private static Transform trailParent;
+    private static double initialScale;
 
-    public const int resolution = 180;
+    public const int baseResolution = 180;
     public bool enabled {get; private set;} = false;
 
     public trailRenderer(string name, GameObject go, Timeline positions, body b) {
@@ -32,19 +33,23 @@ public class trailRenderer
     }
 
     public void enable() {
-        if (!transform.gameObject.GetComponent<MeshRenderer>().enabled) return;
-        if (name == master.requestReferenceFrame().name) return;
         if (enabled) return;
+
+        initialScale = master.scale;
 
         disable();
 
+        int resolution = baseResolution;
+        if (b is planet) resolution *= 4;
+
+        // really should cache these values
         Vector3[] points = new Vector3[resolution];
         double step = 0;
-        if (b.positions.selection == TimelineSelection.kepler) {
-            double period = b.positions.findOrbitalPeriod();
-            step = period / (double) resolution;
-        } else if (master.orbitalPeriods.ContainsKey(name)) {
+        if (master.orbitalPeriods.ContainsKey(name)) {
             double period = master.orbitalPeriods[name];
+            step = period / (double) resolution;
+        } else if (b.positions.selection == TimelineSelection.kepler) {
+            double period = b.positions.findOrbitalPeriod();
             step = period / (double) resolution;
         } else step = 1.0 / (double) resolution;
 
@@ -85,9 +90,14 @@ public class trailRenderer
     }
 
     public static void update() {
+        if (!general.showingTrails) return;
         if (trailParent == default(Transform)) trailParent = GameObject.FindGameObjectWithTag("planet/trails").transform;
 
         if (planetOverview.instance.active) trailParent.position = Vector3.zero;
         else trailParent.position = -(Vector3) (master.currentPosition / master.scale);
+
+        // TODO: add in fancy code to determine if we can see trail renderer or not. currently it just pretends this isnt an issue
+        float scale = (float) (initialScale / master.scale);
+        trailParent.localScale = new Vector3(scale, scale, scale);
     }
 }
