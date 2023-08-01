@@ -67,7 +67,7 @@ public class planetRepresentation
             endDisable = true;
             gameObject.transform.localPosition = p;
 
-            if (master.requestReferenceFrame().name != name || planetOverview.instance.active) uiName.show();
+            if (planetOverview.instance.active) uiName.show();
             else uiName.hide();
         }
 

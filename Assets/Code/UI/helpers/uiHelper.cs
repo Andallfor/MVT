@@ -19,6 +19,22 @@ public static class uiHelper
         return text.enabled;
     }
 
+    public static Rect rectToWorld(RectTransform rect) {
+        // https://stackoverflow.com/questions/42043017/check-if-ui-elements-recttransform-are-overlapping
+        Vector2 sizeDelta = rect.sizeDelta;
+        Vector2 pivot = rect.pivot;
+        
+        float rectTransformWidth = sizeDelta.x * rect.lossyScale.x;
+        float rectTransformHeight = sizeDelta.y * rect.lossyScale.y;
+
+        //With this it works even if the pivot is not at the center
+        Vector3 position = rect.TransformPoint(rect.rect.center);
+        float x = position.x - rectTransformWidth * 0.5f;
+        float y = position.y - rectTransformHeight * 0.5f;
+        
+        return new Rect(x,y, rectTransformWidth, rectTransformHeight);
+    }
+
     public static Vector3 getScreenPosition(Vector3 pos) {
         Vector3 screenSize = new Vector3(Screen.width, Screen.height, 0);
         Vector3 screenPos = general.camera.WorldToScreenPoint(pos) - (screenSize / 2f);
