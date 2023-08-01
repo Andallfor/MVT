@@ -20,7 +20,7 @@ public class accessCallGeneratorWGS {
     public bool usingTerrain {get; private set;}
 
     public accessCallGeneratorWGS(planet earth, geographic pos, List<satellite> satList, string provider) {
-        this.satList = satList;
+        this.satList = satList; 
         this.pos = pos;
         this.earth = earth;
         this.provider = provider;
@@ -131,7 +131,7 @@ public class accessCallGeneratorWGS {
         return spans;
     }
 
-    public List<ScheduleStructGenerator.Window.window> findTimes(Time start, Time end, double maxInc, double minInc) {
+    public List<ScheduleStructGenerator.Window.window> findTimes(Time start, Time end, double maxInc, double minInc, bool compatibility) {
         if (!initialized) throw new MethodAccessException("Cannot run access calls unless .initialize(...) has been called!");
 
         bool isBlocked = true;
@@ -142,13 +142,22 @@ public class accessCallGeneratorWGS {
         double time = 0;
 
         bool hit = true;
-        int cnt = 0;
 
         List<ScheduleStructGenerator.Window.window> spans = new List<ScheduleStructGenerator.Window.window>();
+        List<satellite> toGen = new List<satellite>();
+        if (compatibility)
+        {
+            foreach (satellite s in satList)
+            {
+                foreach (string fac in master.fac2ant[provider])
+                {
+                    if (master.compatibilityMatrix[fac].Contains(s.name)) toGen.Add(s);
+                }
+            }
+        }
+        else toGen = satList;
 
-        //Stopwatch stopWatch = new Stopwatch();
-        //stopWatch.Start();
-        foreach (satellite target in satList)
+        foreach (satellite target in toGen)
         {
             List<double[]> minElevationTimes = ElevationCheck.elevationTimes(target.data.positions, pos, altitude, minEl, (end.julian - start.julian) * 86400, start.julian);
 
@@ -167,36 +176,36 @@ public class accessCallGeneratorWGS {
 
                     //end
                     time = minElevationTimes[x][1];
-                    hit = raycastNoUpdate(target, time);
-                    if (hit) endTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
-                    else endTime = time;
+                    if (time - startTime > .0035)
+                    {
+                        hit = raycastNoUpdate(target, time);
+                        if (hit) endTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
+                        else endTime = time;
+                    }
 
                     if (endTime - startTime > .0035)
                     {
-                        ScheduleStructGenerator.Window.window window = new ScheduleStructGenerator.Window.window();
-                        window.ID = cnt;
-                        window.frequency = "KaBand";
-                        window.source = target.name; //user
-                        window.destination = provider;
-                        window.start = startTime;
-                        window.stop = endTime;
-                        window.duration = endTime - startTime;
-                        spans.Add(window);
-                        cnt++;
+                        foreach (string fac in master.fac2ant[provider])
+                        {
+                            if (master.compatibilityMatrix[fac].Contains(target.name))
+                            {
+                                ScheduleStructGenerator.Window.window window = new ScheduleStructGenerator.Window.window();
+                                window.ID = master.ID;
+                                window.frequency = "KaBand";
+                                window.source = target.name; //user
+                                window.destination = fac;
+                                window.start = startTime;
+                                window.stop = endTime;
+                                window.duration = endTime - startTime;
+                                spans.Add(window);
+                                master.ID++;
+                            }
+                        }
                     }
                 }
             }
         }
 
-        //stopWatch.Stop();
-
-        /*TimeSpan ts = stopWatch.Elapsed;
-
-        // Format and display the TimeSpan value.
-        string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-            ts.Hours, ts.Minutes, ts.Seconds,
-            ts.Milliseconds / 10);
-        UnityEngine.Debug.Log("RunTime " + elapsedTime);*/
         meshDist.clear();
         meshWGS.clear();
         return spans;
