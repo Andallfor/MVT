@@ -6,11 +6,6 @@ public class uiBottomPanelController : MonoBehaviour
 {
     public bool visible {get; private set;} = true;
     public RectTransform rt, arrow;
-    public GameObject defaultOpen;
-
-    public void Start() {
-        defaultOpen.SetActive(true);
-    }
 
     public void show() {
         if (visible) return;
