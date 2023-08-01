@@ -12,8 +12,14 @@ public sealed class defaultMode : IMode {
 
     protected override void _initialize() {}
 
+    public override void update() {
+        
+    }
+
     protected override void loadControls() {
         List<IMode> w = new List<IMode>() {this};
+
+        /*
         playerControls.addKey("w", conTrig.held,
             () => master.currentPosition += general.camera.transform.forward * 5f * (float) master.scale * UnityEngine.Time.deltaTime,
             whitelist: w);
@@ -42,6 +48,7 @@ public sealed class defaultMode : IMode {
             general.showingTrails = !general.showingTrails;
             general.notifyTrailsChange();
         }, whitelist: new List<IMode>() {this, planetFocus.instance});
+        */
     }
 
     private defaultMode() {}
