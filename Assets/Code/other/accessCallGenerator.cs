@@ -131,7 +131,7 @@ public class accessCallGeneratorWGS {
         return spans;
     }
 
-    public List<ScheduleStructGenerator.Window.window> findTimes(Time start, Time end, double maxInc, double minInc, bool compatibility) {
+    public List<ScheduleStructGenerator.Window> findTimes(Time start, Time end, double maxInc, double minInc, bool compatibility) {
         if (!initialized) throw new MethodAccessException("Cannot run access calls unless .initialize(...) has been called!");
 
         bool isBlocked = true;
@@ -143,7 +143,7 @@ public class accessCallGeneratorWGS {
 
         bool hit = true;
 
-        List<ScheduleStructGenerator.Window.window> spans = new List<ScheduleStructGenerator.Window.window>();
+        List<ScheduleStructGenerator.Window> spans = new List<ScheduleStructGenerator.Window>();
         List<satellite> toGen = new List<satellite>();
         if (compatibility)
         {
@@ -189,14 +189,7 @@ public class accessCallGeneratorWGS {
                         {
                             if (master.compatibilityMatrix[fac].Contains(target.name))
                             {
-                                ScheduleStructGenerator.Window.window window = new ScheduleStructGenerator.Window.window();
-                                window.ID = master.ID;
-                                window.frequency = "KaBand";
-                                window.source = target.name; //user
-                                window.destination = fac;
-                                window.start = startTime;
-                                window.stop = endTime;
-                                window.duration = endTime - startTime;
+                                ScheduleStructGenerator.Window window = new ScheduleStructGenerator.Window(master.ID, "KaBand", target.name, fac, startTime, endTime, endTime - startTime);
                                 spans.Add(window);
                                 master.ID++;
                             }
