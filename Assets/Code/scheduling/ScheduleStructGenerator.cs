@@ -14,6 +14,7 @@ using Mono.Data.Sqlite;
 using TreeEditor;
 using static UnityEngine.GraphicsBuffer;
 using UnityEditor.Experimental.GraphView;
+using Microsoft.Cci;
 
 public static class ScheduleStructGenerator
 {
@@ -666,11 +667,224 @@ public static class ScheduleStructGenerator
             Debug.Log("aryas windows empty");
             return;
         }
-        else
+        string date = DateTime.Now.ToString("MM-dd_hhmm");
+        if (!File.Exists(DBReader.mainDBPath))
         {
-            Debug.Log(scenario.aryasWindows[0].source);
-            return;
+            UnityEngine.Debug.Log("Generating main.db");
+            UnityEngine.Debug.Log("command: " + $"{DBReader.data.get("2023EarthAssets")} {DBReader.mainDBPath}");
+            System.Diagnostics.Process.Start(DBReader.apps.excelParser, $"{DBReader.data.get("2023EarthAssetsWithOrbits.xlsx")} {DBReader.mainDBPath}").WaitForExit();
         }
+        var missionStructure = DBReader.getData();
+        Debug.Log("epoch: " + missionStructure["EarthTest"].epoch);
+        DBReader.output.setOutputFolder(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), date));
+        string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
+        DBReader.output.write("MissionStructure_2023.txt", json);
+        //Select * from Windows_data where Source="HLS-Surface" and Destination="LCN-12hourfrozen-1-LowPower" and Frequency="Ka Band" order by Start ASC
+        scenario.users.Clear();
+        string newDBPath = DBReader.output.getDB("PreconWindows");
+        if (File.Exists(newDBPath)) File.Delete(newDBPath);
+        bool fileExists = false;
+        SqliteConnection connection = new SqliteConnection(DBReader.getDBConnection(newDBPath));
+        if (!fileExists)
+        {
+            connection.Open();
+            var createCommand = connection.CreateCommand();
+            createCommand.CommandText = @"
+	CREATE TABLE IF NOT EXISTS ""Windows_data"" (
+		""Block_ID""	INTEGER,
+		""Source""	TEXT,
+		""Destination""	TEXT,
+		""Start""	NUMERIC,
+		""Stop""	NUMERIC,
+		""Frequency""	TEXT,
+		""Freq_Priority"" INTEGER,
+		""Schedule_Priority"" NUMERIC,
+		""Ground_Priority"" NUMERIC,
+		""Service_Level"" NUMERIC,
+		PRIMARY KEY(""Block_ID""));    
+		";
+            createCommand.ExecuteNonQuery();
+            Debug.Log("Created DB");
+        }
+        //string restrictionPath = DBReader.data.get("restrictions2023.json");
+        //JObject restrictionJson = JObject.Parse(File.ReadAllText(restrictionPath));
+        //string filePath = DBReader.data.get($"schedulingJSONs/{JSONPath}");
+        //JObject json = JObject.Parse(File.ReadAllText(filePath));
+        string misName = "EarthTest";
+        scenario.epochTime = missionStructure[misName].Item1;
+        scenario.fileGenDate = DateTime.Today.ToString();
+        List<Window> windList = new List<Window>();
+        if (!fileExists)
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = "BEGIN;";
+            command.ExecuteNonQuery();
+        }
+        foreach (Window aWin in scenario.aryasWindows)
+        {
+            string source = (aWin.source).Replace("\"", "");
+            if (source.EndsWith("-Backup")) continue;
+            string destination = aWin.destination.Replace("\"", "");
+            double schedPrio = source.EndsWith("-Backup") ? 0.1 : 0;
+            double service_Level = 0;
+            double groundPrio = 0;
+            try
+            {
+                Debug.Log(source + misName + missionStructure[misName].Item2[source]["Service_Level"]);
+                service_Level = (double)missionStructure[misName].Item2[source]["Service_Level"];
+            }
+            catch (KeyNotFoundException)
+            {
+                Debug.Log($"Either satellite: {source} or Service Level didn't exist");
+            }
+            try
+            {
+                schedPrio += (double)missionStructure[misName].Item2[source]["Schedule_Priority"];
+            }
+            catch (KeyNotFoundException)
+            {
+                // Debug.Log($"Either satellite: {wind.source} or schedule priority didn't exist");
+            }
+            try
+            {
+                groundPrio = (double)missionStructure[misName].Item2[destination]["Ground_Priority"];
+            }
+            catch (KeyNotFoundException)
+            {
+                //Debug.Log($"Either destination: {wind.destination} or ground priority didn't exist");
+            }
+            int freqPrio = 0;
+            switch (aWin.frequency)
+            {
+                case "Ka Band":
+                    freqPrio = 1;
+                    break;
+                case "X Band":
+                    freqPrio = 2;
+                    break;
+                case "S Band":
+                    freqPrio = 3;
+                    break;
+                default:
+                    freqPrio = 0;
+                    break;
+            }
+            if (!scenario.users.ContainsKey(source))
+            {
+                User currentUser = new User();
+                string stringServicePeriod = "1 Day";
+                double servicePeriod = 1;
+                try
+                {
+                    stringServicePeriod = missionStructure[misName].Item2[source]["Service_Period"];
+                    servicePeriod += Double.Parse(stringServicePeriod.Remove(stringServicePeriod.LastIndexOf(" Day"))) - 1;
+                }
+                catch (KeyNotFoundException)
+                {
+                    //Debug.Log($"Either satellite: {wind.source} or service period didn't exist");
+                }
+
+                currentUser.numDays = (int)(30 / servicePeriod);
+                currentUser.serviceLevel = service_Level;
+                try
+                {
+                    currentUser.priority = (double)missionStructure[misName].Item2[source]["Schedule_Priority"];
+                }
+                catch
+                {
+                    Debug.Log($"Priority error: MisName: {misName}, source: {source}");
+                    Application.Quit(10);
+                }
+                currentUser.timeIntervalStart = (double)missionStructure[misName].Item2[source]["TimeInterval_start"];
+                currentUser.timeIntervalStop = (double)missionStructure[misName].Item2[source]["TimeInterval_stop"];
+                for (double i = 0; i <= currentUser.numDays; i += servicePeriod)
+                {
+
+                    (double, double) curBox = (i, 0);
+                    if (i == Math.Floor(currentUser.timeIntervalStart) && currentUser.timeIntervalStart % 1 != 0)
+                    {
+                        curBox.Item2 = (1 - (currentUser.timeIntervalStart - i)) * currentUser.serviceLevel;
+                    }
+                    //else if (i == Math.Floor(currentUser.timeIntervalStop) && currentUser.timeIntervalStop%1!=0)
+                    //{
+                    //curBox.Item2 = (currentUser.timeIntervalStop-i)*currentUser.serviceLevel;
+                    //}
+                    else if (i == Math.Floor(currentUser.timeIntervalStop))
+                    {
+                        curBox.Item2 = (currentUser.timeIntervalStop - i) * currentUser.serviceLevel;
+                    }
+                    else if (currentUser.timeIntervalStart <= i && i <= currentUser.timeIntervalStop)
+                    {
+                        curBox.Item2 = currentUser.serviceLevel;
+                    }
+                    currentUser.boxes.Add(curBox.Item1, curBox.Item2);
+                }
+                scenario.users.Add(source, currentUser);
+            }
+            /*if (!(scenario.users[source].allowedProviders.Contains(destination)))
+            {
+                Debug.Log($"Window kicked out because {source} is not allowed to talk to {destination}");
+                continue;
+            }*/
+            aWin.Freq_Priority = freqPrio;
+            aWin.Schedule_Priority = schedPrio;
+            aWin.Ground_Priority = groundPrio;
+            aWin.days = Enumerable.Range((int)Math.Floor(aWin.start), (int)Math.Floor(aWin.stop) - (int)Math.Floor(aWin.start) + 1).ToList();
+            aWin.timeSpentInDay = new List<double>();
+            if (aWin.days.Count > 1)
+            {
+                aWin.timeSpentInDay.Add(1 - (aWin.start - aWin.days[0]));
+                foreach (int day in Enumerable.Range(aWin.days[0], aWin.days[aWin.days.Count - 1] - 1 - aWin.days[0])) aWin.timeSpentInDay.Add(1);
+                aWin.timeSpentInDay.Add(aWin.stop - aWin.days[aWin.days.Count - 1]);
+            }
+            else aWin.timeSpentInDay.Add(aWin.stop - aWin.start);
+            //Debug.Log($"aWin.start: {aWin.start}, aWin.stop: {aWin.stop}\t\t{string.Join(", ", aWin.days)}\t{string.Join(", ", aWin.timeSpentInDay)}");
+
+
+
+            if (!fileExists)
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = $@"
+		INSERT INTO Windows_data (Block_ID, Source, Destination, Start, Stop, Frequency, Freq_Priority, Schedule_Priority, Ground_Priority, Service_Level) VALUES 
+		({aWin.ID},""{aWin.source}"",""{aWin.destination}"",{aWin.start},{aWin.stop},""{aWin.frequency}"", {aWin.Freq_Priority}, {aWin.Schedule_Priority}, {aWin.Ground_Priority}, {scenario.users[aWin.source].serviceLevel})";
+                command.ExecuteNonQuery();
+            }
+            //if (!(scenario.aWinows==null) || !scenario.aWinows.Any(x=>x.ID==aWin.ID))
+            if (scenario.windows == null)
+                windList.Add(aWin);
+            else if (scenario.windows.Any(x => x.ID == aWin.ID))
+                windList.Add(aWin);
+        }
+        if (!fileExists)
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = "COMMIT;";
+            command.ExecuteNonQuery();
+            connection.Close();
+        }
+        scenario.windows = windList.OrderBy(s => s.Schedule_Priority).ThenBy(s => s.Ground_Priority).ThenBy(s => s.Freq_Priority).ThenByDescending(s => s.duration).ToList();
+        string debugJson = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
+        DBReader.output.write("PreDFSUsers.txt", debugJson);
+        //Debug.Log($@"ID: {scenario.windows[0].ID}\tSource:{scenario.windows[0].source}\tDestination{scenario.windows[0].destination}
+        //\tschedPrio: {scenario.windows[0].Schedule_Priority}\tGroundPrio: {scenario.windows[0].Ground_Priority}\tFreq_Prio: {scenario.windows[0].Freq_Priority}\tDuration: {scenario.windows[0].duration}");
+        /*foreach (var printWindow in scenario.windows)
+        {
+            string print = JsonUtility.ToJson(printWindow, true);
+            Debug.Log(print);
+        }*/
+        connection.Close();
+
+        Debug.Log("Generating conflict list.....");
+        ScheduleStructGenerator.createConflictList(date);
+        ScheduleStructGenerator.genDBNoJSON(missionStructure, date, "cut1Windows");
+        ScheduleStructGenerator.createConflictList(date);
+        Debug.Log("Doing DFS.....");
+        ScheduleStructGenerator.doDFS(date);
+        Debug.Log(DBReader.output.getClean("PostDFSUsers.txt"));
+        System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 1 6");
+        //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PreDFSUsers.txt")} {DBReader.output.get("PreDFSUsers", "png")} 0 1 6");
+        System.Diagnostics.Process.Start(DBReader.apps.schedGen, $"{DBReader.output.get("ScheduleCSV", "csv")} source destination 0 1 {DBReader.output.get("sched", "png")} 0");
     }
 
 
