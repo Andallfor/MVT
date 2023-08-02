@@ -21,7 +21,7 @@ public class controller : MonoBehaviour
     public static controller self;
     public static double scenarioStart;
     public static bool accessRunning = false;
-
+    public static bool schedRunning = false;
 
     public static float _logBase = 35;
 
@@ -325,7 +325,11 @@ public class controller : MonoBehaviour
         }
         if (Input.GetKeyDown("s"))
         {
-            ScheduleStructGenerator.doScheduleWithAccess();
+            if (!schedRunning)
+            {
+                schedRunning = true;
+                ScheduleStructGenerator.doScheduleWithAccess();
+            }
         }
         if (Input.GetKeyDown("y"))
         {
