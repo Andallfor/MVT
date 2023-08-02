@@ -3,18 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System;
 using System.Data;
-using System.Net;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Mono.Data.Sqlite;
-using TreeEditor;
-using static UnityEngine.GraphicsBuffer;
-using UnityEditor.Experimental.GraphView;
-using Microsoft.Cci;
 
 public static class ScheduleStructGenerator
 {
