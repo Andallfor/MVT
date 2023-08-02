@@ -666,6 +666,11 @@ public static class ScheduleStructGenerator
             Debug.Log("aryas windows empty");
             return;
         }
+        else
+        {
+            Debug.Log(scenario.aryasWindows[0].source);
+            return;
+        }
     }
 
 
