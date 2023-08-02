@@ -659,13 +659,22 @@ public static class ScheduleStructGenerator
         return ret;
     }
 
+    public static void doScheduleWithAccess()
+    {
+        if (scenario.aryasWindows.Count == 0)
+        {
+            Debug.Log("aryas windows empty");
+            return;
+        }
+    }
+
 
     public class Scenario
     {
         public string epochTime;
         public string fileGenDate;
         //public double minWinTime = 0;
-        public List<Window> aryasWindows;
+        public List<Window> aryasWindows = new List<Window>();
         public double minWinTime = 0.00347222;
         public List<int> totalConflicts = new List<int>();
         public List<Window> windows;

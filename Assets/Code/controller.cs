@@ -368,6 +368,11 @@ public class controller : MonoBehaviour
                 UnityEngine.Debug.Log("RunTime " + elapsedTime);
             }
         }
+        
+        if (Input.GetKeyDown("s"))
+        {
+            ScheduleStructGenerator.doScheduleWithAccess();
+        }
 
         if (Input.GetKeyDown("b"))
         {
