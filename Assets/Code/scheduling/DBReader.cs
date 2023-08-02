@@ -72,7 +72,7 @@ public static class DBReader
                         string full = reader["name"].ToString();
                         Regex dateReg = new Regex("\\d+-\\d+-\\d+_\\d\\d:\\d\\d:\\d\\d", RegexOptions.IgnoreCase);
                         string EpochDate = dateReg.Match(full).ToString();
-                        Debug.Log($"full: {full}\tReadEpochDate: {EpochDate}");
+                        //Debug.Log($"full: {full}\tReadEpochDate: {EpochDate}");
                         string misName = full.Remove(full.IndexOf(EpochDate) - 1);
                         tables.Add((EpochDate, misName));
                     }
