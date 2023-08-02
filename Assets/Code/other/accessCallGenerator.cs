@@ -80,7 +80,7 @@ public class accessCallGeneratorWGS {
         foreach (universalTerrainMesh mesh in meshDist.allMeshesOrdered) {
             mesh.addCollider();
             mesh.go.transform.rotation = earth.representation.gameObject.transform.rotation;
-            mesh.hide();
+            //mesh.hide();
         }
     }
 
@@ -160,6 +160,9 @@ public class accessCallGeneratorWGS {
         foreach (satellite target in toGen)
         {
             List<double[]> minElevationTimes = ElevationCheck.elevationTimes(target.data.positions, pos, altitude, minEl, (end.julian - start.julian) * 86400, start.julian);
+            string source = "";
+            string destination = "";
+
 
             if (minElevationTimes != null)
             {
@@ -187,9 +190,11 @@ public class accessCallGeneratorWGS {
                     {
                         foreach (string fac in master.fac2ant[provider])
                         {
-                            if (master.compatibilityMatrix[fac].Contains(target.name))
+                            if (master.compatibilityMatrix[fac].Contains(target.name) && target.name != null && fac != null)
                             {
-                                ScheduleStructGenerator.Window window = new ScheduleStructGenerator.Window(master.ID, "KaBand", target.name, fac, startTime, endTime, endTime - startTime);
+                                source = target.name;
+                                destination = fac;
+                                ScheduleStructGenerator.Window window = new ScheduleStructGenerator.Window(master.ID, "KaBand", source, destination, startTime-start.julian, endTime- start.julian, endTime - startTime);
                                 spans.Add(window);
                                 master.ID++;
                             }

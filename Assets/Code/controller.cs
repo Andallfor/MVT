@@ -350,10 +350,10 @@ public class controller : MonoBehaviour
 
                     accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, provider.geo, users, p.Key);
                     access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/" + p.Key), 2);
-                    var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 30), 0.00069444444, 0.00001157407 / 2.0, true); // ADD TO WINDOWS LIST HERE
+                    var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 1), 0.00069444444, 0.00001157407 / 2.0, true); // ADD TO WINDOWS LIST HERE
                     //StartCoroutine(stall(access));
                     foreach (ScheduleStructGenerator.Window w in output)
-                    {
+                    { 
                         windows.Add(w);
                     }
                 }
@@ -439,6 +439,7 @@ public class controller : MonoBehaviour
         double EarthMu = 398600.0;
         double moonMu = 4900.0;
         double sunMu = 132712e+6;
+        double marsMu = 4.2828373716854781E+04;
         double epoch = 2459945.5000000;
 
         List<satellite> earthSats = new List<satellite>();
@@ -454,9 +455,10 @@ public class controller : MonoBehaviour
         planet uranus = new planet("Uranus", new planetData(25559, rotationType.none, new Timeline(2.884647050482038E+09, 4.382306037308097E-02, 7.711154256612637E-01, 9.259562572483993E+01, 7.406386852962497E+01, 2.449588470478398E+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "uranusTex")); 
         planet neptune = new planet("Neptune", new planetData(24764, rotationType.none, new Timeline(4.533353284339735E+09, 1.474287247824008E-02, 1.768865936090221, 2.519545559747149E+02, 1.317418592957744E+02, 3.314896534126764E+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "neptuneTex"));
         planet pluto = new planet("Pluto", new planetData(1188.3, rotationType.none, new Timeline(5.921110734220912E+09, 2.497736459257524E-01, 1.734771133563329E+01, 1.140877773351901E+02, 1.104098121556590E+02, 4.784240505983976E+01, 1, epoch, sunMu), planetType.planet), new representationData("planet", "moonTex"));
+        
         planet mars = new planet("Mars", new planetData(3389.92, rotationType.none, new Timeline(2.279254603773820E+08, 9.344918986180577E-02, 1.847925718684767, 2.866284864604108E+02, 4.948907666319641E+01, 1.014635329635219E+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "marsTex"));
-
-        master.relationshipPlanet[earth] = new List<planet>() { moon };
+        planet phobos = new planet("Phobos", new planetData(13.1, rotationType.none, new Timeline(9.377954455101617E+03, 1.494832784194627E-02, 2.714060115370244E+01, 3.746859017440811E+01, 8.502149665357845E+01, 2.360124366197488E+02, 1, epoch, marsMu), planetType.planet), new representationData("planet", "marsTex"), mars);
+        planet deimos = new planet("Deimos", new planetData(7.8, rotationType.none, new Timeline(2.345960371672593E+04, 2.647108425766069E-04, 2.451161814535570E+01, 8.634724237995439E+00, 7.993040904198153E+01, 2.743515837687091E+02, 1, epoch, marsMu), planetType.planet), new representationData("planet", "marsTex"), mars);
 
         /*yield return new WaitForSeconds(0.1f);
         loadingController.addPercent(0.11f);*/
