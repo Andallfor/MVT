@@ -323,7 +323,10 @@ public class controller : MonoBehaviour
 
             if (stationIndex >= 20) stationIndex = 0;
         }
-
+        if (Input.GetKeyDown("s"))
+        {
+            ScheduleStructGenerator.doScheduleWithAccess();
+        }
         if (Input.GetKeyDown("y"))
         {
             if (accessRunning == false)
