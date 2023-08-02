@@ -724,10 +724,11 @@ public static class ScheduleStructGenerator
             this.duration = 0;
         }
 
-        public Window(int ID, string frequency, string source, string desitnation, double start, double stop, double duration)
+        public Window(int ID, string frequency, string source, string destination, double start, double stop, double duration)
         {
             this.ID = ID;
             this.frequency = frequency;
+            this.source = source;
             this.destination = destination;
             this.start = start;
             this.stop = stop;
