@@ -3,12 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public static class scenario {
-    public static void loadScenarioFromServer() {
-
-    }
-}
-
 public struct scenarioData {
     public double timeStart;
     public Dictionary<string, body> importantBodies;

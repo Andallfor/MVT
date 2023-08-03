@@ -63,16 +63,6 @@ public class controller : MonoBehaviour
             {0.75f, "Finalizing"}
         });
 
-        // try and connect to server if webgl
-        if (Application.platform == RuntimePlatform.WebGLPlayer) {
-
-        } else {
-            bool shouldBeServer = false;
-            if (shouldBeServer) {
-                // host ourselves as server
-            }
-        }
-
         StartCoroutine(start());
     }
 
@@ -82,18 +72,19 @@ public class controller : MonoBehaviour
         yield return StartCoroutine(web.initialize());
 
         loadingController.addPercent(0.1f);
-        yield return null;
+        yield return new WaitForSeconds(0.1f);
 
-        IScenario scenario = new jplScenario(); // testing
-        if (web.isClient) {
-            // download scenario from server
-        } else scenario = new jplScenario();
+        IScenario scenario = null;
+        UnityEngine.Debug.Log("passed connection");
+        if (web.isClient) scenario = new serverScenario(); // download scenario from server
+        else scenario = new jplScenario();
 
         yield return StartCoroutine(scenario.generate());
 
         moon = (planet) scenario.metadata.importantBodies["Luna"];
         earth = (planet) scenario.metadata.importantBodies["Earth"];
         scenarioStart = scenario.metadata.timeStart;
+        UnityEngine.Debug.Log(scenarioStart);
 
         defaultReferenceFrame = earth;
 

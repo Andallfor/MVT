@@ -118,7 +118,7 @@ public static class web {
         bool didConnect = true;
         while (true) {
             if (!isClient && transport.ServerActive()) break;
-            if (isClient && transport.ClientFullyConnected()) break;
+            if (isClient && transport.ClientFullyConnected()) break; // this doesnt seem to work?
             if (totalTime >= maxTime) {
                 didConnect = false;
                 break;
@@ -155,6 +155,15 @@ public static class web {
         );
 
         addHandle((byte) constantWebHandles.proceed, null, null);
+
+        // USER HANDLES
+        // TODO: have this call a function instead rather than defining them here
+        addHandle((byte) userWebHandles.requestServerScenario, 
+            send: (cmd, content) => serverScenario.serializeScenario(), 
+            receive: (cmd, content) => serverScenario.deserializeScenario(content)
+        );
+
+        Debug.Log("Initialized connection");
     }
 }
 
@@ -173,6 +182,11 @@ enum constantWebHandles : byte {
 
     // reserve some handles for future use (if needed)
     r4 = 4, r5 = 5, r6 = 6, r7 = 7, r8 = 8
+}
+
+[Flags]
+enum userWebHandles : byte {
+    requestServerScenario = 9
 }
 
 [Flags]

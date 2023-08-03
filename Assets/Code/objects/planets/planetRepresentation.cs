@@ -16,7 +16,7 @@ public class planetRepresentation
     private string name;
     private double radius;
 
-    private representationData data;
+    public representationData data;
     public bool forceHide = false, forceDisable = false;
 
     public planetRepresentation(string name, double radius, planetType pType, representationData data) {
