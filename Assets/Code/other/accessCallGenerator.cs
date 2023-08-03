@@ -156,7 +156,10 @@ public class accessCallGeneratorWGS {
                 }
             }
         }
-        else toGen = satList;
+        else
+        {
+            toGen = satList;
+        }
 
         foreach (satellite target in toGen)
         {
@@ -191,7 +194,7 @@ public class accessCallGeneratorWGS {
                     {
                         foreach (string fac in master.fac2ant[provider])
                         {
-                            if (master.compatibilityMatrix[fac].Contains(target.name) && target.name != null && fac != null)
+                            if (compatibility && master.compatibilityMatrix[fac].Contains(target.name))
                             {
                                 source = target.name;
                                 destination = fac;
@@ -199,7 +202,77 @@ public class accessCallGeneratorWGS {
                                 spans.Add(window);
                                 master.ID++;
                             }
+
+                            if (!compatibility)
+                            {
+                                source = target.name;
+                                destination = fac;
+                                ScheduleStructGenerator.Window window = new ScheduleStructGenerator.Window(master.ID, "KaBand", source, destination, startTime - start.julian, endTime - start.julian, endTime - startTime);
+                                spans.Add(window);
+                                master.ID++;
+                            }
                         }
+                    }
+                }
+            }
+        }
+
+        meshDist.clear();
+        meshWGS.clear();
+        return spans;
+    }
+
+    public List<ScheduleStructGenerator.Window> findTimesUserInput(Time start, Time end, double maxInc, double minInc)
+    {
+        if (!initialized) throw new MethodAccessException("Cannot run access calls unless .initialize(...) has been called!");
+
+        bool isBlocked = true;
+
+        double minEl = 0;
+        double startTime = 0;
+        double endTime = 0;
+        double time = 0;
+
+        bool hit = true;
+
+        List<ScheduleStructGenerator.Window> spans = new List<ScheduleStructGenerator.Window>();
+        
+        foreach (satellite target in satList)
+        {
+            List<double[]> minElevationTimes = ElevationCheck.elevationTimes(target.data.positions, pos, altitude, minEl, (end.julian - start.julian) * 86400, start.julian);
+            string source = "";
+            string destination = "";
+
+
+            if (minElevationTimes != null)
+            {
+                //may change later if it works 
+                earth.representation.gameObject.transform.rotation = new Quaternion(0f, 0f, 0f, 1);
+
+                for (int x = 0; x < minElevationTimes.Count; x++)
+                {
+                    //start
+                    time = minElevationTimes[x][0];
+                    hit = raycastNoUpdate(target, time);
+                    if (hit) startTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
+                    else startTime = time;
+
+                    //end
+                    time = minElevationTimes[x][1];
+                    if (time - startTime > .0035)
+                    {
+                        hit = raycastNoUpdate(target, time);
+                        if (hit) endTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
+                        else endTime = time;
+                    }
+
+                    if (endTime - startTime > .0035)
+                    {                        
+                        source = target.name;
+                        destination = provider;
+                        ScheduleStructGenerator.Window window = new ScheduleStructGenerator.Window(master.ID, "KaBand", source, destination, startTime - start.julian, endTime - start.julian, endTime - startTime);
+                        spans.Add(window);
+                        master.ID++;                          
                     }
                 }
             }
