@@ -49,8 +49,7 @@ public class serverScenario : IScenario {
 
         // num planets (byte) | planet data (planets then moons)
         // num satellites (byte) | satellite data
-        // num facilities (byte)
-        // num antennas (byte)
+        // num facilities (byte) | facility data
 
         // planet format
         // name (string) | radius (double) | rot type (byte) |
@@ -63,7 +62,41 @@ public class serverScenario : IScenario {
         // name (string) | timeline kepler | parent (string)
         byte[] satellites = serializeSatellites();
 
-        byte[] data = planets.Concat(satellites).ToArray();
+        // facility format
+        // name (string) | lat (double) | lon (double) | alt (double) | parent (string) | startTime (double) | endTime (double)
+        byte[] facilities = serializeFacilities();
+
+        byte[] data = planets.Concat(satellites).Concat(facilities).ToArray();
+
+        return data;
+    }
+
+    private static byte[] serializeFacilities() {
+        byte numFacs = 0;
+
+        byte[] data;
+        using (MemoryStream ms = new MemoryStream()) {
+            using (BinaryWriter bw = new BinaryWriter(ms)) {
+                bw.Write((byte) 0); // holder for numFacs
+
+                foreach (facility f in master.allFacilities) {
+                    if (f.parent.positions.selection == TimelineSelection.positions) continue;
+
+                    bw.Write(f.name);
+                    bw.Write(f.data.geo.lat);
+                    bw.Write(f.data.geo.lon);
+                    bw.Write(f.data.alt);
+                    bw.Write(f.parent.name);
+                    bw.Write(f.data.start.julian);
+                    bw.Write(f.data.end.julian);
+
+                    numFacs++;
+                }
+            }
+
+            data = ms.ToArray();
+            data[0] = numFacs;
+        }
 
         return data;
     }
@@ -78,6 +111,7 @@ public class serverScenario : IScenario {
 
                 foreach (satellite s in master.allSatellites) {
                     if (s.positions.selection == TimelineSelection.positions) continue;
+                    if (s.parent.positions.selection == TimelineSelection.positions) continue;
 
                     bw.Write(s.name);
                     serializeTimeline(bw, (TimelineKepler) s.positions.getSource());
@@ -139,6 +173,7 @@ public class serverScenario : IScenario {
         using (BinaryReader br = new BinaryReader(new MemoryStream(data))) {
             deserializePlanets(br);
             deserializeSatellites(br);
+            deserializeFacilities(br);
         }
 
         done = true;
@@ -171,6 +206,22 @@ public class serverScenario : IScenario {
             string parent = br.ReadString();
 
             new satellite(name, new satelliteData(t), new representationData("planet", "defaultMat"), master.allPlanets.Find(x => x.name == parent));
+        }
+    }
+
+    private static void deserializeFacilities(BinaryReader br) {
+        byte numFacs = br.ReadByte();
+
+        for (int i = 0; i < numFacs; i++) {
+            string name = br.ReadString();
+            double lat = br.ReadDouble();
+            double lon = br.ReadDouble();
+            double alt = br.ReadDouble();
+            string parent = br.ReadString();
+            double startTime = br.ReadDouble();
+            double endTime = br.ReadDouble();
+
+            new facility(name, master.allPlanets.Find(x => x.name == parent), new facilityData(name, new geographic(lat, lon), alt, new List<antennaData>(), new Time(startTime), new Time(endTime)), new representationData("facility", "defaultMat"));
         }
     }
 
