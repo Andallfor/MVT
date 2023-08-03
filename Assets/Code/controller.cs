@@ -21,17 +21,13 @@ public class controller : MonoBehaviour
 
     private void Awake() { self = this; }
 
-    private void Start()
-    {
+    private void Start() {
         general.canvas = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<Canvas>();
         general.planetParent = GameObject.FindGameObjectWithTag("planet/parent");
         uiHelper.canvas = GameObject.FindGameObjectWithTag("ui/canvas").GetComponent<Canvas>();
         general.camera = Camera.main;
 
         resLoader.initialize();
-        web.initialize();
-
-        master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/sun", 0.0416666665, planetType.planet), new representationData("planet", "sunTex"));
 
         /*
         string date = DateTime.Now.ToString("MM-dd_hhmm");
@@ -61,16 +57,38 @@ public class controller : MonoBehaviour
         */
 
         loadingController.start(new Dictionary<float, string>() {
-            {0, "Generating Planets"},
-            {0.10f, "Generating Satellites"},
-            {0.75f, "Generating Terrain"}
+            {0, "Connecting to server"},
+            {0.1f, "Generating Planets"},
+            {0.25f, "Parsing Database"},
+            {0.75f, "Finalizing"}
         });
+
+        // try and connect to server if webgl
+        if (Application.platform == RuntimePlatform.WebGLPlayer) {
+
+        } else {
+            bool shouldBeServer = false;
+            if (shouldBeServer) {
+                // host ourselves as server
+            }
+        }
 
         StartCoroutine(start());
     }
 
     IEnumerator start() {
-        IScenario scenario = new jplScenario();
+        yield return null;
+        master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/sun", 0.0416666665, planetType.planet), new representationData("planet", "sunTex"));
+        yield return StartCoroutine(web.initialize());
+
+        loadingController.addPercent(0.1f);
+        yield return null;
+
+        IScenario scenario = new jplScenario(); // testing
+        if (web.isClient) {
+            // download scenario from server
+        } else scenario = new jplScenario();
+
         yield return StartCoroutine(scenario.generate());
 
         moon = (planet) scenario.metadata.importantBodies["Luna"];
@@ -79,15 +97,11 @@ public class controller : MonoBehaviour
 
         defaultReferenceFrame = earth;
 
-        yield return new WaitForSeconds(0.1f);
+        yield return null;
 
         master.setReferenceFrame(master.allPlanets.First(x => x.name == "Earth"));
-        master.pause = false;
-        general.camera = Camera.main;
 
         master.markStartOfSimulation();
-
-        loadingController.addPercent(0.26f);
 
         modeController.initialize();
 
@@ -97,12 +111,17 @@ public class controller : MonoBehaviour
         }
 
         startMainLoop();
+        master.pause = false;
+
+        yield return null;
+        loadingController.addPercent(1);
     }
 
     public void Update() {
         playerControls.update();
         modeController.update();
 
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
         if (Input.GetKeyDown("o"))
         {
             Vector3 v1 = (Vector3)(geographic.toCartesian(new geographic(0, 0), earth.radius).swapAxis());
@@ -131,6 +150,7 @@ public class controller : MonoBehaviour
 
             if (stationIndex >= 20) stationIndex = 0;
         }
+
         if (Input.GetKeyDown("s"))
         {
             if (!schedRunning)
@@ -188,6 +208,7 @@ public class controller : MonoBehaviour
         {
             ScheduleStructGenerator.doScheduleWithAccess();
         }
+#endif
 
         if (Input.GetKeyDown("b"))
         {
@@ -195,6 +216,7 @@ public class controller : MonoBehaviour
         }
     }
 
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
     public static void runWindows()
     {
         master.time.addJulianTime((double)2461021.5 - (double)master.time.julian);
@@ -319,6 +341,7 @@ public class controller : MonoBehaviour
 
         visibility.raycastTerrain(providers, users, master.time.julian, master.time.julian + 30, speed, options, false);
     }
+#endif
 
     public void startMainLoop(bool force = false) {
         if (loop != null && force == false) return;

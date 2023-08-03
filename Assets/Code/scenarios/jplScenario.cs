@@ -9,11 +9,7 @@ public class jplScenario : IScenario {
         representationData rd = new representationData("planet", "defaultMat");
         representationData frd = new representationData("facility", "defaultMat");
 
-        var data = DBReader.getData();
-
         double prevTime = master.time.julian;
-        double startTime = Time.strDateToJulian(data["EarthTest"].epoch);
-        master.time.addJulianTime(Time.strDateToJulian(data["EarthTest"].epoch) - prevTime);
 
         double EarthMu = 398600.0;
         double moonMu = 4900.0;
@@ -38,9 +34,17 @@ public class jplScenario : IScenario {
         planet phobos = new planet("Phobos", new planetData(13.1, rotationType.none, new Timeline(9.377954455101617E+03, 1.494832784194627E-02, 2.714060115370244E+01, 3.746859017440811E+01, 8.502149665357845E+01, 2.360124366197488E+02, 1, epoch, marsMu), planetType.planet), new representationData("planet", "marsTex"), mars);
         planet deimos = new planet("Deimos", new planetData(7.8, rotationType.none, new Timeline(2.345960371672593E+04, 2.647108425766069E-04, 2.451161814535570E+01, 8.634724237995439E+00, 7.993040904198153E+01, 2.743515837687091E+02, 1, epoch, marsMu), planetType.planet), new representationData("planet", "marsTex"), mars);
 
+        loadingController.addPercent(0.15f);
+        yield return null;
+
         List<string> facs = new List<string>();
         List<facility> earthfacs = new List<facility>();
 
+        double startTime = master.time.julian;
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
+        var data = DBReader.getData();
+        startTime = Time.strDateToJulian(data["EarthTest"].epoch);
+        master.time.addJulianTime(Time.strDateToJulian(data["EarthTest"].epoch) - prevTime);
         foreach (KeyValuePair<string, dynamic> x in data["EarthTest"].satellites)
         {
             var dict = data["EarthTest"].satellites[x.Key];
@@ -122,18 +126,18 @@ public class jplScenario : IScenario {
                 }
             }
         }
+#endif
         master.relationshipSatellite[earth] = earthSats;
         master.relationshipSatellite[moon] = moonSats;
         master.relationshipFacility[earth] = earthfacs;
-
-        yield return new WaitForSeconds(0.1f);
-        loadingController.addPercent(0.11f);
-        loadingController.addPercent(1);
 
         metadata.timeStart = startTime;
         metadata.importantBodies = new Dictionary<string, body>() {
             {earth.name, earth},
             {moon.name, moon}
         };
+
+        loadingController.addPercent(0.5f);
+        yield return null;
     }
 }

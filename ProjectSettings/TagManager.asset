@@ -31,6 +31,7 @@ TagManager:
   - network/playerConnection
   - planet/trails/keplerSatellite
   - planet/trails/keplerPlanet
+  - network/manager
   layers:
   - Default
   - TransparentFX

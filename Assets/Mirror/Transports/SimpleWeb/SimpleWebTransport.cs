@@ -119,6 +119,9 @@ namespace Mirror.SimpleWeb
             return client != null && client.ConnectionState != ClientState.NotConnected;
         }
 
+        // NOT PART OF MIRROR LIBRARY, ADDED BY ME
+        public bool ClientFullyConnected() => client != null && client.ConnectionState == ClientState.Connected;
+
         public override void ClientConnect(string hostname)
         {
             UriBuilder builder = new UriBuilder

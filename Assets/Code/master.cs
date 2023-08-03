@@ -176,7 +176,7 @@ public static class master
         onCurrentPositionChange(null, EventArgs.Empty);
     }
 
-    private static bool alreadyStarted = false;
+    public static bool alreadyStarted {get; private set;} = false;
     /// <summary> Tell the program that the simulation is about ready to start. Calls <see cref="onFinalSetup"/>. </summary>
     public static void markStartOfSimulation()
     {

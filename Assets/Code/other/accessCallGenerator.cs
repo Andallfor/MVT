@@ -1,3 +1,4 @@
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -356,3 +357,4 @@ internal struct quaternionDouble {
 
     public static explicit operator quaternionDouble(Quaternion q) => new quaternionDouble(q.x, q.y, q.z, q.w);
 }
+#endif

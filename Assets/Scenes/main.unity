@@ -971,10 +971,9 @@ GameObject:
   - component: {fileID: 142522880}
   - component: {fileID: 142522881}
   - component: {fileID: 142522882}
-  - component: {fileID: 142522883}
   m_Layer: 0
   m_Name: networkManager
-  m_TagString: Untagged
+  m_TagString: network/manager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1008,9 +1007,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   runInBackground: 1
-  autoStartServerBuild: 1
+  autoStartServerBuild: 0
   autoConnectClientBuild: 0
-  sendRate: 30
+  sendRate: 1
   offlineScene: 
   onlineScene: 
   transport: {fileID: 142522882}
@@ -1055,25 +1054,11 @@ MonoBehaviour:
   clientMaxMessagesPerTick: 1000
   batchSend: 1
   waitBeforeSend: 1
-  clientUseWss: 0
+  clientUseWss: 1
   sslEnabled: 0
-  sslCertJson: ./cert.json
-  sslProtocols: 3072
+  sslCertJson: 
+  sslProtocols: 12288
   _logLevels: 3
---- !u!114 &142522883
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 142522879}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  offsetX: 0
-  offsetY: 0
 --- !u!1001 &180258665
 PrefabInstance:
   m_ObjectHideFlags: 0

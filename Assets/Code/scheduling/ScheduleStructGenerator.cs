@@ -1,3 +1,4 @@
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -961,3 +962,4 @@ public static class ScheduleStructGenerator
 
     }
 }
+#endif

@@ -13,6 +13,8 @@ public class planetOverviewUI : MonoBehaviour
     public string focus;
 
     public void Update() {
+        if (!master.alreadyStarted) return;
+
         rotationalOffset = planetOverview.instance.rotationalOffset;
         focus = planetOverview.instance.focus.name;
     }
