@@ -84,7 +84,6 @@ public class controller : MonoBehaviour
         moon = (planet) scenario.metadata.importantBodies["Luna"];
         earth = (planet) scenario.metadata.importantBodies["Earth"];
         scenarioStart = scenario.metadata.timeStart;
-        UnityEngine.Debug.Log(scenarioStart);
 
         defaultReferenceFrame = earth;
 
