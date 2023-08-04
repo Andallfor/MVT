@@ -52,8 +52,10 @@ public class trailRenderer {
             lr.endColor = lr.startColor;
         }
         
-        lr.startWidth = 0.015f;
-        lr.endWidth = 0.015f;
+        float width = 0.015f;
+        if (b is planet) width = 0.03f;
+        lr.startWidth = width;
+        lr.endWidth = width;
 
         general.onStatusChange += disableWrapper;
         master.onReferenceFrameChange += (s, e) => disable();
