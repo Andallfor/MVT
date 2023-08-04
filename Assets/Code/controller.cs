@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using System.Diagnostics;
+using Newtonsoft.Json;
 
 public class controller : MonoBehaviour
 {
@@ -80,105 +81,6 @@ public class controller : MonoBehaviour
 
         yield return null;
         loadingController.addPercent(1);
-    }
-
-    public void Update() {
-        playerControls.update();
-        modeController.update();
-
-#if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
-        if (Input.GetKeyDown("o"))
-        {
-            Vector3 v1 = (Vector3)(geographic.toCartesian(new geographic(0, 0), earth.radius).swapAxis());
-            Vector3 v2 = (Vector3)(geographic.toCartesianWGS(new geographic(0, 0), 0).swapAxis());
-
-            UnityEngine.Debug.Log("regular: " + v1);
-            UnityEngine.Debug.Log("wgs: " + v2);
-
-            runWindowsNoRate();
-        }
-
-        if (Input.GetKeyDown("g"))
-        {
-            string src = Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth");
-            string p = Directory.GetDirectories(src)[stationIndex];
-            universalTerrainJp2File f = new universalTerrainJp2File(Path.Combine(p, "data.jp2"), Path.Combine(p, "metadata.txt"), true);
-            UnityEngine.Debug.Log(p);
-
-            if (prevDist != null) prevDist.clear();
-            geographic offset = new geographic(1, 1);
-            prevDist = f.load(f.center, 0, f.getBestResolution(f.center - offset, f.center + offset, 5_000_000), offset: 1);
-
-            prevDist.drawAll(earth.representation.gameObject.transform);
-
-            stationIndex++;
-
-            if (stationIndex >= 20) stationIndex = 0;
-        }
-
-        if (Input.GetKeyDown("s"))
-        {
-            if (!schedRunning)
-            {
-                schedRunning = true;
-                ScheduleStructGenerator.doScheduleWithAccess();
-            }
-        }
-        if (Input.GetKeyDown("y"))
-        {
-            if (accessRunning == false)
-            {
-                master.ID = 0;
-                accessRunning = true;
-                List<satellite> users = new List<satellite>();
-                List<ScheduleStructGenerator.Window> windows = new List<ScheduleStructGenerator.Window>();
-
-                Stopwatch stopWatch = new Stopwatch();
-                stopWatch.Start();
-
-                foreach (var u in linkBudgeting.users)
-                {
-                    users.Add(master.allSatellites.Find(x => x.name == u.Key));
-                }
-
-                foreach (var p in linkBudgeting.providers)
-                {
-                    facility provider = master.allFacilities.Find(x => x.name == p.Key);
-
-                    accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, provider.geo, users, p.Key);
-                    access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/" + p.Key), 2);
-                    var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 30), 0.00069444444, 0.00001157407 / 2.0, true); // ADD TO WINDOWS LIST HERE
-                    //StartCoroutine(stall(access));
-                    foreach (ScheduleStructGenerator.Window w in output)
-                    { 
-                        windows.Add(w);
-                    }
-                }
-                ScheduleStructGenerator.scenario.aryasWindows = windows;
-                master.ID = 0;
-                accessRunning = false;
-                stopWatch.Stop();
-
-                TimeSpan ts = stopWatch.Elapsed;
-
-                // Format and display the TimeSpan value.
-                string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                    ts.Hours, ts.Minutes, ts.Seconds,
-                    ts.Milliseconds / 10);
-                UnityEngine.Debug.Log("RunTime " + elapsedTime);
-            }
-        }
-        
-        if (Input.GetKeyDown("s"))
-        {
-            ScheduleStructGenerator.doScheduleWithAccess();
-        }
-#endif
-
-        if (Input.GetKeyDown("b"))
-        {
-            web.sendMessage((byte)constantWebHandles.ping, new byte[] { 15 });
-        }
     }
 
 #if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL

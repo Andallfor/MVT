@@ -9,13 +9,8 @@ using System.Data;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Mono.Data.Sqlite;
-using TreeEditor;
-using static UnityEngine.GraphicsBuffer;
-using UnityEditor.Experimental.GraphView;
-using Microsoft.Cci;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
-using SixLabors.ImageSharp;
 
 public static class ScheduleStructGenerator
 {
