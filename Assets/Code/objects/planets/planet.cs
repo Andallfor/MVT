@@ -217,51 +217,7 @@ public class planet : body
               new position (0,    0,    1));
     }
 
-    private position calculateRotation()
-    {
-        double lon = 0;
-        //double lat = 0;
-        double timezone = 0;
-        double jc = master.time.julianCentury;
-        double tr = Math.PI / 180.0;
-        double td = 180.0 / Math.PI;
-
-        // calculate solar noon in julian
-        double gMeanLonSun = (280.46646 + jc * (36000.76983 + jc * 0.0003032)) % 360.0;
-        double gMeanAnomSun = 357.52911 + jc * (35999.05029 - 0.0001537 * jc);
-        double eEarthOrbit = 0.016708634 - jc * (0.000042037 + 0.0000001267 * jc);
-        double meanOblEcliptic = 23.0 + (26.0 + ((21.448 - jc * (46.815 + jc * (0.00059 - jc * 0.001813)))) / 60.0) / 60.0;
-        double oblCorr = meanOblEcliptic + 0.00256 * Math.Cos(tr * (125.04 - 1934.136 * jc));
-        double y = Math.Tan(tr * (oblCorr / 2.0)) * Math.Tan(tr * (oblCorr / 2.0));
-
-        double eqOfTime = 4.0 * td * ((y * Math.Sin(2.0 * (tr * gMeanLonSun))) -
-            2.0 * eEarthOrbit * Math.Sin(tr * gMeanAnomSun) +
-            4.0 * eEarthOrbit * y * Math.Sin(tr * gMeanAnomSun) * Math.Cos(2.0 * tr * gMeanLonSun) -
-            0.5 * y * y * Math.Sin(4 * tr * gMeanLonSun) -
-            1.25 * eEarthOrbit * eEarthOrbit * Math.Sin(2 * tr * gMeanAnomSun));
-        double solarNoon = (720.0 - 4.0 * lon - eqOfTime + timezone * 60.0) / 1440.0;
-        double solarNoonJulian = (solarNoon - 0.5 < 0) ? solarNoon + 0.5 : solarNoon - 0.5;
-
-        // calc sun declination
-        double sunEqOfCtr = Math.Sin(tr * gMeanAnomSun) * (1.914602 - jc * (0.004817 + 0.000014 * jc)) + Math.Sin(tr * (2 * gMeanAnomSun)) * (0.0199993 - 0.000101 * jc) + Math.Sin(tr * (3 * gMeanAnomSun)) * 0.000289;
-        double sunTrueLon = gMeanLonSun + sunEqOfCtr;
-        double sunAppLon = sunTrueLon - 0.00569 - 0.00478 * Math.Sin(tr * (125.04 - 1934.136 * jc));
-        double sunDeclin = td * (Math.Asin(Math.Sin(tr * oblCorr) * Math.Sin(tr * sunAppLon)));
-
-        // get time until next solar noon
-        double currentHour = master.time.julian % 1;
-        solarNoonJulian += (currentHour > solarNoonJulian) ? 1 : 0;
-        double timeUntilSNoon = solarNoonJulian - currentHour;
-
-        position noonPos = data.positions.find(new Time(master.time.julian));
-        geographic noonLatLon = geographic.toGeographic(master.sun.pos - noonPos, this.data.radius);
-
-        double rotationDirection = 1;
-        double rotationDays = rotationDirection * (-noonLatLon.lon + (360 * timeUntilSNoon));
-
-        return new position(rotationDays, 0, 0);
-        //return new position(rotationDays, 0, 0);
-    }
+    public rotationType getRotationType() => data.rotate;
 
     public override int GetHashCode() => name.GetHashCode();
 }
@@ -299,14 +255,14 @@ public class planetData
 
 }
 
-public enum planetType
+public enum planetType : byte
 {
     planet = 0,
     moon = 1
 }
 
 [Flags]
-public enum rotationType
+public enum rotationType : byte
 {
     earth = 1,
     moon = 2,

@@ -65,6 +65,11 @@ public static class modeController {
         }
         initialized = true;
 
+        registerMode(planetOverview.instance);
+        registerMode(planetFocus.instance);
+        registerMode(uiMap.instance);
+        registerMode(facilityFocus.instance);
+
         modes.Add(defaultMode.instance);
         foreach (IMode mode in modes) {
             if (!mode.initialized) mode.initialize();
@@ -72,6 +77,8 @@ public static class modeController {
 
         defaultMode.instance.toggle(true);
         activeMode = defaultMode.instance;
+
+        modeController.disableAll();
     }
 
     public static void registerMode(IMode m) {

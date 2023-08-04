@@ -1,13 +1,11 @@
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System;
 using System.Data;
-using System.Net;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Mono.Data.Sqlite;
@@ -1018,3 +1016,4 @@ public static class ScheduleStructGenerator
 
     }
 }
+#endif

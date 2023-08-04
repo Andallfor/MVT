@@ -53,11 +53,19 @@ public class uiSettingsPanel : MonoBehaviour
     }
 
     public void access() {
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
         controller.runDynamicLink();
+#else
+        throw new NotImplementedException("TODO: add in access call to webgl");
+#endif
     }
 
     public void windows() {
+#if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
         controller.runWindows();
+#else
+        throw new NotImplementedException("TODO: add in access call to webgl");
+#endif
     }
 
     public void setTime () {

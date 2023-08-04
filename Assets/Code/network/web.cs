@@ -2,9 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Mirror;
+using Mirror.SimpleWeb;
 
 public static class web {
     public static bool initialized {get; private set;}
+    public static bool isClient {get; private set;}
     private static Dictionary<byte, webRequestHandle> handles = new Dictionary<byte, webRequestHandle>();
 
     public static bool handleExists(byte h) => handles.ContainsKey(h);
@@ -71,10 +74,65 @@ public static class web {
         handles[key].receive(key, content);
     }
 
-    public static void initialize() {
+    public static IEnumerator initialize() {
         if (initialized) {
             Debug.LogWarning("Attempting to initialize already initialized web class");
-            return;
+            yield break;
+        }
+
+        // try and connect
+        GameObject managerGo = GameObject.FindGameObjectWithTag("network/manager");
+        NetworkManager manager = managerGo.GetComponent<NetworkManager>();
+        SimpleWebTransport transport = managerGo.GetComponent<SimpleWebTransport>();
+
+        bool runAsLocalhost = true; // TODO
+        isClient = Application.platform == RuntimePlatform.WebGLPlayer;
+        if (isClient) {
+            if (runAsLocalhost) {
+                manager.networkAddress = "localhost";
+                transport.port = 7777;
+                transport.clientUseWss = false;
+            } else {
+                transport.port = 7777;
+                transport.clientUseWss = true;
+                manager.networkAddress = "nasamvt.me";
+            }
+
+            manager.StartClient();
+        } else {
+            bool shouldBeServer = true; // TODO
+
+            if (shouldBeServer) {
+                if (runAsLocalhost) {
+                    transport.port = 7777;
+                    manager.networkAddress = "localhost";
+                } else {
+                    manager.networkAddress = "localhost";
+                    transport.port = 27777;
+                }
+
+                manager.StartServer();
+            } else yield break;
+        }
+
+        // block until we connect
+        float totalTime = 0;
+        float maxTime = 5;
+        bool didConnect = true;
+        while (true) {
+            if (!isClient && transport.ServerActive()) break;
+            if (isClient && transport.ClientFullyConnected()) break; // this doesnt seem to work?
+            if (totalTime >= maxTime) {
+                didConnect = false;
+                break;
+            }
+
+            yield return new WaitForSeconds(0.5f);
+            totalTime += 0.5f;
+        }
+
+        if (!didConnect) {
+            throw new Exception("Unable to connect/create server!");
         }
 
         initialized = true;
@@ -100,6 +158,15 @@ public static class web {
         );
 
         addHandle((byte) constantWebHandles.proceed, null, null);
+
+        // USER HANDLES
+        // TODO: have this call a function instead rather than defining them here
+        addHandle((byte) userWebHandles.requestServerScenario, 
+            send: (cmd, content) => serverScenario.serializeScenario(), 
+            receive: (cmd, content) => serverScenario.deserializeScenario(content)
+        );
+
+        Debug.Log("Initialized connection");
     }
 }
 
@@ -118,6 +185,11 @@ enum constantWebHandles : byte {
 
     // reserve some handles for future use (if needed)
     r4 = 4, r5 = 5, r6 = 6, r7 = 7, r8 = 8
+}
+
+[Flags]
+enum userWebHandles : byte {
+    requestServerScenario = 9
 }
 
 [Flags]

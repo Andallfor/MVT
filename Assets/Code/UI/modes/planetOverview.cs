@@ -255,7 +255,7 @@ public sealed class planetOverview : IMode {
         position p = pos.normalize();
         double ratio = pos.length() / ((maxDist + 1) * 1.1);
 
-        double adjustedRatio = 0.25 * Math.Log(ratio + 0.01, controller._logBase) + 0.5;
+        double adjustedRatio = 0.25 * Math.Log(ratio + 0.01, 35) + 0.5;
 
         return p * adjustedRatio * master.scale * displayScale;     
     }

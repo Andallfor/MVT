@@ -40,6 +40,7 @@ public static class general
     public static bool showingTrails = false;
 
     /// <summary> Parse an array of bytes into a string. </summary>
+    /// <remarks> Excepts it to be encoded in ascii </remarks>
     public static string parseByteArray(byte[] data) {
         string output = "";
         foreach (byte b in data) {

@@ -62,7 +62,7 @@ public class Timeline : ITimeline
     public double returnSemiMajorAxis()
     {
         if (selection == TimelineSelection.positions) throw new NotImplementedException("Cannot query semi major axis for positional timeline");
-        else return tk.returnSemiMajorAxis();
+        else return tk.semiMajorAxis;
     }
 
     public bool exists(Time t) {
@@ -77,6 +77,11 @@ public class Timeline : ITimeline
     public double tryGetEndTime() {
         if (selection == TimelineSelection.positions) return tp.last;
         else throw new NotImplementedException("Cannot query end time for kepler timeline");
+    }
+
+    public ITimeline getSource() {
+        if (selection == TimelineSelection.positions) return tp;
+        else return tk;
     }
 }
 
@@ -152,7 +157,7 @@ public class TimelineComparer : IComparer<double>
 
 public class TimelineKepler : ITimeline
 {
-    private double semiMajorAxis, eccentricity, inclination, argOfPerigee, longOfAscNode, mu, startingEpoch, meanAngularMotion, orbitalPeriod, startingMeanAnom;
+    public double semiMajorAxis, eccentricity, inclination, argOfPerigee, longOfAscNode, mu, startingEpoch, meanAngularMotion, orbitalPeriod, startingMeanAnom;
     public Time start, end;
     public bool alwaysExist = true;
     private planet referenceFrame;
@@ -163,11 +168,6 @@ public class TimelineKepler : ITimeline
     public double findOrbitalPeriod()
     {
         return Math.Sqrt(Math.Pow(semiMajorAxis / 149597870.69099998, 3)) * 365.25 * 580;
-    }
-
-    public double returnSemiMajorAxis()
-    {
-        return semiMajorAxis;
     }
 
     public position find(double julian) {
