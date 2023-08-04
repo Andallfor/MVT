@@ -9,7 +9,7 @@
 #############
 defaultMat: Materials/default
 earthMat: Materials/planets/earth/earth
-earthTex: Materials/planets/earth/earthEquirectangular
+earthTex: Materials/planets/earth/earth
 moonUnlit: Materials/planets/moon/moonTexture
 moonLit: Materials/planets/moon/moonShaded
 moonTex: Materials/planets/moon/moon
