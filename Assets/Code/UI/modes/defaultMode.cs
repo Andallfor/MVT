@@ -27,7 +27,7 @@ public sealed class defaultMode : IMode {
         trailRenderer.enableAll();
         general.showingTrails = true;
         general.notifyTrailsChange();
-        master.scale = 500_000_000;
+        master.scale = 5_000_000;
         scaleChange = 1500 - master.scale;
         scaleChangeSpeed = 0.01;
 
@@ -37,7 +37,7 @@ public sealed class defaultMode : IMode {
     }
 
     private IEnumerator introAnimation() {
-        int length = 60 * 3;
+        int length = 60 * 5;
         double minSpeed = scaleChangeSpeed;
         double maxSpeed = 10;
 
