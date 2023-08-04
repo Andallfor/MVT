@@ -87,12 +87,13 @@ public class controller : MonoBehaviour
 
         defaultReferenceFrame = earth;
 
+        master.time.addJulianTime(scenarioStart - master.time.julian);
+
         yield return null;
 
         master.setReferenceFrame(master.allPlanets.First(x => x.name == "Earth"));
 
         master.markStartOfSimulation();
-
         modeController.initialize();
 
         if (planetFocus.instance.lunarTerrainFilesExist) {

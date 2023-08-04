@@ -8,6 +8,7 @@ using System.IO;
 
 public class serverScenario : IScenario {
     private static bool done = false;
+    private static double scenarioStart;
 
     protected override IEnumerator _generate() {
         done = false;
@@ -37,7 +38,7 @@ public class serverScenario : IScenario {
         metadata.importantBodies = new Dictionary<string, body>();
         metadata.importantBodies["Earth"] = master.allPlanets.Find(x => x.name == "Earth");
         metadata.importantBodies["Luna"] = master.allPlanets.Find(x => x.name == "Luna");
-        metadata.timeStart = 2461021.5;
+        metadata.timeStart = scenarioStart;
 
         Debug.Log("returning from generate loop");
 
@@ -47,9 +48,12 @@ public class serverScenario : IScenario {
     public static byte[] serializeScenario() {
         // can only serialize kepler based objects
 
+        // scenario start (double)
         // num planets (byte) | planet data (planets then moons)
         // num satellites (byte) | satellite data
         // num facilities (byte) | facility data
+
+        byte[] metadata = serializeMetadata();
 
         // planet format
         // name (string) | radius (double) | rot type (byte) |
@@ -66,7 +70,20 @@ public class serverScenario : IScenario {
         // name (string) | lat (double) | lon (double) | alt (double) | parent (string) | startTime (double) | endTime (double)
         byte[] facilities = serializeFacilities();
 
-        byte[] data = planets.Concat(satellites).Concat(facilities).ToArray();
+        byte[] data = metadata.Concat(planets).Concat(satellites).Concat(facilities).ToArray();
+
+        return data;
+    }
+
+    private static byte[] serializeMetadata() {
+        byte[] data;
+        using (MemoryStream ms = new MemoryStream()) {
+            using (BinaryWriter bw = new BinaryWriter(ms)) {
+                bw.Write(controller.scenarioStart);
+            }
+
+            data = ms.ToArray();
+        }
 
         return data;
     }
@@ -171,6 +188,7 @@ public class serverScenario : IScenario {
 
     public static void deserializeScenario(byte[] data) {
         using (BinaryReader br = new BinaryReader(new MemoryStream(data))) {
+            scenarioStart = br.ReadDouble();
             deserializePlanets(br);
             deserializeSatellites(br);
             deserializeFacilities(br);

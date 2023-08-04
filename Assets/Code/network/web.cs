@@ -93,9 +93,9 @@ public static class web {
                 transport.port = 7777;
                 transport.clientUseWss = false;
             } else {
-                transport.port = 27777;
+                transport.port = 7777;
                 transport.clientUseWss = true;
-                throw new NotImplementedException("add in auto connection to server");
+                manager.networkAddress = "nasamvt.me";
             }
 
             manager.StartClient();
@@ -106,7 +106,10 @@ public static class web {
                 if (runAsLocalhost) {
                     transport.port = 7777;
                     manager.networkAddress = "localhost";
-                } else transport.port = 27777;
+                } else {
+                    manager.networkAddress = "localhost";
+                    transport.port = 27777;
+                }
 
                 manager.StartServer();
             } else yield break;
