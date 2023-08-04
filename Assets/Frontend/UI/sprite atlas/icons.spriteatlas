@@ -46,6 +46,7 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 7197e612c1055f04fbd2d864c87afe0b, type: 3}
+    - {fileID: 102900000, guid: 472e1761b5fbd654e8b1ccaa969f0b90, type: 3}
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
@@ -121,6 +122,7 @@ SpriteAtlas:
     - 9418851916bae9f43bd8e63a4de3b896: 21300000
     - 2d7700c96923e354985871a474e2c12d: 21300000
     - 8250b5e94f07d154aa61e163bb785a94: 21300000
+    - 578d5de93006b2841a667c3570712b46: 21300000
     - 5c7b87f9975e7e744b924bc0ab33829d: 21300000
     - 3e4cab0a78626e140a0a3effb0194eb5: 21300000
     - d14b962a86c58cd438d3c4c2bcbebfb2: 21300000
@@ -133,6 +135,7 @@ SpriteAtlas:
     - 28a9002bafdfb894fab425b00fb953a4: 21300000
     - 122e064b1a2535b49a00ff4bd007827f: 21300000
     - 50d4583cd5dacec4b9598ef0d28db5f6: 21300000
+    - 9a3fb04c781861442a6bb5555fe18075: 21300000
     - 8e1f584c0d8416f4698ce109a30fa3f1: 21300000
     - b646106c3e29b95438fa12b43ae87c5d: 21300000
     - d8f4697ce02764a48b511277b54b059b: 21300000
@@ -145,6 +148,7 @@ SpriteAtlas:
     - 489597bd8d106c04b99051c9dcbf87d7: 21300000
     - 68d7f8cdc0f6ebc429af97d4ca99912c: 21300000
     - c6ab66dd19c23de4fa4537f13f9d6cd3: 21300000
+    - 847c66fd5b45654458832758ac66a359: 21300000
     - 96faf52ec079b6342ac3aa1499feae9a: 21300000
     - 8d24ad3e0422a1d4ba9993bcf9ba1a8c: 21300000
     - 994ecf3e6e8aaf7489a4ce73dc5d653c: 21300000
@@ -152,6 +156,8 @@ SpriteAtlas:
     - a950c5ae9189d204f84f6ef4fbf5a9b8: 21300000
     - 328fc5ae2f5293e4fbae1ab5946e0449: 21300000
     - a2e571bef1d773345acd735bb54db619: 21300000
+    - f1d6706f1f166ae48bed718be063710a: 21300000
+    - f45d636fd6b324a49a14dc296994ee30: 21300000
     - 70fd41afc68a14b428307b5e027ca986: 21300000
     - 6febe4cf9bb65b146bbd92187e29c627: 21300000
     - e9bc8bdf951f45747bc89c1b9c054b2e: 21300000
@@ -229,6 +235,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 9418851916bae9f43bd8e63a4de3b896, type: 3}
   - {fileID: 21300000, guid: 2d7700c96923e354985871a474e2c12d, type: 3}
   - {fileID: 21300000, guid: 8250b5e94f07d154aa61e163bb785a94, type: 3}
+  - {fileID: 21300000, guid: 578d5de93006b2841a667c3570712b46, type: 3}
   - {fileID: 21300000, guid: 5c7b87f9975e7e744b924bc0ab33829d, type: 3}
   - {fileID: 21300000, guid: 3e4cab0a78626e140a0a3effb0194eb5, type: 3}
   - {fileID: 21300000, guid: d14b962a86c58cd438d3c4c2bcbebfb2, type: 3}
@@ -241,6 +248,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 28a9002bafdfb894fab425b00fb953a4, type: 3}
   - {fileID: 21300000, guid: 122e064b1a2535b49a00ff4bd007827f, type: 3}
   - {fileID: 21300000, guid: 50d4583cd5dacec4b9598ef0d28db5f6, type: 3}
+  - {fileID: 21300000, guid: 9a3fb04c781861442a6bb5555fe18075, type: 3}
   - {fileID: 21300000, guid: 8e1f584c0d8416f4698ce109a30fa3f1, type: 3}
   - {fileID: 21300000, guid: b646106c3e29b95438fa12b43ae87c5d, type: 3}
   - {fileID: 21300000, guid: d8f4697ce02764a48b511277b54b059b, type: 3}
@@ -253,6 +261,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 489597bd8d106c04b99051c9dcbf87d7, type: 3}
   - {fileID: 21300000, guid: 68d7f8cdc0f6ebc429af97d4ca99912c, type: 3}
   - {fileID: 21300000, guid: c6ab66dd19c23de4fa4537f13f9d6cd3, type: 3}
+  - {fileID: 21300000, guid: 847c66fd5b45654458832758ac66a359, type: 3}
   - {fileID: 21300000, guid: 96faf52ec079b6342ac3aa1499feae9a, type: 3}
   - {fileID: 21300000, guid: 8d24ad3e0422a1d4ba9993bcf9ba1a8c, type: 3}
   - {fileID: 21300000, guid: 994ecf3e6e8aaf7489a4ce73dc5d653c, type: 3}
@@ -260,6 +269,8 @@ SpriteAtlas:
   - {fileID: 21300000, guid: a950c5ae9189d204f84f6ef4fbf5a9b8, type: 3}
   - {fileID: 21300000, guid: 328fc5ae2f5293e4fbae1ab5946e0449, type: 3}
   - {fileID: 21300000, guid: a2e571bef1d773345acd735bb54db619, type: 3}
+  - {fileID: 21300000, guid: f1d6706f1f166ae48bed718be063710a, type: 3}
+  - {fileID: 21300000, guid: f45d636fd6b324a49a14dc296994ee30, type: 3}
   - {fileID: 21300000, guid: 70fd41afc68a14b428307b5e027ca986, type: 3}
   - {fileID: 21300000, guid: 6febe4cf9bb65b146bbd92187e29c627, type: 3}
   - {fileID: 21300000, guid: e9bc8bdf951f45747bc89c1b9c054b2e, type: 3}
@@ -336,6 +347,7 @@ SpriteAtlas:
   - button1
   - buttonR2
   - buttonX
+  - hexagon-line
   - joystick
   - buttonSelect
   - gamepad2
@@ -348,6 +360,7 @@ SpriteAtlas:
   - home
   - multiplayer
   - arrowLeft
+  - circle-line
   - question
   - button2
   - save
@@ -360,6 +373,7 @@ SpriteAtlas:
   - buttonR
   - exitLeft
   - stop
+  - square-fill
   - buttonB
   - button3
   - zoomOut
@@ -367,6 +381,8 @@ SpriteAtlas:
   - joystickRight
   - downRight
   - movie
+  - circle-fill
+  - octagon-fill
   - medal1
   - leaderboardsComplex
   - barsHorizontal

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 using System;
 
@@ -16,7 +17,8 @@ public class objectName {
 
     private bool isInAllNames = false;
     private TextMeshProUGUI tmp;
-    private GameObject tmpGo, src;
+    private RawImage overlay;
+    private GameObject tmpGo, src, overlayGo, holder;
     private string text, group;
     private objectNameType type;
     private int priority = 0; // higher is better
@@ -33,44 +35,66 @@ public class objectName {
         this.group = group;
         this.src = src;
 
+        holder = resLoader.createPrefab("empty", GameObject.FindGameObjectWithTag("ui/bodyName").transform);
+        holder.name = text + " bodyName";
+
         // group is just used for sorting, type actually determines what the text looks like
         tmpGo = resLoader.createPrefab("bodyName");
-        tmpGo.transform.SetParent(GameObject.FindGameObjectWithTag("ui/bodyName").transform, false);
+        tmpGo.transform.SetParent(holder.transform, false);
         tmpGo.name = text + " bodyName";
         tmp = tmpGo.GetComponent<TextMeshProUGUI>();
 
         tmp.text = text;
 
         // now get what it should look like
+        tmp.alignment = TextAlignmentOptions.Left;
+        tmp.rectTransform.pivot = new Vector2(-0.2f, 0.5f);
+        string overlayPath = "";
         switch (type) {
             case objectNameType.planet:
                 priority = 30;
                 tmp.fontSize = 25;
                 tmp.fontStyle = FontStyles.SmallCaps | FontStyles.Bold | FontStyles.Italic;
-                tmp.alignment = TextAlignmentOptions.Left;
-                tmp.rectTransform.pivot = new Vector2(-0.05f, 0.5f);
+                overlayPath = "Prefabs/ui/overlayCircle";
+                maxOpacity = 0.9f;
                 break;
             case objectNameType.moon:
                 priority = 25;
                 tmp.fontSize = 25;
                 tmp.fontStyle = FontStyles.SmallCaps | FontStyles.Bold | FontStyles.Italic;
-                tmp.alignment = TextAlignmentOptions.Left;
-                tmp.rectTransform.pivot = new Vector2(-0.05f, 0.5f);
+                overlayPath = "Prefabs/ui/overlayCircle";
+                maxOpacity = 0.9f;
                 break;
             case objectNameType.satellite:
                 priority = 20;
                 tmp.fontSize = 20;
+                overlayPath = "Prefabs/ui/overlayHexagon";
+                maxOpacity = 0.75f;
                 break;
             case objectNameType.antenna:
                 priority = 0;
                 tmp.fontSize = 28;
                 tmp.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
+                overlayPath = "Prefabs/ui/overlaySquare";
+                maxOpacity = 0.75f;
                 break;
             case objectNameType.facility:
                 priority = 10;
                 tmp.fontSize = 28;
                 tmp.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
+                overlayPath = "Prefabs/ui/overlaySquare";
+                maxOpacity = 0.75f;
                 break;
+        }
+
+        overlayGo = GameObject.Instantiate(Resources.Load<GameObject>(overlayPath), Vector3.zero, Quaternion.identity, holder.transform);
+        overlay = overlayGo.GetComponent<RawImage>();
+        overlay.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        overlay.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        overlay.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        overlay.rectTransform.anchoredPosition = new Vector2(0, 0);
+        if (trailRenderer.trailColors.ContainsKey(text)) {
+            overlay.color = trailRenderer.trailColors[text];
         }
 
         tmp.autoSizeTextContainer = true;
@@ -79,6 +103,8 @@ public class objectName {
         register(priority);
         register(type);
         register(group);
+
+        opacity = maxOpacity;
     }
 
     /// <summary> Check if text is hidden by another physical object </summary>
@@ -107,7 +133,10 @@ public class objectName {
             if (opacity < 0.01f) hide();
         } else show();
 
-        if (tmp.color.a != opacity) tmp.color = new Color(tmp.color.r, tmp.color.g, tmp.color.b, opacity);
+        if (tmp.color.a != opacity) {
+            tmp.color = new Color(tmp.color.r, tmp.color.g, tmp.color.b, opacity);
+            overlay.color = new Color(overlay.color.r, overlay.color.g, overlay.color.b, opacity);
+        }
 
         Vector3 screenPoint = general.camera.WorldToScreenPoint(src.transform.position);
         if (!isOnScreen(screenPoint)) hide();
@@ -117,6 +146,7 @@ public class objectName {
         RectTransformUtility.ScreenPointToLocalPointInRectangle(uiHelper.canvasRect, screenPoint, null, out p);
 
         tmpGo.transform.localPosition = p;
+        overlayGo.transform.localPosition = p;
 
         cachedSortingDistance = Vector3.Distance(general.camera.transform.position, src.transform.position);
     }
@@ -126,6 +156,7 @@ public class objectName {
         isHidden = true;
 
         tmpGo.SetActive(false);
+        overlayGo.SetActive(false);
         tmp.enabled = false;
     }
 
@@ -135,6 +166,7 @@ public class objectName {
         isHidden = false;
 
         tmpGo.SetActive(true);
+        overlayGo.SetActive(true);
         tmp.enabled = true;
     }
 

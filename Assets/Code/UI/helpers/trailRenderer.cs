@@ -39,7 +39,7 @@ public class trailRenderer {
             lr.transform.parent = trailSatelliteByParent[b.parent];
 
             if (b is satellite) {
-                lr.startColor = new Color(0.9f, 0.9f, 0.9f, 0.75f);
+                lr.startColor = new Color(0.9f, 0.9f, 0.9f, 0.25f);
                 lr.endColor = lr.startColor;
             }
         } else {
