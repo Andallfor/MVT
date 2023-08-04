@@ -81,6 +81,8 @@ public class controller : MonoBehaviour
 
         yield return null;
         loadingController.addPercent(1);
+
+        defaultMode.instance.runIntroAnimation();
     }
 
 #if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL

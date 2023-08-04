@@ -236,9 +236,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 
+      m_SelectedIDs: fac80000
       m_LastClickedID: 0
-      m_ExpandedIDs: 7216fcff6e1ffcff7e15fdff082cfdff1039fdff3454fdff1a57fdffae7ffdff86c6fdfff0f2fdffa40bfeffac1cfeff3a37feffaa37feff1667feffcec3feffb44cffff90abffff9af3ffff2cfbfffff4ffffffb2530000ce530000e05300002e540000a45400001056000064560000
+      m_ExpandedIDs: c20cfaff6227faff7216fcff6e1ffcff7e15fdff082cfdff1039fdff3454fdff1a57fdffae7ffdff86c6fdfff0f2fdffa40bfeffac1cfeff3a37feffaa37feff1667feffcec3feffb44cffff90abffff9af3ffff2cfbfffff4ffffff5a520000b2530000ce530000e05300002e540000a45400001056000064560000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -757,7 +757,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Code/scenarios
+    - Assets/Scenes
     m_Globs: []
     m_OriginalText: 
     m_ImportLogFlags: 0
@@ -765,15 +765,15 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/Code/scenarios
+  - Assets/Scenes
   m_LastFoldersGridSize: 16
   m_LastProjectPath: C:\Users\leozw\Documents\GitHub\MVT
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 80590000
-    m_LastClickedID: 22912
+    m_SelectedIDs: a8590000
+    m_LastClickedID: 22952
     m_ExpandedIDs: 00000000605900006259000066590000685900006a5900006c5900006e59000070590000f6c8000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -790,7 +790,7 @@ MonoBehaviour:
       m_IsRenaming: 0
       m_OriginalEventType: 11
       m_IsRenamingFilename: 1
-      m_ClientGUIView: {fileID: 7}
+      m_ClientGUIView: {fileID: 0}
     m_SearchString: 
     m_CreateAssetUtility:
       m_EndAction: {fileID: 0}
@@ -827,8 +827,8 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: 
-    m_LastClickedInstanceID: 0
+    m_SelectedInstanceIDs: fac80000
+    m_LastClickedInstanceID: 51450
     m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: c6230000
     m_RenameOverlay:
@@ -846,7 +846,7 @@ MonoBehaviour:
       m_IsRenaming: 0
       m_OriginalEventType: 11
       m_IsRenamingFilename: 1
-      m_ClientGUIView: {fileID: 7}
+      m_ClientGUIView: {fileID: 0}
     m_CreateAssetUtility:
       m_EndAction: {fileID: 0}
       m_InstanceID: 0
@@ -877,8 +877,8 @@ MonoBehaviour:
     y: 696
     width: 1353
     height: 291
-  m_MinSize: {x: 100, y: 100}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 101, y: 121}
+  m_MaxSize: {x: 4001, y: 4021}
   m_ActualView: {fileID: 11}
   m_Panes:
   - {fileID: 11}

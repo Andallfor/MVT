@@ -214,9 +214,12 @@ public class objectName {
             if (!name.isHidden || (name.isHidden && name.isCovered)) toCheck.Add(name);
         }
 
-        // higher priority gets rendered above lower priority TODO: consider distance to camera as well?
+        // higher priority gets rendered above lower priority
         toCheck.Sort((a, b) => {
             if (a.priority == b.priority) {
+                if (a.text == master.requestReferenceFrame().name) return 1;
+                if (b.text == master.requestReferenceFrame().name) return -1;
+
                 float am = a.cachedSortingDistance;
                 float bm = b.cachedSortingDistance;
                 if (am == bm) return 0;

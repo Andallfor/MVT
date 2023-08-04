@@ -60,6 +60,7 @@ public class trailRenderer {
         general.onStatusChange += disableWrapper;
         master.onReferenceFrameChange += (s, e) => disable();
 
+        enabled = true;
         disable();
     }
 

@@ -18,6 +18,37 @@ public sealed class defaultMode : IMode {
     private v3Interp rotationInterp;
 
     private double scaleChange;
+    private double scaleChangeSpeed = 10;
+    private bool introAnimationDone = true;
+    private Coroutine introAnimationCoroutine;
+
+    public void runIntroAnimation() {
+        introAnimationDone = false;
+        trailRenderer.enableAll();
+        general.showingTrails = true;
+        general.notifyTrailsChange();
+        master.scale = 2_000_000_000;
+        scaleChange = 1500 - master.scale;
+        scaleChangeSpeed = 0.01;
+
+        general.camera.transform.RotateAround(Vector3.zero, general.camera.transform.right, 30);
+
+        introAnimationCoroutine = controller.self.StartCoroutine(introAnimation());
+    }
+
+    private IEnumerator introAnimation() {
+        int length = 60 * 5;
+        double minSpeed = scaleChangeSpeed;
+        double maxSpeed = 10;
+
+        for (int i = 0; i < length; i++) {
+            double percent = (double) i / (double) length;
+            double smoothPercent = percent < 0.5 ? 4 * percent * percent * percent : 1 - Math.Pow(-2 * percent + 2, 3) / 2.0;
+            scaleChangeSpeed = (maxSpeed - minSpeed) * smoothPercent + minSpeed;
+
+            yield return new WaitForFixedUpdate();
+        }
+    }
 
     public override void update() {
         // controls
@@ -26,6 +57,14 @@ public sealed class defaultMode : IMode {
         // right click + drag- rotate camera
         // middle click + drag- pan camera- this should scale as well
         // wasd doesnt do anything
+
+        if (Input.anyKeyDown && !introAnimationDone) {
+            introAnimationDone = true;
+            scaleChange = 0;
+            scaleChangeSpeed = 10;
+
+            if (introAnimationCoroutine != null) controller.self.StopCoroutine(introAnimationCoroutine);
+        }
 
         if (Input.GetMouseButton(1) && !Input.GetMouseButtonUp(1) && !EventSystem.current.IsPointerOverGameObject()) {
             Vector3 difference = Input.mousePosition - playerControls.lastMousePos;
@@ -79,7 +118,7 @@ public sealed class defaultMode : IMode {
         
         // use buffer system for scale because there are constant starts and stops (since scrolling is not smooth)
         if (scaleChange != 0) {
-            double c = scaleChange * UnityEngine.Time.deltaTime * 10.0;
+            double c = scaleChange * UnityEngine.Time.deltaTime * scaleChangeSpeed;
             if (Math.Abs(c) < 0.1) scaleChange = 0;
             else scaleChange -= c;
             master.scale += c;

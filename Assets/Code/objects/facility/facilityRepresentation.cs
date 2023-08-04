@@ -69,7 +69,7 @@ public class facilityRepresentation
     public void updatePos(planet parent, double alt, bool forceHide = false) {
         if (uiMap.instance.active) return;
 
-        if (forceHide || planetOverview.instance.active || position.distance(parent.pos, master.referenceFrame + master.currentPosition) > master.scale * 1000.0) {
+        if (forceHide || planetOverview.instance.active || isTooSmall()) {
             gameObject.SetActive(false);
             uiName.hide();
             foreach (antennaRepresentation ar in antennas) ar.hideName();
@@ -96,6 +96,14 @@ public class facilityRepresentation
         } else {uiName.hide(); gameObject.SetActive(false);}
 
 
+    }
+
+    private bool isTooSmall() {
+        float parentScale = 1;
+        if (parent.parent != default(planet)) parentScale = parent.parent.representation.gameObject.transform.localScale.x;
+        if (gameObject.transform.localScale.x * parentScale < 0.0001f) return true;
+
+        return false;
     }
 
     public void drawSchedulingConnections(List<antennaData> ads) {
