@@ -31,8 +31,8 @@ public class jplScenario : IScenario {
         planet pluto = new planet("Pluto", new planetData(1188.3, rotationType.none, new Timeline(5.921110734220912E+09, 2.497736459257524E-01, 1.734771133563329E+01, 1.140877773351901E+02, 1.104098121556590E+02, 4.784240505983976E+01, 1, epoch, sunMu), planetType.planet), new representationData("planet", "moonTex"));
         
         planet mars = new planet("Mars", new planetData(3389.92, rotationType.none, new Timeline(2.279254603773820E+08, 9.344918986180577E-02, 1.847925718684767, 2.866284864604108E+02, 4.948907666319641E+01, 1.014635329635219E+02, 1, epoch, sunMu), planetType.planet), new representationData("planet", "marsTex"));
-        planet phobos = new planet("Phobos", new planetData(13.1, rotationType.none, new Timeline(9.377954455101617E+03, 1.494832784194627E-02, 2.714060115370244E+01, 3.746859017440811E+01, 8.502149665357845E+01, 2.360124366197488E+02, 1, epoch, marsMu), planetType.planet), new representationData("planet", "marsTex"), mars);
-        planet deimos = new planet("Deimos", new planetData(7.8, rotationType.none, new Timeline(2.345960371672593E+04, 2.647108425766069E-04, 2.451161814535570E+01, 8.634724237995439E+00, 7.993040904198153E+01, 2.743515837687091E+02, 1, epoch, marsMu), planetType.planet), new representationData("planet", "marsTex"), mars);
+        planet phobos = new planet("Phobos", new planetData(13.1, rotationType.none, new Timeline(9.377954455101617E+03, 1.494832784194627E-02, 2.714060115370244E+01, 3.746859017440811E+01, 8.502149665357845E+01, 2.360124366197488E+02, 1, epoch, marsMu), planetType.moon), new representationData("planet", "marsTex"), mars);
+        planet deimos = new planet("Deimos", new planetData(7.8, rotationType.none, new Timeline(2.345960371672593E+04, 2.647108425766069E-04, 2.451161814535570E+01, 8.634724237995439E+00, 7.993040904198153E+01, 2.743515837687091E+02, 1, epoch, marsMu), planetType.moon), new representationData("planet", "marsTex"), mars);
 
         loadingController.addPercent(0.15f);
         yield return null;

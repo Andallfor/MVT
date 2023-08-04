@@ -50,7 +50,6 @@ public class controller : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
 
         IScenario scenario = null;
-        UnityEngine.Debug.Log("passed connection");
         if (web.isClient) scenario = new serverScenario(); // download scenario from server
         else scenario = new jplScenario();
 
@@ -78,6 +77,8 @@ public class controller : MonoBehaviour
 
         startMainLoop();
         master.pause = false;
+
+        defaultMode.instance.runIntroAnimation();
 
         yield return null;
         loadingController.addPercent(1);
