@@ -11,11 +11,14 @@ public class loadingController : MonoBehaviour
     public TextMeshProUGUI info, loading;
     public static loadingController self;
     private Dictionary<float, string> stages;
+    private CanvasGroup cGroup;
     private float percent;
 
     void Awake() {
         self = this;
-        end();
+        cGroup = this.GetComponent<CanvasGroup>();
+        self.GetComponent<RawImage>().enabled = false;
+        for (int i = 0; i < self.transform.childCount; i++) self.transform.GetChild(i).gameObject.SetActive(false);
     }
 
     public static void start(Dictionary<float, string> stages) {
@@ -46,6 +49,18 @@ public class loadingController : MonoBehaviour
     }
 
     public static void end() {
+        self.StartCoroutine(fade());
+    }
+
+    private static IEnumerator fade() {
+        int length = 45;
+        for (int i = 0; i < length; i++) {
+            float percent = (float) i / (float) length;
+            self.cGroup.alpha = 1f - percent;
+
+            yield return new WaitForSeconds(1f / 60f);
+        }
+
         self.GetComponent<RawImage>().enabled = false;
         for (int i = 0; i < self.transform.childCount; i++) self.transform.GetChild(i).gameObject.SetActive(false);
     }
