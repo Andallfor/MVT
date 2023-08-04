@@ -172,7 +172,7 @@ public class controller : MonoBehaviour
 
                     accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, provider.geo, users, p.Key);
                     access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/" + p.Key), 2);
-                    var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 1), 0.00069444444, 0.00001157407 / 2.0, true); // ADD TO WINDOWS LIST HERE
+                    var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 30), 0.00069444444, 0.00001157407 / 2.0, true); // ADD TO WINDOWS LIST HERE
                     //StartCoroutine(stall(access));
                     foreach (ScheduleStructGenerator.Window w in output)
                     { 

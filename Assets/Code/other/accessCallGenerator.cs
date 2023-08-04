@@ -152,7 +152,7 @@ public class accessCallGeneratorWGS {
             {
                 foreach (string fac in master.fac2ant[provider])
                 {
-                    if (master.compatibilityMatrix[fac].Contains(s.name)) toGen.Add(s);
+                    if (master.compatibilityMatrix[fac].Contains(s.name) && !toGen.Contains(s)) toGen.Add(s);
                 }
             }
         }
@@ -183,34 +183,33 @@ public class accessCallGeneratorWGS {
 
                     //end
                     time = minElevationTimes[x][1];
-                    if (time - startTime > .0035)
-                    {
-                        hit = raycastNoUpdate(target, time);
-                        if (hit) endTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
-                        else endTime = time;
-                    }
+                    if (time - startTime < .0035) continue;
+                    
+                    hit = raycastNoUpdate(target, time);
+                    if (hit) endTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
+                    else endTime = time;
 
-                    if (endTime - startTime > .0035)
+                    if (endTime - startTime < .0035) continue;
+
+                    foreach (string fac in master.fac2ant[provider])
                     {
-                        foreach (string fac in master.fac2ant[provider])
+                        if (compatibility && master.compatibilityMatrix[fac].Contains(target.name))
                         {
-                            if (compatibility && master.compatibilityMatrix[fac].Contains(target.name))
-                            {
                                 source = target.name;
                                 destination = fac;
                                 ScheduleStructGenerator.Window window = new ScheduleStructGenerator.Window(master.ID, "KaBand", source, destination, startTime-start.julian, endTime- start.julian, endTime - startTime);
                                 spans.Add(window);
                                 master.ID++;
-                            }
+                                if ( endTime - startTime > 10) UnityEngine.Debug.Log(source + " " + (startTime-start.julian) + " " + (endTime - start.julian));
+                        }
 
-                            if (!compatibility)
-                            {
+                        if (!compatibility)
+                        {
                                 source = target.name;
                                 destination = fac;
                                 ScheduleStructGenerator.Window window = new ScheduleStructGenerator.Window(master.ID, "KaBand", source, destination, startTime - start.julian, endTime - start.julian, endTime - startTime);
                                 spans.Add(window);
                                 master.ID++;
-                            }
                         }
                     }
                 }
