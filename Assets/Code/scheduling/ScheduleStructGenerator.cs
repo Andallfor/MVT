@@ -15,6 +15,9 @@ using TreeEditor;
 using static UnityEngine.GraphicsBuffer;
 using UnityEditor.Experimental.GraphView;
 using Microsoft.Cci;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
+using SixLabors.ImageSharp;
 
 public static class ScheduleStructGenerator
 {
@@ -312,63 +315,68 @@ public static class ScheduleStructGenerator
         }*/
         connection.Close();
     }
-    public static void createConflictList(string date)
+    public static List<Window> FindConflicts(Window block, int i, List<int> divs)
+    {
+       /* var result = scenario.windows.Where(window =>
+            window.ID != block.ID &&
+            ((window.start >= block.start && window.start <= block.stop) ||
+            (window.stop >= block.start && window.stop <= block.stop) ||
+            (window.start < block.start && window.stop > block.stop)) &&
+            (window.source == block.source || window.destination == block.destination)).ToList();
+       */
+        List<Window> result = new List<Window>();
+        int divIndex = divs.IndexOf(divs.FirstOrDefault(x => x > i));
+        for (int x = divs[divIndex]; x < scenario.windows.Count; x += divs[divIndex++])
+        {
+            for (int y = x; y < scenario.windows.Count && scenario.windows[y].start <= block.stop; y++)
+            {
+                (bool, int, int) stillCon = stillConflict(block, scenario.windows[y]);
+                if (stillCon.Item1) result.Add(scenario.windows[y]);
+            }
+        }
+        return result;
+    }
+
+    public static IEnumerator createConflictList(string date, List<int> divs)
     {
         string uri = DBReader.getDBConnection(DBReader.output.getDB($"PreconWindows"));
         Debug.Log(uri);
-        SqliteConnection connection = new SqliteConnection(uri);
-        connection.Open();
-        var command = connection.CreateCommand();
-        command.CommandText = "BEGIN;";
-        command.ExecuteNonQuery();
+        System.Diagnostics.Stopwatch stopWatch = new Stopwatch();
+        
         for (int i = 0; i < scenario.windows.Count - 1; i++)
         {
             //Debug.Log("i=" + i + "\tcount: " + scenario.windows.Count());
-
-            //Debug.Log(i);
-            Window block = scenario.windows[i];
-            if (block.ID == 31)
+            if (i==100) stopWatch.Start();
+            if (i == 200)
             {
-                Debug.Log(31);
+                stopWatch.Stop();
+                TimeSpan ts = stopWatch.Elapsed;
+                string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                    ts.Hours, ts.Minutes, ts.Seconds,
+                    ts.Milliseconds / 10);
+                UnityEngine.Debug.Log("RunTime " + elapsedTime);
+                yield return new WaitForSeconds(0.001f);
             }
+            
+            Window block = scenario.windows[i];
             List<(int, int)> cons = new List<(int, int)>();
-            int id = block.ID;
-            command = connection.CreateCommand();
-            command.CommandText = $@"
-                SELECT Block_ID, Start, Stop from Windows_data WHERE Block_ID <> {id} AND
-                (
-                    (Start > {block.start} and Start < {block.stop}) OR
-                    (Stop > {block.start} AND Stop < {block.stop}) OR
-                    (Start <  {block.start} AND Stop > {block.stop}) OR
-                    (Start = {block.start} AND Stop = {block.stop})
-                )
-                AND
-                (
-                    (
-                        Source = ""{block.source}"" or 
-                        Destination = ""{block.destination}""
-                    )
-                    --AND NOT
-                    --(
-                        --Source = ""{block.source}"" and
-                        --Destination = ""{block.destination}""
-                    --)
-                )
-                ORDER by 
-	            Schedule_Priority ASC,
-	            Ground_Priority ASC,
-	            Freq_Priority ASC,
-	            (Stop-Start) DESC
-                ;
-            ";
-            IDataReader reader = command.ExecuteReader();
-            while (reader.Read())
+            List<Window> conflicts = FindConflicts(block, i, divs);
+            Debug.Log("i=" + i+"\tConLength = "+conflicts.Count);
+            yield return new WaitForSeconds(0.001f);
+            //stopWatch.Stop();
+            //long ticks = stopWatch.ElapsedTicks;
+            //Debug.Log("RunTime for db call: " + ticks+" ticks");
+            //yield return new WaitForSeconds(0.001f);
+            //stopWatch = new Stopwatch();
+            //stopWatch.Reset();
+            //stopWatch.Start();
+            foreach (Window con in conflicts)
             {
-                int conID = reader.GetInt32(0);
+                int conID = con.ID;
                 //double conStart = scenario.windows.Find(i => i.ID == conID).start;
                 bool itemExists = scenario.windows.Any(obj => obj.ID == conID);
                 if (!itemExists) continue;
-                double conStart = scenario.windows.Find(i => i.ID == conID).start;
+                double conStart = con.start;
                 //double conStart = 0;
                 /*try
                 { conStart = scenario.windows.Find(i => i.ID == conID).start; }
@@ -377,9 +385,9 @@ public static class ScheduleStructGenerator
                     
                     Debug.Log("ERROR!, i="+i);
                 }*/
-                double conStop = scenario.windows.Find(i => i.ID == conID).stop;
-                double conSchedPrio = scenario.windows.Find(i => i.ID == conID).Schedule_Priority;
-                double conGroundPrio = scenario.windows.Find(i => i.ID == conID).Ground_Priority;
+                double conStop = con.stop;
+                double conSchedPrio = con.Schedule_Priority;
+                double conGroundPrio = con.Ground_Priority;
                 int conCase = -1;
                 //if(conID == 1713)
                 //Debug.Log($"Before change: {scenario.windows.Find(i => i.ID == conID).start}->{scenario.windows.Find(i => i.ID == conID).stop}");
@@ -446,10 +454,13 @@ public static class ScheduleStructGenerator
                     conCase = 7;
                 //if(conID == 1713)
                 //Debug.Log($"Didn't change: {conStart}->{conStop}");
-                cons.Add((reader.GetInt32(0), conCase));
+                cons.Add((con.ID, conCase));
 
                 //Debug.Log(reader["ID"]);
             }
+            //ticks = stopWatch.ElapsedTicks;
+            //Debug.Log("RunTime for ocnflict checking " + ticks + " ticks");
+            //yield return new WaitForSeconds(0.001f);
             block.conflicts = cons;
             /*using (IDataReader reader = command.ExecuteReader())
             {
@@ -460,15 +471,11 @@ public static class ScheduleStructGenerator
                 }
             }*/
         }
-        command = connection.CreateCommand();
-        command.CommandText = "COMMIT;";
-        command.ExecuteNonQuery();
-        connection.Close();
-        Debug.Log("after conflict, winLength=" + scenario.windows.Count());
         List<Window> tempWins = scenario.windows.OrderBy(s => s.Schedule_Priority).ThenBy(s => s.Ground_Priority).ThenBy(s => s.Freq_Priority).ThenByDescending(s => s.duration).ToList();
         scenario.windows = tempWins;
         string debugJson = JsonConvert.SerializeObject(scenario.windows, Formatting.Indented);
         DBReader.output.write("WindowsSorted.txt", debugJson);
+        yield return new WaitForSeconds(0.001f);
 
     }
 
@@ -594,7 +601,15 @@ public static class ScheduleStructGenerator
                         curBlock.timeSpentInDay.Add(curBlock.stop - curBlock.days[curBlock.days.Count - 1]);
                     }
                     else curBlock.timeSpentInDay.Add(curBlock.duration);
-                    scenario.users[curBlock.source].blockedDays.Add(curBlock.days[i]);
+                    try
+                    {
+                        scenario.users[curBlock.source].blockedDays.Add(curBlock.days[i]);
+                    }
+                    catch
+                    {
+                        scenario.users[curBlock.source].blockedDays.Add(curBlock.days[i-1]);
+                        i--;
+                    }
 
                     
                 }
@@ -660,12 +675,12 @@ public static class ScheduleStructGenerator
         return ret;
     }
 
-    public static void doScheduleWithAccess()
+    public static IEnumerator doScheduleWithAccess()
     {
         if (scenario.aryasWindows.Count == 0)
         {
             Debug.Log("aryas windows empty");
-            return;
+            yield return new WaitForSeconds(1);
         }
         string date = DateTime.Now.ToString("MM-dd_hhmm");
         if (!File.Exists(DBReader.mainDBPath))
@@ -722,6 +737,7 @@ public static class ScheduleStructGenerator
         }
         foreach (Window aWin in scenario.aryasWindows)
         {
+            aWin.start = Math.Max(aWin.start, 0);
             string source = (aWin.source).Replace("\"", "");
             if (source.EndsWith("-Backup")) continue;
             string destination = aWin.destination.Replace("\"", "");
@@ -731,26 +747,27 @@ public static class ScheduleStructGenerator
             try
             {
                 Debug.Log(source + misName + missionStructure[misName].Item2[source]["Service_Level"]);
-                service_Level = (double)missionStructure[misName].Item2[source]["Service_Level"];
+                service_Level = missionStructure[misName].Item2[source]["Service_Level"];
             }
-            catch (KeyNotFoundException)
+            catch
             {
-                Debug.Log($"Either satellite: {source} or Service Level didn't exist");
-            }
-            try
-            {
-                schedPrio += (double)missionStructure[misName].Item2[source]["Schedule_Priority"];
-            }
-            catch (KeyNotFoundException)
-            {
-                // Debug.Log($"Either satellite: {wind.source} or schedule priority didn't exist");
+                service_Level = Double.Parse(missionStructure[misName].Item2[source]["Service_Level"]);
             }
             try
             {
-                groundPrio = (double)missionStructure[misName].Item2[destination]["Ground_Priority"];
+                schedPrio += missionStructure[misName].Item2[source]["Schedule_Priority"];
             }
-            catch (KeyNotFoundException)
+            catch
             {
+                schedPrio += Double.Parse(missionStructure[misName].Item2[source]["Schedule_Priority"]);
+            }
+            try
+            {
+                groundPrio = missionStructure[misName].Item2[destination]["Ground_Priority"];
+            }
+            catch
+            {
+                groundPrio = Double.Parse(missionStructure[misName].Item2[destination]["Ground_Priority"]);
                 //Debug.Log($"Either destination: {wind.destination} or ground priority didn't exist");
             }
             int freqPrio = 0;
@@ -863,9 +880,28 @@ public static class ScheduleStructGenerator
             command.ExecuteNonQuery();
             connection.Close();
         }
-        scenario.windows = windList.OrderBy(s => s.Schedule_Priority).ThenBy(s => s.Ground_Priority).ThenBy(s => s.Freq_Priority).ThenByDescending(s => s.duration).ToList();
+        scenario.windows = windList.OrderBy(s => s.Schedule_Priority).ThenBy(s => s.Ground_Priority).ThenBy(s => s.Freq_Priority).ThenBy(s => s.start).ToList();
         string debugJson = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
         DBReader.output.write("PreDFSUsers.txt", debugJson);
+        string sortWind = JsonConvert.SerializeObject(scenario.windows, Formatting.Indented);
+        DBReader.output.write("sortedWindows.txt", sortWind);
+        Debug.Log("Generated all the windows");
+        List<int> dividers = new List<int>();
+        string curDivUser = "";
+        string curDivGS = "";
+        for (int i = 0; i < scenario.windows.Count;i ++)
+        {
+            if (scenario.windows[i].source != curDivUser)
+            {
+                curDivUser = scenario.windows[i].source;
+                dividers.Add(i);
+            }
+            if (scenario.windows[i].destination != curDivGS)
+            {
+                curDivGS = scenario.windows[i].destination;
+                if (!dividers.Contains(i)) dividers.Add (i);
+            }
+        }
         //Debug.Log($@"ID: {scenario.windows[0].ID}\tSource:{scenario.windows[0].source}\tDestination{scenario.windows[0].destination}
         //\tschedPrio: {scenario.windows[0].Schedule_Priority}\tGroundPrio: {scenario.windows[0].Ground_Priority}\tFreq_Prio: {scenario.windows[0].Freq_Priority}\tDuration: {scenario.windows[0].duration}");
         /*foreach (var printWindow in scenario.windows)
@@ -874,17 +910,29 @@ public static class ScheduleStructGenerator
             Debug.Log(print);
         }*/
         connection.Close();
-
-        Debug.Log("Generating conflict list.....");
-        ScheduleStructGenerator.createConflictList(date);
+        yield return new WaitForSeconds(0.001f);
+        
+        yield return ScheduleStructGenerator.createConflictList(date, dividers);
+        Debug.Log("generated conflict list.....");
+        scenario.windows = scenario.windows.OrderBy(s => s.Schedule_Priority).ThenBy(s => s.Ground_Priority).ThenBy(s => s.Freq_Priority).ThenBy(s => s.start).ToList();
+        yield return new WaitForSeconds(0.5f);
         ScheduleStructGenerator.genDBNoJSON(missionStructure, date, "cut1Windows");
-        ScheduleStructGenerator.createConflictList(date);
+        Debug.Log("genDBNoJSON");
+        yield return new WaitForSeconds(0.5f);
+       // ScheduleStructGenerator.createConflictList(date);
+        //Debug.Log("generated conflict list again.....");
+        //yield return new WaitForSeconds(0.5f);
         Debug.Log("Doing DFS.....");
         ScheduleStructGenerator.doDFS(date);
+        Debug.Log("Did DFS.....");
+        yield return new WaitForSeconds(0.5f);
         Debug.Log(DBReader.output.getClean("PostDFSUsers.txt"));
-        System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 1 6");
+        System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 30 2");
         //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PreDFSUsers.txt")} {DBReader.output.get("PreDFSUsers", "png")} 0 1 6");
-        System.Diagnostics.Process.Start(DBReader.apps.schedGen, $"{DBReader.output.get("ScheduleCSV", "csv")} source destination 0 1 {DBReader.output.get("sched", "png")} 0");
+        System.Diagnostics.Process.Start(DBReader.apps.schedGen, $"{DBReader.output.get("ScheduleCSV", "csv")} source destination 0 30 {DBReader.output.get("sched", "png")} 0");
+        Debug.Log("generated diagrams.....");
+        yield return new WaitForSeconds(0.5f);
+        
     }
 
 
@@ -959,7 +1007,9 @@ public static class ScheduleStructGenerator
         public double timeIntervalStop;
         //public List<(double box, double timeInBox)> boxes = new List<(double, double)>();
         public Dictionary<double, double> boxes = new Dictionary<double, double>();
+        [JsonIgnore]
         public List<int> blockedDays = new List<int>();
+        [JsonIgnore]
         public List<string> allowedProviders = new List<string>();
         public string print()
         {

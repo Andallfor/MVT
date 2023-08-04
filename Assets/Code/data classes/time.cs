@@ -87,13 +87,24 @@ public class Time
     {
 
         string[] splitDate = date.Split(new Char[] {'_', ':', ' ', '-'} , System.StringSplitOptions.RemoveEmptyEntries);
-        
-        double Y = Double.Parse(splitDate[0]); ;
-        double M = Double.Parse(splitDate[1]); ;
-        double D = Double.Parse(splitDate[2]); ;
-        double H = Double.Parse(splitDate[3]); ;
-        double Min = Double.Parse(splitDate[4]);
-        double S = Double.Parse(splitDate[5]); ;
+        double M = 0;
+        double D = 0;
+        double Y = 0;
+        double H = 0;
+        double Min = 0;
+        double S = 0;
+        try
+        {
+            M = Double.Parse(splitDate[0]); ;
+            D = Double.Parse(splitDate[1]); ;
+            Y = Double.Parse(splitDate[2]); ;
+            H = Double.Parse(splitDate[3]); ;
+            Min = Double.Parse(splitDate[4]);
+            S = Double.Parse(splitDate[5]); ;
+        }
+        catch {
+            Debug.Log("wtf");
+        }
 
         double JDN = 367 * Y - (int)((7 * (Y + (int)((M + 9) / 12.0))) / 4.0) + (int)((275 * M) / 9.0) + D + 1721013.5 +
           (H + Min / 60.0 + S / Math.Pow(60, 2)) / 24.0 - 0.5 * copySign(1, (100 * Y + M - 190002.5)) + 0.5;

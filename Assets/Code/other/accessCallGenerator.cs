@@ -151,7 +151,7 @@ public class accessCallGeneratorWGS {
             {
                 foreach (string fac in master.fac2ant[provider])
                 {
-                    if (master.compatibilityMatrix[fac].Contains(s.name)) toGen.Add(s);
+                    if (master.compatibilityMatrix[fac].Contains(s.name) && !toGen.Contains(s)) toGen.Add(s);
                 }
             }
         }

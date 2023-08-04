@@ -22,7 +22,7 @@ public class controller : MonoBehaviour
     public static double scenarioStart;
     public static bool accessRunning = false;
     public static bool schedRunning = false;
-
+    public static string assets = "AssetsDFSTest.xlsx";
     public static float _logBase = 35;
 
     private void Awake() { self = this; }
@@ -40,33 +40,6 @@ public class controller : MonoBehaviour
         //master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/ARTEMIS 3/PLANETS/sun", 0.0416666665, planetType.planet),
         master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/sun", 0.0416666665, planetType.planet),
             new representationData("planet", "sunTex"));
-
-        /*
-        string date = DateTime.Now.ToString("MM-dd_hhmm");
-        if (!File.Exists(DBReader.mainDBPath))
-        {
-            UnityEngine.Debug.Log("Generating main.db");
-            UnityEngine.Debug.Log("command: " + $"{DBReader.data.get("2023EarthAssets")} {DBReader.mainDBPath}");
-            System.Diagnostics.Process.Start(DBReader.apps.excelParser, $"{DBReader.data.get("2023EarthAssetsWithOrbits.xlsx")} {DBReader.mainDBPath}").WaitForExit();
-        }*/
-        /*var missionStructure = DBReader.getData();
-        Debug.Log("epoch: " + missionStructure["EarthTest"].epoch);
-        DBReader.output.setOutputFolder(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), date));
-        string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
-        DBReader.output.write("MissionStructure_2023.txt", json);
-        Debug.Log("Generating windows.....");
-        ScheduleStructGenerator.genDB(missionStructure, "EarthTest", "DFSTestwindows.json", date, "PreconWindows");
-        Debug.Log("Generating conflict list.....");
-        ScheduleStructGenerator.createConflictList(date);
-        ScheduleStructGenerator.genDBNoJSON(missionStructure, date, "cut1Windows");
-        ScheduleStructGenerator.createConflictList(date);
-        Debug.Log("Doing DFS.....");
-        ScheduleStructGenerator.doDFS(date);
-        Debug.Log(DBReader.output.getClean("PostDFSUsers.txt"));
-        //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 1 6");
-        //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PreDFSUsers.txt")} {DBReader.output.get("PreDFSUsers", "png")} 0 1 6");
-        System.Diagnostics.Process.Start(DBReader.apps.schedGen, $"{DBReader.output.get("ScheduleCSV", "csv")} source destination 0 1 {DBReader.output.get("sched", "png")} 0");
-        */
 
         loadingController.start(new Dictionary<float, string>() {
             {0, "Generating Planets"},
@@ -323,13 +296,9 @@ public class controller : MonoBehaviour
 
             if (stationIndex >= 20) stationIndex = 0;
         }
-        if (Input.GetKeyDown("s"))
+        if (Input.GetKeyDown("l"))
         {
-            if (!schedRunning)
-            {
-                schedRunning = true;
-                ScheduleStructGenerator.doScheduleWithAccess();
-            }
+            StartCoroutine(ScheduleStructGenerator.doScheduleWithAccess());
         }
         if (Input.GetKeyDown("y"))
         {
@@ -354,7 +323,7 @@ public class controller : MonoBehaviour
 
                     accessCallGeneratorWGS access = new accessCallGeneratorWGS(earth, provider.geo, users, p.Key);
                     access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/" + p.Key), 2);
-                    var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 1), 0.00069444444, 0.00001157407 / 2.0, true); // ADD TO WINDOWS LIST HERE
+                    var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 30), 0.00069444444, 0.00001157407 / 2.0, true); // ADD TO WINDOWS LIST HERE
                     //StartCoroutine(stall(access));
                     foreach (ScheduleStructGenerator.Window w in output)
                     { 
@@ -376,11 +345,33 @@ public class controller : MonoBehaviour
             }
         }
         
-        if (Input.GetKeyDown("s"))
+        if (Input.GetKeyDown("u"))
         {
-            ScheduleStructGenerator.doScheduleWithAccess();
+            string date = DateTime.Now.ToString("MM-dd_hhmm");
+            if (!File.Exists(DBReader.mainDBPath))
+            {
+                UnityEngine.Debug.Log("Generating main.db");
+                System.Diagnostics.Process.Start(DBReader.apps.excelParser, $"{DBReader.data.get(assets)} {DBReader.mainDBPath}").WaitForExit();
+            }
+            
+            var missionStructure = DBReader.getData();
+            UnityEngine.Debug.Log("epoch: " + missionStructure["EarthTest"].epoch);
+            DBReader.output.setOutputFolder(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), date));
+            string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
+            DBReader.output.write("MissionStructure_2023.txt", json);
+            UnityEngine.Debug.Log("Generating windows.....");
+            ScheduleStructGenerator.genDB(missionStructure, "EarthTest", "DFSTestwindows.json", date, "PreconWindows");
+            UnityEngine.Debug.Log("Generating conflict list.....");
+            //ScheduleStructGenerator.createConflictList(date);
+            ScheduleStructGenerator.genDBNoJSON(missionStructure, date, "cut1Windows");
+            //ScheduleStructGenerator.createConflictList(date);
+            //UnityEngine.Debug.Log("Doing DFS.....");
+            ScheduleStructGenerator.doDFS(date);
+            UnityEngine.Debug.Log(DBReader.output.getClean("PostDFSUsers.txt"));
+            //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 1 6");
+            //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PreDFSUsers.txt")} {DBReader.output.get("PreDFSUsers", "png")} 0 1 6");
+            System.Diagnostics.Process.Start(DBReader.apps.schedGen, $"{DBReader.output.get("ScheduleCSV", "csv")} source destination 0 1 {DBReader.output.get("sched", "png")} 0");
         }
-
         if (Input.GetKeyDown("b"))
         {
             web.sendMessage((byte)constantWebHandles.ping, new byte[] { 15 });
@@ -399,7 +390,7 @@ public class controller : MonoBehaviour
         //Debug.Log("done");
     }*/
 
-    int stationIndex = 0;
+        int stationIndex = 0;
     meshDistributor<universalTerrainMesh> prevDist;
 
     private planetTerrain loadTerrain() {
@@ -432,7 +423,12 @@ public class controller : MonoBehaviour
     {
         representationData rd = new representationData("planet", "defaultMat");
         representationData frd = new representationData("facility", "defaultMat");
-
+        if (!File.Exists(DBReader.mainDBPath))
+        {
+            UnityEngine.Debug.Log("Generating main.db");
+            UnityEngine.Debug.Log(DBReader.apps.excelParser + $"{DBReader.data.get(assets)} {DBReader.mainDBPath}");
+            System.Diagnostics.Process.Start(DBReader.apps.excelParser, $"{DBReader.data.get(assets)} {DBReader.mainDBPath}").WaitForExit();
+        }
         var data = DBReader.getData();
 
         double prevTime = master.time.julian;
