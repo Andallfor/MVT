@@ -4,8 +4,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 
-public class trailRenderer
-{
+public class trailRenderer {
     private LineRenderer lr;
     private string name;
     private body b;
@@ -13,6 +12,7 @@ public class trailRenderer
     private static Transform trailParent, trailSatellite, trailPlanet;
     private static Dictionary<planet, Transform> trailSatelliteByParent = new Dictionary<planet, Transform>();
     private static double initialScale;
+    private static double lastScale;
 
     public const int resolution = 360;
     public bool enabled {get; private set;} = false;
@@ -21,6 +21,8 @@ public class trailRenderer
         this.name = name;
         this.b = b;
         this.transform = go.transform;
+
+        if (name == "Sun") return; // TODO
 
         lr = GameObject.Instantiate(Resources.Load("Prefabs/simpleLine") as GameObject).GetComponent<LineRenderer>();
         lr.gameObject.name = $"{name} trail";
@@ -63,9 +65,9 @@ public class trailRenderer
         if (enabled) return;
         if (name == master.sun.name) return;
 
-        initialScale = master.scale;
-
         disable();
+
+        initialScale = master.scale;
 
         // really should cache these values
         Vector3[] points = new Vector3[resolution];
@@ -104,9 +106,22 @@ public class trailRenderer
     }
 
     public void disable() {
+        if (!enabled) return;
         lr.gameObject.SetActive(false);
         enabled = false;
         lr.positionCount = 0;
+    }
+
+    public void enableWithoutRedrawing() {
+        if (enabled) return;
+        enabled = true;
+        lr.gameObject.SetActive(true);
+    }
+
+    public void disableWithoutCulling() {
+        if (!enabled) return;
+        enabled = false;
+        lr.gameObject.SetActive(false);
     }
 
     private void disableWrapper(object sender, EventArgs e) {disable();}
@@ -119,16 +134,16 @@ public class trailRenderer
     public static void disableAll() {
         foreach (satellite s in master.allSatellites) s.tr.disable();
         foreach (planet p in master.allPlanets) p.tr.disable();
+
+        lastScale = 0;
     }
 
     public static void update() {
         if (!general.showingTrails) return;
+        if (lastScale == master.scale) return;
         if (trailParent == default(Transform)) trailParent = GameObject.FindGameObjectWithTag("planet/trails").transform;
         if (trailSatellite == default(Transform)) trailSatellite = GameObject.FindGameObjectWithTag("planet/trails/keplerSatellite").transform;
         if (trailPlanet == default(Transform)) trailPlanet = GameObject.FindGameObjectWithTag("planet/trails/keplerPlanet").transform;
-
-        //if (planetOverview.instance.active) trailParent.position = Vector3.zero;
-        //else trailParent.position = -(Vector3) (master.currentPosition / master.scale);
 
         // TODO: add in fancy code to determine if we can see trail renderer or not. currently it just pretends this isnt an issue
         float scale = (float) (initialScale / master.scale);
@@ -139,6 +154,17 @@ public class trailRenderer
             Transform parent = trailSatelliteByParent[p];
             parent.position = (Vector3) ((p.pos - master.referenceFrame) / master.scale);
         }
+
+        // should prob make this faster
+        foreach (satellite s in master.allSatellites) {
+            if (s.positions.selection != TimelineSelection.kepler) continue;
+            
+            double size = s.positions.returnSemiMajorAxis() / master.scale;
+            if (size > 0.01f) s.tr.enableWithoutRedrawing();
+            else s.tr.disableWithoutCulling();
+        }
+
+        lastScale = master.scale;
     }
 
     public static Dictionary<string, Color> trailColors = new Dictionary<string, Color>() {
