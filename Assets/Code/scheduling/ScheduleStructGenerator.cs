@@ -321,6 +321,7 @@ public static class ScheduleStructGenerator
         int divIndex = divs.IndexOf(divs.FirstOrDefault(x => x > i));
         for (int x = divs[divIndex]; x < scenario.windows.Count; x += divs[divIndex++])
         {
+            if (scenario.windows[x].source != block.source && scenario.windows[x].destination != block.destination) continue;
             for (int y = x; y < scenario.windows.Count && scenario.windows[y].start <= block.stop; y++)
             {
                 (bool, int, int) stillCon = stillConflict(block, scenario.windows[y]);
