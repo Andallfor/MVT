@@ -24,7 +24,7 @@ RenderSettings:
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 0
+  m_AmbientMode: 3
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 2100000, guid: d6f4a0f6ae98cf54382a3e30dd64927f, type: 2}
   m_HaloStrength: 0.5
@@ -971,7 +971,6 @@ GameObject:
   - component: {fileID: 142522880}
   - component: {fileID: 142522881}
   - component: {fileID: 142522882}
-  - component: {fileID: 142522883}
   m_Layer: 0
   m_Name: networkManager
   m_TagString: network/manager
@@ -1060,20 +1059,6 @@ MonoBehaviour:
   sslCertJson: 
   sslProtocols: 12288
   _logLevels: 3
---- !u!114 &142522883
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 142522879}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  offsetX: 0
-  offsetY: 0
 --- !u!1001 &180258665
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1760,6 +1745,7 @@ GameObject:
   - component: {fileID: 259335403}
   - component: {fileID: 259335402}
   - component: {fileID: 259335404}
+  - component: {fileID: 259335405}
   m_Layer: 5
   m_Name: loading
   m_TagString: Untagged
@@ -1879,6 +1865,18 @@ MonoBehaviour:
   progressBar: {fileID: 1346107883}
   info: {fileID: 1915446603}
   loading: {fileID: 592926750}
+--- !u!225 &259335405
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 259335398}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &278018808
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10770,15 +10768,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 615116790101769941, guid: b517c9de38ce74c4e9348dc307a2665a, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 615116790101769941, guid: b517c9de38ce74c4e9348dc307a2665a, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 615116790101769941, guid: b517c9de38ce74c4e9348dc307a2665a, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 615116790101769941, guid: b517c9de38ce74c4e9348dc307a2665a, type: 3}
       propertyPath: m_AnchoredPosition.x

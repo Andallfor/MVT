@@ -23,6 +23,8 @@ public class satelliteRepresentation {
         gameObject.transform.parent = GameObject.FindGameObjectWithTag("planet/parent").transform;
         gameObject.name = name;
         gameObject.GetComponent<SphereCollider>().enabled = false;
+        gameObject.GetComponent<MeshRenderer>().enabled = false;
+        gameObject.SetActive(false);
 
         this.name = name;
         this.data = data;
@@ -68,14 +70,14 @@ public class satelliteRepresentation {
     }
 
     private void hide() {
-        if (gameObject.activeSelf) gameObject.SetActive(false);
+        //if (gameObject.activeSelf) gameObject.SetActive(false);
 
         // there may be an animation going on, only hide if the uiName is fully shown
         if (!uiName.isHidden) uiName.hide();
     }
 
     private void show() {
-        if (!gameObject.activeSelf) gameObject.SetActive(true);
+        //if (!gameObject.activeSelf) gameObject.SetActive(true);
         uiName.show();
     }
 
