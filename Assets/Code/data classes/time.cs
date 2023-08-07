@@ -95,9 +95,9 @@ public class Time
         double S = 0;
         try
         {
-            M = Double.Parse(splitDate[0]); ;
-            D = Double.Parse(splitDate[1]); ;
-            Y = Double.Parse(splitDate[2]); ;
+            M = Double.Parse(splitDate[1]); ;
+            D = Double.Parse(splitDate[2]); ;
+            Y = Double.Parse(splitDate[0]); ;
             H = Double.Parse(splitDate[3]); ;
             Min = Double.Parse(splitDate[4]);
             S = Double.Parse(splitDate[5]); ;

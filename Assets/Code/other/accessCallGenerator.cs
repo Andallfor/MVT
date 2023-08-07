@@ -200,7 +200,6 @@ public class accessCallGeneratorWGS {
                                 ScheduleStructGenerator.Window window = new ScheduleStructGenerator.Window(master.ID, "KaBand", source, destination, startTime-start.julian, endTime- start.julian, endTime - startTime);
                                 spans.Add(window);
                                 master.ID++;
-                                if ( endTime - startTime > 10) UnityEngine.Debug.Log(source + " " + (startTime-start.julian) + " " + (endTime - start.julian));
                         }
 
                         if (!compatibility)
