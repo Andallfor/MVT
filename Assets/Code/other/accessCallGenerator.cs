@@ -166,6 +166,8 @@ public class accessCallGeneratorWGS {
             toGen = satList;
         }
 
+        earth.representation.gameObject.transform.rotation = new Quaternion(0f, 0f, 0f, 1);
+
         foreach (satellite target in toGen)
         {
             planet center = master.parentBody[target];
@@ -187,13 +189,13 @@ public class accessCallGeneratorWGS {
             if (minElevationTimes != null)
             {
                 //may change later if it works 
-                //earth.representation.gameObject.transform.rotation = new Quaternion(0f, 0f, 0f, 1);
+                
 
                 for (int x = 0; x < minElevationTimes.Count; x++)
                 {
                     if (center.name == "Earth")
                     {
-
+                        
                         //start
                         time = minElevationTimes[x][0];
                         hit = raycastNoUpdate(target, time);
