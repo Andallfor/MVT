@@ -187,7 +187,7 @@ public class accessCallGeneratorWGS {
             if (minElevationTimes != null)
             {
                 //may change later if it works 
-                earth.representation.gameObject.transform.rotation = new Quaternion(0f, 0f, 0f, 1);
+                //earth.representation.gameObject.transform.rotation = new Quaternion(0f, 0f, 0f, 1);
 
                 for (int x = 0; x < minElevationTimes.Count; x++)
                 {
@@ -196,16 +196,16 @@ public class accessCallGeneratorWGS {
 
                         //start
                         time = minElevationTimes[x][0];
-                        hit = raycastNoUpdate(target, center, time);
-                        if (hit) startTime = findBoundaryNoUpdate(target, center, time, maxInc, false, minInc);
+                        hit = raycastNoUpdate(target, time);
+                        if (hit) startTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
                         else startTime = time;
 
                         //end
                         time = minElevationTimes[x][1];
                         if (time - startTime < .0035) continue;
                     
-                        hit = raycastNoUpdate(target, center, time);
-                        if (hit) endTime = findBoundaryNoUpdate(target, center, time, maxInc, false, minInc);
+                        hit = raycastNoUpdate(target, time);
+                        if (hit) endTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
                         else endTime = time;
 
                         if (endTime - startTime < .0035) continue;
@@ -260,7 +260,7 @@ public class accessCallGeneratorWGS {
         return findBoundary(target, time + inc / 2.0, inc / 2.0, targetStart, minInc);
     }
 
-    public bool raycast(satellite target, double time, bool reset = true)
+    public bool raycast(satellite target, double time, bool reset = false)
     {
         double initialTime = master.time.julian;
         master.time.addJulianTime(time - master.time.julian);
@@ -277,28 +277,27 @@ public class accessCallGeneratorWGS {
         return result;
     }
 
-    private double findBoundaryNoUpdate(satellite target, planet center, double time, double inc, bool targetStart, double minInc)
+    private double findBoundaryNoUpdate(satellite target, double time, double inc, bool targetStart, double minInc)
     {
         // termination condition- original, !original (separated by minInc)
         if (inc <= minInc) return time;
 
-        bool originalHit = raycastNoUpdate(target, center, time);
-        if (originalHit != targetStart) return findBoundaryNoUpdate(target, center, time - inc / 2.0, inc / 2.0, targetStart, minInc);
+        bool originalHit = raycastNoUpdate(target, time);
+        if (originalHit != targetStart) return findBoundaryNoUpdate(target, time - inc / 2.0, inc / 2.0, targetStart, minInc);
 
-        bool next = raycastNoUpdate(target, center, time + minInc);
+        bool next = raycastNoUpdate(target, time + minInc);
         if (next != targetStart) return time;
-        return findBoundaryNoUpdate(target, center, time + inc / 2.0, inc / 2.0, targetStart, minInc);
+        return findBoundaryNoUpdate(target, time + inc / 2.0, inc / 2.0, targetStart, minInc);
     }
 
-    public bool raycastNoUpdate(satellite target, planet center, double time)
+    public bool raycastNoUpdate(satellite target, double time)
     {
-        Vector3 dst = (Vector3)(center.data.positions.find(time) + target.data.positions.find(new Time(time)).ECI2ECEF(time) - pos.toCartesianWGS(altitude));
+        Vector3 dst = (Vector3)((target.data.positions.find(time)).ECI2ECEF(time) - pos.toCartesianWGS(altitude));
 
         // (0,0,0) because we center (via master.currentPosition) on the correct starting position
         // raycast instead of linecast to prevent physics from checking too much (we really only need to check whats nearby)
 
         return Physics.Raycast(Vector3.zero, dst, 100, (1 << 6) | (1 << 7)); // terrain and planets only
-        ;
     }
 
 
