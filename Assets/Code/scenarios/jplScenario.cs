@@ -80,11 +80,13 @@ public class jplScenario : IScenario {
                 {
                     sat = new satellite(x.Key, new satelliteData(new Timeline(A, E, I, W, RAAN, M, 1, Time.strDateToJulian(dict["OrbitEpoch"]), moonMu)), rd, moon);
                     moonSats.Add(sat);
+                    master.parentBody.Add(sat, moon);
                 }
                 else if (dict["CentralBody"] == "Earth")
                 {
                     sat = new satellite(x.Key, new satelliteData(new Timeline(A, E, I, W, RAAN, M, 1, Time.strDateToJulian(dict["OrbitEpoch"]), EarthMu)), rd, earth);
                     earthSats.Add(sat);
+                    master.parentBody.Add(sat, earth);
                 }
 
                 if (dict["user_provider"] == "user" || dict["user_provider"] == "user/provider") linkBudgeting.users.Add(x.Key, (false, startTime + start, startTime + stop));
