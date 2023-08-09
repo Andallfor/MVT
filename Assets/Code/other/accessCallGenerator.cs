@@ -308,7 +308,7 @@ public class accessCallGeneratorWGS {
 
         // (0,0,0) because we center (via master.currentPosition) on the correct starting position
         // raycast instead of linecast to prevent physics from checking too much (we really only need to check whats nearby)
-        bool result = Physics.Linecast(Vector3.zero, dst, (1 << 6) | (1 << 7)); // terrain and planets only
+        bool result = Physics.Raycast(Vector3.zero, dst, 100, (1 << 6) | (1 << 7)) || Physics.Raycast(dst, Vector3.zero, 1000, (1 << 6) | (1 << 7)); // terrain and planets only
         //Debug.DrawLine(Vector3.zero, dst, result ? Color.red : Color.green, 10000000);
         return result;
     }

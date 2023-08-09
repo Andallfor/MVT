@@ -11,10 +11,10 @@ public class jplScenario : IScenario {
 
         double prevTime = master.time.julian;
 
-        double EarthMu = 398600.0;
-        double moonMu = 4900.0;
-        double sunMu = 132712e+6;
-        double marsMu = 4.2828373716854781E+04;
+        double EarthMu = master.planetMu["Earth"];
+        double moonMu = master.planetMu["Moon"];
+        double sunMu = master.planetMu["Sun"];
+        double marsMu = master.planetMu["Mars"];
         double epoch = 2459945.5000000;
 
         List<satellite> earthSats = new List<satellite>();
