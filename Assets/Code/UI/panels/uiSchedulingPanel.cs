@@ -5,14 +5,26 @@ using System;
 using System.Text;
 using System.Linq;
 using System.IO;
+using UnityEngine.UI;
+
 
 
 public class uiSchedulingPanel : MonoBehaviour
 {
     private double RAAN, AOP, Eccentricity, SMAxis, MeanAnom, Inclination, epochTime, duration,starttime;
+    public Toggle SA2, ASF1, ASF2, ASF3, BGS, GLC, HBK, KIR, MG1, PA1, SG1, SG2, SG3, SG12, SING, TR2, TR3, USA1, USA3, USA4, USA5, USD1, USH1, USH2, WG2, WG1, WS1;
+    private bool[] stations;
+    private Toggle[] toggles;
+
     private string nameOFSAT;
     private planet centerBody;
+    private ArrayList arlist;
     
+    void Start(){
+        arlist = new ArrayList();
+        toggles = new Toggle[]{SA2, ASF1, ASF2, ASF3, BGS, GLC, HBK, KIR, MG1, PA1, SG1, SG2, SG3, SG12, SING, TR2, TR3, USA1, USA3, USA4, USA5, USD1, USH1, USH2, WG2, WG1, WS1};
+        stations = new bool[27];
+    }
     public void ReadRAAN(string s)
     {
         RAAN = double.Parse(s);        
@@ -68,11 +80,25 @@ public class uiSchedulingPanel : MonoBehaviour
     {
         nameOFSAT = s;
     }
+    public void togglestuff(){
+        int b= 0;
+        for(int i = 0; i<27; i++){
+            stations[i]=false;
+        }
+        foreach(Toggle t in toggles){
+            stations[b]=t.isOn;
+            b++;
+        }
+        
+
+        
+    }
 
     public void CreateSat()
     {
+        togglestuff();
         representationData rd = new representationData("planet", "defaultMat");
-        satellite sat = new satellite(name, new satelliteData(new Timeline(SMAxis, Eccentricity, Inclination, AOP, RAAN, MeanAnom, 1, epochTime, master.planetMu[centerBody.name])), rd, centerBody);
+        satellite sat = new satellite(nameOFSAT, new satelliteData(new Timeline(SMAxis, Eccentricity, Inclination, AOP, RAAN, MeanAnom, 1, epochTime, master.planetMu[centerBody.name])), rd, centerBody);
         master.parentBody.Add(sat, centerBody);
         master.relationshipSatellite[centerBody].Add(sat);
         linkBudgeting.users.Add(sat.name, (false, 0, 1));
