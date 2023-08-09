@@ -58,9 +58,11 @@ public class uiSchedulingPanel : MonoBehaviour
 
     public void CreateSat()
     {
+        #if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
         representationData rd = new representationData("planet", "defaultMat");
         satellite sat = new satellite(name, new satelliteData(new Timeline(SMAxis, Eccentricity, Inclination, AOP, RAAN, MeanAnom, 1, epochTime, master.planetMu[centerBody.name])), rd, centerBody);
         master.parentBody.Add(sat, centerBody);
         master.relationshipSatellite[centerBody].Add(sat);
+        # endif
     }
 }
