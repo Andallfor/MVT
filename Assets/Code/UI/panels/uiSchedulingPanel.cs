@@ -9,7 +9,7 @@ using System.IO;
 
 public class uiSchedulingPanel : MonoBehaviour
 {
-    private double RAAN, AOP, Eccentricity, SMAxis, MeanAnom, Inclination, epochTime;
+    private double RAAN, AOP, Eccentricity, SMAxis, MeanAnom, Inclination, epochTime, duration,starttime;
     private string name;
     private planet centerBody;
     
@@ -17,6 +17,7 @@ public class uiSchedulingPanel : MonoBehaviour
     {
         RAAN = double.Parse(s);        
     }
+    
 
     public void ReadAOP(string s)
     {
@@ -33,15 +34,25 @@ public class uiSchedulingPanel : MonoBehaviour
         SMAxis = double.Parse(s);
     }
 
-    public void ReadStart(string s)
+    public void ReadET(string s)
     {
         epochTime = Time.strDateToJulian(s);
     }
 
-    public void ReadDuration(string s)
+    public void ReadCB(string s)
     {
         centerBody = master.allPlanets.Find(x => x.name == s);
     }
+
+    public void ReadDuration(string s){
+        duration=double.Parse(s);
+    }
+
+    public void ReadStart(string s){
+        starttime= Time.strDateToJulian(s);
+    }
+
+
 
     public void ReadMeanAnom(string s)
     {
