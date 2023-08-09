@@ -85,7 +85,7 @@ public class accessCallGeneratorWGS {
         }
     }
 
-    public List<accessCallTimeSpan> bruteForce(Time start, Time end, double inc) {
+    /*public List<accessCallTimeSpan> bruteForce(Time start, Time end, double inc) {
         if (!initialized) throw new MethodAccessException("Cannot run access calls unless .initialize(...) has been called!");
 
         double initialTime = master.time.julian;
@@ -130,7 +130,7 @@ public class accessCallGeneratorWGS {
         //master.requestPositionUpdate();
 
         return spans;
-    }
+    }*/
 
     public List<ScheduleStructGenerator.Window> findTimes(Time start, Time end, double maxInc, double minInc, bool compatibility) {
         if (!initialized) throw new MethodAccessException("Cannot run access calls unless .initialize(...) has been called!");
@@ -146,6 +146,8 @@ public class accessCallGeneratorWGS {
         double time = 0;
 
         bool hit = true;
+
+        List<double[]> minElevationTimes = new List<double[]>();
 
         List<ScheduleStructGenerator.Window> spans = new List<ScheduleStructGenerator.Window>();
         List<satellite> toGen = new List<satellite>();
@@ -164,10 +166,22 @@ public class accessCallGeneratorWGS {
             toGen = satList;
         }
 
+        earth.representation.gameObject.transform.rotation = new Quaternion(0f, 0f, 0f, 1);
+
         foreach (satellite target in toGen)
         {
+            planet center = master.parentBody[target];
+
             //hash table / hash set
-            List<double[]> minElevationTimes = ElevationCheck.elevationTimes(target.data.positions, pos, altitude, minEl, (scenarioEndTime - scenarioStartTime) * 86400, scenarioStartTime);
+            if (center.name == "Earth")
+            {
+                minElevationTimes = ElevationCheck.elevationTimes(target.data.positions, pos, altitude, minEl, (scenarioEndTime - scenarioStartTime) * 86400, scenarioStartTime);
+            }
+            else
+            {
+                minElevationTimes = ElevationCheck.elevationTimes(target.data.positions, center.data.positions, pos, altitude, minEl, (scenarioEndTime - scenarioStartTime) * 86400, scenarioStartTime);           
+            }
+
             string source = "";
             string destination = "";
 
@@ -175,25 +189,46 @@ public class accessCallGeneratorWGS {
             if (minElevationTimes != null)
             {
                 //may change later if it works 
-                earth.representation.gameObject.transform.rotation = new Quaternion(0f, 0f, 0f, 1);
+                
 
                 for (int x = 0; x < minElevationTimes.Count; x++)
                 {
-                    //start
-                    time = minElevationTimes[x][0];
-                    hit = raycastNoUpdate(target, time);
-                    if (hit) startTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
-                    else startTime = time;
+                    if (center.name == "Earth")
+                    {
+                        
+                        //start
+                        time = minElevationTimes[x][0];
+                        hit = raycastNoUpdate(target, time);
+                        if (hit) startTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
+                        else startTime = time;
 
-                    //end
-                    time = minElevationTimes[x][1];
-                    if (time - startTime < .0035) continue;
+                        //end
+                        time = minElevationTimes[x][1];
+                        if (time - startTime < .0035) continue;
                     
-                    hit = raycastNoUpdate(target, time);
-                    if (hit) endTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
-                    else endTime = time;
+                        hit = raycastNoUpdate(target, time);
+                        if (hit) endTime = findBoundaryNoUpdate(target, time, maxInc, false, minInc);
+                        else endTime = time;
 
-                    if (endTime - startTime < .0035) continue;
+                        if (endTime - startTime < .0035) continue;
+                    }
+                    else 
+                    {
+                        time = minElevationTimes[x][0];
+                        hit = raycast(target, time);
+                        if (hit) startTime = findBoundary(target, time, maxInc, false, minInc);
+                        else startTime = time;
+
+                        //end
+                        time = minElevationTimes[x][1];
+                        if (time - startTime < .0035) continue;
+
+                        hit = raycast(target, time);
+                        if (hit) endTime = findBoundary(target, time, maxInc, false, minInc);
+                        else endTime = time;
+
+                        earth.representation.gameObject.transform.rotation = new Quaternion(0f, 0f, 0f, 1);
+                    }
 
                     foreach (string fac in master.fac2ant[provider])
                     {
@@ -215,25 +250,25 @@ public class accessCallGeneratorWGS {
         return spans;
     }
 
-    private double findBoundary(double time, double inc, bool targetStart, double minInc) {
+    private double findBoundary(satellite target, double time, double inc, bool targetStart, double minInc) {
         // termination condition- original, !original (separated by minInc)
         if (inc <= minInc) return time;
 
-        bool originalHit = raycast(time, false);
-        if (originalHit != targetStart) return findBoundary(time - inc / 2.0, inc / 2.0, targetStart, minInc);
+        bool originalHit = raycast(target, time, false);
+        if (originalHit != targetStart) return findBoundary(target, time - inc / 2.0, inc / 2.0, targetStart, minInc);
 
-        bool next = raycast(time + minInc, false);
+        bool next = raycast(target, time + minInc, false);
         if (next != targetStart) return time;
-        return findBoundary(time + inc / 2.0, inc / 2.0, targetStart, minInc);
+        return findBoundary(target, time + inc / 2.0, inc / 2.0, targetStart, minInc);
     }
 
-    public bool raycast(double time, bool reset = true)
+    public bool raycast(satellite target, double time, bool reset = false)
     {
         double initialTime = master.time.julian;
         master.time.addJulianTime(time - master.time.julian);
         updateMeshes();
 
-        bool result = raycast();
+        bool result = raycast(target);
 
         if (reset)
         {
@@ -259,24 +294,23 @@ public class accessCallGeneratorWGS {
 
     public bool raycastNoUpdate(satellite target, double time)
     {
-        Vector3 dst = (Vector3)((target.data.positions.find(new Time(time)).ECI2ECEF(time) - master.referenceFrame - master.currentPosition) / master.scale);
+        Vector3 dst = (Vector3)((target.data.positions.find(time)).ECI2ECEF(time) - pos.toCartesianWGS(altitude));
 
         // (0,0,0) because we center (via master.currentPosition) on the correct starting position
         // raycast instead of linecast to prevent physics from checking too much (we really only need to check whats nearby)
 
         return Physics.Raycast(Vector3.zero, dst, 100, (1 << 6) | (1 << 7)); // terrain and planets only
-        ;
     }
 
 
-    private bool raycast() {
-        //Vector3 dst = (Vector3) ((target.pos - master.referenceFrame - master.currentPosition) / master.scale);
+    private bool raycast(satellite target) {
+        Vector3 dst = (Vector3) ((target.pos - master.referenceFrame - master.currentPosition) / master.scale);
 
         // (0,0,0) because we center (via master.currentPosition) on the correct starting position
         // raycast instead of linecast to prevent physics from checking too much (we really only need to check whats nearby)
-        //bool result = Physics.Raycast(Vector3.zero, dst, 100, (1 << 6) | (1 << 7)); // terrain and planets only
+        bool result = Physics.Linecast(Vector3.zero, dst, (1 << 6) | (1 << 7)); // terrain and planets only
         //Debug.DrawLine(Vector3.zero, dst, result ? Color.red : Color.green, 10000000);
-        return true;
+        return result;
     }
 
     private void updateMeshes() {

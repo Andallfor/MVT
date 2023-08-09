@@ -286,4 +286,6 @@ public static class master
         { "GLC", new List<string> { "AQUA", "AURA" } },
         {"BGS", new List<string> { "ICON "} }
     };
+
+    public static Dictionary<satellite, planet> parentBody = new Dictionary<satellite, planet>();
 }
