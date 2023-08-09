@@ -94,6 +94,11 @@ public class uiSchedulingPanel : MonoBehaviour
         
     }
 
+    public void AryaGenButton(){
+        //arya, write your shit here
+        Debug.Log("it works");
+    }
+
     public void CreateSat()
     {
         togglestuff();
