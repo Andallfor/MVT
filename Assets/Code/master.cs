@@ -290,6 +290,10 @@ public static class master
 
     public static Dictionary<satellite, planet> parentBody = new Dictionary<satellite, planet>();
 
+    public static List<satellite> userGenerated = new List<satellite>();
+
+    public static Dictionary<string, List<string>> userCompatibility = new Dictionary<string, List<string>>();
+
     public static Dictionary<string, double> planetMu = new Dictionary<string, double>()
     {
         {"Earth", 398600.0},
