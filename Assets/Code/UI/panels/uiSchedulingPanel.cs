@@ -10,7 +10,7 @@ using System.IO;
 public class uiSchedulingPanel : MonoBehaviour
 {
     private double RAAN, AOP, Eccentricity, SMAxis, MeanAnom, Inclination, epochTime, duration,starttime;
-    private string name;
+    private string nameOFSAT;
     private planet centerBody;
     
     public void ReadRAAN(string s)
@@ -66,7 +66,7 @@ public class uiSchedulingPanel : MonoBehaviour
 
     public void ReadName(string s)
     {
-        name = s;
+        nameOFSAT = s;
     }
 
     public void CreateSat()
