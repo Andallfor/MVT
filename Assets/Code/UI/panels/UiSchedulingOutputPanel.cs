@@ -30,6 +30,7 @@ public class UiSchedulingOutputPanel : MonoBehaviour
             }
         }
         outputimage.Apply();
+        keyimage = new Texture2D(80,200);
         for(int i=0; i<80; i++){
             for(int j=0; j<200; i++){
                 keyimage.SetPixel(i,j, background);
