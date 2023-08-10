@@ -10,13 +10,17 @@ public class webScheduling
 {
     public static byte[] runner(byte[] data)
     {
-        double scenarioStart;
-        using (BinaryReader br = new BinaryReader(new MemoryStream(data)))
-        {
-            scenarioStart = br.ReadDouble();
-        }
-        
-        master.ID = 0;
+        //double scenarioStart;
+        //ScheduleStructGenerator.scenario.aryasWindows = runAccessCalls(scenarioStart);
+
+        //scheduling code here
+
+        return new byte[10];
+
+    }
+
+    public static List<ScheduleStructGenerator.Window> runAccessCalls(double scenarioStart)
+    {
         List<satellite> users = new List<satellite>();
         List<ScheduleStructGenerator.Window> windows = new List<ScheduleStructGenerator.Window>();
 
@@ -31,19 +35,34 @@ public class webScheduling
 
             accessCallGeneratorWGS access = new accessCallGeneratorWGS(master.allPlanets.Find(x => x.name == "Earth"), provider.geo, users, p.Key);
             access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/" + p.Key), 2);
-            var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 5), 0.00069444444, 0.00001157407 / 2.0, true); // ADD TO WINDOWS LIST HERE
-                                                                                                                                            //StartCoroutine(stall(access));
+            var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 5.0), 0.00069444444, 0.00001157407 / 2.0, true); // ADD TO WINDOWS LIST HERE
+                                                                                                                                           //StartCoroutine(stall(access));
             foreach (ScheduleStructGenerator.Window w in output)
             {
                 windows.Add(w);
             }
         }
-        ScheduleStructGenerator.scenario.aryasWindows = windows;
+        return windows;
+    }
 
-        //scheduling code here
+    public static List<ScheduleStructGenerator.Window> runUserAccessCalls(double scenarioStart, List<satellite> users, List<string> providers)
+    {
+        List<ScheduleStructGenerator.Window> windows = new List<ScheduleStructGenerator.Window>();
 
-        return new byte[10];
+        foreach (string p in providers)
+        {
+            facility provider = master.allFacilities.Find(x => x.name == p);
 
+            accessCallGeneratorWGS access = new accessCallGeneratorWGS(master.allPlanets.Find(x => x.name == "Earth"), provider.geo, users, p);
+            access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/" + p), 2);
+            var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 5), 0.00069444444, 0.00001157407 / 2.0, true); // ADD TO WINDOWS LIST HERE
+                                                                                                                                           //StartCoroutine(stall(access));
+            foreach (ScheduleStructGenerator.Window w in output)
+            {
+                windows.Add(w);
+            }
+        }
+        return windows;
     }
 
     public static byte[] updateSats(byte[] data)

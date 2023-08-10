@@ -11,12 +11,12 @@ using UnityEngine.UI;
 
 public class uiSchedulingPanel : MonoBehaviour
 {
-    private double RAAN, AOP, Eccentricity, SMAxis, MeanAnom, Inclination, epochTime, duration,starttime;
+    private double RAAN, AOP, Eccentricity, SMAxis, MeanAnom, Inclination, epochTime, duration,startTime;
     public Toggle SA2, ASF1, ASF2, ASF3, BGS, GLC, HBK, KIR, MG1, PA1, SG1, SG2, SG3, SG12, SING, TR2, TR3, USA1, USA3, USA4, USA5, USD1, USH1, USH2, WG2, WG1, WS1;
     private bool[] stations;
     private Toggle[] toggles;
 
-    private string nameOFSAT;
+    private string satName;
     private planet centerBody;
     private ArrayList arlist;
     
@@ -57,14 +57,12 @@ public class uiSchedulingPanel : MonoBehaviour
     }
 
     public void ReadDuration(string s){
-        duration=double.Parse(s);
+        duration = double.Parse(s);
     }
 
     public void ReadStart(string s){
-        starttime= Time.strDateToJulian(s);
+        startTime = Time.strDateToJulian(s);
     }
-
-
 
     public void ReadMeanAnom(string s)
     {
@@ -78,35 +76,86 @@ public class uiSchedulingPanel : MonoBehaviour
 
     public void ReadName(string s)
     {
-        nameOFSAT = s;
+        satName = s;
     }
     public void togglestuff(){
-        int b= 0;
-        for(int i = 0; i<27; i++){
-            stations[i]=false;
+        int b = 0;
+        for(int i = 0; i < 27; i++){
+            stations[i] = false;
         }
         foreach(Toggle t in toggles){
-            stations[b]=t.isOn;
+            stations[b] = t.isOn;
             b++;
-        }
-        
-
-        
+        }              
     }
 
-    public void AryaGenButton(){
-        //arya, write your shit here
-        Debug.Log("it works");
+    public void AryaGenButton()
+    {
+        List<string> antennas = new List<string>();
+       
+            for (int i = 0; i < 27; i++)
+            {
+                if (stations[i])
+                {
+                    if (i == 0) antennas.Add("SA2");
+                    else if (i == 1) antennas.Add("ASF1");
+                    else if (i == 2) antennas.Add("ASF2");
+                    else if (i == 3) antennas.Add("ASF3");
+                    else if (i == 4) antennas.Add("BGS");
+                    else if (i == 5) antennas.Add("GLC");
+                    else if (i == 6) antennas.Add("HBK");
+                    else if (i == 7) antennas.Add("KIR");
+                    else if (i == 8) antennas.Add("MG1");
+                    else if (i == 9) antennas.Add("PA1");
+                    else if (i == 10) antennas.Add("SG1");
+                    else if (i == 11) antennas.Add("SG2");
+                    else if (i == 12) antennas.Add("SG3");
+                    else if (i == 13) antennas.Add("SG12");
+                    else if (i == 14) antennas.Add("SING");
+                    else if (i == 15) antennas.Add("TR2");
+                    else if (i == 16) antennas.Add("TR3");
+                    else if (i == 17) antennas.Add("USA1");
+                    else if (i == 18) antennas.Add("USA3");
+                    else if (i == 19) antennas.Add("USA4");
+                    else if (i == 20) antennas.Add("USA5");
+                    else if (i == 21) antennas.Add("USD1");
+                    else if (i == 22) antennas.Add("USH1");
+                    else if (i == 23) antennas.Add("USH2");
+                    else if (i == 24) antennas.Add("WG2");
+                    else if (i == 25) antennas.Add("WG1");
+                    else if (i == 26) antennas.Add("WS1");
+                }
+            }
+        
+
+        if(web.isClient)
+        {
+
+        }
+        else
+        {
+            List<ScheduleStructGenerator.Window> windows = new List<ScheduleStructGenerator.Window>();
+            windows = webScheduling.runAccessCalls(startTime);
+
+            List<ScheduleStructGenerator.Window> userWindows = new List<ScheduleStructGenerator.Window>();
+            userWindows = webScheduling.runUserAccessCalls(startTime, master.userGenerated, antennas);
+
+            foreach (ScheduleStructGenerator.Window x in userWindows)
+            {
+                windows.Add(x);
+            }
+            Debug.Log("Done");
+        }
     }
 
     public void CreateSat()
     {
-        togglestuff();
         representationData rd = new representationData("planet", "defaultMat");
-        satellite sat = new satellite(nameOFSAT, new satelliteData(new Timeline(SMAxis, Eccentricity, Inclination, AOP, RAAN, MeanAnom, 1, epochTime, master.planetMu[centerBody.name])), rd, centerBody);
+        satellite sat = new satellite(satName, new satelliteData(new Timeline(SMAxis, Eccentricity, Inclination, AOP, RAAN, MeanAnom, 1, epochTime, master.planetMu[centerBody.name])), rd, centerBody);
         master.parentBody.Add(sat, centerBody);
         master.relationshipSatellite[centerBody].Add(sat);
         linkBudgeting.users.Add(sat.name, (false, 0, 1));
+        master.userGenerated.Add(sat);
 
         if (web.isClient)
         {

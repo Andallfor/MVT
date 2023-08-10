@@ -86,21 +86,21 @@ public class Time
     public static double strDateToJulian(string date)
     {
 
-        string[] splitDate = date.Split(new Char[] {'_', ':', ' ', '-'} , System.StringSplitOptions.RemoveEmptyEntries);
-        double M = 0;
-        double D = 0;
+        string[] splitDate = date.Split(new Char[] {'_', ':', ' ', '-', '/'} , System.StringSplitOptions.RemoveEmptyEntries);
+        double M = 1;
+        double D = 1;
         double Y = 0;
         double H = 0;
         double Min = 0;
         double S = 0;
         try
         {
-            M = Double.Parse(splitDate[1]); ;
-            D = Double.Parse(splitDate[2]); ;
-            Y = Double.Parse(splitDate[0]); ;
-            H = Double.Parse(splitDate[3]); ;
+            Y = Double.Parse(splitDate[0]);
+            M = Double.Parse(splitDate[1]); 
+            D = Double.Parse(splitDate[2]); 
+            H = Double.Parse(splitDate[3]); 
             Min = Double.Parse(splitDate[4]);
-            S = Double.Parse(splitDate[5]); ;
+            S = Double.Parse(splitDate[5]); 
         }
         catch {
             Debug.Log("wtf");
@@ -108,7 +108,8 @@ public class Time
 
         double JDN = 367 * Y - (int)((7 * (Y + (int)((M + 9) / 12.0))) / 4.0) + (int)((275 * M) / 9.0) + D + 1721013.5 +
           (H + Min / 60.0 + S / Math.Pow(60, 2)) / 24.0 - 0.5 * copySign(1, (100 * Y + M - 190002.5)) + 0.5;
-
+        Debug.Log(Y);
+        Debug.Log(JDN);
         return JDN;
     }
 
