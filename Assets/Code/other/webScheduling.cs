@@ -35,7 +35,7 @@ public class webScheduling
 
             accessCallGeneratorWGS access = new accessCallGeneratorWGS(master.allPlanets.Find(x => x.name == "Earth"), provider.geo, users, p.Key);
             access.initialize(Path.Combine(Application.streamingAssetsPath, "terrain/facilities/earth/" + p.Key), 2);
-            var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 5), 0.00069444444, 0.00001157407 / 2.0, true); // ADD TO WINDOWS LIST HERE
+            var output = access.findTimes(new Time(scenarioStart), new Time(scenarioStart + 5.0), 0.00069444444, 0.00001157407 / 2.0, true); // ADD TO WINDOWS LIST HERE
                                                                                                                                            //StartCoroutine(stall(access));
             foreach (ScheduleStructGenerator.Window w in output)
             {
