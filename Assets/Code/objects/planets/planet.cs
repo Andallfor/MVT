@@ -6,7 +6,7 @@ using System;
 public class planet : body
 {
     public planetRepresentation representation {get; private set;}
-    private planetData data;
+    public planetData data;
 
     public double radius {get {return data.radius;}}
     public planetType pType {get {return data.pType;}}

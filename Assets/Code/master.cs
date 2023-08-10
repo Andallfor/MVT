@@ -21,6 +21,7 @@ public static class master
         }
     }
 
+
     /// <summary> The current time in game. </summary>
     //public readonly static Time time = new Time(2460806.5, true);
     public readonly static Time time = new Time(new DateTime(2025, 12, 12), true);
@@ -285,5 +286,19 @@ public static class master
         { "HBK", new List<string> { "ICON", "THEMIS_A", "THEMIS_B", "THEMIS_C", "THEMIS_D", "THEMIS_E", "GOES-18", "GOES-16", "GOES-17", "MMS" } },
         { "GLC", new List<string> { "AQUA", "AURA" } },
         {"BGS", new List<string> { "ICON "} }
+    };
+
+    public static Dictionary<satellite, planet> parentBody = new Dictionary<satellite, planet>();
+
+    public static List<satellite> userGenerated = new List<satellite>();
+
+    public static Dictionary<string, List<string>> userCompatibility = new Dictionary<string, List<string>>();
+
+    public static Dictionary<string, double> planetMu = new Dictionary<string, double>()
+    {
+        {"Earth", 398600.0},
+        {"Moon",  4900.0},
+        {"Sun",  132712e+6},
+        {"Mars",  4.2828373716854781E+04}
     };
 }

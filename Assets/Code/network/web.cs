@@ -159,6 +159,16 @@ public static class web {
 
         addHandle((byte) constantWebHandles.proceed, null, null);
 
+        addHandle((byte) userWebHandles.updateSatellites,
+            send: (cmd, content) => webScheduling.updateSats(content),
+            null
+        );
+
+        /*addHandle((byte)userWebHandles.runScheduling,
+            send: (cmd, content) => webScheduling.updateSats(content),
+            recive: (cmd, content) =>
+        );*/
+
         // USER HANDLES
         // TODO: have this call a function instead rather than defining them here
         addHandle((byte) userWebHandles.requestServerScenario, 
@@ -189,7 +199,9 @@ enum constantWebHandles : byte {
 
 [Flags]
 enum userWebHandles : byte {
-    requestServerScenario = 9
+    requestServerScenario = 9,
+    updateSatellites = 10,
+    runScheduling = 11
 }
 
 [Flags]

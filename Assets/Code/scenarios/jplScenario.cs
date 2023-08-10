@@ -11,10 +11,10 @@ public class jplScenario : IScenario {
 
         double prevTime = master.time.julian;
 
-        double EarthMu = 398600.0;
-        double moonMu = 4900.0;
-        double sunMu = 132712e+6;
-        double marsMu = 4.2828373716854781E+04;
+        double EarthMu = master.planetMu["Earth"];
+        double moonMu = master.planetMu["Moon"];
+        double sunMu = master.planetMu["Sun"];
+        double marsMu = master.planetMu["Mars"];
         double epoch = 2459945.5000000;
 
         List<satellite> earthSats = new List<satellite>();
@@ -80,11 +80,13 @@ public class jplScenario : IScenario {
                 {
                     sat = new satellite(x.Key, new satelliteData(new Timeline(A, E, I, W, RAAN, M, 1, Time.strDateToJulian(dict["OrbitEpoch"]), moonMu)), rd, moon);
                     moonSats.Add(sat);
+                    master.parentBody.Add(sat, moon);
                 }
                 else if (dict["CentralBody"] == "Earth")
                 {
                     sat = new satellite(x.Key, new satelliteData(new Timeline(A, E, I, W, RAAN, M, 1, Time.strDateToJulian(dict["OrbitEpoch"]), EarthMu)), rd, earth);
                     earthSats.Add(sat);
+                    master.parentBody.Add(sat, earth);
                 }
 
                 if (dict["user_provider"] == "user" || dict["user_provider"] == "user/provider") linkBudgeting.users.Add(x.Key, (false, startTime + start, startTime + stop));

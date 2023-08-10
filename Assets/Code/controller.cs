@@ -245,7 +245,7 @@ public class controller : MonoBehaviour
         modeController.update();
 
 #if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL
-        if (Input.GetKeyDown("o"))
+        /*if (Input.GetKeyDown("o"))
         {
             Vector3 v1 = (Vector3)(geographic.toCartesian(new geographic(0, 0), earth.radius).swapAxis());
             Vector3 v2 = (Vector3)(geographic.toCartesianWGS(new geographic(0, 0), 0).swapAxis());
@@ -357,12 +357,12 @@ public class controller : MonoBehaviour
             //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 1 6");
             //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PreDFSUsers.txt")} {DBReader.output.get("PreDFSUsers", "png")} 0 1 6");
             System.Diagnostics.Process.Start(DBReader.apps.schedGen, $"{DBReader.output.get("ScheduleCSV", "csv")} source destination 0 1 {DBReader.output.get("sched", "png")} 0");
-        }
+        }*/
 #endif
-        if (Input.GetKeyDown("b"))
+        /*if (Input.GetKeyDown("b"))
         {
             web.sendMessage((byte)constantWebHandles.ping, new byte[] { 15 });
-        }
+        }*/
     }
 
     /*private IEnumerator stall(accessCallGeneratorWGS access)
