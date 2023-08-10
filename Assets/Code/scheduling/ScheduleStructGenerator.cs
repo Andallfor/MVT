@@ -685,16 +685,16 @@ public static class ScheduleStructGenerator
         }
         var missionStructure = DBReader.getData();
         Debug.Log("epoch: " + missionStructure["EarthTest"].epoch);
-        DBReader.output.setOutputFolder(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), date));
-        string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
-        DBReader.output.write("MissionStructure_2023.txt", json);
+        //DBReader.output.setOutputFolder(Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), date));
+        //string json = JsonConvert.SerializeObject(missionStructure, Formatting.Indented);
+        //DBReader.output.write("MissionStructure_2023.txt", json);
         //Select * from Windows_data where Source="HLS-Surface" and Destination="LCN-12hourfrozen-1-LowPower" and Frequency="Ka Band" order by Start ASC
         scenario.users.Clear();
-        string newDBPath = DBReader.output.getDB("PreconWindows");
-        if (File.Exists(newDBPath)) File.Delete(newDBPath);
+        //string newDBPath = DBReader.output.getDB("PreconWindows");
+        //if (File.Exists(newDBPath)) File.Delete(newDBPath);
         bool fileExists = false;
-        SqliteConnection connection = new SqliteConnection(DBReader.getDBConnection(newDBPath));
-        if (!fileExists)
+        //SqliteConnection connection = new SqliteConnection(DBReader.getDBConnection(newDBPath));
+        /*if (!fileExists)
         {
             connection.Open();
             var createCommand = connection.CreateCommand();
@@ -714,7 +714,7 @@ public static class ScheduleStructGenerator
 		";
             createCommand.ExecuteNonQuery();
             Debug.Log("Created DB");
-        }
+        }*/
         //string restrictionPath = DBReader.data.get("restrictions2023.json");
         //JObject restrictionJson = JObject.Parse(File.ReadAllText(restrictionPath));
         //string filePath = DBReader.data.get($"schedulingJSONs/{JSONPath}");
@@ -723,12 +723,12 @@ public static class ScheduleStructGenerator
         scenario.epochTime = missionStructure[misName].Item1;
         scenario.fileGenDate = DateTime.Today.ToString();
         List<Window> windList = new List<Window>();
-        if (!fileExists)
+        /*if (!fileExists)
         {
             var command = connection.CreateCommand();
             command.CommandText = "BEGIN;";
             command.ExecuteNonQuery();
-        }
+        }*/
         foreach (Window aWin in scenario.aryasWindows)
         {
             aWin.start = Math.Max(aWin.start, 0);
@@ -853,32 +853,32 @@ public static class ScheduleStructGenerator
 
 
 
-            if (!fileExists)
+            /*if (!fileExists)
             {
                 var command = connection.CreateCommand();
                 command.CommandText = $@"
 		INSERT INTO Windows_data (Block_ID, Source, Destination, Start, Stop, Frequency, Freq_Priority, Schedule_Priority, Ground_Priority, Service_Level) VALUES 
 		({aWin.ID},""{aWin.source}"",""{aWin.destination}"",{aWin.start},{aWin.stop},""{aWin.frequency}"", {aWin.Freq_Priority}, {aWin.Schedule_Priority}, {aWin.Ground_Priority}, {scenario.users[aWin.source].serviceLevel})";
                 command.ExecuteNonQuery();
-            }
+            }*/
             //if (!(scenario.aWinows==null) || !scenario.aWinows.Any(x=>x.ID==aWin.ID))
             if (scenario.windows == null)
                 windList.Add(aWin);
             else if (scenario.windows.Any(x => x.ID == aWin.ID))
                 windList.Add(aWin);
         }
-        if (!fileExists)
+       /* if (!fileExists)
         {
             var command = connection.CreateCommand();
             command.CommandText = "COMMIT;";
             command.ExecuteNonQuery();
             connection.Close();
-        }
+        }*/
         scenario.windows = windList.OrderBy(s => s.Schedule_Priority).ThenBy(s => s.Ground_Priority).ThenBy(s => s.Freq_Priority).ThenBy(s => s.start).ToList();
         string debugJson = JsonConvert.SerializeObject(scenario.users, Formatting.Indented);
-        DBReader.output.write("PreDFSUsers.txt", debugJson);
+        //DBReader.output.write("PreDFSUsers.txt", debugJson);
         string sortWind = JsonConvert.SerializeObject(scenario.windows, Formatting.Indented);
-        DBReader.output.write("sortedWindows.txt", sortWind);
+        //DBReader.output.write("sortedWindows.txt", sortWind);
         Debug.Log("Generated all the windows");
         List<int> dividers = new List<int>();
         string curDivUser = "";
@@ -903,14 +903,14 @@ public static class ScheduleStructGenerator
             string print = JsonUtility.ToJson(printWindow, true);
             Debug.Log(print);
         }*/
-        connection.Close();
+       // connection.Close();
         yield return new WaitForSeconds(0.001f);
         
         yield return ScheduleStructGenerator.createConflictList(date, dividers);
         Debug.Log("generated conflict list.....");
         scenario.windows = scenario.windows.OrderBy(s => s.Schedule_Priority).ThenBy(s => s.Ground_Priority).ThenBy(s => s.Freq_Priority).ThenBy(s => s.start).ToList();
         yield return new WaitForSeconds(0.5f);
-        ScheduleStructGenerator.genDBNoJSON(missionStructure, date, "cut1Windows");
+        //ScheduleStructGenerator.genDBNoJSON(missionStructure, date, "cut1Windows");
         Debug.Log("genDBNoJSON");
         yield return new WaitForSeconds(0.5f);
        // ScheduleStructGenerator.createConflictList(date);
@@ -920,10 +920,10 @@ public static class ScheduleStructGenerator
         ScheduleStructGenerator.doDFS(date);
         Debug.Log("Did DFS.....");
         yield return new WaitForSeconds(0.5f);
-        Debug.Log(DBReader.output.getClean("PostDFSUsers.txt"));
-        System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 30 2");
+        //Debug.Log(DBReader.output.getClean("PostDFSUsers.txt"));
+        //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PostDFSUsers.txt")} {DBReader.output.get("PostDFSUsers", "png")} 0 30 2");
         //System.Diagnostics.Process.Start(DBReader.apps.heatmap, $"{DBReader.output.getClean("PreDFSUsers.txt")} {DBReader.output.get("PreDFSUsers", "png")} 0 1 6");
-        System.Diagnostics.Process.Start(DBReader.apps.schedGen, $"{DBReader.output.get("ScheduleCSV", "csv")} source destination 0 30 {DBReader.output.get("sched", "png")} 0");
+        //System.Diagnostics.Process.Start(DBReader.apps.schedGen, $"{DBReader.output.get("ScheduleCSV", "csv")} source destination 0 30 {DBReader.output.get("sched", "png")} 0");
         Debug.Log("generated diagrams.....");
         yield return new WaitForSeconds(0.5f);
         
