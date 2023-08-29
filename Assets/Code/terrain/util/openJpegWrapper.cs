@@ -50,7 +50,6 @@ public static class openJpegWrapper {
             }
         }
 
-
         int[] formatted = new int[nrows * ncols];
         Buffer.BlockCopy(data, 0, formatted, 0, data.Length);
 
@@ -58,6 +57,7 @@ public static class openJpegWrapper {
         openjpeg_openjp2_opj_destroy_codec(codec);
         openjpeg_openjp2_opj_stream_destroy(stream);
         openjpeg_openjp2_opj_image_t_destroy(raw);
+        openjpeg_openjp2_opj_dparameters_t_delete(dparam);
         // TODO: if there is a memory leak, maybe it is coming from here?
 
         return formatted;
@@ -90,6 +90,7 @@ public static class openJpegWrapper {
     [DllImport(lib, CallingConvention = ccon)] private static extern void openjpeg_openjp2_opj_destroy_codec(IntPtr p_codec);
     [DllImport(lib, CallingConvention = ccon)] private static extern void openjpeg_openjp2_opj_stream_destroy(IntPtr p_stream);
     [DllImport(lib, CallingConvention = ccon)] private static extern void openjpeg_openjp2_opj_image_t_destroy(IntPtr image);
+    [DllImport(lib, CallingConvention = ccon)] private static extern void openjpeg_openjp2_opj_dparameters_t_delete(IntPtr dparam);
     [DllImport(lib, CallingConvention = ccon)] [return: MarshalAs(UnmanagedType.U1)] private static extern bool openjpeg_openjp2_opj_setup_decoder(IntPtr p_codec, IntPtr parameters);
     [DllImport(lib, CallingConvention = ccon)] [return: MarshalAs(UnmanagedType.U1)] private static extern bool openjpeg_openjp2_opj_codec_set_threads(IntPtr p_codec, int num_threads);
     [DllImport(lib, CallingConvention = ccon)] [return: MarshalAs(UnmanagedType.U1)] private static extern bool openjpeg_openjp2_opj_read_header(IntPtr p_stream, IntPtr p_codec, out IntPtr p_image);

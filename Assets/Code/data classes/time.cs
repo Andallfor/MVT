@@ -108,8 +108,6 @@ public class Time
 
         double JDN = 367 * Y - (int)((7 * (Y + (int)((M + 9) / 12.0))) / 4.0) + (int)((275 * M) / 9.0) + D + 1721013.5 +
           (H + Min / 60.0 + S / Math.Pow(60, 2)) / 24.0 - 0.5 * copySign(1, (100 * Y + M - 190002.5)) + 0.5;
-        Debug.Log(Y);
-        Debug.Log(JDN);
         return JDN;
     }
 
