@@ -65,7 +65,7 @@ public class controller : MonoBehaviour
 
         yield return null;
 
-        master.setReferenceFrame(master.allPlanets.First(x => x.name == "Earth"));
+        master.setReferenceFrame(master.allPlanets.First(x => x.name == "Luna"));
 
         master.markStartOfSimulation();
         modeController.initialize();
@@ -83,7 +83,7 @@ public class controller : MonoBehaviour
         yield return null;
         loadingController.addPercent(1);
 
-        terrainBenchmarking.init();
+        //terrainBenchmarking.init();
     }
 
 #if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL

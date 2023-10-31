@@ -47,6 +47,12 @@ public class poleTerrain {
 
     private async void generateScale(int scale) {
         if (!planetFocus.instance.lunarTerrainFilesExist) return;
+
+        Stopwatch total = new Stopwatch();
+        total.Start();
+        
+        long nPoints = 0;
+
         currentlyDrawing = true;
         savedPositions = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, long[]>>>(
             File.ReadAllText(Path.Combine(scaleKey[scale], "data.json")));
@@ -59,6 +65,7 @@ public class poleTerrain {
 
             files.Enqueue(file);
             totalFiles++;
+            nPoints += savedPositions[Path.GetFileNameWithoutExtension(file)]["count"][0];
         }
 
         // load data in batches
@@ -100,6 +107,11 @@ public class poleTerrain {
         }
 
         currentlyDrawing = false;
+
+        total.Stop();
+        UnityEngine.Debug.Log("Total time: " + total.ElapsedMilliseconds);
+        UnityEngine.Debug.Log("Total Points: " + nPoints);
+        UnityEngine.Debug.Log("Total Points Per Ms: " + ((double) nPoints / (double) total.ElapsedMilliseconds));
     }
 
     private void saveMeshes(int scale, string srcFolder, string output) {
