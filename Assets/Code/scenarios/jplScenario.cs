@@ -132,6 +132,7 @@ public class jplScenario : IScenario {
         master.relationshipSatellite[earth] = earthSats;
         master.relationshipSatellite[moon] = moonSats;
         master.relationshipFacility[earth] = earthfacs;
+        master.relationshipPlanet[earth] = new List<planet>() {moon};
 
         metadata.timeStart = startTime;
         metadata.importantBodies = new Dictionary<string, body>() {
