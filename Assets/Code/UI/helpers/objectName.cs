@@ -230,7 +230,7 @@ public class objectName {
             return 1;
         });
 
-        // TODO: i fucking give up fuck this shit i hate it so much it works barely so im not fucking touching this anymore
+        // i dislike this part. a lot
         List<string> seen = new List<string>();
 
         // iterate backwards because we remove values and dont want to have to offset index
