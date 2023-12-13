@@ -5,9 +5,9 @@ using System.IO;
 using System;
 
 public abstract class IUniversalTerrainFile<T> where T : IMesh, new() {
-    protected string dataPath {get; private set;}
-    protected string metadataPath {get; private set;}
-    protected string folderPath {get; private set;}
+    public string dataPath {get; private set;}
+    public string metadataPath {get; private set;}
+    public string folderPath {get; private set;}
     public double cellSize {get; private set;}
     public double nrows {get; private set;}
     public double ncols {get; private set;}
