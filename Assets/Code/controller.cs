@@ -44,7 +44,7 @@ public class controller : MonoBehaviour
     IEnumerator start() {
         yield return null;
         master.sun = new planet("Sun", new planetData(695700, rotationType.none, "CSVS/sun", 0.0416666665, planetType.planet), new representationData("planet", "sunTex"));
-        yield return StartCoroutine(web.initialize());
+        //yield return StartCoroutine(web.initialize());
 
         loadingController.addPercent(0.1f);
         yield return new WaitForSeconds(0.1f);
@@ -65,7 +65,7 @@ public class controller : MonoBehaviour
 
         yield return null;
 
-        master.setReferenceFrame(master.allPlanets.First(x => x.name == "Earth"));
+        master.setReferenceFrame(master.allPlanets.First(x => x.name == "Luna"));
 
         master.markStartOfSimulation();
         modeController.initialize();
@@ -78,10 +78,12 @@ public class controller : MonoBehaviour
         startMainLoop();
         master.pause = false;
 
-        defaultMode.instance.runIntroAnimation();
+        //defaultMode.instance.runIntroAnimation();
 
         yield return null;
         loadingController.addPercent(1);
+
+        //terrainBenchmarking.init();
     }
 
 #if (UNITY_EDITOR || UNITY_STANDALONE) && !UNITY_WEBGL

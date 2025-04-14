@@ -1,0 +1,99 @@
+npoints: 167944119
+ele_ASF_avg: 204m
+ele_ASF_std: 90.8479992269586
+ele_bgs_avg: 4m
+ele_bgs_std: 13.5542012834111
+ele_glc_avg: 302m
+ele_glc_std: 154.583789901478
+ele_hbk_avg: 1414m
+ele_hbk_std: 128.272144194011
+ele_kir_avg: 362m
+ele_kir_std: 55.0693690121696
+ele_mg_avg: 19m
+ele_mg_std: 47.9301630601704
+ele_pa_avg: 93m
+ele_pa_std: 129.046904115366
+ele_SA_avg: 888m
+ele_SA_std: 347.590341304406
+ele_sg_avg: 188m
+ele_sg_std: 245.207420844902
+ele_sing_avg: 22m
+ele_sing_std: 16.9854313826545
+ele_tr_avg: 1373m
+ele_tr_std: 67.1238983115903
+ele_usa_avg: 211m
+ele_usa_std: 111.322627660814
+ele_usd_avg: 235m
+ele_usd_std: 40.3231429140069
+ele_ush_avg: 329m
+ele_ush_std: 527.720850006159
+ele_wg_avg: 3m
+ele_wg_std: 4.85021826625404
+ele_ws_avg: 1530m
+ele_ws_std: 196.6373931076
+t_no_mesh_ASF: 77ms
+npoints_ASF: 8876882
+speed_no_mesh_ASF: 115284 points per ms
+t_no_mesh_bgs: 46ms
+npoints_bgs: 4754016
+speed_no_mesh_bgs: 103348 points per ms
+t_no_mesh_glc: 398ms
+npoints_glc: 55704504
+speed_no_mesh_glc: 139961 points per ms
+t_no_mesh_hbk: 8ms
+npoints_hbk: 465840
+speed_no_mesh_hbk: 58230 points per ms
+t_no_mesh_kir: 16ms
+npoints_kir: 1110899
+speed_no_mesh_kir: 69431 points per ms
+t_no_mesh_mg: 35ms
+npoints_mg: 1988231
+speed_no_mesh_mg: 56806 points per ms
+t_no_mesh_pa: 11ms
+npoints_pa: 698113
+speed_no_mesh_pa: 63464 points per ms
+t_no_mesh_SA: 12ms
+npoints_SA: 500131
+speed_no_mesh_SA: 41677 points per ms
+t_no_mesh_sg: 35ms
+npoints_sg: 2053578
+speed_no_mesh_sg: 58673 points per ms
+t_no_mesh_sing: 10ms
+npoints_sing: 418609
+speed_no_mesh_sing: 41860 points per ms
+t_no_mesh_tr: 20ms
+npoints_tr: 1355465
+speed_no_mesh_tr: 67773 points per ms
+t_no_mesh_usa: 378ms
+npoints_usa: 55355016
+speed_no_mesh_usa: 146441 points per ms
+t_no_mesh_usd: 7ms
+npoints_usd: 478780
+speed_no_mesh_usd: 68397 points per ms
+t_no_mesh_ush: 168ms
+npoints_ush: 24930425
+speed_no_mesh_ush: 148395 points per ms
+t_no_mesh_wg: 48ms
+npoints_wg: 4781204
+speed_no_mesh_wg: 99608 points per ms
+t_no_mesh_ws: 51ms
+npoints_ws: 4472426
+speed_no_mesh_ws: 87694 points per ms
+speed_no_mesh_all: 85440 points per ms
+speed_mesh_ASF: [729, 209, 66, 23, 13, 10]ms
+speed_mesh_bgs: [432, 110, 36, 15, 7, 5]ms
+speed_mesh_glc: [4441, 1237, 341, 116, 45, 27]ms
+speed_mesh_hbk: [55, 21, 8, 5, 4, 4]ms
+speed_mesh_kir: [117, 38, 16, 7, 5, 4]ms
+speed_mesh_mg: [194, 53, 19, 9, 5, 5]ms
+speed_mesh_pa: [79, 26, 12, 6, 4, 4]ms
+speed_mesh_SA: [56, 22, 9, 6, 4, 4]ms
+speed_mesh_sg: [200, 56, 21, 9, 5, 4]ms
+speed_mesh_sing: [52, 19, 8, 5, 4, 4]ms
+speed_mesh_tr: [141, 43, 15, 8, 6, 4]ms
+speed_mesh_usa: [4368, 1217, 355, 109, 44, 25]ms
+speed_mesh_usd: [57, 21, 8, 5, 4, 4]ms
+speed_mesh_ush: [2114, 591, 166, 51, 22, 13]ms
+speed_mesh_wg: [466, 134, 39, 17, 8, 5]ms
+speed_mesh_ws: [444, 118, 37, 16, 8, 6]ms
+speed_mesh_all: [871, 244, 72, 25, 11, 8]ms

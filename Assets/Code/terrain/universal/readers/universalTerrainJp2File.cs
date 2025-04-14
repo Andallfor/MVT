@@ -17,15 +17,20 @@ public class universalTerrainJp2File : IUniversalTerrainFile<universalTerrainMes
     private List<Vector2Int> accessCallGrid;
     private Vector2Int generatedStart, generatedEnd;
     private int generatedPower;
+    public string name {get; private set;}
 
     public universalTerrainJp2File(string dataPath, string metadataPath, bool isForAccessCalls = false) :
         base(dataPath, metadataPath, universalTerrainFileSources.jp2) {
         this.isForAccessCalls = isForAccessCalls;
+
+        this.name = Directory.GetParent(dataPath).Name;
     }
 
     public universalTerrainJp2File(string path, bool isForAccessCalls = false) :
         base(Path.Combine(path, "data.jp2"), Path.Combine(path, "metadata.txt"), universalTerrainFileSources.jp2) {
         this.isForAccessCalls = isForAccessCalls;
+
+        this.name = Directory.GetParent(dataPath).Name;
     }
 
     public void consumeAccessCallData() {
